@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Now — 3D CTA Builder</title>
+<meta name="description" content="৩ডি অর্ডার নাউ সিটিএ অ্যানিমেশন — এক্সট্রুডেড বক্স + প্লেট + শেভরন, কোনো গোল আকার নেই — PNG/GIF/WebM এক্সপোর্ট">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;700;800;900&family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-primary:#0a0d0f; --bg-secondary:#0f1316; --bg-card:#151a1d; --bg-card-hover:#1b2124;
+    --border:rgba(255,255,255,0.08); --accent:#ff8a3d; --accent-glow:rgba(255,138,61,0.4);
+    --accent-2:#3aa8ff; --accent-3:#4a9d6e; --text-primary:#f3f1ea; --text-secondary:#9ba3a1;
+    --text-muted:#576260; --radius:16px; --shadow:0 20px 60px rgba(0,0,0,0.6);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Outfit','Noto Sans Bengali',sans-serif;background:var(--bg-primary);color:var(--text-primary);
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 80% 50% at 20% 15%,rgba(255,138,61,0.09) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 85%,rgba(58,168,255,0.08) 0%,transparent 60%);}
+  .app-header{width:100%;padding:22px 32px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);
+    background:rgba(10,13,15,0.85);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+  .header-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),#8a3f1f);
+    clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%);display:flex;align-items:center;justify-content:center;
+    font-size:19px;box-shadow:0 0 20px var(--accent-glow);flex-shrink:0;}
+  .header-text h1{font-size:19px;font-weight:700;background:linear-gradient(135deg,#fff 0%,var(--accent) 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .header-text p{font-size:12.5px;color:var(--text-secondary);margin-top:2px;}
+  .main-content{width:100%;max-width:1260px;padding:36px 24px 80px;display:grid;grid-template-columns:1fr 380px;gap:28px;position:relative;z-index:1;}
+  @media (max-width:960px){.main-content{grid-template-columns:1fr;}}
+  .canvas-panel{display:flex;flex-direction:column;align-items:center;gap:20px;}
+  .canvas-wrapper{width:100%;aspect-ratio:16/9;background:
+    linear-gradient(45deg,#181d20 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,#181d20 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(45deg,transparent 75%,#181d20 75%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,transparent 75%,#181d20 75%) -0px -0px/24px 24px,
+    var(--bg-card);
+    border:1px solid var(--border);border-radius:20px;display:flex;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;box-shadow:var(--shadow);}
+  #sceneCanvas{display:block;max-width:100%;max-height:100%;}
+  .timer-display{display:flex;align-items:center;gap:14px;padding:14px 24px;background:var(--bg-card);
+    border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);width:100%;}
+  .timer-ring-wrap{position:relative;width:50px;height:50px;}
+  .timer-ring-wrap svg{transform:rotate(-90deg);}
+  .timer-ring-bg{fill:none;stroke:rgba(255,255,255,0.07);stroke-width:4;}
+  .timer-ring-fill{fill:none;stroke:url(#ringGradient3);stroke-width:4;stroke-linecap:round;
+    transition:stroke-dashoffset 1s linear;stroke-dasharray:141;stroke-dashoffset:0;}
+  .timer-label-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:700;color:var(--accent);}
+  .timer-text-group{display:flex;flex-direction:column;}
+  .timer-big{font-size:26px;font-weight:800;letter-spacing:-1px;}
+  .timer-sub{font-size:11.5px;color:var(--text-secondary);font-weight:500;}
+  .timer-status{padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;}
+  .timer-status.idle{background:rgba(255,255,255,0.06);color:var(--text-muted);}
+  .timer-status.spinning{background:rgba(255,138,61,0.15);color:var(--accent);}
+  .timer-status.done{background:rgba(74,157,110,0.15);color:var(--accent-3);}
+  .sidebar{display:flex;flex-direction:column;gap:14px;}
+  .control-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+  .card-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-secondary);
+    display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+  .card-title-icon{width:22px;height:22px;background:rgba(255,138,61,0.14);border-radius:6px;display:flex;
+    align-items:center;justify-content:center;font-size:12px;}
+  .form-row{margin-bottom:14px;}
+  .form-row:last-child{margin-bottom:0;}
+  .form-label{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;color:var(--text-secondary);margin-bottom:7px;}
+  .value-badge{background:rgba(255,138,61,0.16);color:var(--accent);padding:1px 8px;border-radius:6px;font-size:11px;font-weight:700;}
+  input[type=text]{width:100%;padding:10px 12px;background:var(--bg-secondary);border:1px solid var(--border);
+    border-radius:9px;color:var(--text-primary);font-size:13.5px;font-family:inherit;}
+  input[type=text]:focus{outline:none;border-color:var(--accent);}
+  input[type=range]{width:100%;accent-color:var(--accent);}
+  input[type=color]{width:100%;height:34px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;}
+  .color-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .lang-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  .lang-btn{padding:9px 6px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;}
+  .lang-btn.active{background:var(--accent);border-color:var(--accent);color:#231a0d;}
+  .toggle-row{display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer;color:var(--text-secondary);margin-bottom:10px;}
+  .toggle-row:last-child{margin-bottom:0;}
+  .preset-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .preset-btn{padding:7px 12px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;}
+  .preset-btn.active{background:var(--accent);border-color:var(--accent);color:#231a0d;}
+  .style-swatch{width:34px;height:34px;border-radius:9px;border:2px solid transparent;cursor:pointer;flex-shrink:0;}
+  .style-swatch.active{border-color:#fff;}
+  .btn-group{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{flex:1;min-width:120px;padding:12px 16px;border:none;border-radius:11px;font-size:13.5px;font-weight:700;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;transition:.15s;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),#a1441f);color:#231a0d;box-shadow:0 8px 20px rgba(255,138,61,0.28);}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-stop{background:rgba(239,68,68,0.15);color:#ef4444;}
+  .btn-stop:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-ghost{background:var(--bg-secondary);color:var(--text-secondary);border:1px solid var(--border);}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-icon">📦</div>
+  <div class="header-text">
+    <h1>Order Now — 3D CTA Builder</h1>
+    <p>এক্সট্রুডেড বক্স + প্লেট + শেভরন বিল্ড অ্যানিমেশন — কোনো গোল আকার নেই — PNG/GIF/WebM এক্সপোর্ট</p>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="canvas-panel">
+    <div class="canvas-wrapper">
+      <canvas id="sceneCanvas" width="1600" height="900"></canvas>
+    </div>
+
+    <div class="timer-display">
+      <div class="timer-ring-wrap">
+        <svg width="50" height="50" viewBox="0 0 50 50">
+          <defs>
+            <linearGradient id="ringGradient3" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#ff8a3d"/><stop offset="100%" stop-color="#3aa8ff"/>
+            </linearGradient>
+          </defs>
+          <circle class="timer-ring-bg" cx="25" cy="25" r="22.5"></circle>
+          <circle class="timer-ring-fill" id="timerRing" cx="25" cy="25" r="22.5"></circle>
+        </svg>
+        <div class="timer-label-inner" id="timerPercent">—</div>
+      </div>
+      <div class="timer-text-group">
+        <div class="timer-big" id="timerBig">00:00</div>
+        <div class="timer-sub" id="timerSub">সময় বাকি</div>
+      </div>
+      <div class="timer-status idle" id="timerStatus" style="margin-left:auto;">প্রস্তুত</div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🌐</div>ভাষা প্রিসেট</div>
+      <div class="lang-row">
+        <button class="lang-btn" onclick="applyLanguage('bn',this)">বাংলা</button>
+        <button class="lang-btn active" onclick="applyLanguage('en',this)">English</button>
+        <button class="lang-btn" onclick="applyLanguage('both',this)">উভয়</button>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">✏️</div>টেক্সট</div>
+      <div class="form-row">
+        <label class="form-label">এয়ারব্রো (উপরে)</label>
+        <input type="text" id="subText" value="LIMITED TIME OFFER">
+      </div>
+      <div class="form-row">
+        <label class="form-label">মূল শব্দ</label>
+        <input type="text" id="mainText" value="ORDER NOW">
+      </div>
+      <div class="form-row">
+        <label class="form-label">ট্যাগলাইন (নিচে)</label>
+        <input type="text" id="tagline" value="FREE DELIVERY TODAY">
+      </div>
+      <div class="form-row">
+        <label class="form-label">ব্যাজ (বক্সের কোণায়)</label>
+        <input type="text" id="badgeText" value="NEW">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎨</div>রং</div>
+      <div class="color-grid">
+        <div class="form-row"><label class="form-label">প্লেট রং</label><input type="color" id="plaqueColor" value="#1c2b4a"></div>
+        <div class="form-row"><label class="form-label">বক্স রং</label><input type="color" id="boxColor" value="#c97b3d"></div>
+        <div class="form-row"><label class="form-label">টেক্সট রং</label><input type="color" id="textColor" value="#ffffff"></div>
+        <div class="form-row"><label class="form-label">অ্যাক্সেন্ট / শেভরন</label><input type="color" id="accentColor" value="#ffb020"></div>
+      </div>
+      <div class="preset-row" style="margin-top:4px;" id="stylePresets">
+        <div class="style-swatch active" style="background:linear-gradient(135deg,#1c2b4a,#ffb020)" onclick="applyStyle('sunsetGold',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#7a1620,#ffd23f)" onclick="applyStyle('saleRed',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#123524,#7ed957)" onclick="applyStyle('ecoGreen',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#0d0d0f,#d4af37)" onclick="applyStyle('luxuryBlack',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#241238,#c86bff)" onclick="applyStyle('neonPurple',this)"></div>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🔺</div>শেপ (৩ডি ব্লক)</div>
+      <div class="form-row">
+        <label class="form-label">প্লেটের আকার <span class="value-badge" id="sizeBadge">95%</span></label>
+        <input type="range" id="plaqueSize" min="60" max="120" step="1" value="95">
+      </div>
+      <div class="form-row">
+        <label class="form-label">৩ডি এক্সট্রুশন গভীরতা <span class="value-badge" id="depthBadge">24</span></label>
+        <input type="range" id="blockDepth" min="8" max="40" step="1" value="24">
+      </div>
+      <div class="form-row">
+        <label class="form-label">বক্স স্পিন গতি <span class="value-badge" id="spinBadge">50</span></label>
+        <input type="range" id="rotSpeed" min="0" max="100" step="1" value="50">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎬</div>অ্যানিমেশন</div>
+      <div class="toggle-row"><input type="checkbox" id="buildToggle" checked>বক্স + প্লেট বিল্ড অ্যানিমেশন</div>
+      <div class="toggle-row"><input type="checkbox" id="rotateToggle" checked>বক্স ৩ডি স্পিন (কোনো গোল আকার নয়)</div>
+      <div class="toggle-row"><input type="checkbox" id="sweepToggle" checked>প্লেটে লাইট সুইপ</div>
+      <div class="toggle-row"><input type="checkbox" id="idleToggle" checked>আইডল ভাসমান নড়াচড়া</div>
+      <div class="toggle-row"><input type="checkbox" id="arrowToggle" checked>শেভরন CTA অ্যারো</div>
+      <div class="form-row">
+        <label class="form-label">সময়কাল</label>
+        <div class="preset-row">
+          <button class="preset-btn" onclick="setDuration(5,this)">5s</button>
+          <button class="preset-btn" onclick="setDuration(10,this)">10s</button>
+          <button class="preset-btn active" onclick="setDuration(30,this)">30s</button>
+          <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:10px;">
+        <label class="toggle-row" style="margin:0;"><input type="checkbox" id="loopToggle" checked>সবসময় লুপ চলবে</label>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" id="startBtn" onclick="startAnim()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg> শুরু
+      </button>
+      <button class="btn btn-stop" id="stopBtn" onclick="stopAnim()" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg> বন্ধ
+      </button>
+    </div>
+    <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট</button>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+      <div class="toggle-row"><input type="checkbox" id="transparentToggle" checked>PNG ট্রান্সপারেন্ট ব্যাকগ্রাউন্ড</div>
+      <div class="form-row" id="exportBgRow" style="display:none;">
+        <label class="form-label">GIF/ভিডিও ব্যাকগ্রাউন্ড রং</label>
+        <input type="color" id="exportBgColor" value="#0a0d0f">
+      </div>
+      <p style="font-size:11.5px;color:var(--text-muted);margin:2px 0 12px;line-height:1.55;">
+        PNG ট্রান্সপারেন্ট থাকে (ভিডিও এডিটরে সরাসরি ওভারলে করা যাবে)। GIF ও ভিডিও একটি ব্যাকগ্রাউন্ড রং সহ এক্সপোর্ট হয়।
+      </p>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="downloadPng()">PNG</button>
+        <button class="btn btn-primary" onclick="downloadGif()">GIF</button>
+        <button class="btn btn-primary" onclick="downloadVideo()">ভিডিও (WebM)</button>
+      </div>
+      <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   ORDER NOW — 3D CTA BUILD ENGINE
+   Straight-edged extruded ("iso-block") 3D shapes only —
+   no circles/arcs anywhere in the artwork itself.
+   Box "rotation" is faked with straight-edge geometry
+   (extrusion offset + face-width modulation), not a circle.
+===================================================== */
+
+const canvas = document.getElementById('sceneCanvas');
+const ctx = canvas.getContext('2d');
+const CW = canvas.width, CH = canvas.height;
+
+// === STATE ===
+let sweepPhase = 0, idlePhase = 0, buildP = 0, rotPhase = 0, arrowPhase = 0;
+let isSpinning = false, animFrame = null, lastTimestamp = null;
+let totalDurationMs = 30000, startTime = null, isExporting = false;
+
+// === LANGUAGE PRESETS ===
+const languagePresets = {
+  bn: { subText: 'সীমিত সময়ের অফার', mainText: 'অর্ডার করুন', tagline: 'আজই ফ্রি ডেলিভারি', badgeText: 'নতুন' },
+  en: { subText: 'LIMITED TIME OFFER', mainText: 'ORDER NOW', tagline: 'FREE DELIVERY TODAY', badgeText: 'NEW' },
+  both: { subText: 'LIMITED OFFER / সীমিত অফার', mainText: 'ORDER NOW / অর্ডার করুন', tagline: 'FREE DELIVERY / ফ্রি ডেলিভারি', badgeText: 'NEW' },
+};
+function applyLanguage(lang, btnEl) {
+  const p = languagePresets[lang]; if (!p) return;
+  document.getElementById('subText').value = p.subText;
+  document.getElementById('mainText').value = p.mainText;
+  document.getElementById('tagline').value = p.tagline;
+  document.getElementById('badgeText').value = p.badgeText;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  if (!isSpinning) drawFrame();
+}
+
+// === STYLE PRESETS ===
+const stylePresets = {
+  sunsetGold:  { plaqueColor:'#1c2b4a', boxColor:'#c97b3d', accentColor:'#ffb020', textColor:'#ffffff' },
+  saleRed:     { plaqueColor:'#7a1620', boxColor:'#3d2418', accentColor:'#ffd23f', textColor:'#fff5e6' },
+  ecoGreen:    { plaqueColor:'#123524', boxColor:'#8a5a34', accentColor:'#7ed957', textColor:'#eafff0' },
+  luxuryBlack: { plaqueColor:'#0d0d0f', boxColor:'#2a2a2e', accentColor:'#d4af37', textColor:'#f5e9c9' },
+  neonPurple:  { plaqueColor:'#241238', boxColor:'#4a2a5c', accentColor:'#c86bff', textColor:'#f3e8ff' },
+};
+function applyStyle(name, el) {
+  const s = stylePresets[name]; if (!s) return;
+  document.getElementById('plaqueColor').value = s.plaqueColor;
+  document.getElementById('boxColor').value = s.boxColor;
+  document.getElementById('accentColor').value = s.accentColor;
+  document.getElementById('textColor').value = s.textColor;
+  document.querySelectorAll('.style-swatch').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  drawFrame();
+}
+
+// === SETTINGS ===
+function getSettings() {
+  return {
+    subText: document.getElementById('subText').value || '',
+    mainText: document.getElementById('mainText').value || '',
+    tagline: document.getElementById('tagline').value || '',
+    badgeText: document.getElementById('badgeText').value || '',
+    plaqueColor: document.getElementById('plaqueColor').value,
+    boxColor: document.getElementById('boxColor').value,
+    textColor: document.getElementById('textColor').value,
+    accentColor: document.getElementById('accentColor').value,
+    plaqueSizePct: parseInt(document.getElementById('plaqueSize').value) || 95,
+    blockDepth: parseInt(document.getElementById('blockDepth').value) || 24,
+    rotSpeed: parseInt(document.getElementById('rotSpeed').value) || 50,
+    showBuild: document.getElementById('buildToggle').checked,
+    showRotate: document.getElementById('rotateToggle').checked,
+    showSweep: document.getElementById('sweepToggle').checked,
+    showIdle: document.getElementById('idleToggle').checked,
+    showArrow: document.getElementById('arrowToggle').checked,
+  };
+}
+
+// === COLOR HELPERS ===
+function hexToRgb(hex) {
+  hex = hex.replace('#', '');
+  return { r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16) };
+}
+function hexToRgba(hex, a) { const {r,g,b} = hexToRgb(hex); return `rgba(${r},${g},${b},${a})`; }
+function mix(hexA, hexB, t) {
+  const a = hexToRgb(hexA), b = hexToRgb(hexB);
+  return `rgb(${Math.round(a.r+(b.r-a.r)*t)},${Math.round(a.g+(b.g-a.g)*t)},${Math.round(a.b+(b.b-a.b)*t)})`;
+}
+function lighten(hex, amt) { const {r,g,b} = hexToRgb(hex); return `rgb(${Math.min(255,r+amt)},${Math.min(255,g+amt)},${Math.min(255,b+amt)})`; }
+function darken(hex, amt) { const {r,g,b} = hexToRgb(hex); return `rgb(${Math.max(0,r-amt)},${Math.max(0,g-amt)},${Math.max(0,b-amt)})`; }
+
+// === EASING ===
+function clamp01(t) { return Math.max(0, Math.min(1, t)); }
+function remap(t, a, b) { return clamp01((t - a) / (b - a)); }
+function smoothstep(t) { return t * t * (3 - 2 * t); }
+function easeOutBack(t) {
+  const c1 = 1.70158, c3 = c1 + 1;
+  return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+}
+function easeOutBounce(t) {
+  const n1 = 7.5625, d1 = 2.75;
+  if (t < 1 / d1) return n1 * t * t;
+  if (t < 2 / d1) return n1 * (t -= 1.5 / d1) * t + 0.75;
+  if (t < 2.5 / d1) return n1 * (t -= 2.25 / d1) * t + 0.9375;
+  return n1 * (t -= 2.625 / d1) * t + 0.984375;
+}
+
+// === GEOMETRY PRIMITIVES: straight-edged extruded blocks only ===
+function drawBlock(front, top, side, x, y, w, h, ox, oy) {
+  if (w <= 0 || h <= 0) return;
+  ctx.fillStyle = top;
+  ctx.beginPath();
+  ctx.moveTo(x, y); ctx.lineTo(x + ox, y + oy); ctx.lineTo(x + w + ox, y + oy); ctx.lineTo(x + w, y);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = side;
+  ctx.beginPath();
+  ctx.moveTo(x + w, y); ctx.lineTo(x + w + ox, y + oy); ctx.lineTo(x + w + ox, y + oy + h); ctx.lineTo(x + w, y + h);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = front;
+  ctx.fillRect(x, y, w, h);
+}
+
+// Straight-edged right-pointing chevron (three straight lines, no curves)
+function drawChevron(cx, cy, size, color, alpha, thickness) {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = thickness;
+  ctx.lineJoin = 'miter';
+  ctx.lineCap = 'square';
+  ctx.beginPath();
+  ctx.moveTo(cx - size * 0.5, cy - size * 0.7);
+  ctx.lineTo(cx + size * 0.5, cy);
+  ctx.lineTo(cx - size * 0.5, cy + size * 0.7);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawChevronRow(cx, cy, size, gap, color, phase) {
+  for (let i = 0; i < 3; i++) {
+    const t = ((phase + i * 0.33) % 1 + 1) % 1;
+    const alpha = smoothstep(remap(t, 0, 0.15)) * (1 - smoothstep(remap(t, 0.75, 1)));
+    const x = cx + (i - 1) * gap;
+    drawChevron(x, cy, size, color, 0.25 + alpha * 0.75, size * 0.16);
+  }
+}
+
+// Soft straight-edged drop shadow (blurred rect) beneath a group
+function drawGroundShadow(cxShadow, y, w, alpha) {
+  ctx.save();
+  ctx.shadowColor = `rgba(0,0,0,${alpha})`;
+  ctx.shadowBlur = w * 0.18;
+  ctx.fillStyle = 'rgba(0,0,0,0.001)';
+  ctx.fillRect(cxShadow - w / 2, y - w * 0.05, w, w * 0.1);
+  ctx.restore();
+}
+
+function fitFont(text, weight, family, maxWidth, startSize, minSize) {
+  let size = startSize;
+  ctx.font = `${weight} ${size}px ${family}`;
+  while (ctx.measureText(text).width > maxWidth && size > minSize) {
+    size -= 2;
+    ctx.font = `${weight} ${size}px ${family}`;
+  }
+  return size;
+}
+
+// === MAIN DRAW ===
+function drawFrame(opts) {
+  opts = opts || {};
+  const w = canvas.width, h = canvas.height;
+  const s = getSettings();
+  const groundY = h * 0.80;
+
+  ctx.clearRect(0, 0, w, h);
+  if (opts.solidBg) { ctx.fillStyle = opts.bgColor || '#0a0d0f'; ctx.fillRect(0, 0, w, h); }
+
+  // --- build progress splits ---
+  const boxP  = s.showBuild ? smoothstep(remap(buildP, 0, 0.45)) : 1;
+  const plaqP = s.showBuild ? smoothstep(remap(buildP, 0.25, 0.75)) : 1;
+  const arrP  = s.showBuild ? smoothstep(remap(buildP, 0.55, 1.0)) : 1;
+  const boxBounce = s.showBuild ? easeOutBounce(remap(buildP, 0, 0.45)) : 1;
+  const plaqBack = s.showBuild ? easeOutBack(remap(buildP, 0.25, 0.8)) : 1;
+
+  const idleBob = s.showIdle ? Math.sin(idlePhase) * 8 : 0;
+  const idleBob2 = s.showIdle ? Math.sin(idlePhase * 1.3 + 1.4) * 6 : 0;
+
+  const ext = (s.blockDepth) * (w / 1600);
+  const ox = ext * 0.62, oy = -ext * 0.62;
+
+  // === GROUND SHADOWS ===
+  drawGroundShadow(w * 0.28, groundY + 4, w * 0.20, 0.35);
+  drawGroundShadow(w * 0.63, groundY + 4, w * 0.40 * (s.plaqueSizePct / 100), 0.4);
+
+  // === PACKAGE BOX (left, faked 3D spin, straight edges only) ===
+  if (boxP > 0.001) {
+    const boxBaseW = w * 0.16, boxBaseH = boxBaseW * 0.9;
+    const spinT = s.showRotate ? rotPhase * (0.3 + s.rotSpeed / 60) : 0;
+    // fake rotation: face width breathes via cosine, extrusion offset flips sign at the far side
+    const spinCos = Math.cos(spinT);
+    const faceScale = 0.55 + 0.45 * Math.abs(spinCos);
+    const flip = spinCos < 0 ? -1 : 1;
+    const boxW = boxBaseW * faceScale * boxP;
+    const boxH = boxBaseH * boxP;
+    const boxOx = ox * flip * (0.6 + 0.4 * faceScale);
+    const boxOy = oy;
+
+    const bx = w * 0.235 - boxW / 2;
+    const by = groundY - (h * 0.30) * boxBounce - boxH - idleBob;
+
+    const boxFront = s.boxColor;
+    const boxTop = lighten(s.boxColor, 34);
+    const boxSide = darken(s.boxColor, 36);
+    drawBlock(boxFront, boxTop, boxSide, bx, by, boxW, boxH, boxOx, boxOy);
+
+    // tape cross (straight strips, no curves)
+    if (boxW > 4 && boxH > 4) {
+      ctx.save();
+      ctx.globalAlpha = 0.85;
+      ctx.fillStyle = hexToRgba(s.accentColor, 0.9);
+      const tapeW = Math.max(2, boxW * 0.14);
+      ctx.fillRect(bx + boxW / 2 - tapeW / 2, by, tapeW, boxH);
+      ctx.fillRect(bx, by + boxH * 0.42, boxW, Math.max(2, boxH * 0.12));
+      ctx.restore();
+    }
+
+    // corner badge (straight-edged square tag)
+    if (s.badgeText && boxP > 0.6) {
+      const badgeA = smoothstep(remap(boxP, 0.6, 1));
+      ctx.save();
+      ctx.globalAlpha = badgeA;
+      const bw = Math.max(40, boxBaseW * 0.34), bh = bw * 0.42;
+      const bx2 = bx + boxW + boxOx - bw * 0.35;
+      const by2 = by + boxOy - bh * 0.5;
+      ctx.fillStyle = s.accentColor;
+      ctx.fillRect(bx2, by2, bw, bh);
+      ctx.fillStyle = '#1a1a1a';
+      const fs = fitFont(s.badgeText, 800, "'Outfit'", bw * 0.86, bh * 0.62, 10);
+      ctx.font = `800 ${fs}px 'Outfit','Noto Sans Bengali'`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(s.badgeText, bx2 + bw / 2, by2 + bh / 2 + 1);
+      ctx.restore();
+    }
+  }
+
+  // === CHEVRON CTA ARROW (between box and plaque) ===
+  if (s.showArrow && arrP > 0.001) {
+    ctx.save();
+    ctx.globalAlpha = arrP;
+    const acx = w * 0.435, acy = groundY - h * 0.17 - idleBob2 * 0.5;
+    drawChevronRow(acx, acy, 34 * (w / 1600), 46 * (w / 1600), s.accentColor, arrowPhase);
+    ctx.restore();
+  }
+
+  // === MAIN CTA PLAQUE (right, extruded block with text) ===
+  if (plaqP > 0.001) {
+    const pw = w * 0.42 * (s.plaqueSizePct / 100);
+    const ph = h * 0.34 * (s.plaqueSizePct / 100);
+    const px = w * 0.60 - pw / 2;
+    const riseOffset = (1 - plaqBack) * h * 0.35;
+    const py = groundY - ph + riseOffset - idleBob;
+
+    const plaqueFront = s.plaqueColor;
+    const plaqueTop = lighten(s.plaqueColor, 26);
+    const plaqueSide = darken(s.plaqueColor, 30);
+    ctx.save();
+    ctx.globalAlpha = plaqP;
+    drawBlock(plaqueFront, plaqueTop, plaqueSide, px, py, pw, ph, ox, oy);
+
+    // accent baseboard strip along the bottom of the front face
+    ctx.fillStyle = hexToRgba(s.accentColor, 0.9);
+    ctx.fillRect(px, py + ph - ph * 0.06, pw, ph * 0.06);
+
+    // light sweep across the front face
+    if (s.showSweep) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(px, py, pw, ph);
+      ctx.clip();
+      const sweepX = px + ((Math.sin(sweepPhase) + 1) / 2) * (pw * 1.6) - pw * 0.3;
+      const grad = ctx.createLinearGradient(sweepX - pw * 0.18, py, sweepX + pw * 0.18, py + ph);
+      grad.addColorStop(0, 'rgba(255,255,255,0)');
+      grad.addColorStop(0.5, 'rgba(255,255,255,0.16)');
+      grad.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(px, py, pw, ph);
+      ctx.restore();
+    }
+
+    // text: subText / mainText / tagline stacked on the front face
+    ctx.textAlign = 'center';
+    const cx = px + pw / 2;
+    const padX = pw * 0.08;
+    const maxW = pw - padX * 2;
+
+    const subSize = fitFont(s.subText, 600, "'Outfit'", maxW, ph * 0.11, 10);
+    ctx.font = `600 ${subSize}px 'Outfit','Noto Sans Bengali'`;
+    ctx.fillStyle = hexToRgba(s.textColor, 0.72);
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText(s.subText, cx, py + ph * 0.24);
+
+    const mainSize = fitFont(s.mainText, 800, "'Fraunces'", maxW, ph * 0.30, 16);
+    ctx.font = `800 ${mainSize}px 'Fraunces','Noto Sans Bengali'`;
+    ctx.fillStyle = s.textColor;
+    ctx.fillText(s.mainText, cx, py + ph * 0.56);
+
+    const tagSize = fitFont(s.tagline, 600, "'Outfit'", maxW, ph * 0.105, 10);
+    ctx.font = `600 ${tagSize}px 'Outfit','Noto Sans Bengali'`;
+    ctx.fillStyle = hexToRgba(s.accentColor, 0.95);
+    ctx.fillText(s.tagline, cx, py + ph * 0.78);
+
+    ctx.restore();
+  }
+}
+
+// === ANIMATION LOOP ===
+function updateTimerUI(elapsedMs) {
+  const remainMs = Math.max(0, totalDurationMs - elapsedMs);
+  const totalSec = Math.ceil(remainMs / 1000);
+  const mm = String(Math.floor(totalSec / 60)).padStart(2, '0');
+  const ss = String(totalSec % 60).padStart(2, '0');
+  document.getElementById('timerBig').textContent = `${mm}:${ss}`;
+  const pct = clamp01(elapsedMs / totalDurationMs);
+  document.getElementById('timerPercent').textContent = Math.round(pct * 100) + '%';
+  document.getElementById('timerRing').style.strokeDashoffset = String(141 * (1 - pct));
+}
+function resetTimerUI() {
+  document.getElementById('timerBig').textContent = `00:${String(Math.round(totalDurationMs/1000)).padStart(2,'0')}`;
+  document.getElementById('timerPercent').textContent = '—';
+  document.getElementById('timerRing').style.strokeDashoffset = '0';
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status idle'; st.textContent = 'প্রস্তুত';
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+}
+
+function animationLoop(ts) {
+  if (!isSpinning) return;
+  if (lastTimestamp === null) lastTimestamp = ts;
+  const dt = ts - lastTimestamp;
+  lastTimestamp = ts;
+  const elapsedMs = ts - startTime;
+
+  sweepPhase += dt * 0.0012;
+  idlePhase += dt * 0.0016;
+  rotPhase += dt * 0.0022;
+  arrowPhase += dt * 0.0009;
+  buildP = clamp01(elapsedMs / (totalDurationMs * 0.5));
+
+  drawFrame();
+  updateTimerUI(elapsedMs);
+
+  if (elapsedMs >= totalDurationMs) {
+    if (document.getElementById('loopToggle').checked) {
+      startTime = ts; buildP = 0;
+    } else {
+      finishAnim();
+      return;
+    }
+  }
+  animFrame = requestAnimationFrame(animationLoop);
+}
+
+function startAnim() {
+  if (isSpinning) return;
+  isSpinning = true;
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status spinning'; st.textContent = '▶ চলছে';
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+  animFrame = requestAnimationFrame(ts => { startTime = ts; lastTimestamp = ts; animationLoop(ts); });
+}
+function stopAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status idle'; st.textContent = '⏸ থামানো হয়েছে';
+  drawFrame();
+}
+function finishAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  document.getElementById('timerBig').textContent = '00:00';
+  document.getElementById('timerPercent').textContent = '100%';
+  document.getElementById('timerRing').style.strokeDashoffset = '0';
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status done'; st.textContent = '✅ সম্পন্ন';
+  document.getElementById('timerSub').textContent = 'অ্যানিমেশন শেষ';
+  drawFrame();
+}
+function resetAll() {
+  stopAnim();
+  sweepPhase = 0; idlePhase = 0; buildP = 0; rotPhase = 0; arrowPhase = 0;
+  resetTimerUI();
+  drawFrame();
+}
+function setDuration(sec, btnEl) {
+  totalDurationMs = sec * 1000;
+  document.querySelectorAll('.preset-row .preset-btn').forEach(b => {
+    if (b.parentElement === btnEl.parentElement) b.classList.remove('active');
+  });
+  btnEl.classList.add('active');
+  if (!isSpinning) resetTimerUI();
+}
+
+// === EXPORT ===
+function setExportStatus(msg) { document.getElementById('exportStatus').textContent = msg; }
+function saveBlob(blob, filename) {
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+function downloadPng() {
+  const transparent = document.getElementById('transparentToggle').checked;
+  const bgColor = document.getElementById('exportBgColor').value;
+  const oldP = buildP; buildP = 1;
+  drawFrame({ solidBg: !transparent, bgColor });
+  canvas.toBlob(blob => {
+    buildP = oldP;
+    drawFrame({ solidBg: false });
+    if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+    saveBlob(blob, 'order-now-3d-cta.png');
+    setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+  }, 'image/png');
+}
+
+async function downloadGif() {
+  if (!window.GIF) { setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন।'); return; }
+  if (isExporting) return;
+  isExporting = true;
+  const bgColor = document.getElementById('exportBgColor').value;
+  const oldSweep = sweepPhase, oldIdle = idlePhase, oldBuild = buildP, oldRot = rotPhase, oldArrow = arrowPhase;
+  const gif = new GIF({ workers: 2, quality: 10, width: CW, height: CH,
+    workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
+  const frames = 60, frameDelay = 60, clipMs = 6000;
+  setExportStatus('GIF তৈরি হচ্ছে… 0%');
+  for (let i = 0; i < frames; i++) {
+    const t = i / frames;
+    const elapsedMs = t * clipMs;
+    sweepPhase = oldSweep + elapsedMs * 0.0012;
+    idlePhase = oldIdle + elapsedMs * 0.0016;
+    rotPhase = oldRot + elapsedMs * 0.0022;
+    arrowPhase = oldArrow + elapsedMs * 0.0009;
+    buildP = clamp01(elapsedMs / (clipMs * 0.5));
+    drawFrame({ solidBg: true, bgColor });
+    gif.addFrame(canvas, { copy: true, delay: frameDelay });
+    setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((i + 1) / frames * 100)}%`);
+    await new Promise(requestAnimationFrame);
+  }
+  sweepPhase = oldSweep; idlePhase = oldIdle; buildP = oldBuild; rotPhase = oldRot; arrowPhase = oldArrow;
+  drawFrame({ solidBg: false });
+  gif.on('finished', blob => {
+    saveBlob(blob, 'order-now-3d-cta.gif');
+    setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
+    isExporting = false;
+  });
+  gif.render();
+}
+
+async function downloadVideo() {
+  if (!window.MediaRecorder || !canvas.captureStream) {
+    setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।'); return;
+  }
+  if (isExporting) return;
+  isExporting = true;
+  const bgColor = document.getElementById('exportBgColor').value;
+  const stream = canvas.captureStream(30);
+  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 6000000 });
+  const chunks = [];
+  const oldSweep = sweepPhase, oldIdle = idlePhase, oldBuild = buildP, oldRot = rotPhase, oldArrow = arrowPhase;
+  recorder.ondataavailable = e => e.data.size && chunks.push(e.data);
+  recorder.onstop = () => {
+    saveBlob(new Blob(chunks, { type: mimeType }), 'order-now-3d-cta.webm');
+    sweepPhase = oldSweep; idlePhase = oldIdle; buildP = oldBuild; rotPhase = oldRot; arrowPhase = oldArrow;
+    drawFrame({ solidBg: false });
+    isExporting = false;
+    setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+  };
+  recorder.start();
+  const start = performance.now();
+  const duration = 7000;
+  setExportStatus('ভিডিও তৈরি হচ্ছে…');
+  const render = (now) => {
+    const elapsedMs = now - start;
+    const progress = Math.min(1, elapsedMs / duration);
+    sweepPhase = oldSweep + elapsedMs * 0.0012;
+    idlePhase = oldIdle + elapsedMs * 0.0016;
+    rotPhase = oldRot + elapsedMs * 0.0022;
+    arrowPhase = oldArrow + elapsedMs * 0.0009;
+    buildP = clamp01(elapsedMs / (duration * 0.5));
+    drawFrame({ solidBg: true, bgColor });
+    if (progress < 1) requestAnimationFrame(render); else recorder.stop();
+  };
+  requestAnimationFrame(render);
+}
+
+// === UI EVENTS ===
+['plaqueSize', 'blockDepth', 'rotSpeed'].forEach(id => {
+  document.getElementById(id).addEventListener('input', function () {
+    const badges = { plaqueSize: 'sizeBadge', blockDepth: 'depthBadge', rotSpeed: 'spinBadge' };
+    const el = document.getElementById(badges[id]);
+    el.textContent = id === 'plaqueSize' ? this.value + '%' : this.value;
+    if (!isSpinning) drawFrame();
+  });
+});
+['subText', 'mainText', 'tagline', 'badgeText', 'plaqueColor', 'boxColor', 'textColor', 'accentColor',
+  'buildToggle', 'rotateToggle', 'sweepToggle', 'idleToggle', 'arrowToggle'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => { if (!isSpinning) drawFrame(); });
+  el.addEventListener('change', () => { if (!isSpinning) drawFrame(); });
+});
+document.getElementById('transparentToggle').addEventListener('change', function () {
+  document.getElementById('exportBgRow').style.display = this.checked ? 'none' : 'block';
+});
+
+// === INITIAL DRAW ===
+buildP = 1;
+drawFrame();
+buildP = 0;
+setTimeout(startAnim, 150);
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+</body>
+</html>

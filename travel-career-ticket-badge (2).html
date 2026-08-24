@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel & Career Ticket Badge — Free Seminar / Visa / Air Ticket</title>
+    <meta name="description" content="এয়ার টিকেট / বোর্ডিং পাস শেপ — পারফোরেটেড ডিভাইডার + স্ক্রলিং সার্ভিস ট্যাগ + সরকার অনুমোদিত সার্টিফিকেট স্ট্যাম্প সিল — ভিডিও/ফটো এডিটর অ্যাপের জন্য">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Noto+Sans+Bengali:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #060810;
+            --bg-secondary: #0b0f1a;
+            --bg-card: #121826;
+            --bg-card-hover: #17202f;
+            --border: rgba(255,255,255,0.08);
+            --border-active: rgba(255,180,0,0.55);
+            --accent: #0e63c9;
+            --accent-glow: rgba(14,99,201,0.45);
+            --accent-2: #ffb300;
+            --accent-3: #17c98e;
+            --text-primary: #f4f6ff;
+            --text-secondary: #9aa4c2;
+            --text-muted: #4c5470;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 20px 60px rgba(0,0,0,0.55);
+            --shadow-glow: 0 0 45px rgba(255,180,0,0.18);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans Bengali', 'Inter', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 20%, rgba(14,99,201,0.16) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(255,180,0,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 60% at 50% 50%, rgba(23,201,142,0.05) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app-header {
+            width: 100%;
+            padding: 24px 32px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(6,8,16,0.8);
+            backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-icon {
+            width: 44px; height: 44px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 0 20px var(--accent-glow);
+            flex-shrink: 0;
+        }
+
+        .header-text h1 {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, var(--accent-2) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-text p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .main-content {
+            width: 100%;
+            max-width: 1200px;
+            padding: 40px 24px 80px;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 32px;
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 900px) {
+            .main-content { grid-template-columns: 1fr; }
+        }
+
+        .canvas-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .canvas-wrapper {
+            width: 100%;
+            aspect-ratio: 1;
+            max-width: 520px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow), var(--shadow-glow);
+        }
+
+        .canvas-wrapper::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: 25px;
+            background: linear-gradient(135deg, rgba(14,99,201,0.3), rgba(255,180,0,0.14), rgba(23,201,142,0.1));
+            z-index: -1;
+            animation: borderGlow 4s ease-in-out infinite;
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .canvas-bg-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 30px 30px;
+            border-radius: 24px;
+        }
+
+        #badgeCanvas {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .timer-display {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 28px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 60px;
+            box-shadow: var(--shadow);
+        }
+
+        .timer-ring-wrap { position: relative; width: 56px; height: 56px; }
+        .timer-ring-wrap svg { transform: rotate(-90deg); }
+        .timer-ring-bg { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 4; }
+        .timer-ring-fill {
+            fill: none;
+            stroke: url(#ringGradient);
+            stroke-width: 4;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s linear;
+            stroke-dasharray: 157;
+            stroke-dashoffset: 0;
+        }
+
+        .timer-label-inner {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent-2);
+        }
+
+        .timer-text-group { display: flex; flex-direction: column; }
+        .timer-big { font-size: 32px; font-weight: 800; color: var(--text-primary); letter-spacing: -1px; }
+        .timer-sub { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+
+        .timer-status {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .timer-status.idle { background: rgba(255,255,255,0.06); color: var(--text-muted); }
+        .timer-status.spinning { background: rgba(14,99,201,0.2); color: #5ba8ff; animation: pulse 2s ease-in-out infinite; }
+        .timer-status.done { background: rgba(16,185,129,0.2); color: var(--success); }
+
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        .controls-panel { display: flex; flex-direction: column; gap: 20px; }
+
+        .control-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .control-card:hover {
+            border-color: var(--border-active);
+            box-shadow: 0 0 20px rgba(255,180,0,0.1);
+        }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title-icon {
+            width: 24px; height: 24px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px;
+        }
+
+        .form-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+        .form-row:last-child { margin-bottom: 0; }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-label .value-badge {
+            background: rgba(255,180,0,0.15);
+            color: var(--accent-2);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .form-hint { font-size: 11px; color: var(--text-muted); margin-top: -2px; }
+
+        input[type="text"], input[type="number"], textarea {
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            resize: vertical;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus, textarea:focus {
+            border-color: var(--accent-2);
+            box-shadow: 0 0 0 3px rgba(255,180,0,0.15);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255,255,255,0.08);
+            border-radius: 10px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px; height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            box-shadow: 0 0 10px rgba(255,180,0,0.5);
+            cursor: pointer;
+            transition: transform 0.15s;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+        input[type="color"] {
+            width: 48px; height: 36px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: none;
+            cursor: pointer;
+            padding: 2px;
+        }
+
+        .color-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .color-row:last-child { margin-bottom: 0; }
+        .color-label { font-size: 13px; color: var(--text-secondary); flex: 1; }
+
+        .time-presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+        .preset-btn {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .preset-btn:hover { border-color: var(--accent-2); color: var(--accent-2); background: rgba(255,180,0,0.1); }
+        .preset-btn.active { border-color: var(--accent-2); color: var(--accent-2); background: rgba(255,180,0,0.15); }
+
+        .direction-toggle { display: flex; gap: 8px; }
+        .dir-btn {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .dir-btn:hover { border-color: var(--accent-2); color: var(--accent-2); }
+        .dir-btn.active { border-color: var(--accent-2); color: var(--accent-2); background: rgba(255,180,0,0.12); }
+
+        .style-presets { display: flex; flex-wrap: wrap; gap: 8px; }
+        .style-preset-btn {
+            padding: 7px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .style-preset-btn:hover { border-color: var(--accent-2); color: var(--accent-2); }
+        .style-preset-btn.active { border-color: var(--accent-2); color: var(--accent-2); background: rgba(255,180,0,0.15); }
+
+        .sep { height: 1px; background: var(--border); width: 100%; }
+
+        .btn-group { display: flex; gap: 12px; }
+        .btn {
+            flex: 1;
+            padding: 14px 20px;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            letter-spacing: 0.3px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            color: #051023;
+            box-shadow: 0 4px 20px rgba(255,180,0,0.30);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(255,180,0,0.4); }
+        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .btn-stop {
+            background: rgba(239,68,68,0.15);
+            color: #ff8080;
+            border: 1px solid rgba(239,68,68,0.35);
+        }
+        .btn-stop:hover { background: rgba(239,68,68,0.25); }
+        .btn-stop:disabled { opacity: 0.35; cursor: not-allowed; }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        .btn-ghost:hover { border-color: var(--accent-2); color: var(--accent-2); }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="app-header">
+        <div class="header-icon">🎫</div>
+        <div class="header-text">
+            <h1>Travel & Career Ticket Badge</h1>
+            <p>Free Seminar • Air Ticket • Visa Processing — বোর্ডিং পাস স্টাইল CTA অ্যানিমেশন জেনারেটর</p>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="canvas-panel">
+            <div class="canvas-wrapper">
+                <div class="canvas-bg-grid"></div>
+                <canvas id="badgeCanvas" width="480" height="480"></canvas>
+            </div>
+
+            <div class="timer-display">
+                <div class="timer-ring-wrap">
+                    <svg width="56" height="56" viewBox="0 0 56 56">
+                        <defs>
+                            <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#0e63c9"/>
+                                <stop offset="100%" stop-color="#ffb300"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="timer-ring-bg" cx="28" cy="28" r="25"></circle>
+                        <circle class="timer-ring-fill" id="timerRing" cx="28" cy="28" r="25"></circle>
+                    </svg>
+                    <div class="timer-label-inner" id="timerPercent">—</div>
+                </div>
+                <div class="timer-text-group">
+                    <div class="timer-big" id="timerBig">00:00</div>
+                    <div class="timer-sub" id="timerSub">সময় বাকি</div>
+                </div>
+                <div class="timer-status idle" id="timerStatus">প্রস্তুত</div>
+            </div>
+        </div>
+
+        <div class="controls-panel">
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">Aa</div>মূল টেক্সট</div>
+
+                <div class="form-row">
+                    <label class="form-label">হেডলাইন (টিকেটের বাম স্টাবে)</label>
+                    <input type="text" id="headlineText" value="Free Seminar" placeholder="হেডলাইন লিখুন">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">সাবহেডলাইন</label>
+                    <input type="text" id="subHeadline" value="Travel Agency" placeholder="সাবহেডলাইন">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">সার্ভিস ট্যাগ (কমা দিয়ে আলাদা করুন — স্ক্রল করবে)</label>
+                    <textarea id="tagsText" rows="2" placeholder="Air Ticket, Visa Processing, CAREER, MONEY, COURSE">Air Ticket, Visa Processing, CAREER, MONEY, COURSE</textarea>
+                    <div class="form-hint">এই ট্যাগগুলো টিকেটের ভেতর স্বয়ংক্রিয়ভাবে স্ক্রল হবে</div>
+                </div>
+                <div class="form-row">
+                    <label class="form-label">কল টু অ্যাকশন (নিচের লাইন)</label>
+                    <input type="text" id="ctaText" value="বিস্তারিত জানতে কল করুন" placeholder="CTA টেক্সট">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">ডান স্টাবের উপরের টেক্সট</label>
+                    <input type="text" id="certTopText" value="সরকার অনুমোদিত" placeholder="স্ট্যাম্প উপরের টেক্সট">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">ডান স্টাবের নিচের টেক্সট</label>
+                    <input type="text" id="certBottomText" value="সার্টিফিকেট" placeholder="স্ট্যাম্প নিচের টেক্সট">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">কল বাটন টেক্সট</label>
+                    <input type="text" id="callText" value="কল করুন" placeholder="কল বাটন">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">হেডলাইন আইকন</label>
+                    <input type="text" id="headlineIcon" value="🎓" placeholder="ইমোজি">
+                </div>
+            </div>
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">⬡</div>শেপ সেটিংস (টিকেট)</div>
+
+                <div class="form-row">
+                    <label class="form-label">স্টাব বিভাজন অবস্থান <span class="value-badge" id="splitRatioBadge">0.70</span></label>
+                    <input type="range" id="splitRatio" min="0.5" max="0.85" step="0.01" value="0.70">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">কর্নার রাউন্ডনেস <span class="value-badge" id="cornerRadiusBadge">18</span></label>
+                    <input type="range" id="cornerRadius" min="4" max="40" step="1" value="18">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">নচ (খাঁজ) সাইজ <span class="value-badge" id="notchSizeBadge">0.11</span></label>
+                    <input type="range" id="notchSize" min="0.05" max="0.18" step="0.01" value="0.11">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">স্ট্যাম্প রিং সংখ্যা <span class="value-badge" id="ringCountBadge">2</span></label>
+                    <input type="range" id="ringCount" min="0" max="4" step="1" value="2">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">স্ট্যাম্প ড্যাশ ঘনত্ব <span class="value-badge" id="dashDensityBadge">16</span></label>
+                    <input type="range" id="dashDensity" min="8" max="32" step="1" value="16">
+                </div>
+                <div class="form-row">
+                    <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                        <input type="checkbox" id="perforationToggle" checked>
+                        পারফোরেটেড ডিভাইডার লাইন দেখান
+                    </label>
+                </div>
+                <div class="form-row">
+                    <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                        <input type="checkbox" id="blinkDotToggle" checked>
+                        ব্লিংকিং অ্যালার্ট ডট
+                    </label>
+                </div>
+            </div>
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">🎨</div>কালার স্টাইল</div>
+
+                <div class="style-presets" id="stylePresets">
+                    <button class="style-preset-btn active" data-style="travelBlue" onclick="applyStyle('travelBlue',this)">🔵 ট্রাভেল ব্লু</button>
+                    <button class="style-preset-btn" data-style="certGold" onclick="applyStyle('certGold',this)">🟡 সার্টিফিকেট গোল্ড</button>
+                    <button class="style-preset-btn" data-style="careerGreen" onclick="applyStyle('careerGreen',this)">🟢 ক্যারিয়ার গ্রিন</button>
+                    <button class="style-preset-btn" data-style="visaRed" onclick="applyStyle('visaRed',this)">🔴 ভিসা রেড</button>
+                    <button class="style-preset-btn" data-style="skyPremium" onclick="applyStyle('skyPremium',this)">🟦 স্কাই প্রিমিয়াম</button>
+                    <button class="style-preset-btn" data-style="royalNavy" onclick="applyStyle('royalNavy',this)">🟣 রয়্যাল নেভি-গোল্ড</button>
+                </div>
+
+                <div class="sep" style="margin-top:16px;"></div>
+
+                <div style="margin-top:14px;">
+                    <div class="color-row">
+                        <span class="color-label">টিকেট রঙ (বাইরে)</span>
+                        <input type="color" id="badgeColorOuter" value="#0e63c9">
+                    </div>
+                    <div class="color-row">
+                        <span class="color-label">টিকেট রঙ (ভেতরে)</span>
+                        <input type="color" id="badgeColorInner" value="#062347">
+                    </div>
+                    <div class="color-row">
+                        <span class="color-label">স্ট্যাম্প / রিং রঙ</span>
+                        <input type="color" id="ringColor" value="#ffb300">
+                    </div>
+                    <div class="color-row">
+                        <span class="color-label">টেক্সট রঙ</span>
+                        <input type="color" id="textColor" value="#ffffff">
+                    </div>
+                    <div class="color-row">
+                        <span class="color-label">ট্যাগ চিপ রঙ</span>
+                        <input type="color" id="tagColor" value="#ffb300">
+                    </div>
+                    <div class="color-row">
+                        <span class="color-label">গ্লো রঙ</span>
+                        <input type="color" id="glowColor" value="#ffb300">
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">⚡</div>অ্যানিমেশন সেটিংস</div>
+
+                <div class="form-row">
+                    <label class="form-label">সময় (সেকেন্ড) <span class="value-badge" id="durationBadge">30s</span></label>
+                    <input type="number" id="spinDuration" value="30" min="1" max="3600">
+                    <div class="time-presets">
+                        <button class="preset-btn" onclick="setDuration(5,this)">5s</button>
+                        <button class="preset-btn" onclick="setDuration(10,this)">10s</button>
+                        <button class="preset-btn active" onclick="setDuration(30,this)">30s</button>
+                        <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+                        <button class="preset-btn" onclick="setDuration(120,this)">2মিনিট</button>
+                        <button class="preset-btn" onclick="setDuration(300,this)">5মিনিট</button>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label">ট্যাগ স্ক্রল স্পিড <span class="value-badge" id="marqueeSpeedBadge">1.0</span></label>
+                    <input type="range" id="marqueeSpeed" min="0.2" max="3" step="0.1" value="1.0">
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label">স্ট্যাম্প রোটেশন স্পিড (RPM) <span class="value-badge" id="speedBadge">1.5 RPM</span></label>
+                    <input type="range" id="spinSpeed" min="0" max="10" step="0.1" value="1.5">
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label">পালস তীব্রতা <span class="value-badge" id="pulseBadge">0.5</span></label>
+                    <input type="range" id="pulseIntensity" min="0" max="1" step="0.05" value="0.5">
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label">দিক (Direction)</label>
+                    <div class="direction-toggle">
+                        <button class="dir-btn active" id="dirCW" onclick="setDirection('cw')">↻ ঘড়ির দিক</button>
+                        <button class="dir-btn" id="dirCCW" onclick="setDirection('ccw')">↺ উল্টো দিক</button>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                        <input type="checkbox" id="loopSpinToggle" checked>
+                        সবসময় চলতে থাকবে (Loop)
+                    </label>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="startBtn" onclick="startBurst()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+                    অ্যানিমেশন শুরু
+                </button>
+                <button class="btn btn-stop" id="stopBtn" onclick="stopBurst()" disabled>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+                    বন্ধ করুন
+                </button>
+            </div>
+
+            <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট করুন</button>
+
+            <div class="control-card" style="margin-top:16px;">
+                <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+                <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.55;">বর্তমান টিকেট PNG হিসেবে (ট্রান্সপারেন্ট ব্যাকগ্রাউন্ড), অথবা একটি পূর্ণ অ্যানিমেশন সাইকেল GIF/ভিডিও হিসেবে সেভ করুন — সরাসরি আপনার ভিডিও/ফটো এডিটর অ্যাপে ব্যবহার করা যাবে।</p>
+                <div class="btn-group">
+                    <button class="btn btn-primary" type="button" onclick="downloadPng()">PNG ডাউনলোড</button>
+                    <button class="btn btn-primary" type="button" onclick="downloadGif()">GIF ডাউনলোড</button>
+                    <button class="btn btn-primary" type="button" onclick="downloadVideo()">ভিডিও (WebM)</button>
+                </div>
+                <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+    /* =====================================================
+       TRAVEL / CAREER SEMINAR TICKET BADGE ANIMATION ENGINE
+       Shape: air-ticket / boarding-pass strip with a perforated
+       divider and rounded notches, a scrolling service-tag
+       marquee on the main stub, and a rotating official
+       certificate stamp seal on the small stub.
+       Canvas background stays transparent for overlay use.
+    ===================================================== */
+
+    const canvas = document.getElementById('badgeCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        const wrapper = canvas.parentElement;
+        const size = Math.min(wrapper.clientWidth - 40, 480);
+        canvas.width = size;
+        canvas.height = size;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', () => { resizeCanvas(); drawFrame(); });
+
+    // === STATE ===
+    let stampAngle = 0;
+    let pulsePhase = 0;
+    let marqueeOffset = 0;
+    let isSpinning = false;
+    let animFrame = null;
+    let totalDurationMs = 30000;
+    let startTime = null;
+    let direction = 1;
+    let speedRPM = 1.5;
+    let lastTimestamp = null;
+    let isExporting = false;
+
+    // === STYLE PRESETS ===
+    const stylePresets = {
+        travelBlue: {
+            badgeColorOuter: '#0e63c9', badgeColorInner: '#062347',
+            ringColor: '#ffb300', textColor: '#ffffff',
+            tagColor: '#ffb300', glowColor: '#ffb300',
+        },
+        certGold: {
+            badgeColorOuter: '#4a3a00', badgeColorInner: '#1a1400',
+            ringColor: '#ffd700', textColor: '#ffe98a',
+            tagColor: '#ffd700', glowColor: '#ffd700',
+        },
+        careerGreen: {
+            badgeColorOuter: '#0e8f5e', badgeColorInner: '#04321f',
+            ringColor: '#ffffff', textColor: '#ffffff',
+            tagColor: '#ffe98a', glowColor: '#17c98e',
+        },
+        visaRed: {
+            badgeColorOuter: '#b3141f', badgeColorInner: '#3a0508',
+            ringColor: '#ffffff', textColor: '#ffffff',
+            tagColor: '#ffd400', glowColor: '#e0202c',
+        },
+        skyPremium: {
+            badgeColorOuter: '#22a3ff', badgeColorInner: '#0a2c52',
+            ringColor: '#ffffff', textColor: '#ffffff',
+            tagColor: '#ffffff', glowColor: '#22a3ff',
+        },
+        royalNavy: {
+            badgeColorOuter: '#1a2340', badgeColorInner: '#05070f',
+            ringColor: '#ffd700', textColor: '#ffd700',
+            tagColor: '#ffd700', glowColor: '#ffd700',
+        },
+    };
+
+    function applyStyle(styleName, btnEl) {
+        const s = stylePresets[styleName];
+        if (!s) return;
+        document.getElementById('badgeColorOuter').value = s.badgeColorOuter;
+        document.getElementById('badgeColorInner').value = s.badgeColorInner;
+        document.getElementById('ringColor').value        = s.ringColor;
+        document.getElementById('textColor').value        = s.textColor;
+        document.getElementById('tagColor').value         = s.tagColor;
+        document.getElementById('glowColor').value        = s.glowColor;
+        document.querySelectorAll('.style-preset-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+        drawFrame();
+    }
+
+    // === READ SETTINGS ===
+    function getSettings() {
+        const rawTags = document.getElementById('tagsText').value || '';
+        const tags = rawTags.split(',').map(t => t.trim()).filter(Boolean);
+        return {
+            headlineText:    document.getElementById('headlineText').value || '',
+            subHeadline:     document.getElementById('subHeadline').value || '',
+            tags:            tags,
+            ctaText:         document.getElementById('ctaText').value || '',
+            certTopText:     document.getElementById('certTopText').value || '',
+            certBottomText:  document.getElementById('certBottomText').value || '',
+            callText:        document.getElementById('callText').value || '',
+            headlineIcon:    document.getElementById('headlineIcon').value || '',
+            badgeColorOuter: document.getElementById('badgeColorOuter').value,
+            badgeColorInner: document.getElementById('badgeColorInner').value,
+            ringColor:       document.getElementById('ringColor').value,
+            textColor:       document.getElementById('textColor').value,
+            tagColor:        document.getElementById('tagColor').value,
+            glowColor:       document.getElementById('glowColor').value,
+            splitRatio:      parseFloat(document.getElementById('splitRatio').value) || 0.70,
+            cornerRadius:    parseInt(document.getElementById('cornerRadius').value) || 18,
+            notchSize:       parseFloat(document.getElementById('notchSize').value) || 0.11,
+            ringCount:       parseInt(document.getElementById('ringCount').value) || 2,
+            dashDensity:     parseInt(document.getElementById('dashDensity').value) || 16,
+            pulseIntensity:  parseFloat(document.getElementById('pulseIntensity').value) || 0.5,
+            showPerforation: document.getElementById('perforationToggle').checked,
+            showBlinkDot:    document.getElementById('blinkDotToggle').checked,
+        };
+    }
+
+    // === TICKET PATH (with two notch cutouts at the divider) ===
+    function buildTicketPath(ctx, tw, th, r, perfX, notchR) {
+        const left = -tw / 2, right = tw / 2, top = -th / 2, bottom = th / 2;
+        ctx.beginPath();
+        // outer rounded rect (clockwise)
+        ctx.moveTo(left + r, top);
+        ctx.lineTo(right - r, top);
+        ctx.arcTo(right, top, right, top + r, r);
+        ctx.lineTo(right, bottom - r);
+        ctx.arcTo(right, bottom, right - r, bottom, r);
+        ctx.lineTo(left + r, bottom);
+        ctx.arcTo(left, bottom, left, bottom - r, r);
+        ctx.lineTo(left, top + r);
+        ctx.arcTo(left, top, left + r, top, r);
+        ctx.closePath();
+        // notch cutouts (counter-clockwise so evenodd punches a hole)
+        ctx.moveTo(perfX + notchR, top);
+        ctx.arc(perfX, top, notchR, 0, Math.PI, true);
+        ctx.closePath();
+        ctx.moveTo(perfX + notchR, bottom);
+        ctx.arc(perfX, bottom, notchR, 0, Math.PI, false);
+        ctx.closePath();
+    }
+
+    // === DRAW ENGINE ===
+    function drawFrame() {
+        const w = canvas.width, h = canvas.height;
+        const cx = w / 2, cy = h / 2;
+        const s = getSettings();
+
+        ctx.clearRect(0, 0, w, h);
+
+        const bounce = 1 + s.pulseIntensity * 0.02 * Math.sin(pulsePhase);
+        const tw = w * 0.86 * bounce;
+        const th = h * 0.42 * bounce;
+        const notchR = th * s.notchSize;
+        const perfLocalX = -tw / 2 + tw * s.splitRatio;
+
+        ctx.save();
+        ctx.translate(cx, cy);
+
+        // --- TICKET SHAPE + GLOW ---
+        ctx.save();
+        ctx.shadowColor = s.glowColor;
+        ctx.shadowBlur = th * 0.32;
+        buildTicketPath(ctx, tw, th, s.cornerRadius, perfLocalX, notchR);
+        const grad = ctx.createLinearGradient(-tw / 2, 0, tw / 2, 0);
+        grad.addColorStop(0, lightenColor(s.badgeColorOuter, 18));
+        grad.addColorStop(0.55, s.badgeColorOuter);
+        grad.addColorStop(1, s.badgeColorInner);
+        ctx.fillStyle = grad;
+        ctx.fill('evenodd');
+        ctx.restore();
+
+        // outline
+        buildTicketPath(ctx, tw, th, s.cornerRadius, perfLocalX, notchR);
+        ctx.strokeStyle = 'rgba(255,255,255,0.30)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // --- PERFORATED DIVIDER LINE ---
+        if (s.showPerforation) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.setLineDash([th * 0.045, th * 0.045]);
+            ctx.moveTo(perfLocalX, -th / 2 + notchR * 1.6);
+            ctx.lineTo(perfLocalX, th / 2 - notchR * 1.6);
+            ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.restore();
+        }
+
+        // === LEFT STUB CONTENT (main info) ===
+        const leftCenterX = (-tw / 2 + perfLocalX) / 2;
+        const stubPadding = tw * 0.03;
+
+        ctx.save();
+        ctx.translate(leftCenterX, 0);
+
+        // headline row (icon + text)
+        const headFontSize = Math.max(14, th * 0.17);
+        let headX = -((perfLocalX - (-tw / 2)) / 2) + stubPadding * 2;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        let cursorX = headX;
+        if (s.headlineIcon) {
+            const iconSize = Math.max(16, th * 0.20);
+            ctx.font = `${iconSize}px sans-serif`;
+            ctx.fillText(s.headlineIcon, cursorX, -th * 0.22);
+            cursorX += iconSize * 1.15;
+        }
+        if (s.headlineText) {
+            ctx.font = `800 ${headFontSize}px 'Noto Sans Bengali', 'Outfit', sans-serif`;
+            ctx.fillStyle = s.textColor;
+            ctx.shadowColor = 'rgba(0,0,0,0.35)';
+            ctx.shadowBlur = 6;
+            ctx.fillText(s.headlineText, cursorX, -th * 0.22);
+            ctx.shadowBlur = 0;
+        }
+        if (s.subHeadline) {
+            const subSize = Math.max(9, th * 0.09);
+            ctx.font = `600 ${subSize}px 'Noto Sans Bengali', 'Outfit', sans-serif`;
+            ctx.fillStyle = s.textColor;
+            ctx.globalAlpha = 0.75;
+            ctx.fillText(s.subHeadline, headX, -th * 0.22 + headFontSize * 0.85);
+            ctx.globalAlpha = 1;
+        }
+        ctx.restore();
+
+        // --- SCROLLING SERVICE TAGS MARQUEE ---
+        if (s.tags.length > 0) {
+            const marqueeTop = -th * 0.02;
+            const marqueeH = th * 0.22;
+            const clipLeft = -tw / 2 + stubPadding * 1.5;
+            const clipRight = perfLocalX - stubPadding * 1.5;
+            const clipW = clipRight - clipLeft;
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(clipLeft, marqueeTop, clipW, marqueeH);
+            ctx.clip();
+
+            const tagFontSize = Math.max(9, th * 0.09);
+            ctx.font = `700 ${tagFontSize}px 'Noto Sans Bengali', 'Outfit', sans-serif`;
+            const gap = tagFontSize * 1.4;
+            const chipTexts = s.tags.map(t => '  ' + t + '  ');
+            const widths = chipTexts.map(t => ctx.measureText(t).width + gap);
+            const totalWidth = widths.reduce((a, b) => a + b, 0);
+
+            let startOffset = -(marqueeOffset % totalWidth);
+            // draw two loops of the sequence back-to-back for seamless scroll
+            for (let loop = 0; loop < 2; loop++) {
+                let x = clipLeft + startOffset + loop * totalWidth;
+                for (let i = 0; i < chipTexts.length; i++) {
+                    const chipW = widths[i] - gap;
+                    if (x + chipW + gap > clipLeft && x < clipRight) {
+                        const chipH = marqueeH * 0.82;
+                        const chipY = marqueeTop + marqueeH / 2 - chipH / 2;
+                        ctx.beginPath();
+                        roundRectPath(ctx, x, chipY, chipW + gap * 0.6, chipH, chipH / 2);
+                        ctx.fillStyle = hexToRgba(s.tagColor, 0.18);
+                        ctx.fill();
+                        ctx.strokeStyle = hexToRgba(s.tagColor, 0.7);
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                        ctx.fillStyle = s.textColor;
+                        ctx.textAlign = 'left';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(chipTexts[i].trim(), x + gap * 0.3, marqueeTop + marqueeH / 2 + 0.5);
+                    }
+                    x += widths[i];
+                }
+            }
+            ctx.restore();
+        }
+
+        // --- CTA LINE (bottom of left stub) ---
+        if (s.ctaText) {
+            ctx.save();
+            const ctaFontSize = Math.max(9, th * 0.095);
+            ctx.font = `700 ${ctaFontSize}px 'Noto Sans Bengali', 'Outfit', sans-serif`;
+            const blink = 0.65 + 0.35 * Math.sin(pulsePhase * 2);
+            ctx.fillStyle = hexToRgba(s.tagColor, blink);
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            const ctaX = -tw / 2 + stubPadding * 1.5;
+            ctx.fillText('☎ ' + s.ctaText, ctaX, th * 0.36);
+            ctx.restore();
+        }
+
+        // === RIGHT STUB CONTENT (official certificate stamp) ===
+        const rightCenterX = (perfLocalX + tw / 2) / 2;
+        const stampR = Math.min(th * 0.34, (tw / 2 - perfLocalX) * 0.42);
+
+        ctx.save();
+        ctx.translate(rightCenterX, -th * 0.06);
+
+        // rotating dashed stamp ring
+        ctx.save();
+        ctx.rotate(stampAngle);
+        const dashCount = s.dashDensity;
+        const dashLen = (2 * Math.PI * stampR) / (dashCount * 2);
+        ctx.beginPath();
+        ctx.setLineDash([dashLen, dashLen]);
+        ctx.arc(0, 0, stampR, 0, Math.PI * 2);
+        ctx.strokeStyle = s.ringColor;
+        ctx.lineWidth = Math.max(1.5, stampR * 0.07);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+
+        // pulse rings emanating from stamp
+        if (s.ringCount > 0) {
+            for (let i = 0; i < s.ringCount; i++) {
+                const localPhase = ((pulsePhase * 0.25) + i / s.ringCount) % 1;
+                const r = stampR * (1 + localPhase * 0.6);
+                const alpha = (1 - localPhase) * 0.35;
+                ctx.beginPath();
+                ctx.arc(0, 0, r, 0, Math.PI * 2);
+                ctx.strokeStyle = hexToRgba(s.ringColor, Math.max(0, alpha));
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            }
+        }
+
+        // inner stamp circle
+        ctx.beginPath();
+        ctx.arc(0, 0, stampR * 0.78, 0, Math.PI * 2);
+        ctx.strokeStyle = hexToRgba(s.ringColor, 0.8);
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        // arc text: certTopText curving along top of inner circle
+        if (s.certTopText) {
+            drawArcText(ctx, s.certTopText, stampR * 0.60, -Math.PI * 0.62, Math.PI * 0.62,
+                s.ringColor, stampR * 0.15, 'top');
+        }
+
+        // center star + bottom text
+        ctx.font = `${Math.max(10, stampR * 0.32)}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = s.ringColor;
+        ctx.fillText('★', 0, -stampR * 0.04);
+
+        if (s.certBottomText) {
+            const bFont = Math.max(7, stampR * 0.145);
+            ctx.font = `800 ${bFont}px 'Noto Sans Bengali', 'Outfit', sans-serif`;
+            ctx.fillStyle = s.textColor;
+            ctx.fillText(s.certBottomText, 0, stampR * 0.42);
+        }
+
+        ctx.restore();
+
+        // --- CALL BUTTON (below stamp) ---
+        if (s.callText) {
+            ctx.save();
+            const btnY = th * 0.34;
+            const btnFont = Math.max(9, th * 0.10);
+            ctx.font = `700 ${btnFont}px 'Noto Sans Bengali', 'Outfit', sans-serif`;
+            const label = '📞 ' + s.callText;
+            const txtW = ctx.measureText(label).width;
+            const padX = btnFont * 0.8;
+            const btnW = txtW + padX * 2;
+            const btnH = btnFont * 1.9;
+            const glowPulse = 0.5 + 0.5 * Math.sin(pulsePhase * 2.4);
+            ctx.shadowColor = s.glowColor;
+            ctx.shadowBlur = btnH * 0.5 * glowPulse;
+            ctx.beginPath();
+            roundRectPath(ctx, rightCenterX - btnW / 2, btnY - btnH / 2, btnW, btnH, btnH / 2);
+            ctx.fillStyle = s.tagColor;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#0a0c10';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, rightCenterX, btnY + 0.5);
+            ctx.restore();
+        }
+
+        // --- BLINKING ALERT DOT ---
+        if (s.showBlinkDot) {
+            ctx.save();
+            const dotX = -tw / 2 + tw * 0.06;
+            const dotY = -th / 2 + th * 0.10;
+            const blink = 0.5 + 0.5 * Math.sin(pulsePhase * 2.2);
+            ctx.beginPath();
+            ctx.arc(dotX, dotY, th * 0.045, 0, Math.PI * 2);
+            ctx.fillStyle = hexToRgba('#ffffff', 0.9);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(dotX, dotY, th * (0.025 + blink * 0.012), 0, Math.PI * 2);
+            ctx.fillStyle = s.glowColor;
+            ctx.shadowColor = s.glowColor;
+            ctx.shadowBlur = th * 0.12 * blink;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.restore();
+        }
+
+        ctx.restore(); // end main translate
+    }
+
+    // === ROUNDED RECT HELPER (chips / buttons) ===
+    function roundRectPath(ctx, x, y, w, h, r) {
+        r = Math.min(r, w / 2, h / 2);
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.arcTo(x + w, y, x + w, y + r, r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+        ctx.lineTo(x + r, y + h);
+        ctx.arcTo(x, y + h, x, y + h - r, r);
+        ctx.lineTo(x, y + r);
+        ctx.arcTo(x, y, x + r, y, r);
+        ctx.closePath();
+    }
+
+    // === DRAW ARC TEXT ===
+    function drawArcText(ctx, text, arcRadius, startAngle, endAngle, color, fontSize, position) {
+        ctx.save();
+        ctx.font = `bold ${Math.round(fontSize)}px 'Noto Sans Bengali', 'Outfit', sans-serif`;
+        ctx.fillStyle = color;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        const chars = text.split('');
+        const totalAngle = position === 'top' ? -(endAngle - startAngle) : (endAngle - startAngle);
+        const angleStep = Math.abs(totalAngle) / Math.max(chars.length - 1, 1);
+
+        chars.forEach((char, i) => {
+            const angle = position === 'top'
+                ? startAngle + i * angleStep
+                : Math.PI + startAngle + i * angleStep;
+
+            ctx.save();
+            ctx.rotate(angle);
+            ctx.translate(0, -arcRadius);
+            if (position === 'bottom') ctx.rotate(Math.PI);
+            ctx.fillText(char, 0, 0);
+            ctx.restore();
+        });
+
+        ctx.restore();
+    }
+
+    // === COLOR HELPERS ===
+    function hexToRgb(hex) {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return { r, g, b };
+    }
+    function hexToRgba(hex, alpha) {
+        const { r, g, b } = hexToRgb(hex);
+        return `rgba(${r},${g},${b},${alpha})`;
+    }
+    function lightenColor(hex, amt) {
+        const { r, g, b } = hexToRgb(hex);
+        return `rgb(${Math.min(255, r + amt)},${Math.min(255, g + amt)},${Math.min(255, b + amt)})`;
+    }
+
+    // === ANIMATION LOOP ===
+    function animationLoop(timestamp) {
+        if (!isSpinning) return;
+
+        if (!lastTimestamp) lastTimestamp = timestamp;
+        const delta = timestamp - lastTimestamp;
+        lastTimestamp = timestamp;
+
+        const radiansPerMs = (speedRPM * 2 * Math.PI) / 60000;
+        stampAngle += direction * radiansPerMs * delta;
+        pulsePhase += delta * 0.0025;
+        const marqueeSpeed = parseFloat(document.getElementById('marqueeSpeed').value) || 1.0;
+        marqueeOffset += delta * 0.045 * marqueeSpeed;
+
+        const elapsed = timestamp - startTime;
+        const remaining = Math.max(0, totalDurationMs - elapsed);
+        updateTimerUI(elapsed, remaining);
+
+        drawFrame();
+
+        if (remaining <= 0 && !document.getElementById('loopSpinToggle').checked) {
+            finishBurst();
+            return;
+        }
+        if (remaining <= 0) startTime = timestamp;
+
+        animFrame = requestAnimationFrame(animationLoop);
+    }
+
+    // === TIMER UI ===
+    function updateTimerUI(elapsed, remaining) {
+        const totalSec = Math.ceil(remaining / 1000);
+        const minutes = Math.floor(totalSec / 60).toString().padStart(2, '0');
+        const seconds = (totalSec % 60).toString().padStart(2, '0');
+        document.getElementById('timerBig').textContent = `${minutes}:${seconds}`;
+
+        const pct = Math.max(0, Math.min(100, ((totalDurationMs - remaining) / totalDurationMs) * 100));
+        document.getElementById('timerPercent').textContent = Math.round(pct) + '%';
+
+        const circumference = 157;
+        const offset = circumference - (pct / 100) * circumference;
+        document.getElementById('timerRing').style.strokeDashoffset = offset;
+    }
+
+    function resetTimerUI() {
+        document.getElementById('timerBig').textContent = '00:00';
+        document.getElementById('timerPercent').textContent = '—';
+        document.getElementById('timerRing').style.strokeDashoffset = 157;
+        document.getElementById('timerStatus').className = 'timer-status idle';
+        document.getElementById('timerStatus').textContent = 'প্রস্তুত';
+        document.getElementById('timerSub').textContent = 'সময় বাকি';
+    }
+
+    // === START / STOP ===
+    function startBurst() {
+        if (isSpinning) return;
+
+        const durationSec = parseFloat(document.getElementById('spinDuration').value) || 30;
+        totalDurationMs = durationSec * 1000;
+        speedRPM = parseFloat(document.getElementById('spinSpeed').value) || 0;
+
+        isSpinning = true;
+        startTime = null;
+        lastTimestamp = null;
+
+        document.getElementById('startBtn').disabled = true;
+        document.getElementById('stopBtn').disabled = false;
+
+        const statusEl = document.getElementById('timerStatus');
+        statusEl.className = 'timer-status spinning';
+        statusEl.textContent = '⚡ চলছে';
+        document.getElementById('timerSub').textContent = 'সময় বাকি';
+
+        animFrame = requestAnimationFrame((ts) => {
+            startTime = ts;
+            lastTimestamp = ts;
+            animationLoop(ts);
+        });
+    }
+
+    function stopBurst() {
+        isSpinning = false;
+        if (animFrame) cancelAnimationFrame(animFrame);
+        lastTimestamp = null;
+
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('stopBtn').disabled = true;
+
+        const statusEl = document.getElementById('timerStatus');
+        statusEl.className = 'timer-status idle';
+        statusEl.textContent = '⏸ থামানো হয়েছে';
+
+        drawFrame();
+    }
+
+    function finishBurst() {
+        isSpinning = false;
+        if (animFrame) cancelAnimationFrame(animFrame);
+        lastTimestamp = null;
+
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('stopBtn').disabled = true;
+
+        document.getElementById('timerBig').textContent = '00:00';
+        document.getElementById('timerPercent').textContent = '100%';
+        document.getElementById('timerRing').style.strokeDashoffset = 0;
+
+        const statusEl = document.getElementById('timerStatus');
+        statusEl.className = 'timer-status done';
+        statusEl.textContent = '✅ সম্পন্ন!';
+        document.getElementById('timerSub').textContent = 'অ্যানিমেশন শেষ';
+
+        drawFrame();
+    }
+
+    function resetAll() {
+        stopBurst();
+        stampAngle = 0;
+        pulsePhase = 0;
+        marqueeOffset = 0;
+        resetTimerUI();
+        drawFrame();
+    }
+
+    function setExportStatus(message) {
+        document.getElementById('exportStatus').textContent = message;
+    }
+
+    function saveBlob(blob, filename) {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    }
+
+    function downloadPng() {
+        canvas.toBlob((blob) => {
+            if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+            saveBlob(blob, 'travel-career-ticket-badge.png');
+            setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+        }, 'image/png');
+    }
+
+    function getExportCanvas(size = 720) {
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = size;
+        exportCanvas.height = size;
+        const oldWidth = canvas.width, oldHeight = canvas.height;
+        canvas.width = size; canvas.height = size;
+        drawFrame();
+        exportCanvas.getContext('2d').drawImage(canvas, 0, 0);
+        canvas.width = oldWidth; canvas.height = oldHeight;
+        drawFrame();
+        return exportCanvas;
+    }
+
+    async function downloadGif() {
+        if (!window.GIF) {
+            setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ দিয়ে আবার চেষ্টা করুন।');
+            return;
+        }
+        if (isExporting) return;
+        isExporting = true;
+        const oldAngle = stampAngle, oldPhase = pulsePhase, oldMarquee = marqueeOffset;
+        const gif = new GIF({
+            workers: 2, quality: 10, width: 720, height: 720,
+            workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'
+        });
+        const frames = 60;
+        const frameDelay = 60;
+        const marqueeSpeed = parseFloat(document.getElementById('marqueeSpeed').value) || 1.0;
+        setExportStatus('GIF তৈরি হচ্ছে… 0%');
+        for (let frame = 0; frame < frames; frame++) {
+            const t = frame / frames;
+            stampAngle = oldAngle + direction * (Math.PI * 2 * t);
+            pulsePhase = oldPhase + (Math.PI * 2 * 2 * t);
+            marqueeOffset = oldMarquee + frame * 60 * 0.045 * marqueeSpeed;
+            gif.addFrame(getExportCanvas(720), { copy: true, delay: frameDelay });
+            setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((frame + 1) / frames * 100)}%`);
+            await new Promise(requestAnimationFrame);
+        }
+        stampAngle = oldAngle; pulsePhase = oldPhase; marqueeOffset = oldMarquee; drawFrame();
+        gif.on('finished', (blob) => {
+            saveBlob(blob, 'travel-career-ticket-badge.gif');
+            setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
+            isExporting = false;
+        });
+        gif.render();
+    }
+
+    async function downloadVideo() {
+        if (!window.MediaRecorder || !canvas.captureStream) {
+            setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।');
+            return;
+        }
+        if (isExporting) return;
+        isExporting = true;
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = 720;
+        exportCanvas.height = 720;
+        const exportCtx = exportCanvas.getContext('2d');
+        const stream = exportCanvas.captureStream(30);
+        const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+        const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 5000000 });
+        const chunks = [];
+        const oldAngle = stampAngle, oldPhase = pulsePhase, oldMarquee = marqueeOffset;
+        const marqueeSpeed = parseFloat(document.getElementById('marqueeSpeed').value) || 1.0;
+        recorder.ondataavailable = (event) => event.data.size && chunks.push(event.data);
+        recorder.onstop = () => {
+            saveBlob(new Blob(chunks, { type: mimeType }), 'travel-career-ticket-badge.webm');
+            stampAngle = oldAngle; pulsePhase = oldPhase; marqueeOffset = oldMarquee; drawFrame(); isExporting = false;
+            setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+        };
+        recorder.start();
+        const start = performance.now();
+        const duration = 3200;
+        setExportStatus('ভিডিও তৈরি হচ্ছে…');
+        const render = (now) => {
+            const progress = Math.min(1, (now - start) / duration);
+            stampAngle = oldAngle + direction * Math.PI * 2 * progress;
+            pulsePhase = oldPhase + Math.PI * 2 * 2 * progress;
+            marqueeOffset = oldMarquee + progress * duration * 0.045 * marqueeSpeed;
+            const frame = getExportCanvas(720);
+            exportCtx.clearRect(0, 0, 720, 720);
+            exportCtx.drawImage(frame, 0, 0);
+            if (progress < 1) requestAnimationFrame(render); else recorder.stop();
+        };
+        requestAnimationFrame(render);
+    }
+
+    // === DIRECTION ===
+    function setDirection(dir) {
+        direction = dir === 'cw' ? 1 : -1;
+        document.getElementById('dirCW').classList.toggle('active', dir === 'cw');
+        document.getElementById('dirCCW').classList.toggle('active', dir === 'ccw');
+    }
+
+    // === TIME PRESET ===
+    function setDuration(sec, btnEl) {
+        document.getElementById('spinDuration').value = sec;
+        document.getElementById('durationBadge').textContent = sec >= 60 ? `${sec / 60}মিনিট` : `${sec}s`;
+        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+    }
+
+    // === EVENT LISTENERS ===
+    document.getElementById('spinSpeed').addEventListener('input', function() {
+        speedRPM = parseFloat(this.value);
+        document.getElementById('speedBadge').textContent = speedRPM.toFixed(1) + ' RPM';
+    });
+
+    document.getElementById('marqueeSpeed').addEventListener('input', function() {
+        document.getElementById('marqueeSpeedBadge').textContent = parseFloat(this.value).toFixed(1);
+    });
+
+    document.getElementById('spinDuration').addEventListener('input', function() {
+        const v = parseFloat(this.value) || 30;
+        document.getElementById('durationBadge').textContent = v >= 60 ? `${(v / 60).toFixed(1)}মিনিট` : `${v}s`;
+    });
+
+    document.getElementById('ringCount').addEventListener('input', function() {
+        document.getElementById('ringCountBadge').textContent = this.value;
+        if (!isSpinning) drawFrame();
+    });
+
+    document.getElementById('dashDensity').addEventListener('input', function() {
+        document.getElementById('dashDensityBadge').textContent = this.value;
+        if (!isSpinning) drawFrame();
+    });
+
+    document.getElementById('splitRatio').addEventListener('input', function() {
+        document.getElementById('splitRatioBadge').textContent = parseFloat(this.value).toFixed(2);
+        if (!isSpinning) drawFrame();
+    });
+
+    document.getElementById('cornerRadius').addEventListener('input', function() {
+        document.getElementById('cornerRadiusBadge').textContent = this.value;
+        if (!isSpinning) drawFrame();
+    });
+
+    document.getElementById('notchSize').addEventListener('input', function() {
+        document.getElementById('notchSizeBadge').textContent = parseFloat(this.value).toFixed(2);
+        if (!isSpinning) drawFrame();
+    });
+
+    document.getElementById('pulseIntensity').addEventListener('input', function() {
+        document.getElementById('pulseBadge').textContent = parseFloat(this.value).toFixed(2);
+    });
+
+    // Live update canvas on text/color/toggle changes
+    ['headlineText', 'subHeadline', 'tagsText', 'ctaText', 'certTopText', 'certBottomText',
+     'callText', 'headlineIcon',
+     'badgeColorOuter', 'badgeColorInner', 'ringColor',
+     'textColor', 'tagColor', 'glowColor',
+     'perforationToggle', 'blinkDotToggle'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', () => { if (!isSpinning) drawFrame(); });
+            el.addEventListener('change', () => { if (!isSpinning) drawFrame(); });
+        }
+    });
+
+    // === INITIAL DRAW ===
+    drawFrame();
+    // The badge acts as a live ad asset preview — it starts animating and
+    // keeps looping until the user explicitly presses "বন্ধ করুন".
+    setTimeout(startBurst, 150);
+
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+</body>
+</html>

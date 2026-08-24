@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRAVEL AGENCY — 3D Explorer Animation Generator</title>
+<meta name="description" content="৩ডি লো-পলি ফ্যাসেটেড গ্লোব + ফ্লাইট পাথ + পেপার এয়ারপ্লেন + এক্সট্রুডেড টেক্সট — কোনো গোল/সার্কেল শেপ নেই, সম্পূর্ণ স্ট্রেট-এজ ৩ডি — PNG/GIF/WebM এক্সপোর্ট">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Noto+Sans+Bengali:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-primary:#080b0c; --bg-secondary:#0d1112; --bg-card:#121718; --bg-card-hover:#181f20;
+    --border:rgba(255,255,255,0.08); --accent:#ffb703; --accent-glow:rgba(255,183,3,0.35);
+    --accent-2:#1f7a8c; --accent-3:#2ec4b6; --text-primary:#f2f7f8; --text-secondary:#9fb0b3;
+    --text-muted:#556064; --radius:16px; --shadow:0 20px 60px rgba(0,0,0,0.6);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Outfit','Noto Sans Bengali',sans-serif;background:var(--bg-primary);color:var(--text-primary);
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 80% 50% at 18% 12%,rgba(255,183,3,0.10) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 88% 88%,rgba(31,122,140,0.14) 0%,transparent 60%);}
+  .app-header{width:100%;padding:22px 32px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);
+    background:rgba(8,11,12,0.85);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+  .header-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),#a3660b);
+    clip-path:polygon(15% 0,85% 0,100% 30%,100% 100%,0 100%,0 30%);display:flex;align-items:center;justify-content:center;
+    font-size:19px;box-shadow:0 0 20px var(--accent-glow);flex-shrink:0;}
+  .header-text h1{font-size:19px;font-weight:700;background:linear-gradient(135deg,#fff 0%,var(--accent) 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .header-text p{font-size:12.5px;color:var(--text-secondary);margin-top:2px;}
+  .main-content{width:100%;max-width:1260px;padding:36px 24px 80px;display:grid;grid-template-columns:1fr 380px;gap:28px;position:relative;z-index:1;}
+  @media (max-width:960px){.main-content{grid-template-columns:1fr;}}
+  .canvas-panel{display:flex;flex-direction:column;align-items:center;gap:20px;}
+  .canvas-wrapper{width:100%;aspect-ratio:16/9;background:
+    linear-gradient(45deg,#161d1e 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,#161d1e 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(45deg,transparent 75%,#161d1e 75%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,transparent 75%,#161d1e 75%) -0px -0px/24px 24px,
+    var(--bg-card);
+    border:1px solid var(--border);border-radius:20px;display:flex;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;box-shadow:var(--shadow);}
+  #travelCanvas{display:block;max-width:100%;max-height:100%;}
+  .timer-display{display:flex;align-items:center;gap:14px;padding:14px 24px;background:var(--bg-card);
+    border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);width:100%;}
+  .timer-ring-wrap{position:relative;width:50px;height:50px;}
+  .timer-ring-wrap svg{transform:rotate(-90deg);}
+  .timer-ring-bg{fill:none;stroke:rgba(255,255,255,0.07);stroke-width:4;}
+  .timer-ring-fill{fill:none;stroke:url(#ringGradient3);stroke-width:4;stroke-linecap:round;
+    transition:stroke-dashoffset 1s linear;stroke-dasharray:141;stroke-dashoffset:0;}
+  .timer-label-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:700;color:var(--accent);}
+  .timer-text-group{display:flex;flex-direction:column;}
+  .timer-big{font-size:26px;font-weight:800;letter-spacing:-1px;}
+  .timer-sub{font-size:11.5px;color:var(--text-secondary);font-weight:500;}
+  .timer-status{padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;}
+  .timer-status.idle{background:rgba(255,255,255,0.06);color:var(--text-muted);}
+  .timer-status.spinning{background:rgba(255,183,3,0.15);color:var(--accent);}
+  .timer-status.done{background:rgba(46,196,182,0.15);color:var(--accent-3);}
+  .sidebar{display:flex;flex-direction:column;gap:14px;}
+  .control-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+  .card-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-secondary);
+    display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+  .card-title-icon{width:22px;height:22px;background:rgba(255,183,3,0.14);border-radius:6px;display:flex;
+    align-items:center;justify-content:center;font-size:12px;}
+  .form-row{margin-bottom:14px;}
+  .form-row:last-child{margin-bottom:0;}
+  .form-label{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;color:var(--text-secondary);margin-bottom:7px;}
+  .value-badge{background:rgba(255,183,3,0.16);color:var(--accent);padding:1px 8px;border-radius:6px;font-size:11px;font-weight:700;}
+  input[type=text]{width:100%;padding:10px 12px;background:var(--bg-secondary);border:1px solid var(--border);
+    border-radius:9px;color:var(--text-primary);font-size:13.5px;font-family:inherit;}
+  input[type=text]:focus{outline:none;border-color:var(--accent);}
+  input[type=range]{width:100%;accent-color:var(--accent);}
+  input[type=color]{width:100%;height:34px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;}
+  input[type=file]{width:100%;font-size:12px;color:var(--text-secondary);}
+  .color-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .lang-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  .lang-btn{padding:9px 6px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;}
+  .lang-btn.active{background:var(--accent);border-color:var(--accent);color:#231a0d;}
+  .toggle-row{display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer;color:var(--text-secondary);margin-bottom:10px;}
+  .toggle-row:last-child{margin-bottom:0;}
+  .preset-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .preset-btn{padding:7px 12px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;}
+  .preset-btn.active{background:var(--accent);border-color:var(--accent);color:#231a0d;}
+  .style-swatch{width:34px;height:34px;border-radius:9px;border:2px solid transparent;cursor:pointer;flex-shrink:0;}
+  .style-swatch.active{border-color:#fff;}
+  .btn-group{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{flex:1;min-width:120px;padding:12px 16px;border:none;border-radius:11px;font-size:13.5px;font-weight:700;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;transition:.15s;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),#a3660b);color:#231a0d;box-shadow:0 8px 20px rgba(255,183,3,0.28);}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-stop{background:rgba(239,68,68,0.15);color:#ef4444;}
+  .btn-stop:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-ghost{background:var(--bg-secondary);color:var(--text-secondary);border:1px solid var(--border);}
+  .logo-preview{display:flex;align-items:center;gap:10px;margin-top:8px;}
+  .logo-thumb{width:36px;height:36px;border-radius:6px;border:1px solid var(--border);object-fit:cover;background:#fff;}
+  .logo-remove{font-size:11px;color:#ef4444;cursor:pointer;background:none;border:none;font-family:inherit;}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-icon">✈️</div>
+  <div class="header-text">
+    <h1>TRAVEL AGENCY — 3D Explorer Generator</h1>
+    <p>লো-পলি ফ্যাসেটেড গ্লোব + ফ্লাইট পাথ + পেপার-প্লেন + এক্সট্রুডেড টেক্সট — কোনো সার্কেল/গোল শেপ নেই, স্ট্রেট-এজ ৩ডি</p>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="canvas-panel">
+    <div class="canvas-wrapper">
+      <canvas id="travelCanvas" width="1600" height="900"></canvas>
+    </div>
+
+    <div class="timer-display">
+      <div class="timer-ring-wrap">
+        <svg width="50" height="50" viewBox="0 0 50 50">
+          <defs>
+            <linearGradient id="ringGradient3" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#ffb703"/><stop offset="100%" stop-color="#1f7a8c"/>
+            </linearGradient>
+          </defs>
+          <circle class="timer-ring-bg" cx="25" cy="25" r="22.5"></circle>
+          <circle class="timer-ring-fill" id="timerRing" cx="25" cy="25" r="22.5"></circle>
+        </svg>
+        <div class="timer-label-inner" id="timerPercent">—</div>
+      </div>
+      <div class="timer-text-group">
+        <div class="timer-big" id="timerBig">00:00</div>
+        <div class="timer-sub" id="timerSub">সময় বাকি</div>
+      </div>
+      <div class="timer-status idle" id="timerStatus" style="margin-left:auto;">প্রস্তুত</div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🌐</div>ভাষা প্রিসেট</div>
+      <div class="lang-row">
+        <button class="lang-btn" onclick="applyLanguage('bn',this)">বাংলা</button>
+        <button class="lang-btn active" onclick="applyLanguage('en',this)">English</button>
+        <button class="lang-btn" onclick="applyLanguage('both',this)">উভয়</button>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">✏️</div>টেক্সট</div>
+      <div class="form-row">
+        <label class="form-label">সাব-লাইন (উপরে)</label>
+        <input type="text" id="subText" value="WELCOME TO">
+      </div>
+      <div class="form-row">
+        <label class="form-label">মূল লাইন</label>
+        <input type="text" id="mainText" value="TRAVEL AGENCY">
+      </div>
+      <div class="form-row">
+        <label class="form-label">ট্যাগলাইন (নিচে, ঐচ্ছিক)</label>
+        <input type="text" id="tagText" value="Explore. Discover. Wander.">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎨</div>রং</div>
+      <div class="color-grid">
+        <div class="form-row"><label class="form-label">গ্লোব / বেস রং</label><input type="color" id="paperColor" value="#1f7a8c"></div>
+        <div class="form-row"><label class="form-label">শ্যাডো রং</label><input type="color" id="shadowColor" value="#0b2e3d"></div>
+        <div class="form-row"><label class="form-label">টেক্সট রং</label><input type="color" id="textColor" value="#f4faff"></div>
+        <div class="form-row"><label class="form-label">প্লেন / পিন / অ্যাক্সেন্ট</label><input type="color" id="accentColor" value="#ffb703"></div>
+      </div>
+      <div class="preset-row" style="margin-top:4px;" id="stylePresets">
+        <div class="style-swatch active" style="background:linear-gradient(135deg,#1f7a8c,#0b2e3d)" onclick="applyStyle('ocean',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#ff7e5f,#6a1b3d)" onclick="applyStyle('sunset',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#2ec4b6,#114b3f)" onclick="applyStyle('tropical',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#d4a373,#5c3d2e)" onclick="applyStyle('desert',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#2b6cb0,#0f2942)" onclick="applyStyle('navy',this)"></div>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🔺</div>গ্লোব শেপ</div>
+      <div class="form-row">
+        <label class="form-label">ফ্যাসেট সংখ্যা (লো-পলি ডিটেইল) <span class="value-badge" id="facetBadge">10</span></label>
+        <input type="range" id="facetCount" min="6" max="16" step="1" value="10">
+      </div>
+      <div class="form-row">
+        <label class="form-label">গ্লোবের সাইজ <span class="value-badge" id="globeSizeBadge">22%</span></label>
+        <input type="range" id="globeSize" min="14" max="30" step="1" value="22">
+      </div>
+      <div class="form-row">
+        <label class="form-label">ফ্লাইট পাথের উচ্চতা (আর্ক) <span class="value-badge" id="pathHeightBadge">1.8</span></label>
+        <input type="range" id="pathHeight" min="1.0" max="2.6" step="0.1" value="1.8">
+      </div>
+      <div class="form-row">
+        <label class="form-label">৩ডি টিল্ট / ডেপথ <span class="value-badge" id="depthBadge">40</span></label>
+        <input type="range" id="depthAmt" min="15" max="70" step="5" value="40">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🖼️</div>লোগো / ছবি (ঐচ্ছিক)</div>
+      <input type="file" id="logoInput" accept="image/*">
+      <div class="logo-preview" id="logoPreviewRow" style="display:none;">
+        <img id="logoThumb" class="logo-thumb" alt="logo">
+        <span style="font-size:12px;color:var(--text-secondary);flex:1;">লোগো লোড হয়েছে</span>
+        <button class="logo-remove" onclick="removeLogo()">সরান</button>
+      </div>
+      <div class="toggle-row" style="margin-top:12px;"><input type="checkbox" id="showLogoToggle" checked>স্ট্যাম্প হিসেবে দেখান</div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎬</div>অ্যানিমেশন / এলিমেন্ট</div>
+      <div class="toggle-row"><input type="checkbox" id="globeToggle" checked>লো-পলি গ্লোব</div>
+      <div class="toggle-row"><input type="checkbox" id="pathToggle" checked>ফ্লাইট পাথ (ড্যাশড)</div>
+      <div class="toggle-row"><input type="checkbox" id="planeToggle" checked>পেপার এয়ারপ্লেন</div>
+      <div class="toggle-row"><input type="checkbox" id="pinsToggle" checked>লোকেশন পিন</div>
+      <div class="toggle-row"><input type="checkbox" id="sweepToggle" checked>টেক্সট শাইন সুইপ</div>
+      <div class="form-row">
+        <label class="form-label">গ্রোথ (লুপ) স্পিড <span class="value-badge" id="growBadge">1.0</span></label>
+        <input type="range" id="growSpeed" min="0.5" max="3" step="0.1" value="1.0">
+      </div>
+      <div class="form-row">
+        <label class="form-label">শাইন স্পিড <span class="value-badge" id="shineBadge">1.2</span></label>
+        <input type="range" id="shineSpeed" min="0" max="4" step="0.1" value="1.2">
+      </div>
+      <div class="form-row">
+        <label class="form-label">সময়কাল</label>
+        <div class="preset-row">
+          <button class="preset-btn" onclick="setDuration(5,this)">5s</button>
+          <button class="preset-btn" onclick="setDuration(10,this)">10s</button>
+          <button class="preset-btn active" onclick="setDuration(30,this)">30s</button>
+          <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:10px;">
+        <label class="toggle-row" style="margin:0;"><input type="checkbox" id="loopToggle" checked>সবসময় লুপ চলবে</label>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" id="startBtn" onclick="startAnim()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg> শুরু
+      </button>
+      <button class="btn btn-stop" id="stopBtn" onclick="stopAnim()" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg> বন্ধ
+      </button>
+    </div>
+    <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট</button>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+      <div class="toggle-row"><input type="checkbox" id="transparentToggle" checked>PNG ট্রান্সপারেন্ট ব্যাকগ্রাউন্ড</div>
+      <div class="form-row" id="exportBgRow" style="display:none;">
+        <label class="form-label">GIF/ভিডিও ব্যাকগ্রাউন্ড রং</label>
+        <input type="color" id="exportBgColor" value="#080b0c">
+      </div>
+      <p style="font-size:11.5px;color:var(--text-muted);margin:2px 0 12px;line-height:1.55;">
+        PNG ট্রান্সপারেন্ট থাকে (ভিডিও এডিটরে সরাসরি ওভারলে করা যাবে)। GIF সবসময় একটি সম্পূর্ণ সিমলেস লুপ এক্সপোর্ট করে। ভিডিও নির্বাচিত সময়কাল অনুযায়ী রেকর্ড হয়।
+      </p>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="downloadPng()">PNG</button>
+        <button class="btn btn-primary" onclick="downloadGif()">GIF</button>
+        <button class="btn btn-primary" onclick="downloadVideo()">ভিডিও (WebM)</button>
+      </div>
+      <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   TRAVEL AGENCY — 3D EXPLORER ENGINE
+   Shape language: low-poly faceted globe (flat triangular/
+   quad facets, NOT a filled circle), a straight-edged
+   paper-plane polygon, diamond location pins, diamond
+   dash trail, and fake-3D extruded text (layered offset
+   copies). No ctx.arc()/circle fills used anywhere in the
+   rendered scene.
+===================================================== */
+
+const canvas = document.getElementById('travelCanvas');
+const ctx = canvas.getContext('2d');
+const CW = canvas.width, CH = canvas.height;
+
+// === STATE ===
+let cyclePhase = 0, shinePhase = 0;
+let isSpinning = false, animFrame = null, lastTimestamp = null;
+let totalDurationMs = 30000, startTime = null, isExporting = false;
+let logoImg = null;
+
+// === LANGUAGE PRESETS ===
+const languagePresets = {
+  bn: { subText: 'স্বাগতম', mainText: 'ট্রাভেল এজেন্সি', tagText: 'ঘুরে বেড়ান, নতুন কিছু আবিষ্কার করুন' },
+  en: { subText: 'WELCOME TO', mainText: 'TRAVEL AGENCY', tagText: 'Explore. Discover. Wander.' },
+  both: { subText: 'WELCOME TO / স্বাগতম', mainText: 'TRAVEL AGENCY', tagText: 'ঘুরে বেড়ান, নতুন কিছু আবিষ্কার করুন' },
+};
+function applyLanguage(lang, btnEl) {
+  const p = languagePresets[lang]; if (!p) return;
+  document.getElementById('subText').value = p.subText;
+  document.getElementById('mainText').value = p.mainText;
+  document.getElementById('tagText').value = p.tagText;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  if (!isSpinning) drawFrame();
+}
+
+// === STYLE PRESETS ===
+const stylePresets = {
+  ocean:    { paperColor:'#1f7a8c', shadowColor:'#0b2e3d', textColor:'#f4faff', accentColor:'#ffb703' },
+  sunset:   { paperColor:'#ff7e5f', shadowColor:'#6a1b3d', textColor:'#fff5eb', accentColor:'#ffd60a' },
+  tropical: { paperColor:'#2ec4b6', shadowColor:'#114b3f', textColor:'#0b1f1c', accentColor:'#ff9f1c' },
+  desert:   { paperColor:'#d4a373', shadowColor:'#5c3d2e', textColor:'#fefae0', accentColor:'#bc6c25' },
+  navy:     { paperColor:'#2b6cb0', shadowColor:'#0f2942', textColor:'#f0f5fa', accentColor:'#f2c14e' },
+};
+function applyStyle(name, el) {
+  const s = stylePresets[name]; if (!s) return;
+  document.getElementById('paperColor').value = s.paperColor;
+  document.getElementById('shadowColor').value = s.shadowColor;
+  document.getElementById('textColor').value = s.textColor;
+  document.getElementById('accentColor').value = s.accentColor;
+  document.querySelectorAll('.style-swatch').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  if (!isSpinning) drawFrame();
+}
+
+// === LOGO UPLOAD ===
+document.getElementById('logoInput').addEventListener('change', function(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const img = new Image();
+    img.onload = function() {
+      logoImg = img;
+      document.getElementById('logoThumb').src = ev.target.result;
+      document.getElementById('logoPreviewRow').style.display = 'flex';
+      document.getElementById('showLogoToggle').checked = true;
+      if (!isSpinning) drawFrame();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+function removeLogo() {
+  logoImg = null;
+  document.getElementById('logoInput').value = '';
+  document.getElementById('logoPreviewRow').style.display = 'none';
+  if (!isSpinning) drawFrame();
+}
+
+// === SETTINGS ===
+function getSettings() {
+  return {
+    subText: document.getElementById('subText').value || '',
+    mainText: document.getElementById('mainText').value || '',
+    tagText: document.getElementById('tagText').value || '',
+    paperColor: document.getElementById('paperColor').value,
+    shadowColor: document.getElementById('shadowColor').value,
+    textColor: document.getElementById('textColor').value,
+    accentColor: document.getElementById('accentColor').value,
+    facetCount: parseInt(document.getElementById('facetCount').value) || 10,
+    globeSizePct: parseInt(document.getElementById('globeSize').value) || 22,
+    pathHeight: parseFloat(document.getElementById('pathHeight').value) || 1.8,
+    depthAmt: parseInt(document.getElementById('depthAmt').value) || 40,
+    showLogo: document.getElementById('showLogoToggle').checked,
+    showGlobe: document.getElementById('globeToggle').checked,
+    showPath: document.getElementById('pathToggle').checked,
+    showPlane: document.getElementById('planeToggle').checked,
+    showPins: document.getElementById('pinsToggle').checked,
+    showSweep: document.getElementById('sweepToggle').checked,
+    growSpeed: parseFloat(document.getElementById('growSpeed').value) || 1.0,
+    shineSpeed: parseFloat(document.getElementById('shineSpeed').value) || 1.2,
+  };
+}
+
+function hexToRgb(hex) {
+  hex = hex.replace('#', '');
+  return { r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16) };
+}
+function hexToRgba(hex, a) { const {r,g,b} = hexToRgb(hex); return `rgba(${r},${g},${b},${a})`; }
+function mix(hexA, hexB, t) {
+  const a = hexToRgb(hexA), b = hexToRgb(hexB);
+  return `rgb(${Math.round(a.r+(b.r-a.r)*t)},${Math.round(a.g+(b.g-a.g)*t)},${Math.round(a.b+(b.b-a.b)*t)})`;
+}
+function lighten(hex, amt) { const {r,g,b} = hexToRgb(hex); return `rgb(${Math.min(255,r+amt)},${Math.min(255,g+amt)},${Math.min(255,b+amt)})`; }
+function darken(hex, amt) { const {r,g,b} = hexToRgb(hex); return `rgb(${Math.max(0,r-amt)},${Math.max(0,g-amt)},${Math.max(0,b-amt)})`; }
+function shadeColor(hex, factor) {
+  const {r,g,b} = hexToRgb(hex);
+  const f = v => Math.max(0, Math.min(255, Math.round(v*factor)));
+  return `rgb(${f(r)},${f(g)},${f(b)})`;
+}
+function clamp01(v){ return Math.max(0, Math.min(1, v)); }
+function easeOutCubic(x){ return 1 - Math.pow(1-x, 3); }
+function easeOutBack(x){ const c1=1.70158, c3=c1+1; return 1 + c3*Math.pow(x-1,3) + c1*Math.pow(x-1,2); }
+function easeInOutQuad(x){ return x<0.5 ? 2*x*x : 1-Math.pow(-2*x+2,2)/2; }
+
+// === 3D MATH HELPERS ===
+function rotateX(p, a){ const c=Math.cos(a), s=Math.sin(a); return {x:p.x, y:p.y*c-p.z*s, z:p.y*s+p.z*c}; }
+function rotateY(p, a){ const c=Math.cos(a), s=Math.sin(a); return {x:p.x*c+p.z*s, y:p.y, z:-p.x*s+p.z*c}; }
+function quadBezier(p0,p1,p2,t){ const mt=1-t; return { x: mt*mt*p0.x+2*mt*t*p1.x+t*t*p2.x, y: mt*mt*p0.y+2*mt*t*p1.y+t*t*p2.y }; }
+function quadBezierDeriv(p0,p1,p2,t){ return { x: 2*(1-t)*(p1.x-p0.x)+2*t*(p2.x-p1.x), y: 2*(1-t)*(p1.y-p0.y)+2*t*(p2.y-p1.y) }; }
+
+// === LOW-POLY FACETED GLOBE (straight quad/triangle facets only, no arcs) ===
+function buildGlobeQuads(gx, gy, R, latBands, lonBands, tilt, spin, oceanColor, landColor) {
+  const quads = [];
+  const verts = [];
+  for (let i = 0; i <= latBands; i++) {
+    const theta = i * Math.PI / latBands;
+    const row = [];
+    for (let j = 0; j <= lonBands; j++) {
+      const phi = j * 2 * Math.PI / lonBands;
+      let p = { x: Math.sin(theta)*Math.cos(phi), y: Math.cos(theta), z: Math.sin(theta)*Math.sin(phi) };
+      p = rotateX(p, tilt);
+      p = rotateY(p, spin);
+      row.push(p);
+    }
+    verts.push(row);
+  }
+  const lx=-0.35, ly=0.55, lz=0.76;
+  for (let i = 0; i < latBands; i++) {
+    for (let j = 0; j < lonBands; j++) {
+      const p0=verts[i][j], p1=verts[i][j+1], p2=verts[i+1][j+1], p3=verts[i+1][j];
+      const avgZ = (p0.z+p1.z+p2.z+p3.z)/4;
+      if (avgZ < -0.03) continue;
+      const nx=(p0.x+p1.x+p2.x+p3.x)/4, ny=(p0.y+p1.y+p2.y+p3.y)/4, nz=avgZ;
+      const nlen = Math.sqrt(nx*nx+ny*ny+nz*nz) || 1;
+      const dot = (nx*lx+ny*ly+nz*lz)/nlen;
+      const bright = Math.max(0.4, Math.min(1.3, 0.78 + dot*0.62));
+      const u=(j+0.5)/lonBands, v=(i+0.5)/latBands;
+      const land = (Math.sin(u*Math.PI*4.2+v*3.1) + Math.sin(v*Math.PI*3.3-u*5.4)) > 0.35;
+      const baseC = land ? landColor : oceanColor;
+      const col = shadeColor(baseC, bright);
+      quads.push({
+        pts: [
+          {x: gx + p0.x*R, y: gy - p0.y*R},
+          {x: gx + p1.x*R, y: gy - p1.y*R},
+          {x: gx + p2.x*R, y: gy - p2.y*R},
+          {x: gx + p3.x*R, y: gy - p3.y*R},
+        ],
+        avgZ, col
+      });
+    }
+  }
+  quads.sort((a,b) => a.avgZ - b.avgZ);
+  return quads;
+}
+function drawGlobeQuads(ctx, quads, edgeColor) {
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = edgeColor;
+  for (const q of quads) {
+    ctx.fillStyle = q.col;
+    ctx.beginPath();
+    ctx.moveTo(q.pts[0].x, q.pts[0].y);
+    for (let k=1;k<q.pts.length;k++) ctx.lineTo(q.pts[k].x, q.pts[k].y);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  }
+}
+
+// === LOCATION PIN (diamond marker, straight edges only) ===
+function drawLocationPin(ctx, x, groundY, size, color, shadowColor, alpha, popScale) {
+  if (alpha <= 0.01) return;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.translate(x, groundY);
+  ctx.scale(popScale, popScale);
+  // pole
+  ctx.strokeStyle = darken(color, 50);
+  ctx.lineWidth = size*0.12;
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,-size*1.1); ctx.stroke();
+  // diamond left facet (darker)
+  ctx.fillStyle = darken(color, 25);
+  ctx.beginPath();
+  ctx.moveTo(0, -size*1.85); ctx.lineTo(-size*0.5, -size*1.35); ctx.lineTo(0, -size*0.85);
+  ctx.closePath(); ctx.fill();
+  // diamond right facet (lighter)
+  ctx.fillStyle = lighten(color, 20);
+  ctx.beginPath();
+  ctx.moveTo(0, -size*1.85); ctx.lineTo(size*0.5, -size*1.35); ctx.lineTo(0, -size*0.85);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = darken(shadowColor, 10); ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(0,-size*1.85); ctx.lineTo(-size*0.5,-size*1.35); ctx.lineTo(0,-size*0.85); ctx.lineTo(size*0.5,-size*1.35); ctx.closePath();
+  ctx.stroke();
+  // base plate diamond
+  ctx.fillStyle = darken(color, 40);
+  ctx.beginPath();
+  ctx.moveTo(0,-size*0.12); ctx.lineTo(size*0.22,0); ctx.lineTo(0,size*0.12); ctx.lineTo(-size*0.22,0);
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+
+// === PAPER AIRPLANE (low-poly polygon, straight edges only) ===
+function drawPlane(ctx, x, y, angle, size, color, shadowColor, alpha) {
+  if (alpha <= 0.01) return;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  // drop shadow
+  ctx.save();
+  ctx.globalAlpha = alpha*0.25;
+  ctx.fillStyle = '#000';
+  ctx.beginPath();
+  ctx.moveTo(size*1.4, size*0.18); ctx.lineTo(-size*0.9,-size*0.47); ctx.lineTo(-size*0.25, size*0.18);
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+  // top wing (lighter)
+  ctx.fillStyle = lighten(color, 25);
+  ctx.beginPath();
+  ctx.moveTo(size*1.4, 0); ctx.lineTo(-size*0.9, -size*0.65); ctx.lineTo(-size*0.25, 0);
+  ctx.closePath(); ctx.fill();
+  // bottom wing (darker)
+  ctx.fillStyle = darken(color, 25);
+  ctx.beginPath();
+  ctx.moveTo(size*1.4, 0); ctx.lineTo(-size*0.9, size*0.65); ctx.lineTo(-size*0.25, 0);
+  ctx.closePath(); ctx.fill();
+  // tail fin
+  ctx.fillStyle = darken(color, 40);
+  ctx.beginPath();
+  ctx.moveTo(-size*0.5, 0); ctx.lineTo(-size*0.9, -size*0.35); ctx.lineTo(-size*0.65, 0);
+  ctx.closePath(); ctx.fill();
+  // centerline fold
+  ctx.strokeStyle = darken(shadowColor, 10); ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(size*1.4,0); ctx.lineTo(-size*0.9,0); ctx.stroke();
+  ctx.restore();
+}
+
+// === FLIGHT TRAIL (diamond dashes, no round dots) ===
+function drawFlightTrail(ctx, p0, p1, p2, progress, accentColor, alpha) {
+  if (alpha <= 0.01 || progress <= 0) return;
+  const steps = 28;
+  ctx.save();
+  for (let i = 1; i <= steps; i++) {
+    const tt = i/steps;
+    if (tt > progress) break;
+    if (i % 2 === 0) continue;
+    const pt = quadBezier(p0,p1,p2,tt);
+    const s = 4.2;
+    ctx.globalAlpha = alpha * 0.55;
+    ctx.fillStyle = accentColor;
+    ctx.beginPath();
+    ctx.moveTo(pt.x, pt.y-s); ctx.lineTo(pt.x+s, pt.y); ctx.lineTo(pt.x, pt.y+s); ctx.lineTo(pt.x-s, pt.y);
+    ctx.closePath(); ctx.fill();
+  }
+  ctx.restore();
+}
+
+// === LOGO STAMP (square frame, straight edges only) ===
+function drawLogoStamp(ctx, x, y, size, img, accentColor, alpha) {
+  if (!img || alpha <= 0.01) return;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.translate(x, y);
+  ctx.rotate(-0.09);
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.fillRect(-size/2+5, -size/2+7, size, size);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(-size/2, -size/2, size, size);
+  ctx.save();
+  ctx.beginPath(); ctx.rect(-size/2+6, -size/2+6, size-12, size-12); ctx.clip();
+  ctx.drawImage(img, -size/2+6, -size/2+6, size-12, size-12);
+  ctx.restore();
+  ctx.strokeStyle = accentColor; ctx.lineWidth = 4;
+  ctx.strokeRect(-size/2, -size/2, size, size);
+  ctx.restore();
+}
+
+// === DRAW ENGINE ===
+function drawFrame(opts) {
+  opts = opts || {};
+  const w = canvas.width, h = canvas.height;
+  const s = getSettings();
+  const cx = w / 2;
+
+  ctx.clearRect(0, 0, w, h);
+  if (opts.solidBg) { ctx.fillStyle = opts.bgColor || '#080b0c'; ctx.fillRect(0, 0, w, h); }
+
+  const cycleMs = 5200 / s.growSpeed;
+  const t = (((opts.tOverride !== undefined) ? opts.tOverride : (cyclePhase % cycleMs) / cycleMs));
+  const shineT = (opts.shineOverride !== undefined) ? opts.shineOverride : shinePhase;
+
+  const fadeOutMul = 1 - clamp01((t - 0.90) / 0.08);
+
+  // === GLOBE GEOMETRY ===
+  const gx = cx, gy = h * 0.54;
+  const baseR = h * (s.globeSizePct/100);
+  const growthRaw = easeOutBack(clamp01(t/0.30));
+  const growth = Math.max(0, growthRaw) * fadeOutMul;
+  const R = baseR * growth;
+  const tilt = -0.25 - (s.depthAmt/100)*0.35;
+  const spin = t * Math.PI * 2;
+  const latBands = Math.max(4, Math.round(s.facetCount*0.6));
+  const lonBands = s.facetCount;
+  const oceanColor = darken(s.paperColor, 10);
+  const landColor = lighten(s.paperColor, 70);
+  const edgeColor = hexToRgba(darken(s.shadowColor, 10), 0.55);
+
+  // ground shadow (flattened diamond, not an ellipse)
+  if (R > 1) {
+    ctx.fillStyle = hexToRgba(s.shadowColor, 0.28 * fadeOutMul);
+    const sy = gy + R*0.98, sw = R*1.15, sh = R*0.22;
+    ctx.beginPath();
+    ctx.moveTo(gx, sy - sh); ctx.lineTo(gx + sw, sy); ctx.lineTo(gx, sy + sh); ctx.lineTo(gx - sw, sy);
+    ctx.closePath(); ctx.fill();
+  }
+
+  if (s.showGlobe && R > 1) {
+    const quads = buildGlobeQuads(gx, gy, R, latBands, lonBands, tilt, spin, oceanColor, landColor);
+    ctx.save();
+    ctx.globalAlpha = fadeOutMul;
+    drawGlobeQuads(ctx, quads, edgeColor);
+    ctx.restore();
+  }
+
+  // === FLIGHT PATH ===
+  const startPt = { x: gx - baseR*1.55, y: gy + baseR*0.62 };
+  const endPt   = { x: gx + baseR*1.55, y: gy + baseR*0.62 };
+  const ctrlPt  = { x: gx, y: gy - baseR*s.pathHeight };
+
+  const pathStart = 0.30, pathEnd = 0.80;
+  const flightRaw = clamp01((t - pathStart) / (pathEnd - pathStart));
+  const flightT = easeInOutQuad(flightRaw);
+  const pathAlpha = clamp01((t-0.20)/0.08) * fadeOutMul;
+
+  if (s.showPath && pathAlpha > 0.01) {
+    drawFlightTrail(ctx, startPt, ctrlPt, endPt, flightT, s.accentColor, pathAlpha);
+  }
+
+  // === PINS ===
+  if (s.showPins) {
+    const startPinAlpha = clamp01((t-0.10)/0.10) * fadeOutMul;
+    const startPop = 1 + Math.max(0, (1-clamp01((t-0.10)/0.12)))*0.0;
+    drawLocationPin(ctx, startPt.x, startPt.y, h*0.05, s.accentColor, s.shadowColor, startPinAlpha, 1);
+
+    const destRaw = clamp01((t-0.78)/0.10);
+    const destPinAlpha = destRaw > 0.01 ? clamp01((t-0.78)/0.06) * fadeOutMul : 0;
+    const destPop = 0.6 + easeOutBack(destRaw)*0.4;
+    drawLocationPin(ctx, endPt.x, endPt.y, h*0.05, s.accentColor, s.shadowColor, destPinAlpha, Math.max(0.01,destPop));
+  }
+
+  // === PLANE ===
+  if (s.showPlane && flightRaw > 0.001 && flightRaw < 1) {
+    const planeAlpha = clamp01((t-pathStart)/0.06) * clamp01((pathEnd+0.02-t)/0.06) * fadeOutMul;
+    const pos = quadBezier(startPt, ctrlPt, endPt, flightT);
+    const deriv = quadBezierDeriv(startPt, ctrlPt, endPt, flightT);
+    const angle = Math.atan2(deriv.y, deriv.x);
+    drawPlane(ctx, pos.x, pos.y, angle, h*0.028, s.accentColor, s.shadowColor, planeAlpha);
+  }
+
+  // === BANNER TEXT ===
+  const bannerAlpha = clamp01((t-0.50)/0.15) * fadeOutMul;
+  if (bannerAlpha > 0.01) {
+    const slideOffset = (1 - clamp01((t-0.50)/0.15)) * 26;
+    ctx.save();
+    ctx.globalAlpha = bannerAlpha;
+    ctx.textAlign = 'center';
+
+    const mainFontSize = Math.min(h*0.14, (w*0.9)/Math.max(4, s.mainText.length*0.62));
+    const mainY = h*0.155 - slideOffset;
+
+    if (s.subText) {
+      ctx.font = `700 ${mainFontSize*0.28}px 'Outfit','Noto Sans Bengali',sans-serif`;
+      ctx.fillStyle = hexToRgba(s.shadowColor, 0.9);
+      ctx.fillText(s.subText, cx+2, mainY - mainFontSize*0.78+2);
+      ctx.fillStyle = s.accentColor;
+      ctx.fillText(s.subText, cx, mainY - mainFontSize*0.78);
+    }
+
+    ctx.font = `900 ${mainFontSize}px 'Outfit','Noto Sans Bengali',sans-serif`;
+    const depthSteps = Math.round(6 + (s.depthAmt/100)*7);
+    for (let k = depthSteps; k >= 1; k--) {
+      ctx.fillStyle = hexToRgba(s.shadowColor, 0.55);
+      ctx.fillText(s.mainText, cx + k*1.5, mainY + k*1.5);
+    }
+    ctx.fillStyle = s.textColor;
+    ctx.fillText(s.mainText, cx, mainY);
+
+    if (s.showSweep) {
+      const textWidth = ctx.measureText(s.mainText).width;
+      const boxLeft = cx - textWidth/2 - 14, boxTop = mainY - mainFontSize*0.88;
+      const boxW = textWidth + 28, boxH = mainFontSize*1.05;
+      const sweepPos = ((shineT * 0.00028 * s.shineSpeed) % 1) * (boxW + 140) - 70;
+      ctx.save();
+      ctx.beginPath(); ctx.rect(boxLeft, boxTop, boxW, boxH); ctx.clip();
+      ctx.globalCompositeOperation = 'source-atop';
+      const grad = ctx.createLinearGradient(boxLeft+sweepPos-45, boxTop, boxLeft+sweepPos+45, boxTop+boxH);
+      grad.addColorStop(0, hexToRgba(s.accentColor, 0));
+      grad.addColorStop(0.5, hexToRgba('#ffffff', 0.85));
+      grad.addColorStop(1, hexToRgba(s.accentColor, 0));
+      ctx.fillStyle = grad;
+      ctx.fillRect(boxLeft, boxTop, boxW, boxH);
+      ctx.restore();
+    }
+
+    if (s.tagText) {
+      ctx.font = `600 ${mainFontSize*0.24}px 'Outfit','Noto Sans Bengali',sans-serif`;
+      ctx.fillStyle = hexToRgba(s.shadowColor, 0.9);
+      ctx.fillText(s.tagText, cx+2, mainY + mainFontSize*0.52+2);
+      ctx.fillStyle = s.textColor;
+      ctx.fillText(s.tagText, cx, mainY + mainFontSize*0.52);
+    }
+    ctx.restore();
+  }
+
+  // === LOGO STAMP ===
+  if (s.showLogo && logoImg) {
+    const logoAlpha = clamp01((t-0.30)/0.12) * fadeOutMul;
+    drawLogoStamp(ctx, w*0.90, h*0.14, h*0.14, logoImg, s.accentColor, logoAlpha);
+  }
+}
+
+// === TIMER UI ===
+function formatTime(ms) {
+  const totalSec = Math.max(0, Math.ceil(ms/1000));
+  const m = Math.floor(totalSec/60), sec = totalSec%60;
+  return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
+function resetTimerUI() {
+  document.getElementById('timerBig').textContent = formatTime(totalDurationMs);
+  document.getElementById('timerPercent').textContent = '—';
+  document.getElementById('timerRing').style.strokeDashoffset = 0;
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status idle'; st.textContent = 'প্রস্তুত';
+}
+function setDuration(sec, btnEl) {
+  totalDurationMs = sec*1000;
+  document.querySelectorAll('.preset-row .preset-btn').forEach(b => { if (b.parentElement === btnEl.parentElement) b.classList.remove('active'); });
+  btnEl.classList.add('active');
+  if (!isSpinning) resetTimerUI();
+}
+
+// === ANIMATION LOOP ===
+function tick(timestamp) {
+  if (!isSpinning) return;
+  if (lastTimestamp === null) { lastTimestamp = timestamp; startTime = timestamp; }
+  const dt = timestamp - lastTimestamp;
+  lastTimestamp = timestamp;
+  cyclePhase += dt;
+  shinePhase += dt;
+  drawFrame();
+
+  const elapsed = timestamp - startTime;
+  let remaining = totalDurationMs - elapsed;
+  const loop = document.getElementById('loopToggle').checked;
+  if (remaining <= 0) {
+    if (loop) { startTime = timestamp; remaining = totalDurationMs; }
+    else { finishAnim(); return; }
+  }
+  document.getElementById('timerBig').textContent = formatTime(remaining);
+  const pct = Math.round((remaining/totalDurationMs)*100);
+  document.getElementById('timerPercent').textContent = pct + '%';
+  document.getElementById('timerRing').style.strokeDashoffset = String(141 * (1 - remaining/totalDurationMs));
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status spinning'; st.textContent = '● চলছে';
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+
+  animFrame = requestAnimationFrame(tick);
+}
+function startAnim() {
+  if (isSpinning) return;
+  isSpinning = true;
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+  animFrame = requestAnimationFrame(tick);
+}
+function stopAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status idle'; st.textContent = '⏸ থামানো হয়েছে';
+  drawFrame();
+}
+function finishAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  document.getElementById('timerBig').textContent = '00:00';
+  document.getElementById('timerPercent').textContent = '100%';
+  document.getElementById('timerRing').style.strokeDashoffset = 0;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status done'; st.textContent = '✅ সম্পন্ন';
+  document.getElementById('timerSub').textContent = 'অ্যানিমেশন শেষ';
+  drawFrame();
+}
+function resetAll() {
+  stopAnim();
+  cyclePhase = 0; shinePhase = 0;
+  resetTimerUI();
+  drawFrame();
+}
+
+// === EXPORT ===
+function setExportStatus(msg) { document.getElementById('exportStatus').textContent = msg; }
+function saveBlob(blob, filename) {
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+function downloadPng() {
+  const transparent = document.getElementById('transparentToggle').checked;
+  const bgColor = document.getElementById('exportBgColor').value;
+  drawFrame({ solidBg: !transparent, bgColor, tOverride: 0.68, shineOverride: shinePhase });
+  canvas.toBlob(blob => {
+    drawFrame(isSpinning ? {} : {});
+    if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+    saveBlob(blob, 'travel-agency-3d.png');
+    setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+  }, 'image/png');
+}
+
+async function downloadGif() {
+  if (!window.GIF) { setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন।'); return; }
+  if (isExporting) return;
+  isExporting = true;
+  const bgColor = document.getElementById('exportBgColor').value;
+  const s = getSettings();
+  const cycleMs = 5200 / s.growSpeed;
+  const gif = new GIF({ workers: 2, quality: 10, width: CW, height: CH,
+    workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
+  const frames = 60;
+  const frameDelay = Math.round(cycleMs / frames);
+  setExportStatus('GIF তৈরি হচ্ছে (একটি সম্পূর্ণ লুপ)… 0%');
+  for (let i = 0; i < frames; i++) {
+    const t = i / frames;
+    drawFrame({ solidBg: true, bgColor, tOverride: t, shineOverride: t*cycleMs*4 });
+    gif.addFrame(canvas, { copy: true, delay: frameDelay });
+    setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((i+1)/frames*100)}%`);
+    await new Promise(requestAnimationFrame);
+  }
+  drawFrame({});
+  gif.on('finished', blob => {
+    saveBlob(blob, 'travel-agency-3d.gif');
+    setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
+    isExporting = false;
+  });
+  gif.render();
+}
+
+async function downloadVideo() {
+  if (!window.MediaRecorder || !canvas.captureStream) {
+    setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।'); return;
+  }
+  if (isExporting) return;
+  isExporting = true;
+  const bgColor = document.getElementById('exportBgColor').value;
+  const stream = canvas.captureStream(30);
+  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 6000000 });
+  const chunks = [];
+  const oldCycle = cyclePhase, oldShine = shinePhase;
+  recorder.ondataavailable = e => e.data.size && chunks.push(e.data);
+  recorder.onstop = () => {
+    saveBlob(new Blob(chunks, { type: mimeType }), 'travel-agency-3d.webm');
+    cyclePhase = oldCycle; shinePhase = oldShine;
+    drawFrame({});
+    isExporting = false;
+    setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+  };
+  recorder.start();
+  const start = performance.now();
+  const duration = totalDurationMs;
+  setExportStatus('ভিডিও তৈরি হচ্ছে…');
+  const render = (now) => {
+    const elapsedMs = now - start;
+    const progress = Math.min(1, elapsedMs / duration);
+    cyclePhase = oldCycle + elapsedMs;
+    shinePhase = oldShine + elapsedMs;
+    drawFrame({ solidBg: true, bgColor });
+    if (progress < 1) requestAnimationFrame(render); else recorder.stop();
+  };
+  requestAnimationFrame(render);
+}
+
+// === UI EVENTS ===
+['facetCount','globeSize','pathHeight','depthAmt','growSpeed','shineSpeed'].forEach(id => {
+  document.getElementById(id).addEventListener('input', function() {
+    const badges = { facetCount:'facetBadge', globeSize:'globeSizeBadge', pathHeight:'pathHeightBadge', depthAmt:'depthBadge', growSpeed:'growBadge', shineSpeed:'shineBadge' };
+    const el = document.getElementById(badges[id]);
+    if (id === 'globeSize') el.textContent = this.value + '%';
+    else el.textContent = this.value;
+    if (!isSpinning) drawFrame();
+  });
+});
+['subText','mainText','tagText','paperColor','shadowColor','textColor','accentColor',
+ 'globeToggle','pathToggle','planeToggle','pinsToggle','sweepToggle','showLogoToggle'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => { if (!isSpinning) drawFrame(); });
+  el.addEventListener('change', () => { if (!isSpinning) drawFrame(); });
+});
+document.getElementById('transparentToggle').addEventListener('change', function() {
+  document.getElementById('exportBgRow').style.display = this.checked ? 'none' : 'block';
+});
+
+// === INITIAL DRAW ===
+drawFrame({ tOverride: 0.68, shineOverride: 0 });
+setTimeout(startAnim, 150);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+</body>
+</html>

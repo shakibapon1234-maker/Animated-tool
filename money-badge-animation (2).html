@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Money Badge Animation — মানি ব্যাজ</title>
+<meta name="description" content="মানি ব্যাজ অ্যানিমেশন — অ্যাঙ্গুলার ফ্যাসেটেড ৩ডি কয়েন ব্যাজ, স্ট্যাকড কয়েন উইংস, রোটেটিং ড্যাশড বর্ডার — ভিডিও/ফটো এডিটর অ্যাপের জন্য">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-primary:#0a0806; --bg-secondary:#120e08; --bg-card:#1a140c; --bg-card-hover:#211a10;
+    --border:rgba(255,255,255,0.08); --border-active:rgba(255,205,60,0.5);
+    --accent:#ffcd3c; --accent-glow:rgba(255,205,60,0.4);
+    --accent-2:#22c55e; --accent-3:#3b82f6;
+    --text-primary:#fbf6ea; --text-secondary:#b8ab8d; --text-muted:#6b5f48;
+    --radius:16px; --radius-sm:10px;
+    --shadow:0 20px 60px rgba(0,0,0,0.55); --shadow-glow:0 0 45px rgba(255,205,60,0.18);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Outfit','Noto Sans Bengali',system-ui,sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;overflow-x:hidden;display:flex;flex-direction:column;align-items:center;}
+  body::before{content:'';position:fixed;inset:0;background:
+    radial-gradient(ellipse 80% 50% at 15% 15%, rgba(255,205,60,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 85%, rgba(34,197,94,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 50% 50%, rgba(59,130,246,0.05) 0%, transparent 70%);
+    pointer-events:none; z-index:0;}
+  .app-header{width:100%;padding:22px 32px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);background:rgba(10,8,6,0.8);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+  .header-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),#b8860b);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 20px var(--accent-glow);flex-shrink:0;}
+  .header-text h1{font-size:19px;font-weight:700;background:linear-gradient(135deg,#fff 0%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .header-text p{font-size:12.5px;color:var(--text-secondary);margin-top:2px;}
+  .main-content{width:100%;max-width:1220px;padding:36px 22px 80px;display:grid;grid-template-columns:1fr 380px;gap:28px;position:relative;z-index:1;}
+  @media (max-width:900px){.main-content{grid-template-columns:1fr;}}
+  .canvas-panel{display:flex;flex-direction:column;align-items:center;gap:20px;}
+  .canvas-wrapper{width:100%;aspect-ratio:1;max-width:500px;background:var(--bg-card);border:1px solid var(--border);border-radius:24px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;box-shadow:var(--shadow),var(--shadow-glow);}
+  .canvas-wrapper::before{content:'';position:absolute;inset:-1px;border-radius:25px;background:linear-gradient(135deg,rgba(255,205,60,0.3),rgba(34,197,94,0.14),rgba(59,130,246,0.1));z-index:-1;animation:borderGlow 4s ease-in-out infinite;}
+  @keyframes borderGlow{0%,100%{opacity:.5;}50%{opacity:1;}}
+  .canvas-bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:30px 30px;border-radius:24px;}
+  #badgeCanvas{display:block;max-width:100%;max-height:100%;}
+  .lang-toggle{display:flex;gap:8px;background:var(--bg-card);border:1px solid var(--border);border-radius:60px;padding:6px;}
+  .lang-btn{padding:8px 20px;border-radius:50px;border:none;background:transparent;color:var(--text-secondary);font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;transition:.2s;}
+  .lang-btn.active{background:linear-gradient(135deg,var(--accent),#b8860b);color:#241900;}
+  .controls-panel{display:flex;flex-direction:column;gap:16px;}
+  .control-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+  .card-title{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-secondary);margin-bottom:14px;}
+  .card-title-icon{width:22px;height:22px;border-radius:6px;background:rgba(255,205,60,0.12);display:flex;align-items:center;justify-content:center;font-size:12px;}
+  .form-row{margin-bottom:12px;}
+  .form-row:last-child{margin-bottom:0;}
+  .form-label{display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px;font-weight:500;}
+  .form-input,.form-select{width:100%;padding:10px 12px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-family:inherit;font-size:13.5px;outline:none;transition:.2s;}
+  .form-input:focus,.form-select:focus{border-color:var(--border-active);}
+  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .color-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+  .color-row:last-child{margin-bottom:0;}
+  .color-row label{font-size:12.5px;color:var(--text-secondary);}
+  .color-row input[type=color]{width:38px;height:30px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;padding:0;}
+  .preset-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .style-preset-btn{padding:9px 4px;border-radius:10px;border:1px solid var(--border);cursor:pointer;font-family:inherit;font-size:11px;font-weight:600;color:var(--text-primary);transition:.2s;}
+  .style-preset-btn.active{border-color:var(--border-active);box-shadow:0 0 0 1px var(--border-active);}
+  .slider-row{margin-bottom:14px;}
+  .slider-row:last-child{margin-bottom:0;}
+  .slider-label-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:6px;}
+  .slider-badge{color:var(--accent);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--accent);}
+  .toggle-row{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--text-secondary);cursor:pointer;margin-bottom:10px;}
+  .toggle-row:last-child{margin-bottom:0;}
+  .dir-btn{flex:1;padding:9px;border-radius:10px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;transition:.2s;}
+  .dir-btn.active{border-color:var(--border-active);color:var(--accent);}
+  .btn-group{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{flex:1;min-width:110px;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border-radius:12px;border:none;font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;transition:.2s;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),#b8860b);color:#241900;box-shadow:0 8px 22px rgba(255,205,60,0.25);}
+  .btn-primary:hover{transform:translateY(-1px);}
+  .btn-stop{background:var(--bg-secondary);color:var(--text-secondary);border:1px solid var(--border);}
+  .btn-stop:disabled,.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text-secondary);}
+  #exportStatus{font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-icon">💰</div>
+  <div class="header-text">
+    <h1>Money Badge Animation</h1>
+    <p>অ্যাঙ্গুলার ৩ডি কয়েন ব্যাজ — PNG · GIF · ভিডিও এক্সপোর্ট</p>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="canvas-panel">
+    <div class="canvas-wrapper">
+      <div class="canvas-bg-grid"></div>
+      <canvas id="badgeCanvas" width="460" height="460"></canvas>
+    </div>
+    <div class="lang-toggle">
+      <button class="lang-btn" id="langBn" onclick="setLanguage('bn')">বাংলা</button>
+      <button class="lang-btn active" id="langEn" onclick="setLanguage('en')">English</button>
+    </div>
+  </div>
+
+  <div class="controls-panel">
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">✎</div>টেক্সট</div>
+      <div class="form-row">
+        <label class="form-label">উপরের ব্যানার টেক্সট</label>
+        <input class="form-input" id="topText" value="GET YOUR">
+      </div>
+      <div class="form-row">
+        <label class="form-label">মূল টেক্সট (কেন্দ্র)</label>
+        <input class="form-input" id="centerText" value="MONEY">
+      </div>
+      <div class="form-row">
+        <label class="form-label">সাব-টেক্সট</label>
+        <input class="form-input" id="centerSubText" value="GROW YOUR WEALTH">
+      </div>
+      <div class="form-row">
+        <label class="form-label">নিচের ব্যানার টেক্সট</label>
+        <input class="form-input" id="bottomText" value="CASH REWARD">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎨</div>স্টাইল প্রিসেট</div>
+      <div class="preset-grid">
+        <button class="style-preset-btn active" onclick="applyStyle('royalGold',this)">Gold</button>
+        <button class="style-preset-btn" onclick="applyStyle('emeraldCash',this)">Emerald</button>
+        <button class="style-preset-btn" onclick="applyStyle('platinumElite',this)">Platinum</button>
+        <button class="style-preset-btn" onclick="applyStyle('sapphireWealth',this)">Sapphire</button>
+        <button class="style-preset-btn" onclick="applyStyle('rubyBonus',this)">Ruby</button>
+        <button class="style-preset-btn" onclick="applyStyle('bronzeStart',this)">Bronze</button>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🖌</div>কাস্টম রং</div>
+      <div class="color-row"><label>কয়েন (বাইরে)</label><input type="color" id="badgeColorOuter" value="#ffcd3c"></div>
+      <div class="color-row"><label>কয়েন (ভেতরে)</label><input type="color" id="badgeColorInner" value="#7a5c00"></div>
+      <div class="color-row"><label>বর্ডার/রিং</label><input type="color" id="ringColor" value="#ffffff"></div>
+      <div class="color-row"><label>ব্যানার টেক্সট</label><input type="color" id="bannerTextColor" value="#3a2a00"></div>
+      <div class="color-row"><label>কেন্দ্র টেক্সট</label><input type="color" id="centerTextColor" value="#3a2a00"></div>
+      <div class="color-row"><label>গ্লো</label><input type="color" id="glowColor" value="#ffcd3c"></div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">✨</div>এলিমেন্ট</div>
+      <div class="toggle-row"><input type="checkbox" id="chevronToggle" checked> স্ট্যাকড কয়েন উইংস (দুই পাশে)</div>
+      <div class="toggle-row"><input type="checkbox" id="ribbonToggle" checked> নিচের রিবন টেইল</div>
+      <div class="toggle-row"><input type="checkbox" id="sparkleToggle" checked> স্পার্কল কণা</div>
+      <div class="toggle-row"><input type="checkbox" id="pingToggle" checked> এক্সপ্যান্ডিং কয়েন রিং</div>
+      <div class="slider-row" style="margin-top:12px;">
+        <div class="slider-label-row"><span>৩ডি গভীরতা (Depth)</span><span class="slider-badge" id="depthBadge">0.16</span></div>
+        <input type="range" id="coinDepth" min="0.04" max="0.34" step="0.01" value="0.16">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">⚙</div>অ্যানিমেশন</div>
+      <div class="slider-row">
+        <div class="slider-label-row"><span>বর্ডার ঘূর্ণন গতি</span><span class="slider-badge" id="speedBadge">1.5 RPM</span></div>
+        <input type="range" id="spinSpeed" min="0" max="8" step="0.1" value="1.5">
+      </div>
+      <div class="slider-row">
+        <div class="slider-label-row"><span>পালস তীব্রতা</span><span class="slider-badge" id="pulseBadge">0.50</span></div>
+        <input type="range" id="pulseIntensity" min="0" max="1" step="0.05" value="0.5">
+      </div>
+      <div class="slider-row">
+        <div class="slider-label-row"><span>রিং গতি</span><span class="slider-badge" id="ringSpeedBadge">1.0</span></div>
+        <input type="range" id="ringSpeed" min="0.2" max="3" step="0.1" value="1.0">
+      </div>
+      <div class="form-row">
+        <label class="form-label">ঘূর্ণনের দিক</label>
+        <div class="row-2">
+          <button class="dir-btn active" id="dirCW" onclick="setDirection('cw')">↻ ঘড়ির কাঁটার দিকে</button>
+          <button class="dir-btn" id="dirCCW" onclick="setDirection('ccw')">↺ উল্টো দিক</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">সময়কাল</label>
+        <input type="range" id="spinDuration" min="5" max="120" step="1" value="30">
+      </div>
+      <div class="toggle-row"><input type="checkbox" id="loopSpinToggle" checked> সবসময় চলতে থাকবে (Loop)</div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" id="startBtn" onclick="startBurst()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+        অ্যানিমেশন শুরু
+      </button>
+      <button class="btn btn-stop" id="stopBtn" onclick="stopBurst()" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+        বন্ধ করুন
+      </button>
+    </div>
+    <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট করুন</button>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">⬇</div>ডাউনলোড</div>
+      <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.55;">PNG (ট্রান্সপারেন্ট ব্যাকগ্রাউন্ড), GIF অথবা ভিডিও হিসেবে সরাসরি আপনার ভিডিও/ফটো এডিটর অ্যাপে ব্যবহারের জন্য ডাউনলোড করুন।</p>
+      <div class="btn-group">
+        <button class="btn btn-primary" type="button" onclick="downloadPng()">PNG</button>
+        <button class="btn btn-primary" type="button" onclick="downloadGif()">GIF</button>
+        <button class="btn btn-primary" type="button" onclick="downloadVideo()">ভিডিও</button>
+      </div>
+      <div id="exportStatus"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   MONEY COIN BADGE ANIMATION ENGINE
+   Shape: angular 8-point faceted coin (flat-top octagon,
+   NO circles/round shapes) rendered with a true extruded
+   3D side-wall (thickness) + faceted top-face bevel lines,
+   plus stacked "coin bar" wing accents, rotating dashed
+   octagon border, expanding octagon "ping" rings, ribbon
+   tail and sparkle particles.
+   Canvas background stays transparent for overlay use.
+===================================================== */
+const canvas = document.getElementById('badgeCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas(){
+  const wrapper = canvas.parentElement;
+  const size = Math.min(wrapper.clientWidth - 40, 460);
+  canvas.width = size; canvas.height = size;
+}
+resizeCanvas();
+window.addEventListener('resize', () => { resizeCanvas(); drawFrame(); });
+
+// === STATE ===
+let spinAngle=0, pulsePhase=0, ringPhase=0, sparklePhase=0;
+let isSpinning=false, animFrame=null, totalDurationMs=30000, startTime=null;
+let direction=1, speedRPM=1.5, lastTimestamp=null, isExporting=false;
+let currentLang='en';
+
+const sparkles = Array.from({length:14}, (_,i)=>({
+  angle: (i/14)*Math.PI*2, dist: 0.55+Math.random()*0.5,
+  speed: 0.4+Math.random()*0.8, size: 0.4+Math.random()*0.6, offset: Math.random()*10
+}));
+
+const strings = {
+  bn:{top:'আপনার', center:'টাকা', sub:'সম্পদ বাড়ান', bottom:'ক্যাশ রিওয়ার্ড'},
+  en:{top:'GET YOUR', center:'MONEY', sub:'GROW YOUR WEALTH', bottom:'CASH REWARD'}
+};
+
+function setLanguage(lang){
+  currentLang = lang;
+  document.getElementById('langBn').classList.toggle('active', lang==='bn');
+  document.getElementById('langEn').classList.toggle('active', lang==='en');
+  const s = strings[lang];
+  document.getElementById('topText').value = s.top;
+  document.getElementById('centerText').value = s.center;
+  document.getElementById('centerSubText').value = s.sub;
+  document.getElementById('bottomText').value = s.bottom;
+  if(!isSpinning) drawFrame();
+}
+
+// === STYLE PRESETS ===
+const stylePresets = {
+  royalGold:      { outer:'#ffcd3c', inner:'#7a5c00', ring:'#ffffff', bannerText:'#3a2a00', centerText:'#3a2a00', glow:'#ffcd3c' },
+  emeraldCash:    { outer:'#22c55e', inner:'#063d1f', ring:'#ffffff', bannerText:'#ffffff', centerText:'#ffffff', glow:'#22c55e' },
+  platinumElite:  { outer:'#c0c6d4', inner:'#3a3f4d', ring:'#ffd700', bannerText:'#1a1c22', centerText:'#1a1c22', glow:'#c0c6d4' },
+  sapphireWealth: { outer:'#3b82f6', inner:'#0b1f4d', ring:'#ffd700', bannerText:'#ffffff', centerText:'#ffffff', glow:'#3b82f6' },
+  rubyBonus:      { outer:'#ef4444', inner:'#4a0505', ring:'#ffd700', bannerText:'#ffffff', centerText:'#ffffff', glow:'#ef4444' },
+  bronzeStart:    { outer:'#cd7f32', inner:'#3d2410', ring:'#ffffff', bannerText:'#ffffff', centerText:'#ffffff', glow:'#cd7f32' },
+};
+
+function applyStyle(name, btnEl){
+  const s = stylePresets[name]; if(!s) return;
+  document.getElementById('badgeColorOuter').value = s.outer;
+  document.getElementById('badgeColorInner').value = s.inner;
+  document.getElementById('ringColor').value = s.ring;
+  document.getElementById('bannerTextColor').value = s.bannerText;
+  document.getElementById('centerTextColor').value = s.centerText;
+  document.getElementById('glowColor').value = s.glow;
+  document.querySelectorAll('.style-preset-btn').forEach(b=>b.classList.remove('active'));
+  btnEl.classList.add('active');
+  drawFrame();
+}
+
+// === READ SETTINGS ===
+function getSettings(){
+  return {
+    topText: document.getElementById('topText').value||'',
+    centerText: document.getElementById('centerText').value||'',
+    centerSubText: document.getElementById('centerSubText').value||'',
+    bottomText: document.getElementById('bottomText').value||'',
+    badgeColorOuter: document.getElementById('badgeColorOuter').value,
+    badgeColorInner: document.getElementById('badgeColorInner').value,
+    ringColor: document.getElementById('ringColor').value,
+    bannerTextColor: document.getElementById('bannerTextColor').value,
+    centerTextColor: document.getElementById('centerTextColor').value,
+    glowColor: document.getElementById('glowColor').value,
+    pulseIntensity: parseFloat(document.getElementById('pulseIntensity').value)||0.5,
+    ringSpeed: parseFloat(document.getElementById('ringSpeed').value)||1.0,
+    coinDepth: parseFloat(document.getElementById('coinDepth').value)||0.16,
+    showChevron: document.getElementById('chevronToggle').checked,
+    showRibbon: document.getElementById('ribbonToggle').checked,
+    showSparkle: document.getElementById('sparkleToggle').checked,
+    showPing: document.getElementById('pingToggle').checked,
+  };
+}
+
+// === ANGULAR FLAT-TOP OCTAGON COIN (8-point, no curves) ===
+const BASE_ANGLES = Array.from({length:8}, (_,i)=> -Math.PI/2 + Math.PI/8 + i*(Math.PI/4));
+
+function coinVerts(r, rotationOffset=0){
+  return BASE_ANGLES.map(a=>{
+    const aa = a + rotationOffset;
+    return [Math.cos(aa)*r, Math.sin(aa)*r];
+  });
+}
+function pathFromVerts(ctx, verts){
+  ctx.beginPath();
+  verts.forEach((p,i)=>{ if(i===0) ctx.moveTo(p[0],p[1]); else ctx.lineTo(p[0],p[1]); });
+  ctx.closePath();
+}
+function coinPath(ctx, r, rotationOffset=0){
+  pathFromVerts(ctx, coinVerts(r, rotationOffset));
+}
+
+// === DRAW ENGINE ===
+function drawFrame(){
+  const w=canvas.width, h=canvas.height, cx=w/2, cy=h/2;
+  const baseR = Math.min(w,h)*0.30;
+  const s = getSettings();
+  ctx.clearRect(0,0,w,h);
+
+  const pulseScale = 1 + s.pulseIntensity*0.07*Math.sin(pulsePhase);
+  const coreR = baseR*pulseScale;
+  const depth = coreR*s.coinDepth;
+
+  // --- EXPANDING COIN PING RINGS (angular, behind everything) ---
+  if(s.showPing){
+    ctx.save(); ctx.translate(cx,cy);
+    const maxSpread = baseR*1.5;
+    for(let i=0;i<3;i++){
+      const localPhase = ((ringPhase*s.ringSpeed) + i/3) % 1;
+      const r = coreR + localPhase*maxSpread;
+      const alpha = (1-localPhase)*0.4;
+      ctx.save();
+      coinPath(ctx, r, spinAngle*0.2);
+      ctx.strokeStyle = hexToRgba(s.ringColor, Math.max(0,alpha));
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  // --- STACKED COIN-BAR WINGS (both sides) ---
+  if(s.showChevron){
+    drawCoinStackWing(ctx, cx, cy, coreR, s.badgeColorOuter, s.badgeColorInner, -1);
+    drawCoinStackWing(ctx, cx, cy, coreR, s.badgeColorOuter, s.badgeColorInner, 1);
+  }
+
+  // --- RIBBON TAILS (behind core, fixed) ---
+  if(s.showRibbon){
+    const ribbonW = baseR*0.42;
+    drawRibbonTail(ctx, cx - ribbonW*0.6, ribbonW, cy+coreR*0.9, cy+coreR*1.75, darkenColor(s.badgeColorOuter,40));
+    drawRibbonTail(ctx, cx + ribbonW*0.6, ribbonW, cy+coreR*0.9, cy+coreR*1.75, darkenColor(s.badgeColorOuter,40));
+  }
+
+  // --- ROTATING DASHED OCTAGON BORDER ---
+  ctx.save(); ctx.translate(cx,cy); ctx.rotate(spinAngle);
+  const dashR = coreR*1.2 + depth*0.5;
+  const perim = 8 * dashR * 0.9;
+  const dashCount = 20;
+  const dashLen = perim/(dashCount*2);
+  coinPath(ctx, dashR);
+  ctx.setLineDash([dashLen,dashLen]);
+  ctx.strokeStyle = s.ringColor;
+  ctx.lineWidth = Math.max(2, baseR*0.028);
+  ctx.shadowColor = s.glowColor;
+  ctx.shadowBlur = baseR*0.2;
+  ctx.stroke();
+  ctx.setLineDash([]); ctx.shadowBlur = 0;
+  ctx.restore();
+
+  // --- CORE 3D FACETED COIN ---
+  ctx.save(); ctx.translate(cx,cy);
+  drawCoin3D(ctx, coreR, depth, s.badgeColorOuter, s.badgeColorInner, s.glowColor);
+
+  // --- TOP / BOTTOM BANNER TEXT ---
+  ctx.font = `700 ${Math.round(baseR*0.13)}px 'Noto Sans Bengali','Outfit',sans-serif`;
+  ctx.fillStyle = s.bannerTextColor;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(s.topText, 0, -coreR*0.6);
+  ctx.fillText(s.bottomText, 0, coreR*0.62);
+
+  // divider lines
+  ctx.strokeStyle = hexToRgba(s.bannerTextColor,0.35); ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(-coreR*0.4,-coreR*0.44); ctx.lineTo(coreR*0.4,-coreR*0.44); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-coreR*0.4,coreR*0.46); ctx.lineTo(coreR*0.4,coreR*0.46); ctx.stroke();
+
+  // --- CENTER TEXT ---
+  ctx.font = `800 ${Math.round(baseR*0.235)}px 'Noto Sans Bengali','Outfit',sans-serif`;
+  ctx.fillStyle = s.centerTextColor;
+  ctx.shadowColor='rgba(0,0,0,0.35)'; ctx.shadowBlur=6;
+  wrapCenterText(ctx, s.centerText, 0, -coreR*0.06, coreR*1.4, baseR*0.235*1.08);
+  ctx.shadowBlur=0;
+
+  ctx.font = `600 ${Math.round(baseR*0.095)}px 'Noto Sans Bengali','Outfit',sans-serif`;
+  ctx.globalAlpha=0.88;
+  ctx.fillText(s.centerSubText, 0, coreR*0.26);
+  ctx.globalAlpha=1;
+  const subW = ctx.measureText(s.centerSubText).width;
+  ctx.beginPath(); ctx.moveTo(-subW/2, coreR*0.33); ctx.lineTo(subW/2, coreR*0.33);
+  ctx.strokeStyle = s.centerTextColor; ctx.globalAlpha=0.3; ctx.lineWidth=1; ctx.stroke();
+  ctx.globalAlpha=1;
+  ctx.restore();
+
+  // --- SPARKLE PARTICLES ---
+  if(s.showSparkle){
+    ctx.save(); ctx.translate(cx,cy);
+    sparkles.forEach(sp=>{
+      const twinkle = 0.4+0.6*Math.abs(Math.sin(sparklePhase*sp.speed + sp.offset));
+      const a = sp.angle + spinAngle*0.15;
+      const r = coreR*sp.dist;
+      const x = Math.cos(a)*r, y = Math.sin(a)*r - depth*0.4;
+      drawStar(ctx, x, y, baseR*0.028*sp.size*twinkle, s.ringColor, twinkle);
+    });
+    ctx.restore();
+  }
+}
+
+// Extruded 3D faceted octagon coin: bottom rim copy -> side walls -> top face w/ facets
+function drawCoin3D(ctx, r, depth, colorOuter, colorInner, glowColor){
+  const topVerts = coinVerts(r);
+  const botVerts = topVerts.map(([x,y])=>[x, y+depth]);
+
+  // 1) bottom rim silhouette (darkest)
+  ctx.save();
+  pathFromVerts(ctx, botVerts);
+  ctx.fillStyle = darkenColor(colorInner, 35);
+  ctx.fill();
+  ctx.restore();
+
+  // 2) side walls per edge, shaded by vertical position (front/bottom edges brighter rim)
+  for(let i=0;i<topVerts.length;i++){
+    const nxt = (i+1)%topVerts.length;
+    const t0=topVerts[i], t1=topVerts[nxt], b0=botVerts[i], b1=botVerts[nxt];
+    const edgeMidY = (t0[1]+t1[1])/2;
+    const facingFactor = Math.max(0, edgeMidY/r); // 0 at top, ~1 at bottom
+    ctx.beginPath();
+    ctx.moveTo(t0[0],t0[1]); ctx.lineTo(t1[0],t1[1]); ctx.lineTo(b1[0],b1[1]); ctx.lineTo(b0[0],b0[1]); ctx.closePath();
+    const wallGrad = ctx.createLinearGradient(t0[0],t0[1],b0[0],b0[1]);
+    wallGrad.addColorStop(0, darkenColor(colorOuter, 10 + (1-facingFactor)*25));
+    wallGrad.addColorStop(1, darkenColor(colorInner, 25 + (1-facingFactor)*20));
+    ctx.fillStyle = wallGrad;
+    ctx.fill();
+  }
+
+  // 3) top face with bevel gradient + glow
+  pathFromVerts(ctx, topVerts);
+  const grad = ctx.createLinearGradient(0,-r,0,r);
+  grad.addColorStop(0, lightenColor(colorOuter,45));
+  grad.addColorStop(0.5, colorOuter);
+  grad.addColorStop(1, colorInner);
+  ctx.save();
+  ctx.fillStyle = grad;
+  ctx.shadowColor = glowColor;
+  ctx.shadowBlur = r*0.35;
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.restore();
+
+  // 4) facet spokes (cut-gem look) — alternating light/dark translucent triangles from center to each edge
+  ctx.save();
+  pathFromVerts(ctx, topVerts);
+  ctx.clip();
+  for(let i=0;i<topVerts.length;i++){
+    const nxt=(i+1)%topVerts.length;
+    ctx.beginPath();
+    ctx.moveTo(0,0); ctx.lineTo(topVerts[i][0],topVerts[i][1]); ctx.lineTo(topVerts[nxt][0],topVerts[nxt][1]); ctx.closePath();
+    ctx.fillStyle = i%2===0 ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.10)';
+    ctx.fill();
+  }
+  // faint spoke lines for facet edges
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1;
+  topVerts.forEach(v=>{ ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(v[0],v[1]); ctx.stroke(); });
+  ctx.restore();
+
+  // 5) crisp top outline
+  pathFromVerts(ctx, topVerts);
+  ctx.strokeStyle = hexToRgba('#ffffff',0.3);
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // inner facet outline (secondary, slightly smaller)
+  pathFromVerts(ctx, coinVerts(r*0.86));
+  ctx.strokeStyle = hexToRgba('#ffffff',0.2);
+  ctx.lineWidth = 1;
+  ctx.stroke();
+}
+
+function drawStar(ctx,x,y,size,color,alpha){
+  ctx.save(); ctx.translate(x,y); ctx.globalAlpha=alpha;
+  ctx.beginPath();
+  ctx.moveTo(0,-size); ctx.lineTo(size*0.28,-size*0.28); ctx.lineTo(size,0);
+  ctx.lineTo(size*0.28,size*0.28); ctx.lineTo(0,size); ctx.lineTo(-size*0.28,size*0.28);
+  ctx.lineTo(-size,0); ctx.lineTo(-size*0.28,-size*0.28); ctx.closePath();
+  ctx.fillStyle=color; ctx.shadowColor=color; ctx.shadowBlur=size*2; ctx.fill();
+  ctx.restore();
+}
+
+// Three small stacked angular "coin bars" beside the main coin —
+// an angular stand-in for laurel wings, echoing a growing stack of money.
+function drawCoinStackWing(ctx, cx, cy, coreR, colorOuter, colorInner, side){
+  ctx.save();
+  ctx.translate(cx + side*coreR*1.18, cy + coreR*0.32);
+  const barCount = 3;
+  for(let i=0;i<barCount;i++){
+    const w = coreR*(0.5 - i*0.09);
+    const hgt = coreR*0.13;
+    const yOff = -i*(hgt*1.15);
+    ctx.save();
+    ctx.translate(0, yOff);
+    // angular bar (cut-corner rectangle, no rounding)
+    const hw=w/2, hh=hgt/2, cut=hh*0.5;
+    ctx.beginPath();
+    ctx.moveTo(-hw+cut,-hh); ctx.lineTo(hw-cut,-hh); ctx.lineTo(hw,0); ctx.lineTo(hw-cut,hh);
+    ctx.lineTo(-hw+cut,hh); ctx.lineTo(-hw,0); ctx.closePath();
+    const g = ctx.createLinearGradient(0,-hh,0,hh);
+    g.addColorStop(0, lightenColor(colorOuter,25));
+    g.addColorStop(1, darkenColor(colorInner, 5+i*10));
+    ctx.fillStyle = g;
+    ctx.fill();
+    ctx.strokeStyle = hexToRgba('#ffffff',0.25); ctx.lineWidth=1; ctx.stroke();
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
+function wrapCenterText(ctx, text, x, y, maxWidth, lineHeight){
+  const words = text.split(' ');
+  if(words.length<=1 || ctx.measureText(text).width<=maxWidth){
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(text, x, y); return;
+  }
+  let lines=[], current='';
+  words.forEach(word=>{
+    const test = current? current+' '+word : word;
+    if(ctx.measureText(test).width > maxWidth && current){ lines.push(current); current=word; }
+    else current = test;
+  });
+  lines.push(current);
+  const totalH = (lines.length-1)*lineHeight;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  lines.forEach((line,i)=> ctx.fillText(line, x, y - totalH/2 + i*lineHeight));
+}
+
+function drawRibbonTail(ctx, xOffset, width, topY, bottomY, color){
+  ctx.beginPath();
+  ctx.moveTo(xOffset-width/2, topY); ctx.lineTo(xOffset+width/2, topY);
+  ctx.lineTo(xOffset+width/2, bottomY-width*0.4); ctx.lineTo(xOffset, bottomY);
+  ctx.lineTo(xOffset-width/2, bottomY-width*0.4); ctx.closePath();
+  ctx.fillStyle=color; ctx.fill();
+  ctx.strokeStyle='rgba(0,0,0,0.25)'; ctx.lineWidth=1; ctx.stroke();
+}
+
+// === COLOR HELPERS ===
+function hexToRgb(hex){ return { r:parseInt(hex.slice(1,3),16), g:parseInt(hex.slice(3,5),16), b:parseInt(hex.slice(5,7),16) }; }
+function hexToRgba(hex,alpha){ const {r,g,b}=hexToRgb(hex); return `rgba(${r},${g},${b},${alpha})`; }
+function lightenColor(hex,amt){ const {r,g,b}=hexToRgb(hex); return `rgb(${Math.min(255,r+amt)},${Math.min(255,g+amt)},${Math.min(255,b+amt)})`; }
+function darkenColor(hex,amt){ const {r,g,b}=hexToRgb(hex); return `rgb(${Math.max(0,r-amt)},${Math.max(0,g-amt)},${Math.max(0,b-amt)})`; }
+
+// === ANIMATION LOOP ===
+function animationLoop(timestamp){
+  if(!isSpinning) return;
+  if(!lastTimestamp) lastTimestamp = timestamp;
+  const delta = timestamp - lastTimestamp; lastTimestamp = timestamp;
+
+  const radiansPerMs = (speedRPM*2*Math.PI)/60000;
+  spinAngle += direction*radiansPerMs*delta;
+  pulsePhase += delta*0.0025;
+  ringPhase += delta*0.0006; ringPhase = ringPhase % 1000;
+  sparklePhase += delta*0.0018;
+
+  const elapsed = timestamp - startTime;
+  const remaining = Math.max(0, totalDurationMs - elapsed);
+
+  drawFrame();
+
+  if(remaining<=0 && !document.getElementById('loopSpinToggle').checked){ finishBurst(); return; }
+  if(remaining<=0) startTime = timestamp;
+  animFrame = requestAnimationFrame(animationLoop);
+}
+
+// === START / STOP ===
+function startBurst(){
+  if(isSpinning) return;
+  const durationSec = parseFloat(document.getElementById('spinDuration').value)||30;
+  totalDurationMs = durationSec*1000;
+  speedRPM = parseFloat(document.getElementById('spinSpeed').value)||0;
+  isSpinning = true; startTime=null; lastTimestamp=null;
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+  animFrame = requestAnimationFrame((ts)=>{ startTime=ts; lastTimestamp=ts; animationLoop(ts); });
+}
+function stopBurst(){
+  isSpinning=false; if(animFrame) cancelAnimationFrame(animFrame); lastTimestamp=null;
+  document.getElementById('startBtn').disabled=false;
+  document.getElementById('stopBtn').disabled=true;
+  drawFrame();
+}
+function finishBurst(){
+  isSpinning=false; if(animFrame) cancelAnimationFrame(animFrame); lastTimestamp=null;
+  document.getElementById('startBtn').disabled=false;
+  document.getElementById('stopBtn').disabled=true;
+  drawFrame();
+}
+function resetAll(){
+  stopBurst(); spinAngle=0; pulsePhase=0; ringPhase=0; sparklePhase=0; drawFrame();
+}
+
+function setExportStatus(msg){ document.getElementById('exportStatus').textContent = msg; }
+function saveBlob(blob, filename){
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob); link.download = filename; link.click();
+  setTimeout(()=>URL.revokeObjectURL(link.href), 1000);
+}
+
+function downloadPng(){
+  canvas.toBlob((blob)=>{
+    if(!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+    saveBlob(blob, 'money-badge.png');
+    setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+  }, 'image/png');
+}
+
+function getExportCanvas(size=720){
+  const exportCanvas = document.createElement('canvas');
+  exportCanvas.width = exportCanvas.height = size;
+  const oldW=canvas.width, oldH=canvas.height;
+  canvas.width = canvas.height = size;
+  drawFrame();
+  exportCanvas.getContext('2d').drawImage(canvas,0,0);
+  canvas.width=oldW; canvas.height=oldH; drawFrame();
+  return exportCanvas;
+}
+
+async function downloadGif(){
+  if(!window.GIF){ setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ দিয়ে আবার চেষ্টা করুন।'); return; }
+  if(isExporting) return; isExporting=true;
+  const oldAngle=spinAngle, oldPulse=pulsePhase, oldRing=ringPhase, oldSpark=sparklePhase;
+  const gif = new GIF({ workers:2, quality:10, width:720, height:720,
+    workerScript:'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
+  const frames=48, frameDelay=50;
+  setExportStatus('GIF তৈরি হচ্ছে… 0%');
+  for(let f=0; f<frames; f++){
+    const t=f/frames;
+    spinAngle = oldAngle + direction*(Math.PI*2*t);
+    pulsePhase = oldPulse + (Math.PI*2*2*t);
+    ringPhase = oldRing + t*2;
+    sparklePhase = oldSpark + t*4;
+    gif.addFrame(getExportCanvas(720), { copy:true, delay:frameDelay });
+    setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((f+1)/frames*100)}%`);
+    await new Promise(requestAnimationFrame);
+  }
+  spinAngle=oldAngle; pulsePhase=oldPulse; ringPhase=oldRing; sparklePhase=oldSpark; drawFrame();
+  gif.on('finished',(blob)=>{ saveBlob(blob,'money-badge.gif'); setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।'); isExporting=false; });
+  gif.render();
+}
+
+async function downloadVideo(){
+  if(!window.MediaRecorder || !canvas.captureStream){ setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।'); return; }
+  if(isExporting) return; isExporting=true;
+  const exportCanvas = document.createElement('canvas');
+  exportCanvas.width = exportCanvas.height = 720;
+  const exportCtx = exportCanvas.getContext('2d');
+  const stream = exportCanvas.captureStream(30);
+  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond:5000000 });
+  const chunks=[];
+  const oldAngle=spinAngle, oldPulse=pulsePhase, oldRing=ringPhase, oldSpark=sparklePhase;
+  recorder.ondataavailable = (e)=> e.data.size && chunks.push(e.data);
+  recorder.onstop = ()=>{
+    saveBlob(new Blob(chunks,{type:mimeType}), 'money-badge.webm');
+    spinAngle=oldAngle; pulsePhase=oldPulse; ringPhase=oldRing; sparklePhase=oldSpark; drawFrame();
+    isExporting=false; setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+  };
+  recorder.start();
+  const start = performance.now(); const duration = 2400;
+  setExportStatus('ভিডিও তৈরি হচ্ছে…');
+  const render = (now)=>{
+    const progress = Math.min(1,(now-start)/duration);
+    spinAngle = oldAngle + direction*Math.PI*2*progress;
+    pulsePhase = oldPulse + Math.PI*2*2*progress;
+    ringPhase = oldRing + progress*2;
+    sparklePhase = oldSpark + progress*4;
+    const frame = getExportCanvas(720);
+    exportCtx.clearRect(0,0,720,720); exportCtx.drawImage(frame,0,0);
+    if(progress<1) requestAnimationFrame(render); else recorder.stop();
+  };
+  requestAnimationFrame(render);
+}
+
+// === DIRECTION ===
+function setDirection(dir){
+  direction = dir==='cw' ? 1 : -1;
+  document.getElementById('dirCW').classList.toggle('active', dir==='cw');
+  document.getElementById('dirCCW').classList.toggle('active', dir==='ccw');
+}
+
+// === EVENT LISTENERS ===
+document.getElementById('spinSpeed').addEventListener('input', function(){
+  speedRPM = parseFloat(this.value);
+  document.getElementById('speedBadge').textContent = speedRPM.toFixed(1)+' RPM';
+});
+document.getElementById('pulseIntensity').addEventListener('input', function(){
+  document.getElementById('pulseBadge').textContent = parseFloat(this.value).toFixed(2);
+});
+document.getElementById('ringSpeed').addEventListener('input', function(){
+  document.getElementById('ringSpeedBadge').textContent = parseFloat(this.value).toFixed(1);
+});
+document.getElementById('coinDepth').addEventListener('input', function(){
+  document.getElementById('depthBadge').textContent = parseFloat(this.value).toFixed(2);
+  if(!isSpinning) drawFrame();
+});
+
+['topText','centerText','centerSubText','bottomText',
+ 'badgeColorOuter','badgeColorInner','ringColor','bannerTextColor','centerTextColor','glowColor',
+ 'chevronToggle','ribbonToggle','sparkleToggle','pingToggle'].forEach(id=>{
+  const el = document.getElementById(id);
+  if(el){
+    el.addEventListener('input', ()=>{ if(!isSpinning) drawFrame(); });
+    el.addEventListener('change', ()=>{ if(!isSpinning) drawFrame(); });
+  }
+});
+
+// === INITIAL DRAW ===
+drawFrame();
+setTimeout(startBurst, 150);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+</body>
+</html>

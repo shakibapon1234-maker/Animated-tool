@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wings Fly Aviation Academy — Flying Plane Background</title>
+    <meta name="description" content="Wings Fly Aviation Academy — আকাশে উড়ন্ত প্লেন, মেঘ ও টো ব্যানার সহ ব্যাকগ্রাউন্ড অ্যানিমেশন">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #060a12;
+            --bg-card: #121a2b;
+            --border: rgba(255,255,255,0.08);
+            --border-active: rgba(56,189,248,0.5);
+            --accent: #38bdf8;
+            --accent-glow: rgba(56,189,248,0.4);
+            --accent-2: #f7b733;
+            --accent-3: #1e3a5f;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #4b5670;
+            --success: #10b981;
+            --danger: #ef4444;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 20px 60px rgba(0,0,0,0.55);
+            --shadow-glow: 0 0 40px rgba(56,189,248,0.18);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Outfit', 'Hind Siliguri', 'Inter', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 15%, rgba(56,189,248,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 85% 80%, rgba(247,183,51,0.07) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app-header {
+            width: 100%; padding: 22px 32px; display: flex; align-items: center; gap: 16px;
+            border-bottom: 1px solid var(--border); background: rgba(6,10,18,0.85);
+            backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 100;
+        }
+        .header-icon {
+            width: 44px; height: 44px; background: linear-gradient(135deg, var(--accent), var(--accent-3));
+            border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 19px;
+            box-shadow: 0 0 20px var(--accent-glow); flex-shrink: 0;
+        }
+        .header-text h1 {
+            font-size: 19px; font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .header-text p { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+        .main-content {
+            width: 100%; max-width: 1200px; padding: 40px 24px 80px;
+            display: grid; grid-template-columns: 1fr 380px; gap: 32px;
+            position: relative; z-index: 1;
+        }
+        @media (max-width: 900px) { .main-content { grid-template-columns: 1fr; } }
+
+        .canvas-panel { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+
+        .canvas-wrapper {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            max-width: 640px;
+            background:
+                linear-gradient(45deg, #1a2236 25%, transparent 25%) -20px 0/40px 40px,
+                linear-gradient(-45deg, #1a2236 25%, transparent 25%) -20px 0/40px 40px,
+                linear-gradient(45deg, transparent 75%, #1a2236 75%) -20px 0/40px 40px,
+                linear-gradient(-45deg, transparent 75%, #1a2236 75%) -20px 0/40px 40px,
+                var(--bg-card);
+            border: 1px solid var(--border); border-radius: 24px;
+            display: flex; align-items: center; justify-content: center;
+            position: relative; overflow: hidden;
+            box-shadow: var(--shadow), var(--shadow-glow);
+            transition: aspect-ratio 0.2s;
+        }
+        .canvas-wrapper::before {
+            content: ''; position: absolute; inset: -1px; border-radius: 25px;
+            background: linear-gradient(135deg, rgba(56,189,248,0.3), rgba(247,183,51,0.12), rgba(30,58,95,0.2));
+            z-index: -1; animation: borderGlow 4s ease-in-out infinite;
+        }
+        @keyframes borderGlow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+        .checker-note {
+            position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+            font-size: 10px; color: rgba(255,255,255,0.85); background: rgba(0,0,0,0.4);
+            padding: 3px 10px; border-radius: 20px; letter-spacing: 0.3px;
+        }
+
+        #badgeCanvas { display: block; max-width: 100%; max-height: 100%; }
+
+        .timer-display {
+            display: flex; align-items: center; gap: 16px; padding: 16px 28px;
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 60px; box-shadow: var(--shadow);
+        }
+        .timer-ring-wrap { position: relative; width: 56px; height: 56px; }
+        .timer-ring-wrap svg { transform: rotate(-90deg); }
+        .timer-ring-bg { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 4; }
+        .timer-ring-fill {
+            fill: none; stroke: url(#ringGradient); stroke-width: 4; stroke-linecap: round;
+            transition: stroke-dashoffset 1s linear; stroke-dasharray: 157; stroke-dashoffset: 0;
+        }
+        .timer-label-inner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--accent); }
+        .timer-text-group { display: flex; flex-direction: column; }
+        .timer-big { font-size: 32px; font-weight: 800; color: var(--text-primary); letter-spacing: -1px; }
+        .timer-sub { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+        .timer-status { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+        .timer-status.idle { background: rgba(255,255,255,0.06); color: var(--text-muted); }
+        .timer-status.spinning { background: rgba(56,189,248,0.2); color: var(--accent); animation: pulse 2s ease-in-out infinite; }
+        .timer-status.done { background: rgba(16,185,129,0.2); color: var(--success); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        .controls-panel { display: flex; flex-direction: column; gap: 20px; }
+
+        .control-card {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 24px; transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .control-card:hover { border-color: var(--border-active); box-shadow: 0 0 20px rgba(56,189,248,0.1); }
+
+        .card-title {
+            font-size: 13px; font-weight: 700; color: var(--text-secondary); letter-spacing: 1px;
+            text-transform: uppercase; margin-bottom: 18px; display: flex; align-items: center; gap: 8px;
+        }
+        .card-title-icon {
+            width: 24px; height: 24px; background: linear-gradient(135deg, var(--accent), var(--accent-3));
+            border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px;
+        }
+
+        .form-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+        .form-row:last-child { margin-bottom: 0; }
+        .form-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center; }
+        .form-label .value-badge {
+            background: rgba(56,189,248,0.15); color: var(--accent); padding: 2px 10px;
+            border-radius: 20px; font-size: 12px; font-weight: 700; font-family: 'JetBrains Mono', monospace;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); padding: 12px 16px; color: var(--text-primary);
+            font-size: 14px; font-family: inherit; transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+        }
+        input[type="text"]:focus, input[type="number"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(56,189,248,0.15); }
+
+        input[type="range"] {
+            width: 100%; height: 6px; -webkit-appearance: none; appearance: none;
+            background: rgba(255,255,255,0.08); border-radius: 10px; outline: none; cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            box-shadow: 0 0 10px rgba(56,189,248,0.5); cursor: pointer; transition: transform 0.15s;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+        .time-presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+        .preset-btn {
+            padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: transparent;
+            color: var(--text-secondary); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit;
+        }
+        .preset-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(56,189,248,0.1); }
+        .preset-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(56,189,248,0.15); }
+
+        .direction-toggle, .lang-toggle { display: flex; gap: 8px; }
+        .dir-btn, .lang-btn {
+            flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+            background: transparent; color: var(--text-secondary); font-size: 13px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; font-family: inherit;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+        }
+        .dir-btn:hover, .lang-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .dir-btn.active, .lang-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(56,189,248,0.12); }
+
+        .btn-group { display: flex; gap: 12px; }
+        .btn {
+            flex: 1; padding: 14px 20px; border-radius: var(--radius-sm); border: none; font-size: 14px;
+            font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 8px; letter-spacing: 0.3px;
+        }
+        .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-3)); color: white; box-shadow: 0 4px 20px rgba(56,189,248,0.35); }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(56,189,248,0.45); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-stop { background: linear-gradient(135deg, var(--danger), #b91c1c); color: white; box-shadow: 0 4px 20px rgba(239,68,68,0.3); }
+        .btn-stop:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(239,68,68,0.4); }
+        .btn-stop:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-ghost { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text-secondary); }
+        .btn-ghost:hover { border-color: var(--border-active); color: var(--text-primary); background: rgba(255,255,255,0.07); }
+
+        .style-presets { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .style-preset-btn {
+            padding: 10px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: transparent;
+            color: var(--text-secondary); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+            font-family: inherit; text-align: center;
+        }
+        .style-preset-btn:hover { border-color: var(--accent); color: var(--text-primary); background: rgba(56,189,248,0.08); }
+        .style-preset-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(56,189,248,0.15); }
+
+        .checkbox-row { display: flex; align-items: center; gap: 9px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+
+        .sep { height: 1px; background: var(--border); margin: 4px 0; }
+        .hint-text { font-size: 12px; color: var(--text-muted); margin: 0 0 12px; line-height: 1.55; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="header-icon">✈️</div>
+        <div class="header-text">
+            <h1>Wings Fly Aviation Academy — Flying Plane Background</h1>
+            <p>আকাশ + মেঘ + উড়ন্ত প্লেন + টো ব্যানার — regular ব্যাকগ্রাউন্ড হিসেবে ব্যবহারযোগ্য</p>
+        </div>
+    </header>
+
+    <div class="main-content">
+
+        <div class="canvas-panel">
+            <div class="canvas-wrapper" id="canvasWrapper">
+                <canvas id="badgeCanvas" width="640" height="360"></canvas>
+                <div class="checker-note" id="checkerNote">Full background — সরাসরি ভিডিওর নিচে বসানো যাবে</div>
+            </div>
+
+            <div class="timer-display" id="timerDisplay">
+                <div class="timer-ring-wrap">
+                    <svg width="56" height="56" viewBox="0 0 56 56">
+                        <defs>
+                            <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#38bdf8"/>
+                                <stop offset="100%" stop-color="#f7b733"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="timer-ring-bg" cx="28" cy="28" r="25"/>
+                        <circle class="timer-ring-fill" id="timerRing" cx="28" cy="28" r="25"/>
+                    </svg>
+                    <div class="timer-label-inner" id="timerPercent">—</div>
+                </div>
+                <div class="timer-text-group">
+                    <div class="timer-big" id="timerBig">00:00</div>
+                    <div class="timer-sub" id="timerSub">সময় বাকি</div>
+                </div>
+                <div class="timer-status idle" id="timerStatus">প্রস্তুত</div>
+            </div>
+        </div>
+
+        <div class="controls-panel">
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">📐</div>ওরিয়েন্টেশন</div>
+                <div class="direction-toggle">
+                    <button class="dir-btn active" id="oriLandscape" onclick="setOrientation('landscape')">▭ ল্যান্ডস্কেপ 16:9</button>
+                    <button class="dir-btn" id="oriPortrait" onclick="setOrientation('portrait')">▯ পোর্ট্রেট 9:16</button>
+                </div>
+            </div>
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">🌐</div>কন্টেন্ট ভাষা</div>
+                <div class="lang-toggle">
+                    <button class="lang-btn active" id="langEN" onclick="setLanguage('en')">English</button>
+                    <button class="lang-btn" id="langBN" onclick="setLanguage('bn')">বাংলা</button>
+                </div>
+            </div>
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">✍️</div>টো ব্যানার</div>
+                <div class="form-row">
+                    <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                        <input type="checkbox" id="showBanner" checked> প্লেনের পেছনে ব্যানার দেখান
+                    </label>
+                </div>
+                <div class="form-row">
+                    <label class="form-label">ব্যানার টেক্সট</label>
+                    <input type="text" id="bannerText" value="WELCOME TO WINGS FLY AVIATION ACADEMY" placeholder="প্লেনের পেছনে যে টেক্সট থাকবে">
+                </div>
+                <div class="form-row">
+                    <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                        <input type="checkbox" id="transparentBg"> শুধু প্লেন/ব্যানার — আকাশ ছাড়া (transparent bg)
+                    </label>
+                </div>
+            </div>
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">🎨</div>আকাশের থিম</div>
+                <div class="style-presets" id="stylePresets">
+                    <button class="style-preset-btn active" data-style="day" onclick="applyStyle('day',this)">☀️ ডে স্কাই</button>
+                    <button class="style-preset-btn" data-style="sunset" onclick="applyStyle('sunset',this)">🌇 সানসেট</button>
+                    <button class="style-preset-btn" data-style="dawn" onclick="applyStyle('dawn',this)">🌸 ডন পার্পল</button>
+                    <button class="style-preset-btn" data-style="night" onclick="applyStyle('night',this)">🌌 নাইট স্কাই</button>
+                    <button class="style-preset-btn" data-style="storm" onclick="applyStyle('storm',this)">☁️ স্টর্মি গ্রে</button>
+                    <button class="style-preset-btn" data-style="golden" onclick="applyStyle('golden',this)">🌅 গোল্ডেন আওয়ার</button>
+                </div>
+            </div>
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">⚡</div>অ্যানিমেশন সেটিংস</div>
+
+                <div class="form-row">
+                    <label class="form-label">চলার সময় (সেকেন্ড)<span class="value-badge" id="durationBadge">10s</span></label>
+                    <input type="number" id="spinDuration" value="10" min="1" max="3600">
+                    <div class="time-presets">
+                        <button class="preset-btn" onclick="setDuration(5,this)">5s</button>
+                        <button class="preset-btn active" onclick="setDuration(10,this)">10s</button>
+                        <button class="preset-btn" onclick="setDuration(20,this)">20s</button>
+                        <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label">প্লেনের গতি (এক পাক দিতে সেকেন্ড)<span class="value-badge" id="speedBadge">6.0s</span></label>
+                    <input type="range" id="flightSpeed" min="3" max="16" step="0.5" value="6">
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label">উড়ার দিক</label>
+                    <div class="direction-toggle">
+                        <button class="dir-btn active" id="dirLTR" onclick="setFlightDir('ltr')">→ বাম থেকে ডান</button>
+                        <button class="dir-btn" id="dirRTL" onclick="setFlightDir('rtl')">← ডান থেকে বাম</button>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label class="checkbox-row"><input type="checkbox" id="loopSpinToggle" checked> সবসময় চলতে থাকবে (Loop)</label>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="startBtn" onclick="startSpin()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+                    চালু করুন
+                </button>
+                <button class="btn btn-stop" id="stopBtn" onclick="stopSpin()" disabled>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+                    বন্ধ করুন
+                </button>
+            </div>
+            <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট করুন</button>
+
+            <div class="control-card" style="margin-top:16px;">
+                <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+                <p class="hint-text">ডিফল্টে পুরো আকাশ-দৃশ্য সহ (opaque) এক্সপোর্ট হয় — সরাসরি ভিডিওর ব্যাকগ্রাউন্ড হিসেবে বসানো যায়। "আকাশ ছাড়া" অপশন অন করলে শুধু প্লেন+ব্যানার transparent PNG/GIF হিসেবে এক্সপোর্ট হবে, আপনার নিজের ব্যাকগ্রাউন্ডের উপর overlay করার জন্য।</p>
+                <div class="btn-group">
+                    <button class="btn btn-primary" type="button" onclick="downloadPng()">PNG</button>
+                    <button class="btn btn-primary" type="button" onclick="downloadGif()">GIF</button>
+                    <button class="btn btn-primary" type="button" onclick="downloadVideo()">Video (WebM)</button>
+                </div>
+                <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+    /* =====================================================
+       WINGS FLY AVIATION ACADEMY — FLYING PLANE BACKGROUND
+       Sky + parallax clouds + plane + contrail + tow banner
+    ===================================================== */
+
+    const canvas = document.getElementById('badgeCanvas');
+    const ctx = canvas.getContext('2d');
+    const canvasWrapper = document.getElementById('canvasWrapper');
+
+    let orientation = 'landscape';
+
+    function resizeCanvas() {
+        const maxW = canvasWrapper.clientWidth - 40 > 0 ? canvasWrapper.clientWidth - 40 : 300;
+        if (orientation === 'landscape') {
+            const w = Math.min(maxW, 640);
+            canvas.width = w; canvas.height = Math.round(w * 9 / 16);
+        } else {
+            const w = Math.min(maxW, 320);
+            canvas.width = w; canvas.height = Math.round(w * 16 / 9);
+        }
+    }
+    resizeCanvas();
+    window.addEventListener('resize', () => { resizeCanvas(); drawFrame(); });
+
+    function setOrientation(o) {
+        orientation = o;
+        canvasWrapper.style.aspectRatio = o === 'landscape' ? '16 / 9' : '9 / 16';
+        canvasWrapper.style.maxWidth = o === 'landscape' ? '640px' : '360px';
+        document.getElementById('oriLandscape').classList.toggle('active', o === 'landscape');
+        document.getElementById('oriPortrait').classList.toggle('active', o === 'portrait');
+        resizeCanvas();
+        drawFrame();
+    }
+
+    // === STATE ===
+    let animPhase = 0;
+    let elapsedAnimMs = 0;
+    let isSpinning = false;
+    let animFrame = null;
+    let totalDurationMs = 10000;
+    let startTime = null;
+    let flightDir = 1;          // 1 = LTR, -1 = RTL
+    let flightDurationSec = 6;  // seconds for one full crossing (also = export loop length)
+    let lastTimestamp = null;
+    let isExporting = false;
+
+    function mod(n, m) { return ((n % m) + m) % m; }
+
+    // === LANGUAGE PRESETS ===
+    const langPresets = {
+        en: { bannerText: 'WELCOME TO WINGS FLY AVIATION ACADEMY' },
+        bn: { bannerText: 'উইংস ফ্লাই এভিয়েশন একাডেমিতে স্বাগতম' },
+    };
+    function setLanguage(lang) {
+        const p = langPresets[lang];
+        if (!p) return;
+        document.getElementById('bannerText').value = p.bannerText;
+        document.getElementById('langEN').classList.toggle('active', lang === 'en');
+        document.getElementById('langBN').classList.toggle('active', lang === 'bn');
+        drawFrame();
+    }
+
+    // === SKY STYLE PRESETS ===
+    const skyPresets = {
+        day:    { top: '#4fc3f7', mid: '#81d4fa', bottom: '#e1f5fe', cloud: '#ffffff', plane: '#f1f5f9', planeAccent: '#1a4a8a', sun: true,  sunColor: '#fff59d', stars: false },
+        sunset: { top: '#ff8a65', mid: '#ffb74d', bottom: '#fff3c4', cloud: '#ffe0cc', plane: '#f1f5f9', planeAccent: '#b91c1c', sun: true,  sunColor: '#ffca28', stars: false },
+        dawn:   { top: '#c084fc', mid: '#f0abfc', bottom: '#fbcfe8', cloud: '#ffffff', plane: '#f1f5f9', planeAccent: '#7c3aed', sun: true,  sunColor: '#fde68a', stars: false },
+        night:  { top: '#0b1026', mid: '#141a3d', bottom: '#243158', cloud: '#3b4468', plane: '#e2e8f0', planeAccent: '#38bdf8', sun: false, sunColor: '#ffffff', stars: true },
+        storm:  { top: '#4b5563', mid: '#6b7280', bottom: '#9ca3af', cloud: '#374151', plane: '#f1f5f9', planeAccent: '#f7b733', sun: false, sunColor: '#ffffff', stars: false },
+        golden: { top: '#f59e0b', mid: '#fbbf24', bottom: '#fde68a', cloud: '#fff7e0', plane: '#1e293b', planeAccent: '#f7b733', sun: true,  sunColor: '#fff8dc', stars: false },
+    };
+    let currentStyle = 'day';
+
+    function applyStyle(name, btnEl) {
+        currentStyle = name;
+        document.querySelectorAll('.style-preset-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+        drawFrame();
+    }
+
+    // === STARS (fixed seeded positions, deterministic across preview + export) ===
+    function seededRandom(seed) {
+        let s = seed;
+        return () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+    }
+    const starRand = seededRandom(42);
+    const starPositions = Array.from({ length: 50 }, () => ({
+        x: starRand(), y: starRand() * 0.6, r: 0.5 + starRand() * 1.4, tw: Math.floor(starRand() * 3) + 1,
+    }));
+
+    function drawStars(ctx, w, h, phase) {
+        ctx.save();
+        starPositions.forEach(st => {
+            const alpha = 0.35 + 0.65 * Math.abs(Math.sin(2 * Math.PI * (phase * st.tw + st.x)));
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(st.x * w, st.y * h, st.r, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        ctx.restore();
+    }
+
+    // === CLOUDS (parallax layers) ===
+    const cloudLayerDefs = [
+        { cycles: 2, yFrac: 0.16, scale: 1.5, alpha: 0.45, count: 3 },
+        { cycles: 3, yFrac: 0.30, scale: 1.05, alpha: 0.7, count: 3 },
+        { cycles: 4, yFrac: 0.46, scale: 0.68, alpha: 0.85, count: 4 },
+    ];
+
+    function drawCloudPuff(ctx, x, y, size, color, alpha) {
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = color;
+        const puffs = [
+            { dx: 0, dy: 0, r: size },
+            { dx: -size * 0.7, dy: size * 0.15, r: size * 0.7 },
+            { dx: size * 0.75, dy: size * 0.1, r: size * 0.75 },
+            { dx: -size * 0.25, dy: -size * 0.35, r: size * 0.6 },
+            { dx: size * 0.3, dy: -size * 0.3, r: size * 0.55 },
+        ];
+        puffs.forEach(p => {
+            ctx.beginPath();
+            ctx.arc(x + p.dx, y + p.dy, p.r, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        ctx.restore();
+    }
+
+    function drawCloudLayer(ctx, w, h, layer, color, phase) {
+        const trackLen = w * 1.6;
+        const spacing = trackLen / layer.count;
+        const offset = mod(phase * layer.cycles, 1) * trackLen;
+        const size = Math.min(w, h) * 0.09 * layer.scale;
+        for (let i = 0; i < layer.count; i++) {
+            const x = mod(i * spacing - offset, trackLen) - trackLen * 0.3;
+            drawCloudPuff(ctx, x, h * layer.yFrac, size, color, layer.alpha);
+        }
+    }
+
+    // === PLANE ===
+    function drawPlaneShape(ctx, size, bodyColor, accentColor) {
+        ctx.save();
+        ctx.fillStyle = bodyColor;
+        ctx.beginPath();
+        ctx.moveTo(size * 1.3, 0);
+        ctx.lineTo(size * 0.6, -size * 0.14);
+        ctx.lineTo(-size * 0.9, -size * 0.10);
+        ctx.lineTo(-size * 1.05, 0);
+        ctx.lineTo(-size * 0.9, size * 0.10);
+        ctx.lineTo(size * 0.6, size * 0.14);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = accentColor;
+        ctx.beginPath();
+        ctx.moveTo(-size * 0.75, -size * 0.08);
+        ctx.lineTo(-size * 1.15, -size * 0.55);
+        ctx.lineTo(-size * 0.55, -size * 0.10);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = bodyColor;
+        ctx.beginPath();
+        ctx.moveTo(size * 0.15, -size * 0.05);
+        ctx.lineTo(-size * 0.05, -size * 0.78);
+        ctx.lineTo(-size * 0.35, -size * 0.70);
+        ctx.lineTo(-size * 0.30, -size * 0.05);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(size * 0.15, size * 0.05);
+        ctx.lineTo(-size * 0.05, size * 0.78);
+        ctx.lineTo(-size * 0.35, size * 0.70);
+        ctx.lineTo(-size * 0.30, size * 0.05);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = accentColor;
+        ctx.globalAlpha = 0.9;
+        ctx.beginPath();
+        ctx.ellipse(size * 0.5, 0, size * 0.16, size * 0.055, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.restore();
+    }
+
+    function drawContrail(ctx, px, py, size, faceDir) {
+        ctx.save();
+        const len = size * 3.2 * faceDir;
+        const grad = ctx.createLinearGradient(px - len, py, px - size * 0.9 * faceDir, py);
+        grad.addColorStop(0, 'rgba(255,255,255,0)');
+        grad.addColorStop(1, 'rgba(255,255,255,0.55)');
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = size * 0.10;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(px - len, py - size * 0.05);
+        ctx.quadraticCurveTo(px - len * 0.5, py - size * 0.02, px - size * 0.9 * faceDir, py - size * 0.03);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(px - len, py + size * 0.05);
+        ctx.quadraticCurveTo(px - len * 0.5, py + size * 0.02, px - size * 0.9 * faceDir, py + size * 0.03);
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    function drawBanner(ctx, px, py, size, faceDir, accentColor, text) {
+        if (!text) return;
+        ctx.save();
+        const fontSize = size * 0.40;
+        ctx.font = `bold ${Math.round(fontSize)}px 'Outfit', 'Hind Siliguri', sans-serif`;
+        const textW = Math.max(20, ctx.measureText(text).width);
+        const padX = size * 0.5;
+        const bw = textW + padX * 2;
+        const bh = fontSize * 1.9;
+
+        const ropeLen = size * 1.3;
+        const bannerCx = px - faceDir * (size * 1.05 + ropeLen + bw / 2);
+        const bannerCy = py + size * 0.04;
+
+        ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(px - faceDir * size * 1.0, py);
+        ctx.lineTo(bannerCx + faceDir * bw / 2, bannerCy);
+        ctx.stroke();
+
+        const rw = bw / 2, rh = bh / 2, cut = rh * 0.5;
+        const pts = [
+            { x: bannerCx - rw, y: bannerCy - rh },
+            { x: bannerCx - rw + cut, y: bannerCy },
+            { x: bannerCx - rw, y: bannerCy + rh },
+            { x: bannerCx + rw, y: bannerCy + rh },
+            { x: bannerCx + rw - cut, y: bannerCy },
+            { x: bannerCx + rw, y: bannerCy - rh },
+        ];
+        ctx.beginPath();
+        pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+        ctx.closePath();
+        ctx.globalAlpha = 0.92;
+        ctx.fillStyle = accentColor;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, bannerCx, bannerCy);
+        ctx.restore();
+    }
+
+    // === DRAW ENGINE ===
+    function drawFrame() {
+        const w = canvas.width, h = canvas.height;
+        const style = skyPresets[currentStyle];
+        const transparentBg = document.getElementById('transparentBg').checked;
+        const showBanner = document.getElementById('showBanner').checked;
+        const bannerText = document.getElementById('bannerText').value || '';
+
+        ctx.clearRect(0, 0, w, h);
+
+        if (!transparentBg) {
+            const sky = ctx.createLinearGradient(0, 0, 0, h);
+            sky.addColorStop(0, style.top);
+            sky.addColorStop(0.55, style.mid);
+            sky.addColorStop(1, style.bottom);
+            ctx.fillStyle = sky;
+            ctx.fillRect(0, 0, w, h);
+
+            if (style.stars) drawStars(ctx, w, h, animPhase);
+
+            if (style.sun) {
+                const sx = w * 0.78, sy = h * 0.22, sr = Math.min(w, h) * 0.09;
+                const glow = ctx.createRadialGradient(sx, sy, 0, sx, sy, sr * 3);
+                glow.addColorStop(0, style.sunColor + 'cc');
+                glow.addColorStop(1, style.sunColor + '00');
+                ctx.fillStyle = glow;
+                ctx.beginPath(); ctx.arc(sx, sy, sr * 3, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = style.sunColor;
+                ctx.beginPath(); ctx.arc(sx, sy, sr, 0, Math.PI * 2); ctx.fill();
+            }
+
+            cloudLayerDefs.forEach(layer => drawCloudLayer(ctx, w, h, layer, style.cloud, animPhase));
+        }
+
+        // === PLANE FLIGHT PATH ===
+        const margin = w * 0.20;
+        const faceDir = flightDir; // 1 = flies rightward, -1 = flies leftward
+        const travel = faceDir === 1 ? animPhase : (1 - animPhase);
+        const planeX = -margin + travel * (w + 2 * margin);
+        const bobCycles = 2;
+        const planeY = h * 0.55 + Math.sin(animPhase * Math.PI * 2 * bobCycles) * h * 0.03;
+        const planeScale = Math.min(w, h) * 0.12;
+
+        drawContrail(ctx, planeX, planeY, planeScale, faceDir);
+        if (showBanner) drawBanner(ctx, planeX, planeY, planeScale, faceDir, style.planeAccent, bannerText);
+
+        ctx.save();
+        ctx.translate(planeX, planeY);
+        if (faceDir === -1) ctx.scale(-1, 1);
+        drawPlaneShape(ctx, planeScale, style.plane, style.planeAccent);
+        ctx.restore();
+    }
+
+    // === ANIMATION LOOP ===
+    function animationLoop(timestamp) {
+        if (!isSpinning) return;
+        if (!lastTimestamp) lastTimestamp = timestamp;
+        const delta = timestamp - lastTimestamp;
+        lastTimestamp = timestamp;
+
+        elapsedAnimMs += delta;
+        animPhase = mod((elapsedAnimMs / 1000) / flightDurationSec, 1);
+
+        const elapsed = timestamp - startTime;
+        const remaining = Math.max(0, totalDurationMs - elapsed);
+        updateTimerUI(remaining);
+
+        drawFrame();
+
+        if (remaining <= 0 && !document.getElementById('loopSpinToggle').checked) {
+            finishSpin();
+            return;
+        }
+        if (remaining <= 0) startTime = timestamp;
+
+        animFrame = requestAnimationFrame(animationLoop);
+    }
+
+    function updateTimerUI(remaining) {
+        const totalSec = Math.ceil(remaining / 1000);
+        const minutes = Math.floor(totalSec / 60).toString().padStart(2, '0');
+        const seconds = (totalSec % 60).toString().padStart(2, '0');
+        document.getElementById('timerBig').textContent = `${minutes}:${seconds}`;
+        const pct = Math.max(0, Math.min(100, ((totalDurationMs - remaining) / totalDurationMs) * 100));
+        document.getElementById('timerPercent').textContent = Math.round(pct) + '%';
+        const circumference = 157;
+        document.getElementById('timerRing').style.strokeDashoffset = circumference - (pct / 100) * circumference;
+    }
+
+    function resetTimerUI() {
+        document.getElementById('timerBig').textContent = '00:00';
+        document.getElementById('timerPercent').textContent = '—';
+        document.getElementById('timerRing').style.strokeDashoffset = 157;
+        document.getElementById('timerStatus').className = 'timer-status idle';
+        document.getElementById('timerStatus').textContent = 'প্রস্তুত';
+        document.getElementById('timerSub').textContent = 'সময় বাকি';
+    }
+
+    // === START / STOP ===
+    function startSpin() {
+        if (isSpinning) return;
+        const durationSec = parseFloat(document.getElementById('spinDuration').value) || 10;
+        totalDurationMs = durationSec * 1000;
+        flightDurationSec = parseFloat(document.getElementById('flightSpeed').value) || 6;
+
+        isSpinning = true;
+        startTime = null;
+        lastTimestamp = null;
+
+        document.getElementById('startBtn').disabled = true;
+        document.getElementById('stopBtn').disabled = false;
+
+        const statusEl = document.getElementById('timerStatus');
+        statusEl.className = 'timer-status spinning';
+        statusEl.textContent = '✈️ উড়ছে';
+        document.getElementById('timerSub').textContent = 'সময় বাকি';
+
+        animFrame = requestAnimationFrame((ts) => {
+            startTime = ts; lastTimestamp = ts; animationLoop(ts);
+        });
+    }
+
+    function stopSpin() {
+        isSpinning = false;
+        if (animFrame) cancelAnimationFrame(animFrame);
+        lastTimestamp = null;
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('stopBtn').disabled = true;
+        const statusEl = document.getElementById('timerStatus');
+        statusEl.className = 'timer-status idle';
+        statusEl.textContent = '⏸ থামানো হয়েছে';
+        drawFrame();
+    }
+
+    function finishSpin() {
+        isSpinning = false;
+        if (animFrame) cancelAnimationFrame(animFrame);
+        lastTimestamp = null;
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('stopBtn').disabled = true;
+        document.getElementById('timerBig').textContent = '00:00';
+        document.getElementById('timerPercent').textContent = '100%';
+        document.getElementById('timerRing').style.strokeDashoffset = 0;
+        const statusEl = document.getElementById('timerStatus');
+        statusEl.className = 'timer-status done';
+        statusEl.textContent = '✅ সম্পন্ন!';
+        document.getElementById('timerSub').textContent = 'অ্যানিমেশন শেষ';
+        drawFrame();
+    }
+
+    function resetAll() {
+        stopSpin();
+        animPhase = 0;
+        elapsedAnimMs = 0;
+        resetTimerUI();
+        drawFrame();
+    }
+
+    function setExportStatus(message) { document.getElementById('exportStatus').textContent = message; }
+
+    function saveBlob(blob, filename) {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    }
+
+    function downloadPng() {
+        canvas.toBlob((blob) => {
+            if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+            saveBlob(blob, 'wings-fly-aviation-academy-flying-plane.png');
+            setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+        }, 'image/png');
+    }
+
+    function getExportDims() {
+        return orientation === 'landscape' ? { w: 1280, h: 720 } : { w: 720, h: 1280 };
+    }
+
+    function getExportCanvas() {
+        const { w, h } = getExportDims();
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = w; exportCanvas.height = h;
+        const oldW = canvas.width, oldH = canvas.height;
+        canvas.width = w; canvas.height = h;
+        drawFrame();
+        exportCanvas.getContext('2d').drawImage(canvas, 0, 0);
+        canvas.width = oldW; canvas.height = oldH;
+        drawFrame();
+        return exportCanvas;
+    }
+
+    async function downloadGif() {
+        if (!window.GIF) {
+            setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ দিয়ে আবার চেষ্টা করুন।');
+            return;
+        }
+        if (isExporting) return;
+        isExporting = true;
+        const oldPhase = animPhase;
+        const { w, h } = getExportDims();
+        const gif = new GIF({
+            workers: 2, quality: 10, width: w, height: h,
+            workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js',
+            transparent: document.getElementById('transparentBg').checked ? 0x00FF00 : null,
+        });
+        const frames = 60;
+        const frameDelay = Math.round((flightDurationSec * 1000) / frames);
+        setExportStatus('GIF তৈরি হচ্ছে… 0%');
+        for (let frame = 0; frame < frames; frame++) {
+            animPhase = frame / frames;
+            gif.addFrame(getExportCanvas(), { copy: true, delay: frameDelay });
+            setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((frame + 1) / frames * 100)}%`);
+            await new Promise(requestAnimationFrame);
+        }
+        animPhase = oldPhase; drawFrame();
+        gif.on('finished', (blob) => {
+            saveBlob(blob, 'wings-fly-aviation-academy-flying-plane.gif');
+            setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
+            isExporting = false;
+        });
+        gif.render();
+    }
+
+    async function downloadVideo() {
+        if (!window.MediaRecorder || !canvas.captureStream) {
+            setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।');
+            return;
+        }
+        if (isExporting) return;
+        isExporting = true;
+        const { w, h } = getExportDims();
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = w; exportCanvas.height = h;
+        const exportCtx = exportCanvas.getContext('2d');
+        const stream = exportCanvas.captureStream(30);
+        const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+        const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 6000000 });
+        const chunks = [];
+        const oldPhase = animPhase;
+        recorder.ondataavailable = (event) => event.data.size && chunks.push(event.data);
+        recorder.onstop = () => {
+            saveBlob(new Blob(chunks, { type: mimeType }), 'wings-fly-aviation-academy-flying-plane.webm');
+            animPhase = oldPhase; drawFrame(); isExporting = false;
+            setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+        };
+        recorder.start();
+        const start = performance.now();
+        const duration = flightDurationSec * 1000;
+        setExportStatus('ভিডিও তৈরি হচ্ছে…');
+        const render = (now) => {
+            const progress = Math.min(1, (now - start) / duration);
+            animPhase = progress;
+            const frame = getExportCanvas();
+            exportCtx.clearRect(0, 0, w, h);
+            exportCtx.drawImage(frame, 0, 0);
+            if (progress < 1) requestAnimationFrame(render); else recorder.stop();
+        };
+        requestAnimationFrame(render);
+    }
+
+    // === FLIGHT DIRECTION ===
+    function setFlightDir(dir) {
+        flightDir = dir === 'ltr' ? 1 : -1;
+        document.getElementById('dirLTR').classList.toggle('active', dir === 'ltr');
+        document.getElementById('dirRTL').classList.toggle('active', dir === 'rtl');
+        drawFrame();
+    }
+
+    // === TIME PRESET ===
+    function setDuration(sec, btnEl) {
+        document.getElementById('spinDuration').value = sec;
+        document.getElementById('durationBadge').textContent = sec >= 60 ? `${sec / 60}মিনিট` : `${sec}s`;
+        document.querySelectorAll('.time-presets .preset-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+    }
+
+    // === EVENT LISTENERS ===
+    document.getElementById('flightSpeed').addEventListener('input', function () {
+        document.getElementById('speedBadge').textContent = parseFloat(this.value).toFixed(1) + 's';
+    });
+
+    document.getElementById('spinDuration').addEventListener('input', function () {
+        const v = parseFloat(this.value) || 10;
+        document.getElementById('durationBadge').textContent = v >= 60 ? `${(v / 60).toFixed(1)}মিনিট` : `${v}s`;
+    });
+
+    ['bannerText', 'showBanner', 'transparentBg'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', () => { if (!isSpinning) drawFrame(); });
+            el.addEventListener('change', () => { if (!isSpinning) drawFrame(); });
+        }
+    });
+
+    // === INITIAL DRAW ===
+    drawFrame();
+    setTimeout(startSpin, 150);
+
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
+</body>
+</html>

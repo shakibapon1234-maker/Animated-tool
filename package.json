@@ -1,0 +1,22 @@
+{
+  "name": "shakib-animation-library",
+  "version": "2.0.0",
+  "description": "Shakib Animation Library & 3D Generator Studio - Desktop Hub",
+  "main": "main-electron.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "desktop": "electron .",
+    "browser": "start http://localhost:4600"
+  },
+  "keywords": [
+    "animation",
+    "library",
+    "video-editor",
+    "photo-editor",
+    "3d-text",
+    "studio"
+  ],
+  "author": "Shakib",
+  "license": "ISC"
+}

@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WhatsApp Number Card Animation — নাম্বার ব্যাজ অ্যানিমেশন</title>
+<meta name="description" content="৩ডি টিল্ট হওয়া হোয়াটসঅ্যাপ-স্টাইল কন্টাক্ট কার্ড — নাম + হাইলাইটেড নাম্বার + পালসিং গ্লো — ভিডিও এডিটর অ্যাপের জন্য">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Noto+Sans+Bengali:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --bg-primary: #061012;
+        --bg-secondary: #081615;
+        --bg-card: #0c1a19;
+        --border: rgba(255,255,255,0.08);
+        --border-active: rgba(37,211,102,0.5);
+        --accent: #25D366;
+        --accent-glow: rgba(37,211,102,0.45);
+        --accent-2: #128C7E;
+        --text-primary: #f2fffa;
+        --text-secondary: #8fb3ac;
+        --text-muted: #4c6a64;
+        --radius: 16px;
+        --radius-sm: 10px;
+        --shadow: 0 20px 60px rgba(0,0,0,0.55);
+        --shadow-glow: 0 0 45px rgba(37,211,102,0.18);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: 'Outfit', 'Noto Sans Bengali', system-ui, sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        min-height: 100vh;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background:
+            radial-gradient(ellipse 80% 50% at 20% 10%, rgba(37,211,102,0.13) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 40% at 85% 85%, rgba(18,140,126,0.14) 0%, transparent 60%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .app-header {
+        width: 100%;
+        padding: 24px 32px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(6,16,18,0.8);
+        backdrop-filter: blur(20px);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .header-icon {
+        width: 44px; height: 44px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px;
+        box-shadow: 0 0 20px var(--accent-glow);
+        flex-shrink: 0;
+    }
+
+    .header-text h1 { font-size: 20px; font-weight: 700;
+        background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .header-text p { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+    .main-content {
+        width: 100%; max-width: 1200px; padding: 40px 24px 80px;
+        display: grid; grid-template-columns: 1fr 380px; gap: 32px;
+        position: relative; z-index: 1;
+    }
+    @media (max-width: 900px) { .main-content { grid-template-columns: 1fr; } }
+
+    .canvas-panel { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+
+    .canvas-wrapper {
+        width: 100%; aspect-ratio: 4/3; max-width: 560px;
+        background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px;
+        display: flex; align-items: center; justify-content: center;
+        position: relative; overflow: hidden;
+        box-shadow: var(--shadow), var(--shadow-glow);
+    }
+    .canvas-wrapper::before {
+        content: ''; position: absolute; inset: -1px; border-radius: 25px;
+        background: linear-gradient(135deg, rgba(37,211,102,0.3), rgba(18,140,126,0.15));
+        z-index: -1; animation: borderGlow 4s ease-in-out infinite;
+    }
+    @keyframes borderGlow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+    .canvas-bg-grid {
+        position: absolute; inset: 0;
+        background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                           linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+        background-size: 30px 30px; border-radius: 24px;
+    }
+
+    #cardCanvas { display: block; max-width: 100%; max-height: 100%; }
+
+    .controls-panel { display: flex; flex-direction: column; gap: 20px; }
+    .control-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 24px; transition: border-color 0.2s, box-shadow 0.2s; }
+    .control-card:hover { border-color: var(--border-active); box-shadow: 0 0 20px rgba(37,211,102,0.1); }
+
+    .card-title { font-size: 13px; font-weight: 700; color: var(--text-secondary); letter-spacing: 1px;
+        text-transform: uppercase; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+    .card-title-icon { width: 24px; height: 24px; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+
+    .form-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+    .form-row:last-child { margin-bottom: 0; }
+    .form-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); display: flex;
+        justify-content: space-between; align-items: center; }
+    .form-label .value-badge { background: rgba(37,211,102,0.15); color: var(--accent); padding: 2px 10px;
+        border-radius: 20px; font-size: 12px; font-weight: 700; font-family: monospace; }
+
+    input[type="text"], input[type="number"] {
+        width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: var(--radius-sm);
+        padding: 12px 16px; color: var(--text-primary); font-size: 14px; font-family: inherit;
+        transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+    }
+    input[type="text"]:focus, input[type="number"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,211,102,0.15); }
+
+    input[type="range"] { width: 100%; height: 6px; -webkit-appearance: none; appearance: none;
+        background: rgba(255,255,255,0.08); border-radius: 10px; outline: none; cursor: pointer; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: 0 0 10px rgba(37,211,102,0.5);
+        cursor: pointer; transition: transform 0.15s; }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+    input[type="color"] { width: 48px; height: 36px; border: 1px solid var(--border); border-radius: 8px;
+        background: none; cursor: pointer; padding: 2px; }
+
+    .color-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .color-row:last-child { margin-bottom: 0; }
+    .color-label { font-size: 13px; color: var(--text-secondary); flex: 1; }
+
+    .time-presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .preset-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: transparent;
+        color: var(--text-secondary); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+    .preset-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(37,211,102,0.1); }
+    .preset-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(37,211,102,0.15); }
+
+    .btn-group { display: flex; gap: 12px; }
+    .btn { flex: 1; padding: 14px 20px; border-radius: var(--radius-sm); border: none; font-size: 14px; font-weight: 700;
+        font-family: inherit; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+        gap: 8px; letter-spacing: 0.3px; }
+    .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #05130f;
+        box-shadow: 0 4px 20px rgba(37,211,102,0.35); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(37,211,102,0.45); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .btn-stop { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #ff8080; }
+    .btn-stop:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(239,68,68,0.4); }
+    .btn-stop:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .btn-ghost { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text-secondary); }
+    .btn-ghost:hover { border-color: var(--border-active); color: var(--text-primary); background: rgba(255,255,255,0.07); }
+
+    .style-presets { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .style-preset-btn { padding: 10px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: transparent;
+        color: var(--text-secondary); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; text-align: center; }
+    .style-preset-btn:hover { border-color: var(--accent); color: var(--text-primary); background: rgba(37,211,102,0.08); }
+    .style-preset-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(37,211,102,0.15); }
+
+    .sep { height: 1px; background: var(--border); margin: 4px 0; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+    <div class="header-icon">💬</div>
+    <div class="header-text">
+        <h1>WhatsApp Number Card Animation</h1>
+        <p>৩ডি টিল্ট কার্ড — লোগো + নাম + হাইলাইটেড নাম্বার — ভিডিও এডিটর অ্যাপের জন্য</p>
+    </div>
+</header>
+
+<div class="main-content">
+
+    <div class="canvas-panel">
+        <div class="canvas-wrapper">
+            <div class="canvas-bg-grid"></div>
+            <canvas id="cardCanvas" width="600" height="450"></canvas>
+        </div>
+    </div>
+
+    <div class="controls-panel">
+
+        <div class="control-card">
+            <div class="card-title"><div class="card-title-icon">✍️</div>টেক্সট সেটিংস</div>
+
+            <div class="form-row">
+                <label class="form-label">আপনার নাম</label>
+                <input type="text" id="contactName" value="আপনার নাম" placeholder="নাম লিখুন">
+            </div>
+            <div class="form-row">
+                <label class="form-label">হোয়াটসঅ্যাপ নাম্বার (সবচেয়ে হাইলাইট হবে)</label>
+                <input type="text" id="contactNumber" value="+880 1XXX-XXXXXX" placeholder="নাম্বার লিখুন">
+            </div>
+            <div class="form-row">
+                <label class="form-label">কল-টু-অ্যাকশন টেক্সট</label>
+                <input type="text" id="ctaText" value="💬 এখনই মেসেজ করুন" placeholder="যেমন: এখনই মেসেজ করুন">
+            </div>
+        </div>
+
+        <div class="control-card">
+            <div class="card-title"><div class="card-title-icon">✦</div>এফেক্ট সেটিংস</div>
+
+            <div class="form-row">
+                <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                    <input type="checkbox" id="bubbleToggle" checked>
+                    ভাসমান চ্যাট বাবল দেখান
+                </label>
+            </div>
+            <div class="form-row">
+                <label class="form-label">৩ডি টিল্ট স্পিড <span class="value-badge" id="tiltSpeedBadge">0.6</span></label>
+                <input type="range" id="tiltSpeed" min="0" max="2" step="0.05" value="0.6">
+            </div>
+            <div class="form-row">
+                <label class="form-label">নাম্বার পালস তীব্রতা <span class="value-badge" id="pulseBadge">0.7</span></label>
+                <input type="range" id="pulseIntensity" min="0.1" max="1.5" step="0.05" value="0.7">
+            </div>
+        </div>
+
+        <div class="control-card">
+            <div class="card-title"><div class="card-title-icon">🎨</div>কালার স্টাইল</div>
+
+            <div class="style-presets" id="stylePresets">
+                <button class="style-preset-btn active" data-style="whatsappGreen" onclick="applyStyle('whatsappGreen',this)">🟢 হোয়াটসঅ্যাপ গ্রিন</button>
+                <button class="style-preset-btn" data-style="midnightNeon" onclick="applyStyle('midnightNeon',this)">🩵 মিডনাইট নিয়ন</button>
+                <button class="style-preset-btn" data-style="goldPremium" onclick="applyStyle('goldPremium',this)">🟡 গোল্ড প্রিমিয়াম</button>
+                <button class="style-preset-btn" data-style="oceanTeal" onclick="applyStyle('oceanTeal',this)">🌊 ওশেন টিল</button>
+            </div>
+
+            <div class="sep" style="margin-top:16px;"></div>
+
+            <div style="margin-top:14px;">
+                <div class="color-row">
+                    <span class="color-label">কার্ড রঙ (ওপরে)</span>
+                    <input type="color" id="cardColorFrom" value="#128C7E">
+                </div>
+                <div class="color-row">
+                    <span class="color-label">কার্ড রঙ (নিচে)</span>
+                    <input type="color" id="cardColorTo" value="#075E54">
+                </div>
+                <div class="color-row">
+                    <span class="color-label">লোগো / গ্লো রঙ</span>
+                    <input type="color" id="accentColor" value="#25D366">
+                </div>
+                <div class="color-row">
+                    <span class="color-label">নাম্বার টেক্সট রঙ</span>
+                    <input type="color" id="numberTextColor" value="#ffffff">
+                </div>
+                <div class="color-row">
+                    <span class="color-label">নাম টেক্সট রঙ</span>
+                    <input type="color" id="nameTextColor" value="#eafff2">
+                </div>
+            </div>
+        </div>
+
+        <div class="control-card">
+            <div class="card-title"><div class="card-title-icon">⏱️</div>সময়</div>
+            <div class="form-row">
+                <label class="form-label">সময় (সেকেন্ড) <span class="value-badge" id="durationBadge">30s</span></label>
+                <input type="number" id="spinDuration" value="30" min="1" max="3600">
+                <div class="time-presets">
+                    <button class="preset-btn" onclick="setDuration(5,this)">5s</button>
+                    <button class="preset-btn" onclick="setDuration(10,this)">10s</button>
+                    <button class="preset-btn active" onclick="setDuration(30,this)">30s</button>
+                    <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+                    <button class="preset-btn" onclick="setDuration(120,this)">2মিনিট</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-primary" id="startBtn" onclick="startBurst()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+                অ্যানিমেশন শুরু
+            </button>
+            <button class="btn btn-stop" id="stopBtn" onclick="stopBurst()" disabled>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+                বন্ধ করুন
+            </button>
+        </div>
+
+        <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট করুন</button>
+
+        <div class="control-card" style="margin-top:16px;">
+            <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+            <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.55;">বর্তমান কার্ড PNG হিসেবে (ট্রান্সপারেন্ট ব্যাকগ্রাউন্ড), অথবা একটি পূর্ণ অ্যানিমেশন সাইকেল GIF/ভিডিও হিসেবে সেভ করুন — সরাসরি আপনার ভিডিও এডিটর অ্যাপে ব্যবহার করা যাবে।</p>
+            <div class="btn-group">
+                <button class="btn btn-primary" type="button" onclick="downloadPng()">PNG ডাউনলোড</button>
+                <button class="btn btn-primary" type="button" onclick="downloadGif()">GIF ডাউনলোড</button>
+                <button class="btn btn-primary" type="button" onclick="downloadVideo()">ভিডিও (WebM)</button>
+            </div>
+            <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+/* =====================================================
+   WHATSAPP NUMBER CARD ANIMATION ENGINE
+   A pseudo-3D tilting card (WhatsApp-style circular logo
+   badge + phone glyph) with the contact name shown
+   normally and the phone number as the hero element:
+   large, glowing, sitting inside a pulsing highlight
+   pill with expanding rings, plus ambient floating chat
+   bubbles. Canvas stays transparent for direct overlay
+   use in video editors.
+===================================================== */
+
+const canvas = document.getElementById('cardCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+    const wrapper = canvas.parentElement;
+    const w = Math.min(wrapper.clientWidth - 40, 600);
+    canvas.width = w;
+    canvas.height = Math.round(w * 0.75);
+}
+resizeCanvas();
+window.addEventListener('resize', () => { resizeCanvas(); drawFrame(); });
+
+// === STATE ===
+let tiltPhase = 0;
+let bouncePhase = 0;
+let pulsePhase = 0;
+let bubblePhase = 0;
+let isSpinning = false;
+let animFrame = null;
+let totalDurationMs = 30000;
+let lastTimestamp = null;
+let isExporting = false;
+
+const BUBBLE_SEEDS = Array.from({ length: 8 }, (_, i) => ({
+    xFrac: 0.06 + (i % 4) * 0.28 + (i % 2 ? 0.05 : -0.02),
+    startYFrac: 1.05 + (i % 3) * 0.18,
+    size: 22 + (i % 3) * 9,
+    speed: 0.16 + (i % 3) * 0.06,
+    offset: i * 0.9
+}));
+
+// === COLOR HELPER ===
+function shadeColor(hex, percent) {
+    const f = parseInt(hex.slice(1), 16);
+    const t = percent < 0 ? 0 : 255;
+    const p = percent < 0 ? percent * -1 : percent;
+    const R = f >> 16, G = (f >> 8) & 0x00FF, B = f & 0x0000FF;
+    return "#" + (0x1000000 + (Math.round((t - R) * p) + R) * 0x10000 +
+        (Math.round((t - G) * p) + G) * 0x100 +
+        (Math.round((t - B) * p) + B)).toString(16).slice(1);
+}
+
+// === STYLE PRESETS ===
+const stylePresets = {
+    whatsappGreen: { cardColorFrom: '#128C7E', cardColorTo: '#075E54', accentColor: '#25D366', numberTextColor: '#ffffff', nameTextColor: '#eafff2' },
+    midnightNeon:  { cardColorFrom: '#0f1b2d', cardColorTo: '#050a14', accentColor: '#00e5ff', numberTextColor: '#031018', nameTextColor: '#eafcff' },
+    goldPremium:   { cardColorFrom: '#2a2005', cardColorTo: '#120d00', accentColor: '#ffd23f', numberTextColor: '#241900', nameTextColor: '#fff6da' },
+    oceanTeal:     { cardColorFrom: '#0a3d4a', cardColorTo: '#031a20', accentColor: '#38f0c8', numberTextColor: '#012019', nameTextColor: '#e6fffa' }
+};
+
+function applyStyle(styleName, btnEl) {
+    const s = stylePresets[styleName];
+    if (!s) return;
+    Object.keys(s).forEach(key => {
+        const el = document.getElementById(key);
+        if (el) el.value = s[key];
+    });
+    document.querySelectorAll('#stylePresets .style-preset-btn').forEach(b => b.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
+    if (!isSpinning) drawFrame();
+}
+
+// === SETTINGS READER ===
+function getSettings() {
+    const accentColor = document.getElementById('accentColor').value;
+    return {
+        name: document.getElementById('contactName').value || 'আপনার নাম',
+        number: document.getElementById('contactNumber').value || '+880 1XXX-XXXXXX',
+        ctaText: document.getElementById('ctaText').value || '',
+        bubbles: document.getElementById('bubbleToggle').checked,
+        tiltSpeed: parseFloat(document.getElementById('tiltSpeed').value),
+        pulseIntensity: parseFloat(document.getElementById('pulseIntensity').value),
+        cardColorFrom: document.getElementById('cardColorFrom').value,
+        cardColorTo: document.getElementById('cardColorTo').value,
+        accentColor: accentColor,
+        accentDark: shadeColor(accentColor, -0.35),
+        numberTextColor: document.getElementById('numberTextColor').value,
+        nameTextColor: document.getElementById('nameTextColor').value
+    };
+}
+
+function isBengaliText(t) { return /[\u0980-\u09FF]/.test(t); }
+
+// === DRAW HELPERS ===
+function drawRoundedRectPath(x, y, w, h, r) {
+    const rr = Math.min(r, Math.abs(w) / 2, Math.abs(h) / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + rr, y);
+    ctx.arcTo(x + w, y, x + w, y + h, rr);
+    ctx.arcTo(x + w, y + h, x, y + h, rr);
+    ctx.arcTo(x, y + h, x, y, rr);
+    ctx.arcTo(x, y, x + w, y, rr);
+    ctx.closePath();
+}
+
+function drawCardDepthLayers(cardW, cardH, r, dir, color) {
+    const layers = 4;
+    ctx.save();
+    ctx.fillStyle = color;
+    for (let i = layers; i >= 1; i--) {
+        ctx.globalAlpha = 0.45;
+        const off = dir * i * 3;
+        drawRoundedRectPath(-cardW / 2 + off, -cardH / 2 + off * 0.6, cardW, cardH, r);
+        ctx.fill();
+    }
+    ctx.restore();
+}
+
+function drawLogo(x, y, radius, bounce, accent, accentDark) {
+    const by = y + Math.sin(bounce) * radius * 0.1;
+    ctx.save();
+    ctx.translate(x, by);
+    ctx.shadowColor = 'rgba(0,0,0,0.4)';
+    ctx.shadowBlur = radius * 0.4;
+    ctx.shadowOffsetY = radius * 0.15;
+    // speech-bubble tail
+    ctx.beginPath();
+    ctx.moveTo(-radius * 0.15, radius * 0.75);
+    ctx.lineTo(-radius * 0.55, radius * 1.05);
+    ctx.lineTo(radius * 0.05, radius * 0.85);
+    ctx.closePath();
+    ctx.fillStyle = accentDark;
+    ctx.fill();
+    // main circle
+    const grad = ctx.createLinearGradient(0, -radius, 0, radius);
+    grad.addColorStop(0, accent);
+    grad.addColorStop(1, accentDark);
+    ctx.beginPath();
+    ctx.arc(0, 0, radius, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+    // phone handset glyph (white)
+    ctx.save();
+    ctx.rotate(-0.55);
+    ctx.fillStyle = '#ffffff';
+    drawRoundedRectPath(-radius * 0.08, -radius * 0.32, radius * 0.16, radius * 0.64, radius * 0.08);
+    ctx.fill();
+    ctx.beginPath(); ctx.arc(-radius * 0.30, -radius * 0.30, radius * 0.13, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(radius * 0.30, radius * 0.30, radius * 0.13, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    ctx.restore();
+}
+
+function drawText(x, y, text, fontPx, color, align, weight) {
+    ctx.save();
+    const bengali = isBengaliText(text);
+    ctx.font = `${weight || 700} ${Math.round(fontPx)}px 'Outfit','Noto Sans Bengali',sans-serif`;
+    ctx.fillStyle = color;
+    ctx.textAlign = align || 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, x, y);
+    ctx.restore();
+}
+
+function drawNumberBlock(cx, cy, cardH, s, phase) {
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const fontSize = cardH * 0.135;
+    ctx.font = `900 ${Math.round(fontSize)}px 'Outfit',sans-serif`;
+    const text = s.number;
+    const metrics = ctx.measureText(text);
+    const halfW = metrics.width / 2 + fontSize * 0.45;
+    const halfH = fontSize * 0.6;
+
+    for (let i = 0; i < 3; i++) {
+        const t = ((phase * (0.5 + s.pulseIntensity * 0.5) + i / 3) % 1);
+        const grow = 1 + t * 0.55 * s.pulseIntensity;
+        const alpha = (1 - t) * 0.5 * s.pulseIntensity;
+        if (alpha <= 0) continue;
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.strokeStyle = s.accentColor;
+        ctx.lineWidth = 3;
+        drawRoundedRectPath(cx - halfW * grow, cy - halfH * grow, halfW * 2 * grow, halfH * 2 * grow, halfH * 0.9);
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    drawRoundedRectPath(cx - halfW, cy - halfH, halfW * 2, halfH * 2, halfH * 0.9);
+    const pillGrad = ctx.createLinearGradient(cx - halfW, cy, cx + halfW, cy);
+    pillGrad.addColorStop(0, s.accentColor);
+    pillGrad.addColorStop(1, s.accentDark);
+    ctx.fillStyle = pillGrad;
+    ctx.shadowColor = s.accentColor;
+    ctx.shadowBlur = fontSize * 0.55;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = s.numberTextColor;
+    ctx.shadowColor = s.accentColor;
+    ctx.shadowBlur = fontSize * 0.25;
+    ctx.fillText(text, cx, cy + fontSize * 0.03);
+    ctx.restore();
+}
+
+function drawCallIcon(x, y, size, phase, color) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(Math.sin(phase * 4) * 0.15);
+    ctx.fillStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = size * 0.3;
+    drawRoundedRectPath(-size * 0.08, -size * 0.32, size * 0.16, size * 0.64, size * 0.08);
+    ctx.fill();
+    ctx.beginPath(); ctx.arc(-size * 0.30, -size * 0.30, size * 0.13, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(size * 0.30, size * 0.30, size * 0.13, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+}
+
+function drawFloatingBubble(x, y, size, alpha, color) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    drawRoundedRectPath(x - size / 2, y - size * 0.35, size, size * 0.7, size * 0.25);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.15, y + size * 0.3);
+    ctx.lineTo(x - size * 0.35, y + size * 0.55);
+    ctx.lineTo(x + size * 0.05, y + size * 0.35);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    for (let i = -1; i <= 1; i++) {
+        ctx.beginPath();
+        ctx.arc(x + i * size * 0.15, y, size * 0.055, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.restore();
+}
+
+function drawBubbleField(w, h, phase, color) {
+    BUBBLE_SEEDS.forEach(b => {
+        const t = ((phase * b.speed + b.offset) % 2) / 2;
+        const x = b.xFrac * w;
+        const y = b.startYFrac * h - t * h * 1.35;
+        const alpha = Math.sin(t * Math.PI) * 0.45;
+        if (alpha <= 0) return;
+        drawFloatingBubble(x, y, b.size, alpha, color);
+    });
+}
+
+// === MAIN FRAME DRAW ===
+function drawFrame() {
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    const s = getSettings();
+    const cx = w / 2, cy = h / 2;
+    const cardW = w * 0.80, cardH = h * 0.72;
+    const r = Math.min(cardW, cardH) * 0.07;
+
+    if (s.bubbles) drawBubbleField(w, h, bubblePhase, s.accentColor);
+
+    const rotY = Math.sin(tiltPhase) * 0.45 * (0.4 + s.tiltSpeed);
+    const clampedRot = Math.max(-0.6, Math.min(0.6, rotY));
+    const scaleX = Math.cos(clampedRot) * 0.85 + 0.15;
+    const shear = Math.sin(clampedRot) * 0.12;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.transform(scaleX, 0, shear, 1, 0, 0);
+
+    drawCardDepthLayers(cardW, cardH, r, clampedRot >= 0 ? 1 : -1, 'rgba(0,0,0,0.55)');
+
+    drawRoundedRectPath(-cardW / 2, -cardH / 2, cardW, cardH, r);
+    const cardGrad = ctx.createLinearGradient(-cardW / 2, -cardH / 2, cardW / 2, cardH / 2);
+    cardGrad.addColorStop(0, s.cardColorFrom);
+    cardGrad.addColorStop(1, s.cardColorTo);
+    ctx.fillStyle = cardGrad;
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = 40;
+    ctx.shadowOffsetY = 20;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.stroke();
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(0, -cardH * 0.28, cardW * 0.42, cardH * 0.16, 0, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.08)';
+    ctx.fill();
+    ctx.restore();
+
+    const logoR = cardH * 0.13;
+    drawLogo(-cardW * 0.33, -cardH * 0.29, logoR, bouncePhase, s.accentColor, s.accentDark);
+    drawText(-cardW * 0.33 + logoR * 1.5, -cardH * 0.29, s.name, cardH * 0.075, s.nameTextColor, 'left', 700);
+
+    drawNumberBlock(0, cardH * 0.06, cardH, s, pulsePhase);
+    drawCallIcon(-cardW * 0.30, cardH * 0.06, cardH * 0.11, bouncePhase, s.accentColor);
+
+    if (s.ctaText) {
+        drawText(0, cardH * 0.32, s.ctaText, cardH * 0.06, s.nameTextColor, 'center', 600);
+    }
+
+    ctx.restore();
+}
+
+// === ANIMATION LOOP ===
+function animate(timestamp) {
+    if (!isSpinning) return;
+    if (lastTimestamp === null) lastTimestamp = timestamp;
+    const dt = (timestamp - lastTimestamp) / 1000;
+    lastTimestamp = timestamp;
+    const s = getSettings();
+
+    tiltPhase += dt * (0.6 + s.tiltSpeed);
+    bouncePhase += dt * 1.6;
+    pulsePhase += dt * 0.9;
+    bubblePhase += dt;
+
+    drawFrame();
+
+    totalDurationMs -= dt * 1000;
+    if (totalDurationMs > 0) {
+        animFrame = requestAnimationFrame(animate);
+    } else {
+        stopBurst();
+    }
+}
+
+function startBurst() {
+    if (isSpinning) return;
+    isSpinning = true;
+    lastTimestamp = null;
+    document.getElementById('startBtn').disabled = true;
+    document.getElementById('stopBtn').disabled = false;
+    const durInput = document.getElementById('spinDuration');
+    totalDurationMs = (parseFloat(durInput.value) || 30) * 1000;
+    animFrame = requestAnimationFrame(animate);
+}
+
+function stopBurst() {
+    isSpinning = false;
+    if (animFrame) cancelAnimationFrame(animFrame);
+    document.getElementById('startBtn').disabled = false;
+    document.getElementById('stopBtn').disabled = true;
+    drawFrame();
+}
+
+function setDuration(sec, btnEl) {
+    document.getElementById('spinDuration').value = sec;
+    document.getElementById('durationBadge').textContent = sec >= 60 ? `${sec / 60}মিনিট` : `${sec}s`;
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    btnEl.classList.add('active');
+    totalDurationMs = sec * 1000;
+}
+
+function resetAll() {
+    stopBurst();
+    tiltPhase = 0; bouncePhase = 0; pulsePhase = 0; bubblePhase = 0;
+    document.getElementById('contactName').value = 'আপনার নাম';
+    document.getElementById('contactNumber').value = '+880 1XXX-XXXXXX';
+    document.getElementById('ctaText').value = '💬 এখনই মেসেজ করুন';
+    document.getElementById('bubbleToggle').checked = true;
+    document.getElementById('tiltSpeed').value = 0.6;
+    document.getElementById('tiltSpeedBadge').textContent = '0.6';
+    document.getElementById('pulseIntensity').value = 0.7;
+    document.getElementById('pulseBadge').textContent = '0.7';
+    applyStyle('whatsappGreen', document.querySelector('#stylePresets .style-preset-btn'));
+    setDuration(30, document.querySelectorAll('.preset-btn')[2]);
+    drawFrame();
+}
+
+// === EXPORT HELPERS ===
+function setExportStatus(message) { document.getElementById('exportStatus').textContent = message; }
+
+function saveBlob(blob, filename) {
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+function downloadPng() {
+    canvas.toBlob((blob) => {
+        if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+        saveBlob(blob, 'whatsapp-number-card.png');
+        setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+    }, 'image/png');
+}
+
+function getExportCanvas(width = 800, height = 600) {
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = width;
+    exportCanvas.height = height;
+    const oldWidth = canvas.width, oldHeight = canvas.height;
+    canvas.width = width; canvas.height = height;
+    drawFrame();
+    exportCanvas.getContext('2d').drawImage(canvas, 0, 0);
+    canvas.width = oldWidth; canvas.height = oldHeight;
+    drawFrame();
+    return exportCanvas;
+}
+
+async function downloadGif() {
+    if (!window.GIF) {
+        setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ দিয়ে আবার চেষ্টা করুন।');
+        return;
+    }
+    if (isExporting) return;
+    isExporting = true;
+    const oldTilt = tiltPhase, oldBounce = bouncePhase, oldPulse = pulsePhase, oldBubble = bubblePhase;
+    const gif = new GIF({
+        workers: 2, quality: 10, width: 800, height: 600,
+        workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'
+    });
+    const frames = 48;
+    const frameDelay = 50;
+    setExportStatus('GIF তৈরি হচ্ছে… 0%');
+    const s = getSettings();
+    for (let frame = 0; frame < frames; frame++) {
+        const dt = frameDelay / 1000;
+        tiltPhase = oldTilt + dt * (0.6 + s.tiltSpeed) * frame;
+        bouncePhase = oldBounce + dt * 1.6 * frame;
+        pulsePhase = oldPulse + dt * 0.9 * frame;
+        bubblePhase = oldBubble + dt * frame;
+        gif.addFrame(getExportCanvas(800, 600), { copy: true, delay: frameDelay });
+        setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((frame + 1) / frames * 100)}%`);
+        await new Promise(requestAnimationFrame);
+    }
+    tiltPhase = oldTilt; bouncePhase = oldBounce; pulsePhase = oldPulse; bubblePhase = oldBubble; drawFrame();
+    gif.on('finished', (blob) => {
+        saveBlob(blob, 'whatsapp-number-card.gif');
+        setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
+        isExporting = false;
+    });
+    gif.render();
+}
+
+async function downloadVideo() {
+    if (!window.MediaRecorder || !canvas.captureStream) {
+        setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।');
+        return;
+    }
+    if (isExporting) return;
+    isExporting = true;
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = 800; exportCanvas.height = 600;
+    const exportCtx = exportCanvas.getContext('2d');
+    const stream = exportCanvas.captureStream(30);
+    const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+    const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 5000000 });
+    const chunks = [];
+    const oldTilt = tiltPhase, oldBounce = bouncePhase, oldPulse = pulsePhase, oldBubble = bubblePhase;
+    recorder.ondataavailable = (event) => event.data.size && chunks.push(event.data);
+    recorder.onstop = () => {
+        saveBlob(new Blob(chunks, { type: mimeType }), 'whatsapp-number-card.webm');
+        tiltPhase = oldTilt; bouncePhase = oldBounce; pulsePhase = oldPulse; bubblePhase = oldBubble;
+        drawFrame(); isExporting = false;
+        setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+    };
+    recorder.start();
+    const start = performance.now();
+    const duration = 3200;
+    const s = getSettings();
+    setExportStatus('ভিডিও তৈরি হচ্ছে…');
+    const render = (now) => {
+        const progress = Math.min(1, (now - start) / duration);
+        const elapsedSec = (duration / 1000) * progress;
+        tiltPhase = oldTilt + elapsedSec * (0.6 + s.tiltSpeed);
+        bouncePhase = oldBounce + elapsedSec * 1.6;
+        pulsePhase = oldPulse + elapsedSec * 0.9;
+        bubblePhase = oldBubble + elapsedSec;
+        const frame = getExportCanvas(800, 600);
+        exportCtx.clearRect(0, 0, 800, 600);
+        exportCtx.drawImage(frame, 0, 0);
+        if (progress < 1) requestAnimationFrame(render); else recorder.stop();
+    };
+    requestAnimationFrame(render);
+}
+
+// === LIVE UPDATE ON INPUT CHANGE ===
+document.getElementById('tiltSpeed').addEventListener('input', function() {
+    document.getElementById('tiltSpeedBadge').textContent = parseFloat(this.value).toFixed(2);
+});
+document.getElementById('pulseIntensity').addEventListener('input', function() {
+    document.getElementById('pulseBadge').textContent = parseFloat(this.value).toFixed(2);
+});
+document.getElementById('spinDuration').addEventListener('input', function() {
+    const v = parseFloat(this.value) || 30;
+    document.getElementById('durationBadge').textContent = v >= 60 ? `${(v / 60).toFixed(1)}মিনিট` : `${v}s`;
+    totalDurationMs = v * 1000;
+});
+
+['contactName', 'contactNumber', 'ctaText', 'bubbleToggle',
+ 'cardColorFrom', 'cardColorTo', 'accentColor', 'numberTextColor', 'nameTextColor'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+        el.addEventListener('input', () => { if (!isSpinning) drawFrame(); });
+        el.addEventListener('change', () => { if (!isSpinning) drawFrame(); });
+    }
+});
+
+// === INITIAL DRAW ===
+function initialDraw() { drawFrame(); }
+if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(initialDraw);
+} else {
+    initialDraw();
+}
+initialDraw();
+// The card acts as a live preview — it starts animating and keeps
+// looping until the user presses "বন্ধ করুন".
+setTimeout(startBurst, 150);
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+</body>
+</html>

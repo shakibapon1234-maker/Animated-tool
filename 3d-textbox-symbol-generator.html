@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Text Box Symbol Generator — by Shakib</title>
+    <meta name="description" content="৩ডি অ্যানিমেটেড টেক্সট-বক্স সিম্বল জেনারেটর — স্পিচ বাবল, থট ক্লাউড, ওভাল ক্যালাউট, ব্যানার — ভেতরে নিজের টেক্সট লেখা যায়, গ্লসি ৩ডি শেপ, বাউন্স/পালস/রোটেট/ওয়াবল অ্যানিমেশন">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Noto+Sans+Bengali:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #05060f;
+            --bg-secondary: #0a0c1a;
+            --bg-card: #0f1224;
+            --bg-card-hover: #15192e;
+            --border: rgba(255,255,255,0.08);
+            --border-active: rgba(244,114,182,0.55);
+            --accent: #f472b6;
+            --accent-glow: rgba(244,114,182,0.4);
+            --accent-2: #22d3ee;
+            --accent-3: #6366f1;
+            --text-primary: #eef0ff;
+            --text-secondary: #9498c2;
+            --text-muted: #4a4d70;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 20px 60px rgba(0,0,0,0.55);
+            --shadow-glow: 0 0 45px rgba(244,114,182,0.18);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans Bengali', 'Inter', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 20%, rgba(244,114,182,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(34,211,238,0.10) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app-header { width: 100%; padding: 24px 32px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--border); background: rgba(5,6,15,0.8); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 100; }
+        .header-icon { width: 44px; height: 44px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 0 20px var(--accent-glow); flex-shrink: 0; }
+        .header-text h1 { font-size: 20px; font-weight: 700; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .header-text p { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+        .main-content { width: 100%; max-width: 1200px; padding: 40px 24px 80px; display: grid; grid-template-columns: 1fr 380px; gap: 32px; position: relative; z-index: 1; }
+        @media (max-width: 900px) { .main-content { grid-template-columns: 1fr; } }
+
+        .canvas-panel { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+        .canvas-wrapper { width: 100%; aspect-ratio: 1; max-width: 500px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; box-shadow: var(--shadow), var(--shadow-glow); }
+        .canvas-wrapper::before { content: ''; position: absolute; inset: -1px; border-radius: 25px; background: linear-gradient(135deg, rgba(244,114,182,0.3), rgba(34,211,238,0.1)); z-index: -1; animation: borderGlow 4s ease-in-out infinite; }
+        @keyframes borderGlow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+        .canvas-bg-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 30px 30px; border-radius: 24px; }
+        #symbolCanvas { display: block; max-width: 100%; max-height: 100%; }
+
+        .timer-display { display: flex; align-items: center; gap: 16px; padding: 16px 28px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 60px; box-shadow: var(--shadow); }
+        .timer-ring-wrap { position: relative; width: 56px; height: 56px; }
+        .timer-ring-wrap svg { transform: rotate(-90deg); }
+        .timer-ring-bg { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 4; }
+        .timer-ring-fill { fill: none; stroke: url(#ringGradient); stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 1s linear; stroke-dasharray: 157; stroke-dashoffset: 0; }
+        .timer-label-inner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--accent-2); }
+        .timer-text-group { display: flex; flex-direction: column; }
+        .timer-big { font-size: 32px; font-weight: 800; color: var(--text-primary); letter-spacing: -1px; }
+        .timer-sub { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+        .timer-status { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+        .timer-status.idle { background: rgba(255,255,255,0.06); color: var(--text-muted); }
+        .timer-status.spinning { background: rgba(244,114,182,0.2); color: var(--accent); animation: pulse 2s ease-in-out infinite; }
+        .timer-status.done { background: rgba(16,185,129,0.2); color: var(--success); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        .controls-panel { display: flex; flex-direction: column; gap: 20px; }
+        .control-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: border-color 0.2s, box-shadow 0.2s; }
+        .control-card:hover { border-color: var(--border-active); box-shadow: 0 0 20px rgba(244,114,182,0.1); }
+        .card-title { font-size: 13px; font-weight: 700; color: var(--text-secondary); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+        .card-title-icon { width: 24px; height: 24px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+
+        .symbol-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .symbol-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px 4px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: rgba(255,255,255,0.03); color: var(--text-secondary); font-size: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .symbol-btn .glyph { font-size: 18px; line-height: 1; color: var(--text-primary); }
+        .symbol-btn:hover { border-color: var(--accent); background: rgba(244,114,182,0.08); }
+        .symbol-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(244,114,182,0.15); }
+        .symbol-btn.active .glyph { color: var(--accent); }
+
+        .form-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+        .form-row:last-child { margin-bottom: 0; }
+        .form-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center; }
+        .form-label .value-badge { background: rgba(244,114,182,0.15); color: var(--accent); padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+
+        input[type="text"], input[type="number"], textarea { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 16px; color: var(--text-primary); font-size: 14px; font-family: inherit; transition: border-color 0.2s, box-shadow 0.2s; outline: none; resize: vertical; }
+        input[type="text"]:focus, input[type="number"]:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(244,114,182,0.15); }
+
+        input[type="range"] { width: 100%; height: 6px; -webkit-appearance: none; appearance: none; background: rgba(255,255,255,0.08); border-radius: 10px; outline: none; cursor: pointer; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: 0 0 10px rgba(244,114,182,0.5); cursor: pointer; transition: transform 0.15s; }
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+        input[type="color"] { width: 48px; height: 36px; border: 1px solid var(--border); border-radius: 8px; background: none; cursor: pointer; padding: 2px; }
+        .color-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .color-row:last-child { margin-bottom: 0; }
+        .color-label { font-size: 13px; color: var(--text-secondary); flex: 1; }
+
+        .time-presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+        .preset-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .preset-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(244,114,182,0.1); }
+        .preset-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(244,114,182,0.15); }
+
+        .option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .option-btn { padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: transparent; color: var(--text-secondary); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .option-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .option-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(244,114,182,0.12); }
+
+        .btn-group { display: flex; gap: 12px; }
+        .btn { flex: 1; padding: 14px 20px; border-radius: var(--radius-sm); border: none; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; letter-spacing: 0.3px; }
+        .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #05060f; box-shadow: 0 4px 20px rgba(244,114,182,0.4); }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(244,114,182,0.5); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-stop { background: linear-gradient(135deg, var(--danger), #b91c1c); color: white; box-shadow: 0 4px 20px rgba(239,68,68,0.3); }
+        .btn-stop:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(239,68,68,0.4); }
+        .btn-stop:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-ghost { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text-secondary); }
+        .btn-ghost:hover { border-color: var(--border-active); color: var(--text-primary); background: rgba(255,255,255,0.07); }
+
+        .style-presets { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .style-preset-btn { padding: 10px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: transparent; color: var(--text-secondary); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; text-align: center; }
+        .style-preset-btn:hover { border-color: var(--accent); color: var(--text-primary); background: rgba(244,114,182,0.08); }
+        .style-preset-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(244,114,182,0.15); }
+
+        .sep { height: 1px; background: var(--border); margin: 4px 0; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="header-icon">💬</div>
+        <div class="header-text">
+            <h1>3D Text Box Symbol Generator</h1>
+            <p>স্পিচ বাবল, থট ক্লাউড, ব্যানার — ভেতরে নিজের টেক্সট লিখুন — গ্লসি ৩ডি শেপ + অ্যানিমেশন — by Shakib</p>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <div class="canvas-panel">
+            <div class="canvas-wrapper">
+                <div class="canvas-bg-grid"></div>
+                <canvas id="symbolCanvas" width="460" height="460"></canvas>
+            </div>
+
+            <div class="timer-display" id="timerDisplay">
+                <div class="timer-ring-wrap">
+                    <svg width="56" height="56" viewBox="0 0 56 56">
+                        <defs>
+                            <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#f472b6"/>
+                                <stop offset="100%" stop-color="#22d3ee"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="timer-ring-bg" cx="28" cy="28" r="25"/>
+                        <circle class="timer-ring-fill" id="timerRing" cx="28" cy="28" r="25"/>
+                    </svg>
+                    <div class="timer-label-inner" id="timerPercent">—</div>
+                </div>
+                <div class="timer-text-group">
+                    <div class="timer-big" id="timerBig">00:00</div>
+                    <div class="timer-sub" id="timerSub">সময় বাকি</div>
+                </div>
+                <div class="timer-status idle" id="timerStatus">প্রস্তুত</div>
+            </div>
+        </div>
+
+        <div class="controls-panel">
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">🔣</div>শেপ বাছাই করুন</div>
+                <div class="symbol-grid" id="symbolGrid">
+                    <button class="symbol-btn active" data-icon="speechSquare" onclick="setIcon('speechSquare',this)"><span class="glyph">🗯</span>স্পিচ বাবল (চারকোণা)</button>
+                    <button class="symbol-btn" data-icon="speechOval" onclick="setIcon('speechOval',this)"><span class="glyph">🗨</span>স্পিচ বাবল (ওভাল)</button>
+                    <button class="symbol-btn" data-icon="whatsapp" onclick="setIcon('whatsapp',this)"><span class="glyph">💬</span>চ্যাট বাবল</button>
+                    <button class="symbol-btn" data-icon="ovalCallout" onclick="setIcon('ovalCallout',this)"><span class="glyph">⬭</span>ওভাল ক্যালাউট</button>
+                    <button class="symbol-btn" data-icon="thoughtCloud" onclick="setIcon('thoughtCloud',this)"><span class="glyph">☁</span>থিংকিং ক্লাউড</button>
+                    <button class="symbol-btn" data-icon="ribbonBanner" onclick="setIcon('ribbonBanner',this)"><span class="glyph">🎗</span>রিবন ব্যানার</button>
+                    <button class="symbol-btn" data-icon="wavyBanner" onclick="setIcon('wavyBanner',this)"><span class="glyph">〰</span>ওয়েভি ব্যানার</button>
+                    <button class="symbol-btn" data-icon="scrollBanner" onclick="setIcon('scrollBanner',this)"><span class="glyph">📜</span>স্ক্রল ব্যানার</button>
+                    <button class="symbol-btn" data-icon="plainBanner" onclick="setIcon('plainBanner',this)"><span class="glyph">▬</span>প্লেন ব্যানার</button>
+                </div>
+                <p style="font-size:11px;color:var(--text-muted);margin-top:12px;line-height:1.5;">এই টুলের সবগুলো শেপ টেক্সট-বক্স হিসেবে কাজ করে — শেপটাই বড় হয়ে পুরো ক্যানভাস জুড়ে থাকবে এবং ভেতরে আপনার টেক্সট বসবে। শুধু আইকন হিসেবে ব্যবহারের জন্য (তীর, টিক, তারা, পিন ইত্যাদি) আগের "3D Animated Symbol Generator" ফাইলটি ব্যবহার করুন।</p>
+            </div>
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">✍️</div>ভেতরের টেক্সট</div>
+                <div class="form-row">
+                    <label class="form-label">টেক্সট (একাধিক লাইন লেখা যাবে)</label>
+                    <textarea id="innerText" rows="3" placeholder="এখানে লিখুন...">আমাদের সাথে যোগাযোগ করুন</textarea>
+                </div>
+                <div class="form-row">
+                    <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                        <input type="checkbox" id="autoFitToggle" checked>
+                        টেক্সট অটো-ফিট (শেপের ভেতর সঠিকভাবে বসাবে)
+                    </label>
+                </div>
+                <div class="form-row" id="manualFontRow" style="display:none;">
+                    <label class="form-label">ফন্ট সাইজ <span class="value-badge" id="fontSizeBadge">100%</span></label>
+                    <input type="range" id="manualFontSize" min="40" max="160" step="5" value="100">
+                </div>
+            </div>
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">🎨</div>কালার স্টাইল (উজ্জ্বল)</div>
+                <div class="style-presets" id="stylePresets">
+                    <button class="style-preset-btn active" data-style="indigoCyan" onclick="applyStyle('indigoCyan',this)">💠 ইন্ডিগো-সায়ান</button>
+                    <button class="style-preset-btn" data-style="hotPink" onclick="applyStyle('hotPink',this)">💗 হট পিংক</button>
+                    <button class="style-preset-btn" data-style="limeGreen" onclick="applyStyle('limeGreen',this)">🟢 লাইম গ্রিন</button>
+                    <button class="style-preset-btn" data-style="fireOrange" onclick="applyStyle('fireOrange',this)">🟠 ফায়ার অরেঞ্জ</button>
+                    <button class="style-preset-btn" data-style="goldClassic" onclick="applyStyle('goldClassic',this)">🟡 গোল্ড ক্লাসিক</button>
+                    <button class="style-preset-btn" data-style="dangerRed" onclick="applyStyle('dangerRed',this)">🔴 ডেঞ্জার রেড</button>
+                </div>
+                <div class="sep" style="margin-top:16px;"></div>
+                <div style="margin-top:14px;">
+                    <div class="color-row">
+                        <span class="color-label">শেপ রঙ (হালকা)</span>
+                        <input type="color" id="badgeColorStart" value="#6366f1">
+                    </div>
+                    <div class="color-row">
+                        <span class="color-label">শেপ রঙ (গাঢ়)</span>
+                        <input type="color" id="badgeColorEnd" value="#3730a3">
+                    </div>
+                    <div class="color-row">
+                        <span class="color-label">টেক্সট রঙ</span>
+                        <input type="color" id="symbolColor" value="#ffffff">
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">🎬</div>অ্যানিমেশন মোড</div>
+                <div class="option-grid">
+                    <button class="option-btn active" data-anim="bounce" onclick="setAnim('bounce',this)">⬆️ বাউন্স</button>
+                    <button class="option-btn" data-anim="pulse" onclick="setAnim('pulse',this)">💓 পালস</button>
+                    <button class="option-btn" data-anim="rotate" onclick="setAnim('rotate',this)">🔄 রোটেট</button>
+                    <button class="option-btn" data-anim="wobble" onclick="setAnim('wobble',this)">〰️ ওয়াবল</button>
+                </div>
+                <div class="form-row" style="margin-top:16px;">
+                    <label class="form-label">তীব্রতা (Amplitude) <span class="value-badge" id="ampBadge">0.50</span></label>
+                    <input type="range" id="animAmp" min="0" max="1" step="0.05" value="0.5">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">স্পিড <span class="value-badge" id="speedBadge">1.0</span></label>
+                    <input type="range" id="animSpeed" min="0.1" max="3" step="0.1" value="1.0">
+                </div>
+                <div class="form-row">
+                    <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                        <input type="checkbox" id="showRippleToggle" checked>
+                        রিপল রিং দেখান
+                    </label>
+                </div>
+                <div class="form-row">
+                    <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                        <input type="checkbox" id="showShineToggle" checked>
+                        গ্লসি শাইন সুইপ দেখান
+                    </label>
+                </div>
+                <div class="form-row">
+                    <label class="form-label">সময় (সেকেন্ড) <span class="value-badge" id="durationBadge">30s</span></label>
+                    <input type="number" id="spinDuration" value="30" min="1" max="3600">
+                    <div class="time-presets">
+                        <button class="preset-btn" onclick="setDuration(5,this)">5s</button>
+                        <button class="preset-btn" onclick="setDuration(10,this)">10s</button>
+                        <button class="preset-btn active" onclick="setDuration(30,this)">30s</button>
+                        <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+                        <button class="preset-btn" onclick="setDuration(120,this)">2মিনিট</button>
+                        <button class="preset-btn" onclick="setDuration(300,this)">5মিনিট</button>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                        <input type="checkbox" id="loopSpinToggle" checked>
+                        সবসময় চলতে থাকবে (Loop)
+                    </label>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="startBtn" onclick="startBurst()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+                    অ্যানিমেশন শুরু
+                </button>
+                <button class="btn btn-stop" id="stopBtn" onclick="stopBurst()" disabled>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+                    বন্ধ করুন
+                </button>
+            </div>
+            <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট করুন</button>
+
+            <div class="control-card" style="margin-top:16px;">
+                <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+                <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.55;">বর্তমান শেপ PNG হিসেবে (ট্রান্সপারেন্ট ব্যাকগ্রাউন্ড), অথবা একটি পূর্ণ অ্যানিমেশন সাইকেল GIF/ভিডিও হিসেবে সেভ করুন।</p>
+                <div class="btn-group">
+                    <button class="btn btn-primary" type="button" onclick="downloadPng()">PNG ডাউনলোড</button>
+                    <button class="btn btn-primary" type="button" onclick="downloadGif()">GIF ডাউনলোড</button>
+                    <button class="btn btn-primary" type="button" onclick="downloadVideo()">ভিডিও (WebM)</button>
+                </div>
+                <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+    /* =====================================================
+       3D TEXT-BOX SYMBOL GENERATOR ENGINE
+       by Shakib — Ad / Photo / Video Editor Project (companion
+       file to 3d-animated-symbol-generator.html).
+       Unlike the icon generator, every shape here IS the full
+       container: it's drawn large across the canvas with glossy
+       3D shading applied to its own outline, and the user's
+       text is word-wrapped and auto-fit inside it — instead of
+       being shrunk into a small circular badge.
+    ===================================================== */
+
+    const canvas = document.getElementById('symbolCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        const wrapper = canvas.parentElement;
+        const size = Math.min(wrapper.clientWidth - 40, 460);
+        canvas.width = size;
+        canvas.height = size;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', () => { resizeCanvas(); drawFrame(); });
+
+    // === STATE ===
+    let phase = 0;
+    let ripplePhase = 0;
+    let shinePhase = 0;
+    let isSpinning = false;
+    let animFrame = null;
+    let totalDurationMs = 30000;
+    let startTime = null;
+    let lastTimestamp = null;
+    let isExporting = false;
+    let currentIcon = 'speechSquare';
+    let currentAnim = 'bounce';
+    let speedVal = 1.0;
+
+    const stylePresets = {
+        indigoCyan: { badgeColorStart: '#6366f1', badgeColorEnd: '#3730a3', symbolColor: '#ffffff' },
+        hotPink:    { badgeColorStart: '#ff1f6d', badgeColorEnd: '#9d174d', symbolColor: '#ffffff' },
+        limeGreen:  { badgeColorStart: '#84cc16', badgeColorEnd: '#3f6212', symbolColor: '#0a1a00' },
+        fireOrange: { badgeColorStart: '#ff8a00', badgeColorEnd: '#c2410c', symbolColor: '#ffffff' },
+        goldClassic:{ badgeColorStart: '#ffd700', badgeColorEnd: '#a16207', symbolColor: '#241a00' },
+        dangerRed:  { badgeColorStart: '#ef4444', badgeColorEnd: '#7f1d1d', symbolColor: '#ffffff' },
+    };
+
+    function applyStyle(styleName, btnEl) {
+        const s = stylePresets[styleName];
+        if (!s) return;
+        document.getElementById('badgeColorStart').value = s.badgeColorStart;
+        document.getElementById('badgeColorEnd').value   = s.badgeColorEnd;
+        document.getElementById('symbolColor').value     = s.symbolColor;
+        document.querySelectorAll('.style-preset-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+        drawFrame();
+    }
+
+    function setIcon(icon, btnEl) {
+        currentIcon = icon;
+        document.querySelectorAll('.symbol-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+        drawFrame();
+    }
+
+    function setAnim(anim, btnEl) {
+        currentAnim = anim;
+        document.querySelectorAll('.option-btn[data-anim]').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+        drawFrame();
+    }
+
+    document.getElementById('autoFitToggle').addEventListener('change', function() {
+        document.getElementById('manualFontRow').style.display = this.checked ? 'none' : 'flex';
+        drawFrame();
+    });
+
+    function getSettings() {
+        return {
+            innerText:      document.getElementById('innerText').value || '',
+            badgeColorStart:document.getElementById('badgeColorStart').value,
+            badgeColorEnd:  document.getElementById('badgeColorEnd').value,
+            symbolColor:    document.getElementById('symbolColor').value,
+            showRipple:     document.getElementById('showRippleToggle').checked,
+            showShine:      document.getElementById('showShineToggle').checked,
+            amplitude:      parseFloat(document.getElementById('animAmp').value) || 0.5,
+            autoFit:        document.getElementById('autoFitToggle').checked,
+            manualFontPct:  parseFloat(document.getElementById('manualFontSize').value) || 100,
+        };
+    }
+
+    function hexToRgba(hex, alpha) {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgba(${r},${g},${b},${alpha})`;
+    }
+    function lightenColor(hex, amt) {
+        const r = Math.min(255, parseInt(hex.slice(1,3),16) + amt);
+        const g = Math.min(255, parseInt(hex.slice(3,5),16) + amt);
+        const b = Math.min(255, parseInt(hex.slice(5,7),16) + amt);
+        return `rgb(${r},${g},${b})`;
+    }
+
+    // === SHAPE PATH BUILDERS ===
+    // Each returns { innerBox: {x,y,w,h} } describing the local-space
+    // rectangle where text should be word-wrapped and centered, and
+    // draws the outline path into ctx (call right before fill/stroke/clip).
+    // "S" is a unit half-size — shapes are scaled to roughly fill the canvas.
+
+    function pathSpeechSquare(ctx, S) {
+        const bw = S * 1.72, bh = S * 1.18, rad = S * 0.16;
+        const left = -bw / 2, top = -bh / 2 - S * 0.05;
+        const tailW = S * 0.30, tailH = S * 0.26;
+        ctx.beginPath();
+        ctx.moveTo(left + rad, top);
+        ctx.lineTo(left + bw - rad, top);
+        ctx.arcTo(left + bw, top, left + bw, top + rad, rad);
+        ctx.lineTo(left + bw, top + bh - rad);
+        ctx.arcTo(left + bw, top + bh, left + bw - rad, top + bh, rad);
+        ctx.lineTo(left + bw * 0.30 + tailW, top + bh);
+        ctx.lineTo(left + bw * 0.24, top + bh + tailH);
+        ctx.lineTo(left + bw * 0.20, top + bh);
+        ctx.lineTo(left + rad, top + bh);
+        ctx.arcTo(left, top + bh, left, top + bh - rad, rad);
+        ctx.lineTo(left, top + rad);
+        ctx.arcTo(left, top, left + rad, top, rad);
+        ctx.closePath();
+        return { x: left + bw * 0.10, y: top + bh * 0.12, w: bw * 0.80, h: bh * 0.76 };
+    }
+
+    function pathSpeechOval(ctx, S) {
+        const rx = S * 0.88, ry = S * 0.62, cy0 = -S * 0.06;
+        ctx.beginPath();
+        ctx.ellipse(0, cy0, rx, ry, 0, 0, Math.PI * 2);
+        ctx.moveTo(-S * 0.16, cy0 + ry * 0.72);
+        ctx.lineTo(-S * 0.40, S * 0.86);
+        ctx.lineTo(S * 0.10, cy0 + ry * 0.85);
+        ctx.closePath();
+        return { x: -rx * 0.72, y: cy0 - ry * 0.62, w: rx * 1.44, h: ry * 1.24 };
+    }
+
+    function pathWhatsapp(ctx, S) {
+        const r = S * 0.86;
+        const left = -r, top = -r * 0.72, bw = r * 2, bh = r * 1.28, rad = r * 0.42;
+        const tailBaseX = left + rad * 1.1, tailTipX = left + rad * 0.25;
+        ctx.beginPath();
+        ctx.moveTo(left + rad, top);
+        ctx.lineTo(left + bw - rad, top);
+        ctx.arcTo(left + bw, top, left + bw, top + rad, rad);
+        ctx.lineTo(left + bw, top + bh - rad);
+        ctx.arcTo(left + bw, top + bh, left + bw - rad, top + bh, rad);
+        ctx.lineTo(tailBaseX + rad * 0.5, top + bh);
+        ctx.lineTo(tailTipX, top + bh + r * 0.34);
+        ctx.lineTo(tailBaseX - rad * 0.1, top + bh);
+        ctx.lineTo(left + rad, top + bh);
+        ctx.arcTo(left, top + bh, left, top + bh - rad, rad);
+        ctx.lineTo(left, top + rad);
+        ctx.arcTo(left, top, left + rad, top, rad);
+        ctx.closePath();
+        return { x: left + bw * 0.10, y: top + bh * 0.12, w: bw * 0.80, h: bh * 0.72 };
+    }
+
+    function pathOvalCallout(ctx, S) {
+        const rx = S * 0.92, ry = S * 0.66;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+        return { x: -rx * 0.66, y: -ry * 0.66, w: rx * 1.32, h: ry * 1.32 };
+    }
+
+    function pathThoughtCloud(ctx, S) {
+        const bumps = [
+            { x: -0.62, y: 0.12, r: 0.32 },
+            { x: -0.22, y: -0.26, r: 0.40 },
+            { x: 0.28, y: -0.30, r: 0.40 },
+            { x: 0.68, y: 0.04, r: 0.34 },
+            { x: 0.20, y: 0.30, r: 0.38 },
+            { x: -0.28, y: 0.34, r: 0.34 },
+        ];
+        ctx.beginPath();
+        bumps.forEach(b => {
+            ctx.moveTo((b.x + b.r) * S, b.y * S);
+            ctx.arc(b.x * S, b.y * S, b.r * S, 0, Math.PI * 2);
+        });
+        return { x: -S * 0.52, y: -S * 0.30, w: S * 1.04, h: S * 0.56 };
+    }
+
+    function pathRibbonBanner(ctx, S) {
+        const bw = S * 1.86, bh = S * 0.70, notch = S * 0.20;
+        ctx.beginPath();
+        ctx.moveTo(-bw / 2, -bh / 2);
+        ctx.lineTo(bw / 2, -bh / 2);
+        ctx.lineTo(bw / 2 - notch, 0);
+        ctx.lineTo(bw / 2, bh / 2);
+        ctx.lineTo(-bw / 2, bh / 2);
+        ctx.lineTo(-bw / 2 + notch, 0);
+        ctx.closePath();
+        return { x: -bw / 2 + notch * 1.4, y: -bh / 2 + S * 0.06, w: bw - notch * 2.8, h: bh - S * 0.12 };
+    }
+
+    function pathWavyBanner(ctx, S) {
+        const bw = S * 1.86, bh = S * 0.62, wv = S * 0.14;
+        ctx.beginPath();
+        ctx.moveTo(-bw / 2, -bh / 2);
+        ctx.quadraticCurveTo(-bw / 4, -bh / 2 - wv, 0, -bh / 2);
+        ctx.quadraticCurveTo(bw / 4, -bh / 2 + wv, bw / 2, -bh / 2);
+        ctx.lineTo(bw / 2, bh / 2);
+        ctx.quadraticCurveTo(bw / 4, bh / 2 + wv, 0, bh / 2);
+        ctx.quadraticCurveTo(-bw / 4, bh / 2 - wv, -bw / 2, bh / 2);
+        ctx.closePath();
+        return { x: -bw / 2 + S * 0.14, y: -bh / 2 + wv + S * 0.02, w: bw - S * 0.28, h: bh - wv * 2 - S * 0.04 };
+    }
+
+    function pathScrollBanner(ctx, S) {
+        const bw = S * 1.44, bh = S * 0.62, curl = S * 0.26;
+        // returns an object with a custom multi-piece draw since composite ops are needed
+        return {
+            bw, bh, curl,
+            innerBox: { x: -bw / 2 + curl * 0.4, y: -bh / 2 + S * 0.05, w: bw - curl * 0.8, h: bh - S * 0.10 }
+        };
+    }
+
+    function pathPlainBanner(ctx, S) {
+        const bw = S * 1.80, bh = S * 0.64, rad = S * 0.06;
+        ctx.beginPath();
+        ctx.moveTo(-bw / 2 + rad, -bh / 2);
+        ctx.lineTo(bw / 2 - rad, -bh / 2);
+        ctx.arcTo(bw / 2, -bh / 2, bw / 2, -bh / 2 + rad, rad);
+        ctx.lineTo(bw / 2, bh / 2 - rad);
+        ctx.arcTo(bw / 2, bh / 2, bw / 2 - rad, bh / 2, rad);
+        ctx.lineTo(-bw / 2 + rad, bh / 2);
+        ctx.arcTo(-bw / 2, bh / 2, -bw / 2, bh / 2 - rad, rad);
+        ctx.lineTo(-bw / 2, -bh / 2 + rad);
+        ctx.arcTo(-bw / 2, -bh / 2, -bw / 2 + rad, -bh / 2, rad);
+        ctx.closePath();
+        return { x: -bw / 2 + S * 0.10, y: -bh / 2 + S * 0.08, w: bw - S * 0.20, h: bh - S * 0.16 };
+    }
+
+    // === TEXT WRAPPING / AUTO-FIT ===
+    function wrapLines(ctx, text, maxWidth, fontWeight, fontFamily, fontSize) {
+        ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
+        const paragraphs = text.split('\n');
+        const lines = [];
+        paragraphs.forEach(p => {
+            const words = p.split(' ').filter(w => w.length > 0);
+            if (words.length === 0) { lines.push(''); return; }
+            let current = words[0];
+            for (let i = 1; i < words.length; i++) {
+                const test = current + ' ' + words[i];
+                if (ctx.measureText(test).width <= maxWidth) {
+                    current = test;
+                } else {
+                    lines.push(current);
+                    current = words[i];
+                }
+            }
+            lines.push(current);
+        });
+        return lines;
+    }
+
+    function fitTextInBox(ctx, text, box, color, fontWeight, fontFamily, manualPct, autoFit) {
+        if (!text) return;
+        const maxFont = box.h * 0.85;
+        const minFont = Math.max(6, box.h * 0.08);
+        let fontSize;
+        let lines;
+
+        if (autoFit) {
+            fontSize = maxFont;
+            while (fontSize > minFont) {
+                lines = wrapLines(ctx, text, box.w, fontWeight, fontFamily, fontSize);
+                const lineHeight = fontSize * 1.18;
+                const totalHeight = lines.length * lineHeight;
+                const widestLine = Math.max(...lines.map(l => ctx.measureText(l).width));
+                if (totalHeight <= box.h && widestLine <= box.w) break;
+                fontSize -= Math.max(1, fontSize * 0.04);
+            }
+        } else {
+            fontSize = Math.max(minFont, Math.min(maxFont, box.h * 0.34 * (manualPct / 100)));
+            lines = wrapLines(ctx, text, box.w, fontWeight, fontFamily, fontSize);
+        }
+
+        const lineHeight = fontSize * 1.18;
+        const totalHeight = lines.length * lineHeight;
+        let startY = box.y + box.h / 2 - totalHeight / 2 + lineHeight / 2;
+
+        ctx.save();
+        ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
+        ctx.fillStyle = color;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0,0,0,0.3)';
+        ctx.shadowBlur = fontSize * 0.08;
+        lines.forEach((line, i) => {
+            ctx.fillText(line, box.x + box.w / 2, startY + i * lineHeight);
+        });
+        ctx.restore();
+    }
+
+    // === DRAW ENGINE ===
+    function drawFrame() {
+        const w = canvas.width, h = canvas.height;
+        const cx = w / 2, cy = h / 2;
+        const s = getSettings();
+        ctx.clearRect(0, 0, w, h);
+
+        const S = Math.min(w, h) * 0.235; // unit half-size for shapes
+
+        let dy = 0, rotation = 0, scale = 1;
+        switch (currentAnim) {
+            case 'bounce':  dy = Math.sin(phase) * s.amplitude * h * 0.05; break;
+            case 'pulse':   scale = 1 + s.amplitude * 0.12 * Math.sin(phase); break;
+            case 'rotate':  rotation = phase; break;
+            case 'wobble':  rotation = s.amplitude * 0.28 * Math.sin(phase); break;
+        }
+
+        // ground shadow
+        const shadowShrink = currentAnim === 'bounce' ? Math.abs(Math.sin(phase)) * 0.18 : 0;
+        ctx.save();
+        ctx.translate(cx, h * 0.84);
+        ctx.scale(1 - shadowShrink, 1);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, w * 0.26, h * 0.03, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,0,0,0.35)';
+        ctx.fill();
+        ctx.restore();
+
+        // ripple rings
+        if (s.showRipple) {
+            for (let i = 0; i < 3; i++) {
+                const rp = (ripplePhase + i / 3) % 1;
+                const ringR = S * (1.15 + rp * 1.5);
+                const ringAlpha = (1 - rp) * 0.3;
+                ctx.beginPath();
+                ctx.ellipse(cx, cy + dy, ringR * 1.25, ringR * 0.9, 0, 0, Math.PI * 2);
+                ctx.strokeStyle = hexToRgba(s.badgeColorStart, ringAlpha);
+                ctx.lineWidth = 3;
+                ctx.stroke();
+            }
+        }
+
+        ctx.save();
+        ctx.translate(cx, cy + dy);
+        ctx.rotate(rotation);
+        ctx.scale(scale, scale);
+
+        let innerBox;
+
+        ctx.save();
+        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = 20;
+        ctx.shadowOffsetY = 8;
+
+        if (currentIcon === 'scrollBanner') {
+            const info = pathScrollBanner(ctx, S);
+            const { bw, bh, curl } = info;
+            innerBox = info.innerBox;
+            // main strip
+            ctx.beginPath();
+            ctx.rect(-bw / 2, -bh / 2, bw, bh);
+            const grad1 = ctx.createLinearGradient(0, -bh / 2, 0, bh / 2);
+            grad1.addColorStop(0, lightenColor(s.badgeColorStart, 30));
+            grad1.addColorStop(0.5, s.badgeColorStart);
+            grad1.addColorStop(1, s.badgeColorEnd);
+            ctx.fillStyle = grad1;
+            ctx.fill();
+            // rolled ends
+            [-bw / 2, bw / 2].forEach(ex => {
+                ctx.beginPath();
+                ctx.arc(ex, 0, curl, 0, Math.PI * 2);
+                ctx.fillStyle = lightenColor(s.badgeColorEnd, 10);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(ex, 0, curl * 0.6, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+                ctx.lineWidth = curl * 0.12;
+                ctx.stroke();
+            });
+            ctx.restore(); // end shadow save
+            // gloss + rim over the whole banner bounding shape
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(-bw / 2 - curl, -bh / 2 - 2, bw + curl * 2, bh + 4);
+            ctx.clip();
+            drawGlossAndRim(ctx, s, -bw / 2 - curl, -bh / 2, bw + curl * 2, bh);
+            ctx.restore();
+        } else {
+            let box;
+            switch (currentIcon) {
+                case 'speechSquare': box = pathSpeechSquare(ctx, S); break;
+                case 'speechOval':   box = pathSpeechOval(ctx, S); break;
+                case 'whatsapp':     box = pathWhatsapp(ctx, S); break;
+                case 'ovalCallout':  box = pathOvalCallout(ctx, S); break;
+                case 'thoughtCloud': box = pathThoughtCloud(ctx, S); break;
+                case 'ribbonBanner': box = pathRibbonBanner(ctx, S); break;
+                case 'wavyBanner':   box = pathWavyBanner(ctx, S); break;
+                case 'plainBanner':  box = pathPlainBanner(ctx, S); break;
+                default:             box = pathSpeechSquare(ctx, S);
+            }
+            innerBox = box;
+            const grad = ctx.createLinearGradient(-S, -S, S, S);
+            grad.addColorStop(0, lightenColor(s.badgeColorStart, 30));
+            grad.addColorStop(0.5, s.badgeColorStart);
+            grad.addColorStop(1, s.badgeColorEnd);
+            ctx.fillStyle = grad;
+            ctx.fill();
+            ctx.restore(); // end shadow save
+
+            // gloss + rim clipped to the shape's own path
+            ctx.save();
+            switch (currentIcon) {
+                case 'speechSquare': pathSpeechSquare(ctx, S); break;
+                case 'speechOval':   pathSpeechOval(ctx, S); break;
+                case 'whatsapp':     pathWhatsapp(ctx, S); break;
+                case 'ovalCallout':  pathOvalCallout(ctx, S); break;
+                case 'thoughtCloud': pathThoughtCloud(ctx, S); break;
+                case 'ribbonBanner': pathRibbonBanner(ctx, S); break;
+                case 'wavyBanner':   pathWavyBanner(ctx, S); break;
+                case 'plainBanner':  pathPlainBanner(ctx, S); break;
+                default:             pathSpeechSquare(ctx, S);
+            }
+            ctx.clip();
+            drawGlossAndRim(ctx, s, -S * 2, -S * 2, S * 4, S * 4);
+            ctx.restore();
+
+            // outline
+            switch (currentIcon) {
+                case 'speechSquare': pathSpeechSquare(ctx, S); break;
+                case 'speechOval':   pathSpeechOval(ctx, S); break;
+                case 'whatsapp':     pathWhatsapp(ctx, S); break;
+                case 'ovalCallout':  pathOvalCallout(ctx, S); break;
+                case 'thoughtCloud': pathThoughtCloud(ctx, S); break;
+                case 'ribbonBanner': pathRibbonBanner(ctx, S); break;
+                case 'wavyBanner':   pathWavyBanner(ctx, S); break;
+                case 'plainBanner':  pathPlainBanner(ctx, S); break;
+                default:             pathSpeechSquare(ctx, S);
+            }
+            ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+        }
+
+        // text — counter-rotate for 'rotate' mode so it stays readable
+        if (currentAnim !== 'rotate') {
+            fitTextInBox(ctx, s.innerText, innerBox, s.symbolColor, 800, "'Noto Sans Bengali','Outfit',sans-serif", s.manualFontPct, s.autoFit);
+        } else {
+            ctx.save();
+            ctx.rotate(-rotation);
+            fitTextInBox(ctx, s.innerText, innerBox, s.symbolColor, 800, "'Noto Sans Bengali','Outfit',sans-serif", s.manualFontPct, s.autoFit);
+            ctx.restore();
+        }
+
+        ctx.restore(); // end main transform
+    }
+
+    function drawGlossAndRim(ctx, s, x, y, w, h) {
+        const glossGrad = ctx.createRadialGradient(x + w * 0.30, y + h * 0.22, 0, x + w * 0.30, y + h * 0.22, Math.max(w, h) * 0.7);
+        glossGrad.addColorStop(0, 'rgba(255,255,255,0.5)');
+        glossGrad.addColorStop(0.4, 'rgba(255,255,255,0.10)');
+        glossGrad.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = glossGrad;
+        ctx.fillRect(x, y, w, h);
+
+        const rimGrad = ctx.createRadialGradient(x + w / 2, y + h / 2, Math.min(w, h) * 0.32, x + w / 2, y + h / 2, Math.max(w, h) * 0.62);
+        rimGrad.addColorStop(0, 'rgba(0,0,0,0)');
+        rimGrad.addColorStop(1, 'rgba(0,0,0,0.25)');
+        ctx.fillStyle = rimGrad;
+        ctx.fillRect(x, y, w, h);
+
+        if (s.showShine) {
+            const sweepX = x + ((shinePhase % 1) * (w * 1.8)) - w * 0.4;
+            const shineGrad = ctx.createLinearGradient(sweepX - 20, y, sweepX + 20, y + h);
+            shineGrad.addColorStop(0, 'rgba(255,255,255,0)');
+            shineGrad.addColorStop(0.5, 'rgba(255,255,255,0.4)');
+            shineGrad.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.fillStyle = shineGrad;
+            ctx.fillRect(x, y, w, h);
+        }
+    }
+
+    // === ANIMATION LOOP ===
+    function animationLoop(timestamp) {
+        if (!isSpinning) return;
+        if (!lastTimestamp) lastTimestamp = timestamp;
+        const delta = timestamp - lastTimestamp;
+        lastTimestamp = timestamp;
+
+        const phaseSpeed = (currentAnim === 'rotate') ? 0.0018 : 0.004;
+        phase += delta * phaseSpeed * speedVal;
+        ripplePhase = (ripplePhase + delta * 0.0006) % 1;
+        shinePhase += delta * 0.0005;
+
+        const elapsed = timestamp - startTime;
+        const remaining = Math.max(0, totalDurationMs - elapsed);
+        updateTimerUI(elapsed, remaining);
+
+        drawFrame();
+
+        if (remaining <= 0 && !document.getElementById('loopSpinToggle').checked) {
+            finishBurst();
+            return;
+        }
+        if (remaining <= 0) startTime = timestamp;
+
+        animFrame = requestAnimationFrame(animationLoop);
+    }
+
+    function updateTimerUI(elapsed, remaining) {
+        const totalSec = Math.ceil(remaining / 1000);
+        const minutes = Math.floor(totalSec / 60).toString().padStart(2, '0');
+        const seconds = (totalSec % 60).toString().padStart(2, '0');
+        document.getElementById('timerBig').textContent = `${minutes}:${seconds}`;
+        const pct = Math.max(0, Math.min(100, ((totalDurationMs - remaining) / totalDurationMs) * 100));
+        document.getElementById('timerPercent').textContent = Math.round(pct) + '%';
+        const circumference = 157;
+        const offset = circumference - (pct / 100) * circumference;
+        document.getElementById('timerRing').style.strokeDashoffset = offset;
+    }
+
+    function resetTimerUI() {
+        document.getElementById('timerBig').textContent = '00:00';
+        document.getElementById('timerPercent').textContent = '—';
+        document.getElementById('timerRing').style.strokeDashoffset = 157;
+        document.getElementById('timerStatus').className = 'timer-status idle';
+        document.getElementById('timerStatus').textContent = 'প্রস্তুত';
+        document.getElementById('timerSub').textContent = 'সময় বাকি';
+    }
+
+    function startBurst() {
+        if (isSpinning) return;
+        const durationSec = parseFloat(document.getElementById('spinDuration').value) || 30;
+        totalDurationMs = durationSec * 1000;
+        speedVal = parseFloat(document.getElementById('animSpeed').value) || 1.0;
+
+        isSpinning = true;
+        startTime = null;
+        lastTimestamp = null;
+
+        document.getElementById('startBtn').disabled = true;
+        document.getElementById('stopBtn').disabled = false;
+
+        const statusEl = document.getElementById('timerStatus');
+        statusEl.className = 'timer-status spinning';
+        statusEl.textContent = '⚡ চলছে';
+        document.getElementById('timerSub').textContent = 'সময় বাকি';
+
+        animFrame = requestAnimationFrame((ts) => {
+            startTime = ts;
+            lastTimestamp = ts;
+            animationLoop(ts);
+        });
+    }
+
+    function stopBurst() {
+        isSpinning = false;
+        if (animFrame) cancelAnimationFrame(animFrame);
+        lastTimestamp = null;
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('stopBtn').disabled = true;
+        const statusEl = document.getElementById('timerStatus');
+        statusEl.className = 'timer-status idle';
+        statusEl.textContent = '⏸ থামানো হয়েছে';
+        drawFrame();
+    }
+
+    function finishBurst() {
+        isSpinning = false;
+        if (animFrame) cancelAnimationFrame(animFrame);
+        lastTimestamp = null;
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('stopBtn').disabled = true;
+        document.getElementById('timerBig').textContent = '00:00';
+        document.getElementById('timerPercent').textContent = '100%';
+        document.getElementById('timerRing').style.strokeDashoffset = 0;
+        const statusEl = document.getElementById('timerStatus');
+        statusEl.className = 'timer-status done';
+        statusEl.textContent = '✅ সম্পন্ন!';
+        document.getElementById('timerSub').textContent = 'অ্যানিমেশন শেষ';
+        drawFrame();
+    }
+
+    function resetAll() {
+        stopBurst();
+        phase = 0;
+        ripplePhase = 0;
+        shinePhase = 0;
+        resetTimerUI();
+        drawFrame();
+    }
+
+    function setExportStatus(message) { document.getElementById('exportStatus').textContent = message; }
+
+    function saveBlob(blob, filename) {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    }
+
+    function downloadPng() {
+        canvas.toBlob((blob) => {
+            if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+            saveBlob(blob, `textbox-3d-${currentIcon}.png`);
+            setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+        }, 'image/png');
+    }
+
+    function getExportCanvas(size = 720) {
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = exportCanvas.height = size;
+        const oldWidth = canvas.width, oldHeight = canvas.height;
+        canvas.width = canvas.height = size;
+        drawFrame();
+        exportCanvas.getContext('2d').drawImage(canvas, 0, 0);
+        canvas.width = oldWidth; canvas.height = oldHeight;
+        drawFrame();
+        return exportCanvas;
+    }
+
+    async function downloadGif() {
+        if (!window.GIF) {
+            setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ দিয়ে আবার চেষ্টা করুন।');
+            return;
+        }
+        if (isExporting) return;
+        isExporting = true;
+        const oldPhase = phase, oldRipple = ripplePhase, oldShine = shinePhase;
+        const gif = new GIF({ workers: 2, quality: 10, width: 720, height: 720, workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
+        const frames = 48;
+        const frameDelay = 50;
+        setExportStatus('GIF তৈরি হচ্ছে… 0%');
+        for (let frame = 0; frame < frames; frame++) {
+            const t = frame / frames;
+            phase = oldPhase + t * Math.PI * 2;
+            ripplePhase = t;
+            shinePhase = oldShine + t * 1.2;
+            gif.addFrame(getExportCanvas(720), { copy: true, delay: frameDelay });
+            setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((frame + 1) / frames * 100)}%`);
+            await new Promise(requestAnimationFrame);
+        }
+        phase = oldPhase; ripplePhase = oldRipple; shinePhase = oldShine; drawFrame();
+        gif.on('finished', (blob) => {
+            saveBlob(blob, `textbox-3d-${currentIcon}.gif`);
+            setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
+            isExporting = false;
+        });
+        gif.render();
+    }
+
+    async function downloadVideo() {
+        if (!window.MediaRecorder || !canvas.captureStream) {
+            setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।');
+            return;
+        }
+        if (isExporting) return;
+        isExporting = true;
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = exportCanvas.height = 720;
+        const exportCtx = exportCanvas.getContext('2d');
+        const stream = exportCanvas.captureStream(30);
+        const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+        const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 5000000 });
+        const chunks = [];
+        const oldPhase = phase, oldRipple = ripplePhase, oldShine = shinePhase;
+        recorder.ondataavailable = (event) => event.data.size && chunks.push(event.data);
+        recorder.onstop = () => {
+            saveBlob(new Blob(chunks, { type: mimeType }), `textbox-3d-${currentIcon}.webm`);
+            phase = oldPhase; ripplePhase = oldRipple; shinePhase = oldShine; drawFrame(); isExporting = false;
+            setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+        };
+        recorder.start();
+        const start = performance.now();
+        const duration = 2600;
+        setExportStatus('ভিডিও তৈরি হচ্ছে…');
+        const render = (now) => {
+            const progress = Math.min(1, (now - start) / duration);
+            phase = oldPhase + progress * Math.PI * 2;
+            ripplePhase = progress;
+            shinePhase = oldShine + progress * 1.2;
+            const frame = getExportCanvas(720);
+            exportCtx.clearRect(0, 0, 720, 720);
+            exportCtx.drawImage(frame, 0, 0);
+            if (progress < 1) requestAnimationFrame(render); else recorder.stop();
+        };
+        requestAnimationFrame(render);
+    }
+
+    function setDuration(sec, btnEl) {
+        document.getElementById('spinDuration').value = sec;
+        document.getElementById('durationBadge').textContent = sec >= 60 ? `${sec / 60}মিনিট` : `${sec}s`;
+        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+    }
+
+    document.getElementById('spinDuration').addEventListener('input', function() {
+        const v = parseFloat(this.value) || 30;
+        document.getElementById('durationBadge').textContent = v >= 60 ? `${(v / 60).toFixed(1)}মিনিট` : `${v}s`;
+    });
+    document.getElementById('animAmp').addEventListener('input', function() {
+        document.getElementById('ampBadge').textContent = parseFloat(this.value).toFixed(2);
+        if (!isSpinning) drawFrame();
+    });
+    document.getElementById('animSpeed').addEventListener('input', function() {
+        document.getElementById('speedBadge').textContent = parseFloat(this.value).toFixed(1);
+    });
+    document.getElementById('manualFontSize').addEventListener('input', function() {
+        document.getElementById('fontSizeBadge').textContent = this.value + '%';
+        if (!isSpinning) drawFrame();
+    });
+
+    ['innerText', 'badgeColorStart', 'badgeColorEnd', 'symbolColor',
+     'showRippleToggle', 'showShineToggle'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', () => { if (!isSpinning) drawFrame(); });
+            el.addEventListener('change', () => { if (!isSpinning) drawFrame(); });
+        }
+    });
+
+    drawFrame();
+    setTimeout(startBurst, 150);
+
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+</body>
+</html>

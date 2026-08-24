@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travel Agency — 3D Scene Builder</title>
+<meta name="description" content="৩ডি ট্রাভেল এজেন্সি সিন — প্লেন, টিকেট, ভিসা স্ট্যাম্প, সুটকেস ও ফেস্টুন — এক্সট্রুডেড ব্লক শেপ, কোনো গোল আকার নেই — PNG/GIF/WebM এক্সপোর্ট">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;700;800;900&family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-primary:#0a0d0f; --bg-secondary:#0f1316; --bg-card:#151a1d; --bg-card-hover:#1b2124;
+    --border:rgba(255,255,255,0.08); --accent:#ff9f1c; --accent-glow:rgba(255,159,28,0.4);
+    --accent-2:#2ec4b6; --accent-3:#e71d36; --text-primary:#f3f1ea; --text-secondary:#9ba3a1;
+    --text-muted:#576260; --radius:16px; --shadow:0 20px 60px rgba(0,0,0,0.6);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Outfit','Noto Sans Bengali',sans-serif;background:var(--bg-primary);color:var(--text-primary);
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 80% 50% at 20% 15%,rgba(255,159,28,0.09) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 85%,rgba(46,196,182,0.08) 0%,transparent 60%);}
+  .app-header{width:100%;padding:22px 32px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);
+    background:rgba(10,13,15,0.85);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+  .header-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),#a35400);
+    clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%);display:flex;align-items:center;justify-content:center;
+    font-size:19px;box-shadow:0 0 20px var(--accent-glow);flex-shrink:0;}
+  .header-text h1{font-size:19px;font-weight:700;background:linear-gradient(135deg,#fff 0%,var(--accent) 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .header-text p{font-size:12.5px;color:var(--text-secondary);margin-top:2px;}
+  .main-content{width:100%;max-width:1260px;padding:36px 24px 80px;display:grid;grid-template-columns:1fr 380px;gap:28px;position:relative;z-index:1;}
+  @media (max-width:960px){.main-content{grid-template-columns:1fr;}}
+  .canvas-panel{display:flex;flex-direction:column;align-items:center;gap:20px;}
+  .canvas-wrapper{width:100%;aspect-ratio:16/9;background:
+    linear-gradient(45deg,#181d20 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,#181d20 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(45deg,transparent 75%,#181d20 75%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,transparent 75%,#181d20 75%) -0px -0px/24px 24px,
+    var(--bg-card);
+    border:1px solid var(--border);border-radius:20px;display:flex;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;box-shadow:var(--shadow);}
+  #sceneCanvas{display:block;max-width:100%;max-height:100%;}
+  .timer-display{display:flex;align-items:center;gap:14px;padding:14px 24px;background:var(--bg-card);
+    border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);width:100%;}
+  .timer-ring-wrap{position:relative;width:50px;height:50px;}
+  .timer-ring-wrap svg{transform:rotate(-90deg);}
+  .timer-ring-bg{fill:none;stroke:rgba(255,255,255,0.07);stroke-width:4;}
+  .timer-ring-fill{fill:none;stroke:url(#ringGradient3);stroke-width:4;stroke-linecap:round;
+    transition:stroke-dashoffset 1s linear;stroke-dasharray:141;stroke-dashoffset:0;}
+  .timer-label-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:700;color:var(--accent);}
+  .timer-text-group{display:flex;flex-direction:column;}
+  .timer-big{font-size:26px;font-weight:800;letter-spacing:-1px;}
+  .timer-sub{font-size:11.5px;color:var(--text-secondary);font-weight:500;}
+  .timer-status{padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;}
+  .timer-status.idle{background:rgba(255,255,255,0.06);color:var(--text-muted);}
+  .timer-status.spinning{background:rgba(255,159,28,0.15);color:var(--accent);}
+  .timer-status.done{background:rgba(46,196,182,0.15);color:var(--accent-2);}
+  .sidebar{display:flex;flex-direction:column;gap:14px;}
+  .control-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+  .card-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-secondary);
+    display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+  .card-title-icon{width:22px;height:22px;background:rgba(255,159,28,0.14);border-radius:6px;display:flex;
+    align-items:center;justify-content:center;font-size:12px;}
+  .form-row{margin-bottom:14px;}
+  .form-row:last-child{margin-bottom:0;}
+  .form-label{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;color:var(--text-secondary);margin-bottom:7px;}
+  .value-badge{background:rgba(255,159,28,0.16);color:var(--accent);padding:1px 8px;border-radius:6px;font-size:11px;font-weight:700;}
+  input[type=text]{width:100%;padding:10px 12px;background:var(--bg-secondary);border:1px solid var(--border);
+    border-radius:9px;color:var(--text-primary);font-size:13.5px;font-family:inherit;}
+  input[type=text]:focus{outline:none;border-color:var(--accent);}
+  input[type=range]{width:100%;accent-color:var(--accent);}
+  input[type=color]{width:100%;height:34px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;}
+  .color-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .lang-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  .lang-btn{padding:9px 6px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;}
+  .lang-btn.active{background:var(--accent);border-color:var(--accent);color:#2b1500;}
+  .toggle-row{display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer;color:var(--text-secondary);margin-bottom:10px;}
+  .toggle-row:last-child{margin-bottom:0;}
+  .preset-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .preset-btn{padding:7px 12px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;}
+  .preset-btn.active{background:var(--accent);border-color:var(--accent);color:#2b1500;}
+  .style-swatch{width:34px;height:34px;border-radius:9px;border:2px solid transparent;cursor:pointer;flex-shrink:0;}
+  .style-swatch.active{border-color:#fff;}
+  .btn-group{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{flex:1;min-width:120px;padding:12px 16px;border:none;border-radius:11px;font-size:13.5px;font-weight:700;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;transition:.15s;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),#a35400);color:#2b1500;box-shadow:0 8px 20px rgba(255,159,28,0.28);}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-stop{background:rgba(239,68,68,0.15);color:#ef4444;}
+  .btn-stop:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-ghost{background:var(--bg-secondary);color:var(--text-secondary);border:1px solid var(--border);}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-icon">🧳</div>
+  <div class="header-text">
+    <h1>Travel Agency — 3D Scene Builder</h1>
+    <p>প্লেন + টিকেট + ভিসা স্ট্যাম্প + সুটকেস + ফেস্টুন — কোনো গোল আকার নেই — PNG/GIF/WebM এক্সপোর্ট</p>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="canvas-panel">
+    <div class="canvas-wrapper">
+      <canvas id="sceneCanvas" width="1600" height="900"></canvas>
+    </div>
+
+    <div class="timer-display">
+      <div class="timer-ring-wrap">
+        <svg width="50" height="50" viewBox="0 0 50 50">
+          <defs>
+            <linearGradient id="ringGradient3" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#ff9f1c"/><stop offset="100%" stop-color="#2ec4b6"/>
+            </linearGradient>
+          </defs>
+          <circle class="timer-ring-bg" cx="25" cy="25" r="22.5"></circle>
+          <circle class="timer-ring-fill" id="timerRing" cx="25" cy="25" r="22.5"></circle>
+        </svg>
+        <div class="timer-label-inner" id="timerPercent">—</div>
+      </div>
+      <div class="timer-text-group">
+        <div class="timer-big" id="timerBig">00:00</div>
+        <div class="timer-sub" id="timerSub">সময় বাকি</div>
+      </div>
+      <div class="timer-status idle" id="timerStatus" style="margin-left:auto;">প্রস্তুত</div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🌐</div>ভাষা প্রিসেট</div>
+      <div class="lang-row">
+        <button class="lang-btn" onclick="applyLanguage('bn',this)">বাংলা</button>
+        <button class="lang-btn active" onclick="applyLanguage('en',this)">English</button>
+        <button class="lang-btn" onclick="applyLanguage('both',this)">উভয়</button>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">✏️</div>টেক্সট</div>
+      <div class="form-row">
+        <label class="form-label">এয়ারব্রো (উপরে)</label>
+        <input type="text" id="subText" value="WELCOME TO">
+      </div>
+      <div class="form-row">
+        <label class="form-label">মূল শব্দ</label>
+        <input type="text" id="mainText" value="TRAVEL AGENCY">
+      </div>
+      <div class="form-row">
+        <label class="form-label">লাইন ১ (গন্তব্য)</label>
+        <input type="text" id="line1" value="Cox's Bazar · Sundarban · Sylhet">
+      </div>
+      <div class="form-row">
+        <label class="form-label">লাইন ২ (ট্যাগলাইন)</label>
+        <input type="text" id="line2" value="Book Your Dream Trip Today">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎨</div>রং (মাল্টি-কালার)</div>
+      <div class="color-grid">
+        <div class="form-row"><label class="form-label">সুটকেস / প্লেট বেস</label><input type="color" id="wallColor" value="#fff3e0"></div>
+        <div class="form-row"><label class="form-label">স্ট্র্যাপ / পোস্ট রং</label><input type="color" id="roofColor" value="#ff6b6b"></div>
+        <div class="form-row"><label class="form-label">টেক্সট রং</label><input type="color" id="textColor" value="#2b1200"></div>
+        <div class="form-row"><label class="form-label">প্লেন / ফেস্টুন ১</label><input type="color" id="accentColor" value="#2ec4ff"></div>
+        <div class="form-row"><label class="form-label">টিকেট / ফেস্টুন ২</label><input type="color" id="accentColor2" value="#ffd166"></div>
+        <div class="form-row"><label class="form-label">ভিসা স্ট্যাম্প ইঙ্ক</label><input type="color" id="accentColor3" value="#ef476f"></div>
+      </div>
+      <div class="preset-row" style="margin-top:4px;" id="stylePresets">
+        <div class="style-swatch active" style="background:linear-gradient(135deg,#2ec4ff,#ff6b6b)" onclick="applyStyle('fiesta',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#ffbe0b,#06a77d)" onclick="applyStyle('tropical',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#f2b705,#d7263d)" onclick="applyStyle('carnival',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#e63946,#1d3557)" onclick="applyStyle('retro',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#ff9f1c,#2b4570)" onclick="applyStyle('skyline',this)"></div>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🔺</div>শেপ (৩ডি ব্লক)</div>
+      <div class="form-row">
+        <label class="form-label">সুটকেসের আকার <span class="value-badge" id="sizeBadge">90%</span></label>
+        <input type="range" id="houseSize" min="60" max="120" step="1" value="90">
+      </div>
+      <div class="form-row">
+        <label class="form-label">প্লেনের ব্যাংক কোণ <span class="value-badge" id="pitchBadge">45</span></label>
+        <input type="range" id="roofPitch" min="20" max="70" step="1" value="45">
+      </div>
+      <div class="form-row">
+        <label class="form-label">৩ডি এক্সট্রুশন গভীরতা <span class="value-badge" id="depthBadge">22</span></label>
+        <input type="range" id="blockDepth" min="8" max="40" step="1" value="22">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎬</div>অ্যানিমেশন (আলাদা আলাদা)</div>
+      <div class="toggle-row"><input type="checkbox" id="buildToggle" checked>সুটকেস + পোস্ট বিল্ড</div>
+      <div class="toggle-row"><input type="checkbox" id="flagToggle" checked>রঙিন ফেস্টুন / বান্টিং ফ্ল্যাগ</div>
+      <div class="toggle-row"><input type="checkbox" id="ticketToggle" checked>টিকেট ফ্লাটার-ইন</div>
+      <div class="toggle-row"><input type="checkbox" id="stampToggle" checked>ভিসা স্ট্যাম্প থাম্প</div>
+      <div class="toggle-row"><input type="checkbox" id="sweepToggle" checked>প্লেটে লাইট সুইপ</div>
+      <div class="toggle-row"><input type="checkbox" id="idleToggle" checked>প্লেন উড়ান + আইডল নড়াচড়া</div>
+      <div class="form-row">
+        <label class="form-label">সময়কাল</label>
+        <div class="preset-row">
+          <button class="preset-btn" onclick="setDuration(5,this)">5s</button>
+          <button class="preset-btn" onclick="setDuration(10,this)">10s</button>
+          <button class="preset-btn active" onclick="setDuration(30,this)">30s</button>
+          <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:10px;">
+        <label class="toggle-row" style="margin:0;"><input type="checkbox" id="loopToggle" checked>সবসময় লুপ চলবে</label>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" id="startBtn" onclick="startAnim()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg> শুরু
+      </button>
+      <button class="btn btn-stop" id="stopBtn" onclick="stopAnim()" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg> বন্ধ
+      </button>
+    </div>
+    <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট</button>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+      <div class="toggle-row"><input type="checkbox" id="transparentToggle" checked>PNG ট্রান্সপারেন্ট ব্যাকগ্রাউন্ড</div>
+      <div class="form-row" id="exportBgRow" style="display:none;">
+        <label class="form-label">GIF/ভিডিও ব্যাকগ্রাউন্ড রং</label>
+        <input type="color" id="exportBgColor" value="#0a0d0f">
+      </div>
+      <p style="font-size:11.5px;color:var(--text-muted);margin:2px 0 12px;line-height:1.55;">
+        PNG ট্রান্সপারেন্ট থাকে (ভিডিও এডিটরে সরাসরি ওভারলে করা যাবে)। GIF ও ভিডিও একটি ব্যাকগ্রাউন্ড রং সহ এক্সপোর্ট হয়।
+      </p>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="downloadPng()">PNG</button>
+        <button class="btn btn-primary" onclick="downloadGif()">GIF</button>
+        <button class="btn btn-primary" onclick="downloadVideo()">ভিডিও (WebM)</button>
+      </div>
+      <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   TRAVEL AGENCY 3D SCENE — PLANE + TICKET + VISA STAMP +
+   SUITCASE + BUNTING BUILD ENGINE.
+   Straight-edged extruded ("iso-block") 3D shapes only —
+   no circles/arcs anywhere in the artwork itself.
+===================================================== */
+
+const canvas = document.getElementById('sceneCanvas');
+const ctx = canvas.getContext('2d');
+const CW = canvas.width, CH = canvas.height;
+
+// === STATE ===
+let sweepPhase = 0, idlePhase = 0, buildP = 0;
+let isSpinning = false, animFrame = null, lastTimestamp = null;
+let totalDurationMs = 30000, startTime = null, isExporting = false;
+
+// === LANGUAGE PRESETS ===
+const languagePresets = {
+  bn: { subText: 'স্বাগতম', mainText: 'ট্রাভেল এজেন্সি', line1: "কক্সবাজার · সুন্দরবন · সিলেট", line2: 'আজই বুক করুন আপনার স্বপ্নের ভ্রমণ' },
+  en: { subText: 'WELCOME TO', mainText: 'TRAVEL AGENCY', line1: "Cox's Bazar · Sundarban · Sylhet", line2: 'Book Your Dream Trip Today' },
+  both: { subText: 'WELCOME TO / স্বাগতম', mainText: 'TRAVEL AGENCY / ট্রাভেল এজেন্সি', line1: "Cox's Bazar · Sundarban · Sylhet", line2: 'Book Your Dream Trip Today' },
+};
+function applyLanguage(lang, btnEl) {
+  const p = languagePresets[lang]; if (!p) return;
+  document.getElementById('subText').value = p.subText;
+  document.getElementById('mainText').value = p.mainText;
+  document.getElementById('line1').value = p.line1;
+  document.getElementById('line2').value = p.line2;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  if (!isSpinning) drawFrame();
+}
+
+// === STYLE PRESETS (vivid multi-color) ===
+const stylePresets = {
+  fiesta:   { wallColor:'#fff3e0', roofColor:'#ff6b6b', textColor:'#2b1200', accentColor:'#2ec4ff', accentColor2:'#ffd166', accentColor3:'#ef476f' },
+  tropical: { wallColor:'#eafff0', roofColor:'#06a77d', textColor:'#06281c', accentColor:'#ffbe0b', accentColor2:'#ff6b6b', accentColor3:'#3a86ff' },
+  carnival: { wallColor:'#fff0f6', roofColor:'#d7263d', textColor:'#2b0a12', accentColor:'#f2b705', accentColor2:'#6a4c93', accentColor3:'#1b998b' },
+  retro:    { wallColor:'#f5e6c8', roofColor:'#1d3557', textColor:'#1d1d1d', accentColor:'#e63946', accentColor2:'#f1a208', accentColor3:'#457b9d' },
+  skyline:  { wallColor:'#eef3ff', roofColor:'#2b4570', textColor:'#16233e', accentColor:'#ff9f1c', accentColor2:'#2ec4b6', accentColor3:'#e71d36' },
+};
+function applyStyle(name, el) {
+  const s = stylePresets[name]; if (!s) return;
+  document.getElementById('wallColor').value = s.wallColor;
+  document.getElementById('roofColor').value = s.roofColor;
+  document.getElementById('textColor').value = s.textColor;
+  document.getElementById('accentColor').value = s.accentColor;
+  document.getElementById('accentColor2').value = s.accentColor2;
+  document.getElementById('accentColor3').value = s.accentColor3;
+  document.querySelectorAll('.style-swatch').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  drawFrame();
+}
+
+// === SETTINGS ===
+function getSettings() {
+  return {
+    subText: document.getElementById('subText').value || '',
+    mainText: document.getElementById('mainText').value || '',
+    line1: document.getElementById('line1').value || '',
+    line2: document.getElementById('line2').value || '',
+    wallColor: document.getElementById('wallColor').value,
+    roofColor: document.getElementById('roofColor').value,
+    textColor: document.getElementById('textColor').value,
+    accentColor: document.getElementById('accentColor').value,
+    accentColor2: document.getElementById('accentColor2').value,
+    accentColor3: document.getElementById('accentColor3').value,
+    houseSizePct: parseInt(document.getElementById('houseSize').value) || 90,
+    roofPitch: parseInt(document.getElementById('roofPitch').value) || 45,
+    blockDepth: parseInt(document.getElementById('blockDepth').value) || 22,
+    showBuild: document.getElementById('buildToggle').checked,
+    showFlag: document.getElementById('flagToggle').checked,
+    showTicket: document.getElementById('ticketToggle').checked,
+    showStamp: document.getElementById('stampToggle').checked,
+    showSweep: document.getElementById('sweepToggle').checked,
+    showIdle: document.getElementById('idleToggle').checked,
+  };
+}
+
+// === COLOR HELPERS ===
+function hexToRgb(hex) {
+  hex = hex.replace('#', '');
+  return { r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16) };
+}
+function hexToRgba(hex, a) { const {r,g,b} = hexToRgb(hex); return `rgba(${r},${g},${b},${a})`; }
+function mix(hexA, hexB, t) {
+  const a = hexToRgb(hexA), b = hexToRgb(hexB);
+  return `rgb(${Math.round(a.r+(b.r-a.r)*t)},${Math.round(a.g+(b.g-a.g)*t)},${Math.round(a.b+(b.b-a.b)*t)})`;
+}
+function lighten(hex, amt) { const {r,g,b} = hexToRgb(hex); return `rgb(${Math.min(255,r+amt)},${Math.min(255,g+amt)},${Math.min(255,b+amt)})`; }
+function darken(hex, amt) { const {r,g,b} = hexToRgb(hex); return `rgb(${Math.max(0,r-amt)},${Math.max(0,g-amt)},${Math.max(0,b-amt)})`; }
+
+// === EASING ===
+function clamp01(t) { return Math.max(0, Math.min(1, t)); }
+function remap(t, a, b) { return clamp01((t - a) / (b - a)); }
+function smoothstep(t) { return t * t * (3 - 2 * t); }
+function easeOutBack(t) {
+  const c1 = 1.70158, c3 = c1 + 1;
+  return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+}
+function easeOutBounce(t) {
+  const n1 = 7.5625, d1 = 2.75;
+  if (t < 1 / d1) return n1 * t * t;
+  if (t < 2 / d1) return n1 * (t -= 1.5 / d1) * t + 0.75;
+  if (t < 2.5 / d1) return n1 * (t -= 2.25 / d1) * t + 0.9375;
+  return n1 * (t -= 2.625 / d1) * t + 0.984375;
+}
+
+// === GEOMETRY PRIMITIVES: straight-edged extruded blocks only ===
+function drawBlock(front, top, side, x, y, w, h, ox, oy) {
+  if (w <= 0 || h <= 0) return;
+  ctx.fillStyle = top;
+  ctx.beginPath();
+  ctx.moveTo(x, y); ctx.lineTo(x + ox, y + oy); ctx.lineTo(x + w + ox, y + oy); ctx.lineTo(x + w, y);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = side;
+  ctx.beginPath();
+  ctx.moveTo(x + w, y); ctx.lineTo(x + w + ox, y + oy); ctx.lineTo(x + w + ox, y + oy + h); ctx.lineTo(x + w, y + h);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = front;
+  ctx.fillRect(x, y, w, h);
+}
+
+// Triangle-prism wing/fin: front tri face + two extruded fold faces (apex above baseY)
+function drawWing(front, slopeLight, slopeDark, baseX, baseY, w, wingH, ox, oy) {
+  if (w <= 0 || wingH <= 0) return;
+  const apex = { x: baseX + w / 2, y: baseY - wingH };
+  const baseLeft = { x: baseX, y: baseY };
+  const baseRight = { x: baseX + w, y: baseY };
+  ctx.fillStyle = slopeLight;
+  ctx.beginPath();
+  ctx.moveTo(baseLeft.x, baseLeft.y); ctx.lineTo(apex.x, apex.y);
+  ctx.lineTo(apex.x + ox, apex.y + oy); ctx.lineTo(baseLeft.x + ox, baseLeft.y + oy);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = slopeDark;
+  ctx.beginPath();
+  ctx.moveTo(apex.x, apex.y); ctx.lineTo(baseRight.x, baseRight.y);
+  ctx.lineTo(baseRight.x + ox, baseRight.y + oy); ctx.lineTo(apex.x + ox, apex.y + oy);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = front;
+  ctx.beginPath();
+  ctx.moveTo(apex.x, apex.y); ctx.lineTo(baseLeft.x, baseLeft.y); ctx.lineTo(baseRight.x, baseRight.y);
+  ctx.closePath(); ctx.fill();
+}
+
+function drawGroundShadow(cxShadow, y, w, alpha) {
+  ctx.save();
+  ctx.shadowColor = `rgba(0,0,0,${alpha})`;
+  ctx.shadowBlur = w * 0.18;
+  ctx.fillStyle = 'rgba(0,0,0,0.001)';
+  ctx.fillRect(cxShadow - w / 2, y - w * 0.05, w, w * 0.1);
+  ctx.restore();
+}
+
+function fitFont(text, weight, family, maxWidth, startSize, minSize) {
+  let size = startSize;
+  ctx.font = `${weight} ${size}px ${family}`;
+  while (ctx.measureText(text).width > maxWidth && size > minSize) {
+    size -= 2;
+    ctx.font = `${weight} ${size}px ${family}`;
+  }
+  return size;
+}
+
+// === LOW-POLY 3D AIRPLANE (nose points +x in local space) ===
+function drawPlane(cx, cy, scale, angle, alpha, colors, ox, oy) {
+  ctx.save();
+  ctx.globalAlpha *= clamp01(alpha);
+  ctx.translate(cx, cy);
+  ctx.rotate(angle);
+  ctx.scale(scale, scale);
+
+  const bodyLen = 150, bodyH = 34;
+
+  // tail fin
+  drawWing(darken(colors.body, 4), lighten(colors.body, 16), darken(colors.body, 24),
+    -bodyLen * 0.44, -bodyH * 0.05, bodyLen * 0.16, bodyH * 1.5, ox * 0.35, oy * 0.35);
+
+  // wings (flat two-tone deltas)
+  ctx.fillStyle = darken(colors.wing, 16);
+  ctx.beginPath();
+  ctx.moveTo(-bodyLen * 0.02, bodyH * 0.12);
+  ctx.lineTo(-bodyLen * 0.58, bodyH * 1.7);
+  ctx.lineTo(bodyLen * 0.10, bodyH * 0.4);
+  ctx.closePath(); ctx.fill();
+
+  ctx.fillStyle = lighten(colors.wing, 10);
+  ctx.beginPath();
+  ctx.moveTo(-bodyLen * 0.02, -bodyH * 0.12);
+  ctx.lineTo(-bodyLen * 0.58, -bodyH * 1.7);
+  ctx.lineTo(bodyLen * 0.10, -bodyH * 0.4);
+  ctx.closePath(); ctx.fill();
+
+  // body block
+  drawBlock(colors.body, lighten(colors.body, 24), darken(colors.body, 26), -bodyLen * 0.36, -bodyH / 2, bodyLen * 0.72, bodyH, ox, oy);
+
+  // nose wedge
+  const noseLen = bodyLen * 0.30, xBase = bodyLen * 0.36;
+  ctx.fillStyle = lighten(colors.body, 12);
+  ctx.beginPath();
+  ctx.moveTo(xBase, -bodyH / 2); ctx.lineTo(xBase + noseLen, 0); ctx.lineTo(xBase, bodyH / 2);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = darken(colors.body, 20);
+  ctx.beginPath();
+  ctx.moveTo(xBase, bodyH / 2); ctx.lineTo(xBase + noseLen, 0);
+  ctx.lineTo(xBase + noseLen + ox * 0.5, oy * 0.5); ctx.lineTo(xBase + ox * 0.5, bodyH / 2 + oy * 0.5);
+  ctx.closePath(); ctx.fill();
+
+  // windows
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  for (let i = 0; i < 3; i++) ctx.fillRect(-bodyLen * 0.22 + i * bodyLen * 0.15, -bodyH * 0.13, bodyLen * 0.07, bodyH * 0.22);
+
+  // accent stripe
+  ctx.fillStyle = colors.accent;
+  ctx.fillRect(-bodyLen * 0.36, bodyH * 0.30, bodyLen * 0.78, bodyH * 0.14);
+
+  ctx.restore();
+}
+
+// === TICKET / BOARDING PASS CARD ===
+function drawTicket(cx, cy, angle, alpha, w, h, colors) {
+  ctx.save();
+  ctx.globalAlpha *= clamp01(alpha);
+  ctx.translate(cx, cy);
+  ctx.rotate(angle);
+
+  drawBlock(colors.base, lighten(colors.base, 22), darken(colors.base, 26), -w / 2, -h / 2, w, h, w * 0.10, -h * 0.06);
+
+  ctx.strokeStyle = hexToRgba(colors.text, 0.30);
+  ctx.setLineDash([4, 5]); ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(w * 0.20, -h / 2); ctx.lineTo(w * 0.20, h / 2); ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = colors.accent;
+  ctx.beginPath();
+  ctx.moveTo(-w / 2, -h / 2); ctx.lineTo(-w / 2 + w * 0.16, -h / 2); ctx.lineTo(-w / 2, -h / 2 + h * 0.32);
+  ctx.closePath(); ctx.fill();
+
+  ctx.fillStyle = colors.text;
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.font = `700 ${h * 0.15}px 'Outfit',sans-serif`;
+  ctx.fillText('BOARDING PASS', -w / 2 + w * 0.06, -h * 0.22);
+  ctx.font = `800 ${h * 0.26}px 'Fraunces',serif`;
+  ctx.fillText('✈ FLY', -w / 2 + w * 0.06, h * 0.06);
+  ctx.font = `600 ${h * 0.11}px 'Outfit',sans-serif`;
+  ctx.fillStyle = hexToRgba(colors.text, 0.75);
+  ctx.fillText('GATE 07  ·  SEAT 12A', -w / 2 + w * 0.06, h * 0.30);
+
+  ctx.restore();
+}
+
+// === VISA / PASSPORT STAMP ===
+function drawStamp(cx, cy, angle, alpha, size, inkColor) {
+  ctx.save();
+  ctx.globalAlpha *= clamp01(alpha);
+  ctx.translate(cx, cy);
+  ctx.rotate(angle);
+
+  ctx.strokeStyle = inkColor; ctx.lineWidth = size * 0.045;
+  ctx.strokeRect(-size / 2, -size / 2, size, size);
+  ctx.strokeRect(-size * 0.40, -size * 0.40, size * 0.80, size * 0.80);
+
+  ctx.fillStyle = inkColor;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.font = `800 ${size * 0.22}px 'Outfit',sans-serif`;
+  ctx.fillText('VISA', 0, -size * 0.06);
+  ctx.font = `700 ${size * 0.11}px 'Outfit',sans-serif`;
+  ctx.fillText('APPROVED', 0, size * 0.15);
+
+  ctx.restore();
+}
+
+// === COLORFUL BUNTING FLAG STRING ===
+function drawBunting(x0, y0, x1, y1, count, colors, sag, entryT, idleVal) {
+  const midX = (x0 + x1) / 2, midY = (y0 + y1) / 2 + sag;
+  ctx.save();
+  ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.quadraticCurveTo(midX, midY, x1, y1); ctx.stroke();
+
+  for (let i = 0; i < count; i++) {
+    const t = (i + 0.5) / count;
+    const localT = clamp01(entryT * count - i);
+    if (localT <= 0.001) continue;
+    const px = (1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * midX + t * t * x1;
+    const py = (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * midY + t * t * y1;
+    const col = colors[i % colors.length];
+    const sway = Math.sin(idleVal * 1.4 + i) * 0.10 * localT;
+    const dropOff = (1 - easeOutBounce(localT)) * -40;
+    ctx.save();
+    ctx.globalAlpha = clamp01(localT * 1.5);
+    ctx.translate(px, py + dropOff);
+    ctx.rotate(Math.PI + sway);
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    ctx.moveTo(-11, 0); ctx.lineTo(11, 0); ctx.lineTo(0, 27); ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
+// === MAIN DRAW ===
+function drawFrame(opts) {
+  opts = opts || {};
+  const w = canvas.width, h = canvas.height;
+  const s = getSettings();
+  const groundY = h * 0.72;
+
+  ctx.clearRect(0, 0, w, h);
+  if (opts.solidBg) { ctx.fillStyle = opts.bgColor || '#0a0f14'; ctx.fillRect(0, 0, w, h); }
+
+  const p = s.showBuild ? clamp01(buildP) : 1;
+  const idleBlend = smoothstep(remap(p, 0.85, 1.0));
+  const bobAmp = s.showIdle ? idleBlend * (h * 0.006) : 0;
+  const caseBob = Math.sin(idlePhase) * bobAmp;
+  const postBob = Math.sin(idlePhase + 1.1) * bobAmp;
+
+  const depth = s.blockDepth;
+  const ox = depth * 0.7071, oy = -depth * 0.7071;
+
+  // === GROUND SLAB ===
+  const slabAlpha = remap(p, 0, 0.08);
+  ctx.save();
+  ctx.globalAlpha = slabAlpha;
+  const slabW = w * 0.78, slabX = w * 0.5 - slabW / 2, slabH = h * 0.03;
+  drawBlock(mix(s.wallColor, '#000000', 0.35), lighten(mix(s.wallColor, '#000000', 0.35), 14),
+    darken(mix(s.wallColor, '#000000', 0.35), 22), slabX, groundY, slabW, slabH, ox, oy);
+  ctx.restore();
+
+  // === BUNTING FLAG STRING (top, colorful) ===
+  if (s.showFlag) {
+    const buntEntryT = smoothstep(remap(p, 0, 0.20));
+    drawBunting(w * 0.05, h * 0.07, w * 0.95, h * 0.07, 11,
+      [s.accentColor, s.accentColor2, s.accentColor3], h * 0.05, buntEntryT, idlePhase);
+  }
+
+  // === SUITCASE GROUP ===
+  const caseSize = s.houseSizePct / 100;
+  const caseW = w * 0.17 * caseSize, caseH = caseW * 0.72;
+  const caseX = w * 0.09, caseBaseY = groundY + caseBob;
+
+  const bodyT = easeOutBack(smoothstep(remap(p, 0.05, 0.35)));
+  const bT = clamp01(bodyT);
+  drawGroundShadow(caseX + caseW / 2, caseBaseY, caseW * 1.5, 0.4 * remap(p, 0, 0.1));
+
+  let caseTopY = caseBaseY;
+  if (bT > 0.001) {
+    const footW = caseW * 0.10, footH = caseH * 0.06 * Math.min(1, bT);
+    [caseX + caseW * 0.10, caseX + caseW * 0.72].forEach(fx => {
+      drawBlock(darken(s.roofColor, 10), lighten(darken(s.roofColor, 10), 14), darken(s.roofColor, 30),
+        fx, caseBaseY - footH, footW, footH, ox * 0.5, oy * 0.5);
+    });
+
+    const curCaseH = caseH * Math.min(1, bT);
+    const caseY = caseBaseY - curCaseH - footH;
+    caseTopY = caseY;
+    drawBlock(s.wallColor, lighten(s.wallColor, 22), darken(s.wallColor, 30), caseX, caseY, caseW, curCaseH, ox, oy);
+
+    const strapT = smoothstep(remap(p, 0.30, 0.45));
+    if (strapT > 0.001) {
+      ctx.save();
+      ctx.globalAlpha = strapT;
+      const strapH = curCaseH * 0.16;
+      const strapY = caseY + curCaseH * 0.5 - strapH / 2;
+      ctx.fillStyle = s.roofColor;
+      ctx.fillRect(caseX, strapY, caseW, strapH);
+      ctx.fillStyle = darken(s.roofColor, 20);
+      ctx.fillRect(caseX + caseW * 0.42, strapY, caseW * 0.16, strapH);
+      ctx.restore();
+    }
+
+    const handleT = easeOutBounce(smoothstep(remap(p, 0.42, 0.60)));
+    if (handleT > 0.001) {
+      const handleWFull = caseW * 0.34, handleHFull = curCaseH * 0.42;
+      const handleH = handleHFull * clamp01(handleT);
+      const legW = handleWFull * 0.10;
+      const legX1 = caseX + caseW * 0.5 - handleWFull / 2;
+      const legX2 = caseX + caseW * 0.5 + handleWFull / 2 - legW;
+      ctx.fillStyle = darken(s.roofColor, 6);
+      ctx.fillRect(legX1, caseY - handleH, legW, handleH);
+      ctx.fillRect(legX2, caseY - handleH, legW, handleH);
+      if (handleT >= 0.96) ctx.fillRect(legX1, caseY - handleHFull, handleWFull, legW * 0.9);
+    }
+  }
+
+  // === TICKET (flutters in near the suitcase) ===
+  if (s.showTicket) {
+    const ticketEntryT = easeOutBack(smoothstep(remap(p, 0.45, 0.66)));
+    if (ticketEntryT > 0.001) {
+      const ticketW = w * 0.16, ticketH = ticketW * 0.42;
+      const ticketX = caseX + caseW * 1.18;
+      const dropFrom = (1 - clamp01(ticketEntryT)) * -h * 0.22;
+      const ticketY = caseTopY - caseH * 0.06 + dropFrom;
+      const landedBlend = clamp01((ticketEntryT - 0.85) / 0.15);
+      const sway = s.showIdle ? Math.sin(idlePhase * 1.1 + 2) * 0.03 * idleBlend * landedBlend : 0;
+      const baseAngle = -0.20 + sway;
+      drawTicket(ticketX, ticketY, baseAngle, ticketEntryT, ticketW, ticketH,
+        { base: mix(s.wallColor, '#ffffff', 0.4), accent: s.accentColor2, text: s.textColor });
+    }
+  }
+
+  // === SIGNPOST GROUP ===
+  const postW = w * 0.016, postH = h * 0.30;
+  const postX = w * 0.62, postBaseY = groundY + postBob;
+  const postT = easeOutBack(smoothstep(remap(p, 0.05, 0.25)));
+  const pT = clamp01(postT);
+  drawGroundShadow(postX + postW / 2, postBaseY, postW * 9, 0.35 * remap(p, 0, 0.1));
+
+  let plaqueX = 0, plaqueY = 0, plaqueW = 0, plaqueH = 0, plaquePT = 0;
+
+  if (pT > 0.001) {
+    const curPostH = postH * Math.min(1, pT);
+    const postY = postBaseY - curPostH;
+    drawBlock(mix(s.roofColor, '#000000', 0.15), lighten(mix(s.roofColor, '#000000', 0.15), 16),
+      darken(mix(s.roofColor, '#000000', 0.15), 24), postX, postY, postW, curPostH, ox, oy);
+
+    const plaqueT = easeOutBack(smoothstep(remap(p, 0.22, 0.42)));
+    plaquePT = plaqueT;
+    if (plaqueT > 0.001 && postT >= 0.9) {
+      plaqueW = w * 0.24; const plaqueHFull = h * 0.17;
+      plaqueH = plaqueHFull * clamp01(plaqueT);
+      plaqueX = postX + postW / 2 - plaqueW / 2;
+      plaqueY = postY - plaqueH * 0.55;
+
+      drawBlock(s.wallColor, lighten(s.wallColor, 20), darken(s.wallColor, 26), plaqueX, plaqueY, plaqueW, plaqueH, ox, oy);
+      ctx.strokeStyle = hexToRgba(s.textColor, 0.5);
+      ctx.lineWidth = 2;
+      ctx.strokeRect(plaqueX, plaqueY, plaqueW, plaqueH);
+      ctx.strokeStyle = hexToRgba(s.textColor, 0.25);
+      ctx.lineWidth = 2; ctx.setLineDash([4, 6]);
+      ctx.beginPath(); ctx.moveTo(plaqueX + plaqueW * 0.82, plaqueY); ctx.lineTo(plaqueX + plaqueW * 0.82, plaqueY + plaqueH); ctx.stroke();
+      ctx.setLineDash([]);
+
+      const textT = remap(p, 0.38, 0.60);
+      if (textT > 0.001 && plaqueH > plaqueHFull * 0.9) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(plaqueX, plaqueY, plaqueW * textT, plaqueH);
+        ctx.clip();
+
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        const padX = plaqueW * 0.07;
+        const textAreaW = plaqueW * 0.76;
+        let ty = plaqueY + plaqueH * 0.24;
+
+        const subSize = fitFont(s.subText, 600, `'Outfit','Noto Sans Bengali',sans-serif`, textAreaW, plaqueH * 0.12, 8);
+        ctx.font = `600 ${subSize}px 'Outfit','Noto Sans Bengali',sans-serif`;
+        ctx.fillStyle = hexToRgba(s.textColor, 0.75);
+        ctx.fillText(s.subText, plaqueX + padX, ty);
+
+        ty += plaqueH * 0.21;
+        const mainSize = fitFont(s.mainText, 800, `'Fraunces','Noto Sans Bengali',serif`, textAreaW, plaqueH * 0.22, 9);
+        ctx.font = `800 ${mainSize}px 'Fraunces','Noto Sans Bengali',serif`;
+        ctx.fillStyle = s.textColor;
+        ctx.fillText(s.mainText, plaqueX + padX, ty);
+
+        ty += plaqueH * 0.19;
+        const l1Size = fitFont(s.line1, 500, `'Outfit','Noto Sans Bengali',sans-serif`, textAreaW, plaqueH * 0.10, 7);
+        ctx.font = `500 ${l1Size}px 'Outfit','Noto Sans Bengali',sans-serif`;
+        ctx.fillStyle = hexToRgba(s.textColor, 0.9);
+        ctx.fillText(s.line1, plaqueX + padX, ty);
+
+        ty += plaqueH * 0.15;
+        const l2Size = fitFont(s.line2, 500, `'Outfit','Noto Sans Bengali',sans-serif`, textAreaW, plaqueH * 0.10, 7);
+        ctx.font = `500 ${l2Size}px 'Outfit','Noto Sans Bengali',sans-serif`;
+        ctx.fillStyle = hexToRgba(s.textColor, 0.9);
+        ctx.fillText(s.line2, plaqueX + padX, ty);
+
+        if (s.showSweep) {
+          const sweepX = plaqueX + ((sweepPhase % 1 + 1) % 1) * plaqueW * 1.6 - plaqueW * 0.3;
+          const grad = ctx.createLinearGradient(sweepX, plaqueY, sweepX + plaqueW * 0.35, plaqueY + plaqueH);
+          grad.addColorStop(0, 'rgba(255,255,255,0)');
+          grad.addColorStop(0.5, 'rgba(255,255,255,0.28)');
+          grad.addColorStop(1, 'rgba(255,255,255,0)');
+          ctx.fillStyle = grad;
+          ctx.fillRect(plaqueX, plaqueY, plaqueW, plaqueH);
+        }
+        ctx.restore();
+      }
+    }
+  }
+
+  // === VISA STAMP (thumps onto plaque corner) ===
+  if (s.showStamp && plaquePT > 0.9) {
+    const stampT = easeOutBack(smoothstep(remap(p, 0.66, 0.84)));
+    if (stampT > 0.001) {
+      const pulse = s.showIdle ? 1 + Math.sin(idlePhase * 2.2) * 0.02 * idleBlend : 1;
+      const stampSize = plaqueW * 0.30 * clamp01(stampT) * pulse;
+      const stampX = plaqueX + plaqueW * 0.90;
+      const stampY = plaqueY + plaqueH * 0.14;
+      drawStamp(stampX, stampY, -0.26, stampT, stampSize, s.accentColor3);
+    }
+  }
+
+  // === AIRPLANE (flies in, then hovers/patrols) ===
+  if (s.showIdle || p > 0.28) {
+    const planeEntryT = easeOutBack(smoothstep(remap(p, 0.26, 0.50)));
+    if (planeEntryT > 0.001) {
+      const hoverX = w * 0.58, hoverY = h * 0.19;
+      const startX = -w * 0.30, startY = h * 0.30;
+      const planeX = startX + (hoverX - startX) * clamp01(planeEntryT);
+      const planeYbase = startY + (hoverY - startY) * clamp01(planeEntryT);
+      const driftX = s.showIdle ? Math.sin(idlePhase * 0.5) * w * 0.05 * idleBlend : 0;
+      const driftY = s.showIdle ? Math.sin(idlePhase * 0.8 + 1) * h * 0.015 * idleBlend : 0;
+      const bank = (s.roofPitch - 45) / 260;
+      const wobble = s.showIdle ? Math.sin(idlePhase * 0.8) * 0.02 * idleBlend : 0;
+      const scale = (0.85 + 0.15 * clamp01(planeEntryT)) * (w / 1600);
+      drawPlane(planeX + driftX, planeYbase + driftY, scale, -0.05 + bank + wobble, planeEntryT,
+        { body: mix(s.wallColor, '#ffffff', 0.2), wing: s.accentColor, accent: s.accentColor2 }, ox, oy);
+    }
+  }
+}
+
+// === ANIMATION LOOP ===
+function animationLoop(timestamp) {
+  if (!isSpinning) return;
+  if (!lastTimestamp) lastTimestamp = timestamp;
+  const delta = timestamp - lastTimestamp;
+  lastTimestamp = timestamp;
+
+  sweepPhase += delta * 0.0006;
+  idlePhase += delta * 0.0016;
+
+  const elapsed = timestamp - startTime;
+  const remaining = Math.max(0, totalDurationMs - elapsed);
+  buildP = clamp01(elapsed / totalDurationMs);
+  updateTimerUI(elapsed, remaining);
+
+  drawFrame();
+
+  if (remaining <= 0 && !document.getElementById('loopToggle').checked) { finishAnim(); return; }
+  if (remaining <= 0) { startTime = timestamp; buildP = 0; }
+
+  animFrame = requestAnimationFrame(animationLoop);
+}
+
+function updateTimerUI(elapsed, remaining) {
+  const totalSec = Math.ceil(remaining / 1000);
+  const m = Math.floor(totalSec / 60).toString().padStart(2, '0');
+  const sec = (totalSec % 60).toString().padStart(2, '0');
+  document.getElementById('timerBig').textContent = `${m}:${sec}`;
+  const pct = Math.max(0, Math.min(100, ((totalDurationMs - remaining) / totalDurationMs) * 100));
+  document.getElementById('timerPercent').textContent = Math.round(pct) + '%';
+  const circumference = 141;
+  document.getElementById('timerRing').style.strokeDashoffset = circumference - (pct / 100) * circumference;
+}
+function resetTimerUI() {
+  document.getElementById('timerBig').textContent = '00:00';
+  document.getElementById('timerPercent').textContent = '—';
+  document.getElementById('timerRing').style.strokeDashoffset = 141;
+  document.getElementById('timerStatus').className = 'timer-status idle';
+  document.getElementById('timerStatus').textContent = 'প্রস্তুত';
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+}
+
+let currentDuration = 30;
+function setDuration(sec, btnEl) {
+  currentDuration = sec;
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+}
+
+function startAnim() {
+  if (isSpinning) return;
+  totalDurationMs = currentDuration * 1000;
+  isSpinning = true; startTime = null; lastTimestamp = null; buildP = 0;
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status spinning'; st.textContent = '⚡ চলছে';
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+  animFrame = requestAnimationFrame(ts => { startTime = ts; lastTimestamp = ts; animationLoop(ts); });
+}
+function stopAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status idle'; st.textContent = '⏸ থামানো হয়েছে';
+  drawFrame();
+}
+function finishAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  document.getElementById('timerBig').textContent = '00:00';
+  document.getElementById('timerPercent').textContent = '100%';
+  document.getElementById('timerRing').style.strokeDashoffset = 0;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status done'; st.textContent = '✅ সম্পন্ন';
+  document.getElementById('timerSub').textContent = 'অ্যানিমেশন শেষ';
+  drawFrame();
+}
+function resetAll() {
+  stopAnim();
+  sweepPhase = 0; idlePhase = 0; buildP = 0;
+  resetTimerUI();
+  drawFrame();
+}
+
+// === EXPORT ===
+function setExportStatus(msg) { document.getElementById('exportStatus').textContent = msg; }
+function saveBlob(blob, filename) {
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+function downloadPng() {
+  const transparent = document.getElementById('transparentToggle').checked;
+  const bgColor = document.getElementById('exportBgColor').value;
+  const oldP = buildP; buildP = 1;
+  drawFrame({ solidBg: !transparent, bgColor });
+  canvas.toBlob(blob => {
+    buildP = oldP;
+    drawFrame({ solidBg: false });
+    if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+    saveBlob(blob, 'travel-agency-3d-scene.png');
+    setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+  }, 'image/png');
+}
+
+async function downloadGif() {
+  if (!window.GIF) { setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন।'); return; }
+  if (isExporting) return;
+  isExporting = true;
+  const bgColor = document.getElementById('exportBgColor').value;
+  const oldSweep = sweepPhase, oldIdle = idlePhase, oldBuild = buildP;
+  const gif = new GIF({ workers: 2, quality: 10, width: CW, height: CH,
+    workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
+  const frames = 60, frameDelay = 60, clipMs = 6000;
+  setExportStatus('GIF তৈরি হচ্ছে… 0%');
+  for (let i = 0; i < frames; i++) {
+    const t = i / frames;
+    const elapsedMs = t * clipMs;
+    sweepPhase = oldSweep + elapsedMs * 0.0006;
+    idlePhase = oldIdle + elapsedMs * 0.0016;
+    buildP = clamp01(elapsedMs / (clipMs * 0.62));
+    drawFrame({ solidBg: true, bgColor });
+    gif.addFrame(canvas, { copy: true, delay: frameDelay });
+    setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((i + 1) / frames * 100)}%`);
+    await new Promise(requestAnimationFrame);
+  }
+  sweepPhase = oldSweep; idlePhase = oldIdle; buildP = oldBuild;
+  drawFrame({ solidBg: false });
+  gif.on('finished', blob => {
+    saveBlob(blob, 'travel-agency-3d-scene.gif');
+    setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
+    isExporting = false;
+  });
+  gif.render();
+}
+
+async function downloadVideo() {
+  if (!window.MediaRecorder || !canvas.captureStream) {
+    setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।'); return;
+  }
+  if (isExporting) return;
+  isExporting = true;
+  const bgColor = document.getElementById('exportBgColor').value;
+  const stream = canvas.captureStream(30);
+  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 6000000 });
+  const chunks = [];
+  const oldSweep = sweepPhase, oldIdle = idlePhase, oldBuild = buildP;
+  recorder.ondataavailable = e => e.data.size && chunks.push(e.data);
+  recorder.onstop = () => {
+    saveBlob(new Blob(chunks, { type: mimeType }), 'travel-agency-3d-scene.webm');
+    sweepPhase = oldSweep; idlePhase = oldIdle; buildP = oldBuild;
+    drawFrame({ solidBg: false });
+    isExporting = false;
+    setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+  };
+  recorder.start();
+  const start = performance.now();
+  const duration = 7000;
+  setExportStatus('ভিডিও তৈরি হচ্ছে…');
+  const render = (now) => {
+    const elapsedMs = now - start;
+    const progress = Math.min(1, elapsedMs / duration);
+    sweepPhase = oldSweep + elapsedMs * 0.0006;
+    idlePhase = oldIdle + elapsedMs * 0.0016;
+    buildP = clamp01(elapsedMs / (duration * 0.62));
+    drawFrame({ solidBg: true, bgColor });
+    if (progress < 1) requestAnimationFrame(render); else recorder.stop();
+  };
+  requestAnimationFrame(render);
+}
+
+// === UI EVENTS ===
+['houseSize', 'roofPitch', 'blockDepth'].forEach(id => {
+  document.getElementById(id).addEventListener('input', function () {
+    const badges = { houseSize: 'sizeBadge', roofPitch: 'pitchBadge', blockDepth: 'depthBadge' };
+    const el = document.getElementById(badges[id]);
+    el.textContent = id === 'houseSize' ? this.value + '%' : this.value;
+    if (!isSpinning) drawFrame();
+  });
+});
+['subText', 'mainText', 'line1', 'line2', 'wallColor', 'roofColor', 'textColor',
+  'accentColor', 'accentColor2', 'accentColor3',
+  'buildToggle', 'flagToggle', 'ticketToggle', 'stampToggle', 'sweepToggle', 'idleToggle'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => { if (!isSpinning) drawFrame(); });
+  el.addEventListener('change', () => { if (!isSpinning) drawFrame(); });
+});
+document.getElementById('transparentToggle').addEventListener('change', function () {
+  document.getElementById('exportBgRow').style.display = this.checked ? 'none' : 'block';
+});
+
+// === INITIAL DRAW ===
+buildP = 1;
+drawFrame();
+buildP = 0;
+setTimeout(startAnim, 150);
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+</body>
+</html>

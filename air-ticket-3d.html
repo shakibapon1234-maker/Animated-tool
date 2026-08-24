@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIR TICKET — 3D Boarding Pass + Flight Path Animation Generator</title>
+<meta name="description" content="৩ডি বোর্ডিং পাস টিকিট + লো-পলি পেপার প্লেন + ড্যাশড ফ্লাইট পাথ অ্যানিমেশন — PNG/GIF/WebM এক্সপোর্ট">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Noto+Sans+Bengali:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-primary:#0a0806; --bg-secondary:#100d0a; --bg-card:#161210; --bg-card-hover:#1c1815;
+    --border:rgba(255,255,255,0.08); --accent:#e8b979; --accent-glow:rgba(232,185,121,0.4);
+    --accent-2:#22a3ff; --accent-3:#17c98e; --text-primary:#f6f1ea; --text-secondary:#a89f92;
+    --text-muted:#5c5348; --radius:16px; --shadow:0 20px 60px rgba(0,0,0,0.6);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Outfit','Noto Sans Bengali',sans-serif;background:var(--bg-primary);color:var(--text-primary);
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 80% 50% at 20% 15%,rgba(232,185,121,0.10) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 85%,rgba(34,163,255,0.08) 0%,transparent 60%);}
+  .app-header{width:100%;padding:22px 32px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);
+    background:rgba(10,8,6,0.85);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+  .header-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),#8a6a35);
+    clip-path:polygon(0 45%,55% 45%,75% 0,90% 0,78% 45%,100% 45%,100% 58%,78% 58%,90% 100%,75% 100%,55% 58%,0 58%);
+    display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 20px var(--accent-glow);flex-shrink:0;}
+  .header-text h1{font-size:19px;font-weight:700;background:linear-gradient(135deg,#fff 0%,var(--accent) 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .header-text p{font-size:12.5px;color:var(--text-secondary);margin-top:2px;}
+  .main-content{width:100%;max-width:1260px;padding:36px 24px 80px;display:grid;grid-template-columns:1fr 380px;gap:28px;position:relative;z-index:1;}
+  @media (max-width:960px){.main-content{grid-template-columns:1fr;}}
+  .canvas-panel{display:flex;flex-direction:column;align-items:center;gap:20px;}
+  .canvas-wrapper{width:100%;aspect-ratio:16/9;background:
+    linear-gradient(45deg,#201a14 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,#201a14 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(45deg,transparent 75%,#201a14 75%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,transparent 75%,#201a14 75%) -0px -0px/24px 24px,
+    var(--bg-card);
+    border:1px solid var(--border);border-radius:20px;display:flex;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;box-shadow:var(--shadow);}
+  #sceneCanvas{display:block;max-width:100%;max-height:100%;}
+  .timer-display{display:flex;align-items:center;gap:14px;padding:14px 24px;background:var(--bg-card);
+    border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);width:100%;}
+  .timer-ring-wrap{position:relative;width:50px;height:50px;}
+  .timer-ring-wrap svg{transform:rotate(-90deg);}
+  .timer-ring-bg{fill:none;stroke:rgba(255,255,255,0.07);stroke-width:4;}
+  .timer-ring-fill{fill:none;stroke:url(#ringGradient3);stroke-width:4;stroke-linecap:round;
+    transition:stroke-dashoffset 1s linear;stroke-dasharray:141;stroke-dashoffset:0;}
+  .timer-label-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:700;color:var(--accent);}
+  .timer-text-group{display:flex;flex-direction:column;}
+  .timer-big{font-size:26px;font-weight:800;letter-spacing:-1px;}
+  .timer-sub{font-size:11.5px;color:var(--text-secondary);font-weight:500;}
+  .timer-status{padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;}
+  .timer-status.idle{background:rgba(255,255,255,0.06);color:var(--text-muted);}
+  .timer-status.spinning{background:rgba(232,185,121,0.15);color:var(--accent);}
+  .timer-status.done{background:rgba(23,201,142,0.15);color:var(--accent-3);}
+  .sidebar{display:flex;flex-direction:column;gap:14px;}
+  .control-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+  .card-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-secondary);
+    display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+  .card-title-icon{width:22px;height:22px;background:rgba(232,185,121,0.14);border-radius:6px;display:flex;
+    align-items:center;justify-content:center;font-size:12px;}
+  .form-row{margin-bottom:14px;}
+  .form-row:last-child{margin-bottom:0;}
+  .form-label{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;color:var(--text-secondary);margin-bottom:7px;}
+  .value-badge{background:rgba(232,185,121,0.16);color:var(--accent);padding:1px 8px;border-radius:6px;font-size:11px;font-weight:700;}
+  input[type=text]{width:100%;padding:10px 12px;background:var(--bg-secondary);border:1px solid var(--border);
+    border-radius:9px;color:var(--text-primary);font-size:13.5px;font-family:inherit;}
+  input[type=text]:focus{outline:none;border-color:var(--accent);}
+  input[type=range]{width:100%;accent-color:var(--accent);}
+  input[type=color]{width:100%;height:34px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;}
+  .color-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .lang-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  .lang-btn{padding:9px 6px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;}
+  .lang-btn.active{background:var(--accent);border-color:var(--accent);color:#231a0d;}
+  .toggle-row{display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer;color:var(--text-secondary);margin-bottom:10px;}
+  .toggle-row:last-child{margin-bottom:0;}
+  .preset-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .preset-btn{padding:7px 12px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;}
+  .preset-btn.active{background:var(--accent);border-color:var(--accent);color:#231a0d;}
+  .style-swatch{width:34px;height:34px;border-radius:9px;border:2px solid transparent;cursor:pointer;flex-shrink:0;}
+  .style-swatch.active{border-color:#fff;}
+  .btn-group{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{flex:1;min-width:120px;padding:12px 16px;border:none;border-radius:11px;font-size:13.5px;font-weight:700;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;transition:.15s;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),#a17a3d);color:#231a0d;box-shadow:0 8px 20px rgba(232,185,121,0.28);}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-stop{background:rgba(239,68,68,0.15);color:#ef4444;}
+  .btn-stop:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-ghost{background:var(--bg-secondary);color:var(--text-secondary);border:1px solid var(--border);}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-icon">✈️</div>
+  <div class="header-text">
+    <h1>AIR TICKET — 3D Boarding Pass + Flight Path Generator</h1>
+    <p>৩ডি এক্সট্রুডেড বোর্ডিং পাস + লো-পলি পেপার প্লেন + ড্যাশড ফ্লাইট পাথ — কোনো গোল শেপ নেই</p>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="canvas-panel">
+    <div class="canvas-wrapper">
+      <canvas id="sceneCanvas" width="1600" height="900"></canvas>
+    </div>
+
+    <div class="timer-display">
+      <div class="timer-ring-wrap">
+        <svg width="50" height="50" viewBox="0 0 50 50">
+          <defs>
+            <linearGradient id="ringGradient3" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#e8b979"/><stop offset="100%" stop-color="#22a3ff"/>
+            </linearGradient>
+          </defs>
+          <circle class="timer-ring-bg" cx="25" cy="25" r="22.5"></circle>
+          <circle class="timer-ring-fill" id="timerRing" cx="25" cy="25" r="22.5"></circle>
+        </svg>
+        <div class="timer-label-inner" id="timerPercent">—</div>
+      </div>
+      <div class="timer-text-group">
+        <div class="timer-big" id="timerBig">00:00</div>
+        <div class="timer-sub" id="timerSub">সময় বাকি</div>
+      </div>
+      <div class="timer-status idle" id="timerStatus" style="margin-left:auto;">প্রস্তুত</div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🌐</div>ভাষা প্রিসেট</div>
+      <div class="lang-row">
+        <button class="lang-btn" onclick="applyLanguage('bn',this)">বাংলা</button>
+        <button class="lang-btn active" onclick="applyLanguage('en',this)">English</button>
+        <button class="lang-btn" onclick="applyLanguage('both',this)">উভয়</button>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">✏️</div>টেক্সট</div>
+      <div class="form-row">
+        <label class="form-label">সাব-লাইন (উপরে)</label>
+        <input type="text" id="subText" value="BOOK YOUR">
+      </div>
+      <div class="form-row">
+        <label class="form-label">মূল লাইন</label>
+        <input type="text" id="mainText" value="AIR TICKET">
+      </div>
+      <div class="form-row">
+        <label class="form-label">ট্যাগলাইন (নিচে, ঐচ্ছিক)</label>
+        <input type="text" id="tagText" value="Fly Anywhere, Anytime">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎨</div>রং</div>
+      <div class="color-grid">
+        <div class="form-row"><label class="form-label">টিকিট বেস রং</label><input type="color" id="paperColor" value="#22a3ff"></div>
+        <div class="form-row"><label class="form-label">টিকিট শ্যাডো রং</label><input type="color" id="shadowColor" value="#0d3a63"></div>
+        <div class="form-row"><label class="form-label">টেক্সট রং</label><input type="color" id="textColor" value="#0b1f33"></div>
+        <div class="form-row"><label class="form-label">অ্যাক্সেন্ট / প্লেন / পাথ</label><input type="color" id="accentColor" value="#ffd166"></div>
+      </div>
+      <div class="preset-row" style="margin-top:4px;" id="stylePresets">
+        <div class="style-swatch active" style="background:linear-gradient(135deg,#22a3ff,#0d3a63)" onclick="applyStyle('sky',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#ff6b6b,#7a1f1f)" onclick="applyStyle('sunset',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#3a3a6e,#14142e)" onclick="applyStyle('midnight',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#cbd5e1,#475569)" onclick="applyStyle('cloud',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#3a3a3a,#000000)" onclick="applyStyle('gold',this)"></div>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🔺</div>টিকিট শেপ</div>
+      <div class="form-row">
+        <label class="form-label">টিকিট সাইজ <span class="value-badge" id="widthBadge">72%</span></label>
+        <input type="range" id="stairWidth" min="45" max="90" step="1" value="72">
+      </div>
+      <div class="form-row">
+        <label class="form-label">৩ডি ডেপথ <span class="value-badge" id="depthBadge">35</span></label>
+        <input type="range" id="depthAmt" min="10" max="60" step="5" value="35">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎬</div>অ্যানিমেশন</div>
+      <div class="toggle-row"><input type="checkbox" id="climberToggle" checked>পেপার প্লেন + ফ্লাইট পাথ</div>
+      <div class="toggle-row"><input type="checkbox" id="sweepToggle" checked>টেক্সট শাইন সুইপ</div>
+      <div class="form-row">
+        <label class="form-label">গ্রোথ (লুপ) স্পিড <span class="value-badge" id="growBadge">1.0</span></label>
+        <input type="range" id="growSpeed" min="0.5" max="3" step="0.1" value="1.0">
+      </div>
+      <div class="form-row">
+        <label class="form-label">শাইন স্পিড <span class="value-badge" id="shineBadge">1.2</span></label>
+        <input type="range" id="shineSpeed" min="0" max="4" step="0.1" value="1.2">
+      </div>
+      <div class="form-row">
+        <label class="form-label">সময়কাল</label>
+        <div class="preset-row">
+          <button class="preset-btn" onclick="setDuration(5,this)">5s</button>
+          <button class="preset-btn" onclick="setDuration(10,this)">10s</button>
+          <button class="preset-btn active" onclick="setDuration(30,this)">30s</button>
+          <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:10px;">
+        <label class="toggle-row" style="margin:0;"><input type="checkbox" id="loopToggle" checked>সবসময় লুপ চলবে</label>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" id="startBtn" onclick="startAnim()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg> শুরু
+      </button>
+      <button class="btn btn-stop" id="stopBtn" onclick="stopAnim()" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg> বন্ধ
+      </button>
+    </div>
+    <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট</button>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+      <div class="toggle-row"><input type="checkbox" id="transparentToggle" checked>PNG ট্রান্সপারেন্ট ব্যাকগ্রাউন্ড</div>
+      <div class="form-row" id="exportBgRow" style="display:none;">
+        <label class="form-label">GIF/ভিডিও ব্যাকগ্রাউন্ড রং</label>
+        <input type="color" id="exportBgColor" value="#0a0806">
+      </div>
+      <p style="font-size:11.5px;color:var(--text-muted);margin:2px 0 12px;line-height:1.55;">
+        PNG ট্রান্সপারেন্ট থাকে (ভিডিও এডিটরে সরাসরি ওভারলে করা যাবে)। GIF সবসময় একটি সম্পূর্ণ সিমলেস লুপ এক্সপোর্ট করে। ভিডিও নির্বাচিত সময়কাল অনুযায়ী রেকর্ড হয়।
+      </p>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="downloadPng()">PNG</button>
+        <button class="btn btn-primary" onclick="downloadGif()">GIF</button>
+        <button class="btn btn-primary" onclick="downloadVideo()">ভিডিও (WebM)</button>
+      </div>
+      <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   AIR TICKET — 3D BOARDING PASS + FLIGHT PATH ENGINE
+   Shape: an extruded rectangular boarding-pass card with a
+   zigzag straight-edge perforation, a dashed straight flight
+   path with diamond waypoints, and a low-poly two-facet
+   paper plane. No circles or curves anywhere.
+===================================================== */
+
+const canvas = document.getElementById('sceneCanvas');
+const ctx = canvas.getContext('2d');
+const CW = canvas.width, CH = canvas.height;
+
+let cyclePhase = 0, shinePhase = 0;
+let isSpinning = false, animFrame = null, lastTimestamp = null;
+let totalDurationMs = 30000, startTime = null, isExporting = false;
+
+const languagePresets = {
+  bn: { subText: 'বুক করুন আপনার', mainText: 'এয়ার টিকেট', tagText: 'যেকোনো সময়, যেকোনো জায়গায়' },
+  en: { subText: 'BOOK YOUR', mainText: 'AIR TICKET', tagText: 'Fly Anywhere, Anytime' },
+  both: { subText: 'BOOK YOUR / বুক করুন', mainText: 'AIR TICKET', tagText: 'যেকোনো সময়, যেকোনো জায়গায়' },
+};
+function applyLanguage(lang, btnEl) {
+  const p = languagePresets[lang]; if (!p) return;
+  document.getElementById('subText').value = p.subText;
+  document.getElementById('mainText').value = p.mainText;
+  document.getElementById('tagText').value = p.tagText;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  if (!isSpinning) drawFrame();
+}
+
+const stylePresets = {
+  sky:      { paperColor:'#22a3ff', shadowColor:'#0d3a63', textColor:'#0b1f33', accentColor:'#ffd166' },
+  sunset:   { paperColor:'#ff6b6b', shadowColor:'#7a1f1f', textColor:'#2b0808', accentColor:'#ffd166' },
+  midnight: { paperColor:'#3a3a6e', shadowColor:'#14142e', textColor:'#f4f1ea', accentColor:'#22d3ee' },
+  cloud:    { paperColor:'#cbd5e1', shadowColor:'#475569', textColor:'#0f172a', accentColor:'#22a3ff' },
+  gold:     { paperColor:'#3a3a3a', shadowColor:'#000000', textColor:'#f4c95d', accentColor:'#f4c95d' },
+};
+function applyStyle(name, el) {
+  const s = stylePresets[name]; if (!s) return;
+  document.getElementById('paperColor').value = s.paperColor;
+  document.getElementById('shadowColor').value = s.shadowColor;
+  document.getElementById('textColor').value = s.textColor;
+  document.getElementById('accentColor').value = s.accentColor;
+  document.querySelectorAll('.style-swatch').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  if (!isSpinning) drawFrame();
+}
+
+function getSettings() {
+  return {
+    subText: document.getElementById('subText').value || '',
+    mainText: document.getElementById('mainText').value || '',
+    tagText: document.getElementById('tagText').value || '',
+    paperColor: document.getElementById('paperColor').value,
+    shadowColor: document.getElementById('shadowColor').value,
+    textColor: document.getElementById('textColor').value,
+    accentColor: document.getElementById('accentColor').value,
+    widthPct: parseInt(document.getElementById('stairWidth').value) || 72,
+    depthAmt: parseInt(document.getElementById('depthAmt').value) || 35,
+    showPlane: document.getElementById('climberToggle').checked,
+    showSweep: document.getElementById('sweepToggle').checked,
+    growSpeed: parseFloat(document.getElementById('growSpeed').value) || 1.0,
+    shineSpeed: parseFloat(document.getElementById('shineSpeed').value) || 1.2,
+  };
+}
+
+function hexToRgb(hex) { hex = hex.replace('#', ''); return { r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16) }; }
+function hexToRgba(hex, a) { const {r,g,b} = hexToRgb(hex); return `rgba(${r},${g},${b},${a})`; }
+function mix(hexA, hexB, t) { const a = hexToRgb(hexA), b = hexToRgb(hexB); return `rgb(${Math.round(a.r+(b.r-a.r)*t)},${Math.round(a.g+(b.g-a.g)*t)},${Math.round(a.b+(b.b-a.b)*t)})`; }
+function lighten(hex, amt) { const {r,g,b} = hexToRgb(hex); return `rgb(${Math.min(255,r+amt)},${Math.min(255,g+amt)},${Math.min(255,b+amt)})`; }
+function darken(hex, amt) { const {r,g,b} = hexToRgb(hex); return `rgb(${Math.max(0,r-amt)},${Math.max(0,g-amt)},${Math.max(0,b-amt)})`; }
+function clamp01(v){ return Math.max(0, Math.min(1, v)); }
+function easeOutBack(x){ const c1=1.70158, c3=c1+1; return 1 + c3*Math.pow(x-1,3) + c1*Math.pow(x-1,2); }
+function easeInOutCubic(x){ return x<0.5 ? 4*x*x*x : 1-Math.pow(-2*x+2,3)/2; }
+
+function drawBox3D(x, yTop, w, h, dx, dy, frontColor, topColor, sideColor, edgeColor) {
+  ctx.fillStyle = frontColor;
+  ctx.beginPath(); ctx.moveTo(x, yTop); ctx.lineTo(x+w, yTop); ctx.lineTo(x+w, yTop+h); ctx.lineTo(x, yTop+h); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = topColor;
+  ctx.beginPath(); ctx.moveTo(x, yTop); ctx.lineTo(x+w, yTop); ctx.lineTo(x+w+dx, yTop+dy); ctx.lineTo(x+dx, yTop+dy); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = sideColor;
+  ctx.beginPath(); ctx.moveTo(x+w, yTop); ctx.lineTo(x+w+dx, yTop+dy); ctx.lineTo(x+w+dx, yTop+h+dy); ctx.lineTo(x+w, yTop+h); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = edgeColor; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x, yTop); ctx.lineTo(x+w, yTop); ctx.lineTo(x+w+dx, yTop+dy); ctx.lineTo(x+dx, yTop+dy); ctx.closePath();
+  ctx.moveTo(x+w, yTop); ctx.lineTo(x+w+dx, yTop+dy); ctx.lineTo(x+w+dx, yTop+h+dy); ctx.lineTo(x+w, yTop+h);
+  ctx.stroke();
+}
+
+// === LOW-POLY PAPER PLANE (two-facet folded shading, straight edges) ===
+function drawPaperPlane(ctx, size, frontColor, sideColor, edgeColor) {
+  ctx.save();
+  ctx.fillStyle = frontColor;
+  ctx.beginPath(); ctx.moveTo(size*0.9,0); ctx.lineTo(-size*0.7,size*0.42); ctx.lineTo(-size*0.32,0); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = sideColor;
+  ctx.beginPath(); ctx.moveTo(size*0.9,0); ctx.lineTo(-size*0.32,0); ctx.lineTo(-size*0.7,-size*0.42); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = edgeColor; ctx.lineWidth = Math.max(1.2, size*0.035);
+  ctx.beginPath(); ctx.moveTo(size*0.9,0); ctx.lineTo(-size*0.7,size*0.42); ctx.lineTo(-size*0.32,0); ctx.lineTo(-size*0.7,-size*0.42); ctx.closePath(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(size*0.9,0); ctx.lineTo(-size*0.32,0); ctx.stroke();
+  ctx.restore();
+}
+
+function drawDiamond(ctx, cx, cy, size, color, edgeColor, alpha) {
+  ctx.save(); ctx.globalAlpha = alpha;
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.moveTo(cx,cy-size); ctx.lineTo(cx+size*0.62,cy); ctx.lineTo(cx,cy+size); ctx.lineTo(cx-size*0.62,cy); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = edgeColor; ctx.lineWidth = Math.max(1,size*0.14); ctx.stroke();
+  ctx.restore();
+}
+
+function drawFrame(opts) {
+  opts = opts || {};
+  const w = canvas.width, h = canvas.height;
+  const s = getSettings();
+  const cx = w / 2;
+
+  ctx.clearRect(0, 0, w, h);
+  if (opts.solidBg) { ctx.fillStyle = opts.bgColor || '#0a0806'; ctx.fillRect(0, 0, w, h); }
+
+  const cycleMs = 4500 / s.growSpeed;
+  const t = (opts.tOverride !== undefined) ? opts.tOverride : (cyclePhase % cycleMs) / cycleMs;
+  const shineT = (opts.shineOverride !== undefined) ? opts.shineOverride : shinePhase;
+  const fadeOutMul = 1 - clamp01((t - 0.90) / 0.08);
+
+  const frontColor = s.paperColor;
+  const topColor = lighten(s.paperColor, 55);
+  const sideColor = mix(s.paperColor, s.shadowColor, 0.75);
+  const edgeColor = hexToRgba(darken(s.shadowColor, 20), 0.55);
+  const depthPx = 10 + (s.depthAmt/100) * 55;
+  const dx = depthPx*0.87, dy = -depthPx*0.5;
+
+  // === TICKET CARD (assembled group, rotated) ===
+  const ticketT = clamp01(t / 0.32);
+  const ticketScale = Math.max(0, easeOutBack(ticketT)) * fadeOutMul;
+  if (ticketScale > 0.01) {
+    const ticketW = w * (s.widthPct/100);
+    const ticketH = ticketW * 0.36;
+    const slideX = (1 - clamp01(t/0.28)) * -140;
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, ticketScale*2.5);
+    ctx.translate(cx + slideX, h*0.64);
+    ctx.rotate(-0.07);
+    ctx.scale(ticketScale, ticketScale);
+    ctx.translate(-ticketW/2, -ticketH/2);
+
+    drawBox3D(0, 0, ticketW, ticketH, dx, dy, frontColor, topColor, sideColor, edgeColor);
+
+    // perforation divider (zigzag, straight edges) + stub
+    const stubX = ticketW*0.76;
+    const teeth = 14;
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(stubX, 0);
+    for (let i = 0; i <= teeth; i++) {
+      const py = (ticketH/teeth)*i;
+      const offset = (i%2===0) ? 5 : -5;
+      ctx.lineTo(stubX+offset, py);
+    }
+    ctx.strokeStyle = hexToRgba('#ffffff', 0.5); ctx.lineWidth = 3; ctx.setLineDash([]);
+    ctx.stroke();
+    ctx.restore();
+    // stub shading (right portion slightly darker for depth)
+    ctx.fillStyle = hexToRgba(darken(s.paperColor,18), 0.35);
+    ctx.fillRect(stubX, 0, ticketW-stubX, ticketH);
+
+    // decorative info lines on main stub
+    ctx.strokeStyle = hexToRgba('#ffffff', 0.55); ctx.lineWidth = ticketH*0.045; ctx.lineCap='butt';
+    for (let i = 0; i < 3; i++) {
+      const ly = ticketH*0.28 + i*ticketH*0.22;
+      ctx.beginPath(); ctx.moveTo(ticketW*0.06, ly); ctx.lineTo(ticketW*0.06 + ticketW*(0.32-i*0.06), ly); ctx.stroke();
+    }
+
+    // === FLIGHT PATH + PLANE (drawn within ticket local space) ===
+    if (s.showPlane) {
+      const pathAlpha = clamp01((t-0.28)/0.08);
+      if (pathAlpha > 0.01) {
+        const x1 = ticketW*0.09, y1 = ticketH*0.82, x2 = stubX-ticketW*0.06, y2 = ticketH*0.20;
+        ctx.save();
+        ctx.globalAlpha = pathAlpha;
+        ctx.strokeStyle = hexToRgba(s.accentColor, 0.85);
+        ctx.lineWidth = Math.max(2, ticketH*0.028);
+        ctx.setLineDash([ticketH*0.09, ticketH*0.06]);
+        ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+        ctx.setLineDash([]);
+        drawDiamond(ctx, x1, y1, ticketH*0.05, s.accentColor, hexToRgba(darken(s.accentColor,40),0.7), 1);
+        drawDiamond(ctx, x2, y2, ticketH*0.05, s.accentColor, hexToRgba(darken(s.accentColor,40),0.7), 1);
+
+        const planeStart = 0.34, planeEnd = 0.86;
+        const planeProg = easeInOutCubic(clamp01((t-planeStart)/(planeEnd-planeStart)));
+        const planeAlpha = clamp01((t-planeStart)/0.06) * (1-clamp01((t-0.88)/0.06));
+        if (planeAlpha > 0.01) {
+          const px = x1 + (x2-x1)*planeProg, py = y1 + (y2-y1)*planeProg - Math.sin(planeProg*Math.PI)*ticketH*0.10;
+          const angle = Math.atan2(y2-y1, x2-x1);
+          ctx.save();
+          ctx.globalAlpha = planeAlpha;
+          ctx.translate(px, py); ctx.rotate(angle);
+          drawPaperPlane(ctx, ticketH*0.16, lighten(s.accentColor,30), darken(s.accentColor,30), hexToRgba(darken(s.accentColor,50),0.7));
+          ctx.restore();
+        }
+        ctx.restore();
+      }
+    }
+    ctx.restore();
+  }
+
+  // === BANNER TEXT ===
+  const bannerAlpha = clamp01((t-0.42)/0.15) * fadeOutMul;
+  if (bannerAlpha > 0.01) {
+    const slideOffset = (1 - clamp01((t-0.42)/0.15)) * 26;
+    ctx.save();
+    ctx.globalAlpha = bannerAlpha;
+    ctx.textAlign = 'center';
+    const mainFontSize = Math.min(h*0.14, (w*0.92)/Math.max(4, s.mainText.length*0.62));
+    const mainY = h*0.20 - slideOffset;
+
+    if (s.subText) {
+      ctx.font = `700 ${mainFontSize*0.26}px 'Outfit','Noto Sans Bengali',sans-serif`;
+      ctx.fillStyle = hexToRgba(s.shadowColor, 0.9);
+      ctx.fillText(s.subText, cx+2, mainY - mainFontSize*0.78+2);
+      ctx.fillStyle = s.accentColor;
+      ctx.fillText(s.subText, cx, mainY - mainFontSize*0.78);
+    }
+
+    ctx.font = `900 ${mainFontSize}px 'Outfit','Noto Sans Bengali',sans-serif`;
+    const depthSteps = 9;
+    for (let k = depthSteps; k >= 1; k--) {
+      ctx.fillStyle = hexToRgba(s.shadowColor, 0.55);
+      ctx.fillText(s.mainText, cx + k*1.4, mainY + k*1.4);
+    }
+    ctx.fillStyle = s.textColor;
+    ctx.fillText(s.mainText, cx, mainY);
+
+    if (s.showSweep) {
+      const textWidth = ctx.measureText(s.mainText).width;
+      const boxLeft = cx - textWidth/2 - 14, boxTop = mainY - mainFontSize*0.88;
+      const boxW = textWidth + 28, boxH = mainFontSize*1.05;
+      const sweepPos = ((shineT * 0.00028 * s.shineSpeed) % 1) * (boxW + 140) - 70;
+      ctx.save();
+      ctx.beginPath(); ctx.rect(boxLeft, boxTop, boxW, boxH); ctx.clip();
+      ctx.globalCompositeOperation = 'source-atop';
+      const grad = ctx.createLinearGradient(boxLeft+sweepPos-45, boxTop, boxLeft+sweepPos+45, boxTop+boxH);
+      grad.addColorStop(0, hexToRgba(s.accentColor, 0));
+      grad.addColorStop(0.5, hexToRgba('#ffffff', 0.85));
+      grad.addColorStop(1, hexToRgba(s.accentColor, 0));
+      ctx.fillStyle = grad;
+      ctx.fillRect(boxLeft, boxTop, boxW, boxH);
+      ctx.restore();
+    }
+
+    if (s.tagText) {
+      ctx.font = `600 ${mainFontSize*0.24}px 'Outfit','Noto Sans Bengali',sans-serif`;
+      ctx.fillStyle = hexToRgba(s.shadowColor, 0.9);
+      ctx.fillText(s.tagText, cx+2, mainY + mainFontSize*0.5+2);
+      ctx.fillStyle = s.textColor;
+      ctx.fillText(s.tagText, cx, mainY + mainFontSize*0.5);
+    }
+    ctx.restore();
+  }
+}
+
+function formatTime(ms) { const totalSec = Math.max(0, Math.ceil(ms/1000)); const m = Math.floor(totalSec/60), sec = totalSec%60; return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`; }
+function resetTimerUI() {
+  document.getElementById('timerBig').textContent = formatTime(totalDurationMs);
+  document.getElementById('timerPercent').textContent = '—';
+  document.getElementById('timerRing').style.strokeDashoffset = 0;
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status idle'; st.textContent = 'প্রস্তুত';
+}
+function setDuration(sec, btnEl) {
+  totalDurationMs = sec*1000;
+  document.querySelectorAll('.preset-row .preset-btn').forEach(b => { if (b.parentElement === btnEl.parentElement) b.classList.remove('active'); });
+  btnEl.classList.add('active');
+  if (!isSpinning) resetTimerUI();
+}
+
+function tick(timestamp) {
+  if (!isSpinning) return;
+  if (lastTimestamp === null) { lastTimestamp = timestamp; startTime = timestamp; }
+  const dt = timestamp - lastTimestamp;
+  lastTimestamp = timestamp;
+  cyclePhase += dt; shinePhase += dt;
+  drawFrame();
+  const elapsed = timestamp - startTime;
+  let remaining = totalDurationMs - elapsed;
+  const loop = document.getElementById('loopToggle').checked;
+  if (remaining <= 0) {
+    if (loop) { startTime = timestamp; remaining = totalDurationMs; }
+    else { finishAnim(); return; }
+  }
+  document.getElementById('timerBig').textContent = formatTime(remaining);
+  const pct = Math.round((remaining/totalDurationMs)*100);
+  document.getElementById('timerPercent').textContent = pct + '%';
+  document.getElementById('timerRing').style.strokeDashoffset = String(141 * (1 - remaining/totalDurationMs));
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status spinning'; st.textContent = '● চলছে';
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+  animFrame = requestAnimationFrame(tick);
+}
+function startAnim() {
+  if (isSpinning) return;
+  isSpinning = true; lastTimestamp = null;
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+  animFrame = requestAnimationFrame(tick);
+}
+function stopAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status idle'; st.textContent = '⏸ থামানো হয়েছে';
+  drawFrame();
+}
+function finishAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  document.getElementById('timerBig').textContent = '00:00';
+  document.getElementById('timerPercent').textContent = '100%';
+  document.getElementById('timerRing').style.strokeDashoffset = 0;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status done'; st.textContent = '✅ সম্পন্ন';
+  document.getElementById('timerSub').textContent = 'অ্যানিমেশন শেষ';
+  drawFrame();
+}
+function resetAll() { stopAnim(); cyclePhase = 0; shinePhase = 0; resetTimerUI(); drawFrame(); }
+
+function setExportStatus(msg) { document.getElementById('exportStatus').textContent = msg; }
+function saveBlob(blob, filename) {
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob); link.download = filename; link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+function downloadPng() {
+  const transparent = document.getElementById('transparentToggle').checked;
+  const bgColor = document.getElementById('exportBgColor').value;
+  drawFrame({ solidBg: !transparent, bgColor, tOverride: 0.60, shineOverride: shinePhase });
+  canvas.toBlob(blob => {
+    drawFrame({});
+    if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+    saveBlob(blob, 'air-ticket-3d.png');
+    setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+  }, 'image/png');
+}
+async function downloadGif() {
+  if (!window.GIF) { setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন।'); return; }
+  if (isExporting) return;
+  isExporting = true;
+  const bgColor = document.getElementById('exportBgColor').value;
+  const s = getSettings();
+  const cycleMs = 4500 / s.growSpeed;
+  const gif = new GIF({ workers: 2, quality: 10, width: CW, height: CH,
+    workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
+  const frames = 60;
+  const frameDelay = Math.round(cycleMs / frames);
+  setExportStatus('GIF তৈরি হচ্ছে (একটি সম্পূর্ণ লুপ)… 0%');
+  for (let i = 0; i < frames; i++) {
+    const t = i / frames;
+    drawFrame({ solidBg: true, bgColor, tOverride: t, shineOverride: t*cycleMs*4 });
+    gif.addFrame(canvas, { copy: true, delay: frameDelay });
+    setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((i+1)/frames*100)}%`);
+    await new Promise(requestAnimationFrame);
+  }
+  drawFrame({});
+  gif.on('finished', blob => { saveBlob(blob, 'air-ticket-3d.gif'); setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।'); isExporting = false; });
+  gif.render();
+}
+async function downloadVideo() {
+  if (!window.MediaRecorder || !canvas.captureStream) { setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।'); return; }
+  if (isExporting) return;
+  isExporting = true;
+  const bgColor = document.getElementById('exportBgColor').value;
+  const stream = canvas.captureStream(30);
+  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 6000000 });
+  const chunks = [];
+  const oldCycle = cyclePhase, oldShine = shinePhase;
+  recorder.ondataavailable = e => e.data.size && chunks.push(e.data);
+  recorder.onstop = () => {
+    saveBlob(new Blob(chunks, { type: mimeType }), 'air-ticket-3d.webm');
+    cyclePhase = oldCycle; shinePhase = oldShine; drawFrame({});
+    isExporting = false; setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+  };
+  recorder.start();
+  const start = performance.now();
+  const duration = totalDurationMs;
+  setExportStatus('ভিডিও তৈরি হচ্ছে…');
+  const render = (now) => {
+    const elapsedMs = now - start;
+    const progress = Math.min(1, elapsedMs / duration);
+    cyclePhase = oldCycle + elapsedMs; shinePhase = oldShine + elapsedMs;
+    drawFrame({ solidBg: true, bgColor });
+    if (progress < 1) requestAnimationFrame(render); else recorder.stop();
+  };
+  requestAnimationFrame(render);
+}
+
+['stairWidth','depthAmt','growSpeed','shineSpeed'].forEach(id => {
+  document.getElementById(id).addEventListener('input', function() {
+    const badges = { stairWidth:'widthBadge', depthAmt:'depthBadge', growSpeed:'growBadge', shineSpeed:'shineBadge' };
+    const el = document.getElementById(badges[id]);
+    if (id === 'stairWidth') el.textContent = this.value + '%'; else el.textContent = this.value;
+    if (!isSpinning) drawFrame();
+  });
+});
+['subText','mainText','tagText','paperColor','shadowColor','textColor','accentColor','climberToggle','sweepToggle'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => { if (!isSpinning) drawFrame(); });
+  el.addEventListener('change', () => { if (!isSpinning) drawFrame(); });
+});
+document.getElementById('transparentToggle').addEventListener('change', function() {
+  document.getElementById('exportBgRow').style.display = this.checked ? 'none' : 'block';
+});
+
+drawFrame({ tOverride: 0.60, shineOverride: 0 });
+setTimeout(startAnim, 150);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+</body>
+</html>

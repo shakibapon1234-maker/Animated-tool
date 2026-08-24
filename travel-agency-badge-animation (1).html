@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travel Agency Badge Animation — 3D Edition</title>
+<meta name="description" content="ট্রাভেল এজেন্সি ব্যাজ — 3D ফ্যাসেটেড হেক্সাগন/শিল্ড/জেম শেপ, প্লেন অরবিট, উইং ফ্লারিশ, রিবন ব্যানার — ভিডিও/ফটো এডিটরের জন্য PNG/GIF/WebM">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Noto+Sans+Bengali:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-primary:#050810; --bg-secondary:#0a0e1c; --bg-card:#11162a; --bg-card-hover:#161c34;
+  --border:rgba(255,255,255,0.08); --border-active:rgba(56,189,248,0.55);
+  --accent:#38bdf8; --accent-glow:rgba(56,189,248,0.45);
+  --accent-2:#f59e0b; --accent-3:#22d3ee;
+  --text-primary:#f2f6ff; --text-secondary:#9aa4c2; --text-muted:#4c5170;
+  --success:#10b981; --danger:#ef4444;
+  --radius:16px; --radius-sm:10px;
+  --shadow:0 20px 60px rgba(0,0,0,0.55);
+  --shadow-glow:0 0 45px rgba(56,189,248,0.22);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Outfit','Noto Sans Bengali','Inter',system-ui,sans-serif;
+  background:var(--bg-primary); color:var(--text-primary);
+  min-height:100vh; overflow-x:hidden; display:flex; flex-direction:column; align-items:center;
+}
+body::before{
+  content:''; position:fixed; inset:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 15% 15%, rgba(56,189,248,0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 85%, rgba(245,158,11,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 50% 50%, rgba(34,211,238,0.05) 0%, transparent 70%);
+  pointer-events:none; z-index:0;
+}
+.app-header{
+  width:100%; padding:22px 32px; display:flex; align-items:center; gap:16px;
+  border-bottom:1px solid var(--border); background:rgba(5,8,16,0.8);
+  backdrop-filter:blur(20px); position:sticky; top:0; z-index:100;
+}
+.header-icon{
+  width:44px; height:44px; background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px;
+  box-shadow:0 0 20px var(--accent-glow); flex-shrink:0;
+}
+.header-text h1{
+  font-size:20px; font-weight:700;
+  background:linear-gradient(135deg,#fff 0%, var(--accent) 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.header-text p{ font-size:13px; color:var(--text-secondary); margin-top:2px; }
+
+.main-content{
+  width:100%; max-width:1240px; padding:36px 24px 80px; display:grid;
+  grid-template-columns:1fr 400px; gap:32px; position:relative; z-index:1;
+}
+@media (max-width:940px){ .main-content{ grid-template-columns:1fr; } }
+
+.canvas-panel{ display:flex; flex-direction:column; align-items:center; gap:22px; }
+.canvas-wrapper{
+  width:100%; aspect-ratio:1; max-width:500px; background:var(--bg-card);
+  border:1px solid var(--border); border-radius:24px; display:flex;
+  align-items:center; justify-content:center; position:relative; overflow:hidden;
+  box-shadow:var(--shadow), var(--shadow-glow);
+}
+.canvas-wrapper::before{
+  content:''; position:absolute; inset:-1px; border-radius:25px;
+  background:linear-gradient(135deg, rgba(56,189,248,0.3), rgba(245,158,11,0.14), rgba(34,211,238,0.08));
+  z-index:-1; animation:borderGlow 4s ease-in-out infinite;
+}
+@keyframes borderGlow{ 0%,100%{opacity:.5;} 50%{opacity:1;} }
+.canvas-bg-grid{
+  position:absolute; inset:0;
+  background-image:linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size:30px 30px; border-radius:24px;
+}
+#badgeCanvas{ display:block; max-width:100%; max-height:100%; }
+
+.timer-display{
+  display:flex; align-items:center; gap:16px; padding:16px 28px; background:var(--bg-card);
+  border:1px solid var(--border); border-radius:60px; box-shadow:var(--shadow);
+}
+.timer-ring-wrap{ position:relative; width:56px; height:56px; }
+.timer-ring-wrap svg{ transform:rotate(-90deg); }
+.timer-ring-bg{ fill:none; stroke:rgba(255,255,255,0.07); stroke-width:4; }
+.timer-ring-fill{
+  fill:none; stroke:url(#ringGradient); stroke-width:4; stroke-linecap:round;
+  transition:stroke-dashoffset 1s linear; stroke-dasharray:157; stroke-dashoffset:0;
+}
+.timer-label-inner{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:700; color:var(--accent);
+}
+.timer-text-group{ display:flex; flex-direction:column; }
+.timer-big{ font-size:32px; font-weight:800; color:var(--text-primary); letter-spacing:-1px; }
+.timer-sub{ font-size:12px; color:var(--text-secondary); font-weight:500; }
+.timer-status{ padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600; letter-spacing:.5px; text-transform:uppercase; }
+.timer-status.idle{ background:rgba(255,255,255,0.06); color:var(--text-muted); }
+.timer-status.spinning{ background:rgba(56,189,248,0.2); color:var(--accent); animation:pulse 2s ease-in-out infinite; }
+.timer-status.done{ background:rgba(16,185,129,0.2); color:var(--success); }
+@keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.6;} }
+
+.controls-panel{ display:flex; flex-direction:column; gap:20px; }
+.control-card{
+  background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:22px; transition:border-color .2s, box-shadow .2s;
+}
+.control-card:hover{ border-color:var(--border-active); box-shadow:0 0 20px rgba(56,189,248,0.1); }
+.card-title{
+  font-size:13px; font-weight:700; color:var(--text-secondary); letter-spacing:1px;
+  text-transform:uppercase; margin-bottom:16px; display:flex; align-items:center; gap:8px;
+}
+.card-title-icon{
+  width:24px; height:24px; background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:13px;
+}
+.form-row{ display:flex; flex-direction:column; gap:8px; margin-bottom:14px; }
+.form-row:last-child{ margin-bottom:0; }
+.form-label{ font-size:13px; font-weight:600; color:var(--text-secondary); display:flex; justify-content:space-between; align-items:center; }
+.form-label .value-badge{
+  background:rgba(56,189,248,0.15); color:var(--accent); padding:2px 10px; border-radius:20px;
+  font-size:12px; font-weight:700; font-family:'JetBrains Mono',monospace;
+}
+input[type="text"],input[type="number"]{
+  width:100%; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:var(--radius-sm);
+  padding:11px 15px; color:var(--text-primary); font-size:14px; font-family:inherit; outline:none;
+  transition:border-color .2s, box-shadow .2s;
+}
+input[type="text"]:focus,input[type="number"]:focus{ border-color:var(--accent); box-shadow:0 0 0 3px rgba(56,189,248,0.15); }
+input[type="range"]{
+  width:100%; height:6px; -webkit-appearance:none; appearance:none; background:rgba(255,255,255,0.08);
+  border-radius:10px; outline:none; cursor:pointer;
+}
+input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2)); box-shadow:0 0 10px rgba(56,189,248,.5);
+  cursor:pointer; transition:transform .15s;
+}
+input[type="range"]::-webkit-slider-thumb:hover{ transform:scale(1.2); }
+input[type="color"]{ width:46px; height:34px; border:1px solid var(--border); border-radius:8px; background:none; cursor:pointer; padding:2px; }
+input[type="file"]{
+  width:100%; font-size:12px; color:var(--text-secondary); background:rgba(255,255,255,0.04);
+  border:1px dashed var(--border); border-radius:var(--radius-sm); padding:10px;
+}
+.color-row{ display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+.color-row:last-child{ margin-bottom:0; }
+.color-label{ font-size:13px; color:var(--text-secondary); flex:1; }
+
+.shape-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.shape-btn{
+  padding:12px 6px; border-radius:var(--radius-sm); border:1px solid var(--border); background:transparent;
+  color:var(--text-secondary); font-size:12px; font-weight:600; cursor:pointer; transition:all .2s;
+  font-family:inherit; display:flex; flex-direction:column; align-items:center; gap:4px;
+}
+.shape-btn span.ic{ font-size:20px; }
+.shape-btn:hover{ border-color:var(--accent); color:var(--accent); }
+.shape-btn.active{ border-color:var(--accent); color:var(--accent); background:rgba(56,189,248,0.12); }
+
+.style-presets{ display:flex; flex-wrap:wrap; gap:8px; }
+.style-preset-btn{
+  padding:7px 13px; border-radius:20px; border:1px solid var(--border); background:transparent;
+  color:var(--text-secondary); font-size:12px; font-weight:600; cursor:pointer; transition:all .2s; font-family:inherit;
+}
+.style-preset-btn:hover{ border-color:var(--accent); color:var(--accent); background:rgba(56,189,248,0.1); }
+.style-preset-btn.active{ border-color:var(--accent); color:var(--accent); background:rgba(56,189,248,0.15); }
+.sep{ height:1px; background:var(--border); width:100%; }
+
+.time-presets{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+.preset-btn{
+  padding:6px 13px; border-radius:20px; border:1px solid var(--border); background:transparent;
+  color:var(--text-secondary); font-size:12px; font-weight:600; cursor:pointer; transition:all .2s; font-family:inherit;
+}
+.preset-btn:hover{ border-color:var(--accent); color:var(--accent); background:rgba(56,189,248,0.1); }
+.preset-btn.active{ border-color:var(--accent); color:var(--accent); background:rgba(56,189,248,0.15); }
+
+.direction-toggle{ display:flex; gap:8px; }
+.dir-btn{
+  flex:1; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:transparent;
+  color:var(--text-secondary); font-size:13px; font-weight:600; cursor:pointer; transition:all .2s; font-family:inherit;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+}
+.dir-btn:hover{ border-color:var(--accent); color:var(--accent); }
+.dir-btn.active{ border-color:var(--accent); color:var(--accent); background:rgba(56,189,248,0.12); }
+
+.checkbox-row{ display:flex; align-items:center; gap:9px; cursor:pointer; font-size:13px; color:var(--text-secondary); }
+
+.btn-group{ display:flex; gap:12px; }
+.btn{
+  flex:1; padding:13px 18px; border-radius:var(--radius-sm); border:none; font-size:14px; font-weight:700;
+  font-family:inherit; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center;
+  gap:8px; letter-spacing:.3px;
+}
+.btn-primary{ background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#0a1400; box-shadow:0 4px 20px rgba(56,189,248,0.35); }
+.btn-primary:hover{ transform:translateY(-1px); box-shadow:0 8px 30px rgba(56,189,248,0.45); }
+.btn-primary:disabled{ opacity:.4; cursor:not-allowed; transform:none; }
+.btn-stop{ background:rgba(239,68,68,0.15); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); }
+.btn-stop:hover{ background:rgba(239,68,68,0.25); }
+.btn-stop:disabled{ opacity:.4; cursor:not-allowed; }
+.btn-ghost{ background:transparent; color:var(--text-secondary); border:1px solid var(--border); }
+.btn-ghost:hover{ border-color:var(--accent); color:var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-icon">✈️</div>
+  <div class="header-text">
+    <h1>Travel Agency Badge Animation — 3D</h1>
+    <p>ফ্যাসেটেড 3D শেপ ব্যাজ — বাংলা / English দুই ভাষাতেই — সরাসরি ভিডিও এডিটরে ব্যবহারযোগ্য</p>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="canvas-panel">
+    <div class="canvas-wrapper">
+      <div class="canvas-bg-grid"></div>
+      <canvas id="badgeCanvas" width="460" height="460"></canvas>
+    </div>
+
+    <div class="timer-display">
+      <div class="timer-ring-wrap">
+        <svg width="56" height="56" viewBox="0 0 56 56">
+          <defs>
+            <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#38bdf8"/>
+              <stop offset="100%" stop-color="#f59e0b"/>
+            </linearGradient>
+          </defs>
+          <circle class="timer-ring-bg" cx="28" cy="28" r="25"/>
+          <circle class="timer-ring-fill" id="timerRing" cx="28" cy="28" r="25"/>
+        </svg>
+        <div class="timer-label-inner">⏱</div>
+      </div>
+      <div class="timer-text-group">
+        <div class="timer-big" id="timerBig">00:00</div>
+        <div class="timer-sub" id="timerSub">সময় বাকি</div>
+      </div>
+      <div class="timer-status idle" id="timerStatus">প্রস্তুত</div>
+      <div class="timer-text-group" style="margin-left:8px;">
+        <div class="timer-big" style="font-size:20px;" id="timerPercent">—</div>
+        <div class="timer-sub">সম্পন্ন</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls-panel">
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">✏️</div>টেক্সট (বাংলা / English)</div>
+      <div class="form-row">
+        <label class="form-label">উপরের আর্ক টেক্সট</label>
+        <input type="text" id="outerTopText" value="TRAVEL AGENCY" placeholder="উপরের arc টেক্সট">
+      </div>
+      <div class="form-row">
+        <label class="form-label">নিচের আর্ক টেক্সট</label>
+        <input type="text" id="outerBottomText" value="★ ভ্রমণ ও পর্যটন ★" placeholder="নিচের arc টেক্সট">
+      </div>
+      <div class="form-row">
+        <label class="form-label">মাঝের বড় টেক্সট</label>
+        <input type="text" id="centerText" value="TRAVEL" placeholder="মাঝের টেক্সট">
+      </div>
+      <div class="form-row">
+        <label class="form-label">মাঝের ছোট টেক্সট (নিচে)</label>
+        <input type="text" id="centerSubText" value="Explore The World" placeholder="সাবটাইটেল">
+      </div>
+      <div class="form-row">
+        <label class="form-label">সেন্টার আইকন (ইমোজি)</label>
+        <input type="text" id="centerIcon" value="✈️" placeholder="ইমোজি বা আইকন">
+      </div>
+      <div class="form-row">
+        <label class="form-label">অথবা নিজের লোগো/ছবি আপলোড করুন</label>
+        <input type="file" id="logoUpload" accept="image/*">
+      </div>
+      <div class="form-row">
+        <label class="checkbox-row"><input type="checkbox" id="useLogoToggle"> আইকনের বদলে লোগো দেখান</label>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">◆</div>3D শেপ সিলেক্ট করুন</div>
+      <div class="shape-grid" id="shapeGrid">
+        <button class="shape-btn active" data-shape="hexagon" onclick="setShape('hexagon',this)"><span class="ic">⬡</span>হেক্সাগন জেম</button>
+        <button class="shape-btn" data-shape="shield" onclick="setShape('shield',this)"><span class="ic">🛡️</span>শিল্ড ক্রেস্ট</button>
+        <button class="shape-btn" data-shape="gem" onclick="setShape('gem',this)"><span class="ic">💎</span>এমেরাল্ড জেম</button>
+        <button class="shape-btn" data-shape="compassStar" onclick="setShape('compassStar',this)"><span class="ic">🧭</span>কম্পাস স্টার</button>
+        <button class="shape-btn" data-shape="passportCrest" onclick="setShape('passportCrest',this)"><span class="ic">🛂</span>পাসপোর্ট ক্রেস্ট</button>
+        <button class="shape-btn" data-shape="arrowBadge" onclick="setShape('arrowBadge',this)"><span class="ic">🧷</span>সাইনপোস্ট অ্যারো</button>
+      </div>
+      <div class="form-row">
+        <label class="form-label">অরবিটিং প্লেন সংখ্যা <span class="value-badge" id="dotCountBadge">6</span></label>
+        <input type="range" id="dotCount" min="0" max="12" step="1" value="6">
+      </div>
+      <div class="form-row">
+        <label class="form-label">ড্যাশড রিং ঘনত্ব <span class="value-badge" id="dashDensityBadge">18</span></label>
+        <input type="range" id="dashDensity" min="6" max="30" step="1" value="18">
+      </div>
+      <div class="form-row">
+        <label class="checkbox-row"><input type="checkbox" id="wingToggle" checked> পাশে উইং ফ্লারিশ দেখান</label>
+      </div>
+      <div class="form-row">
+        <label class="checkbox-row"><input type="checkbox" id="ribbonToggle" checked> নিচে রিবন ব্যানার দেখান</label>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎨</div>কালার স্টাইল (ট্রাভেল থিম)</div>
+      <div class="style-presets" id="stylePresets">
+        <button class="style-preset-btn active" data-style="skyVoyage" onclick="applyStyle('skyVoyage',this)">🔵 স্কাই ভয়েজ</button>
+        <button class="style-preset-btn" data-style="sunsetGold" onclick="applyStyle('sunsetGold',this)">🟡 সানসেট গোল্ড</button>
+        <button class="style-preset-btn" data-style="oceanTeal" onclick="applyStyle('oceanTeal',this)">🟢 ওশেন টিল</button>
+        <button class="style-preset-btn" data-style="desertSand" onclick="applyStyle('desertSand',this)">🟠 ডেজার্ট স্যান্ড</button>
+        <button class="style-preset-btn" data-style="emeraldExplorer" onclick="applyStyle('emeraldExplorer',this)">🟩 এমেরাল্ড এক্সপ্লোরার</button>
+        <button class="style-preset-btn" data-style="royalVoyage" onclick="applyStyle('royalVoyage',this)">🟣 রয়্যাল ভয়েজ</button>
+        <button class="style-preset-btn" data-style="saharaBronze" onclick="applyStyle('saharaBronze',this)">🟤 সাহারা ব্রোঞ্জ</button>
+        <button class="style-preset-btn" data-style="arcticFrost" onclick="applyStyle('arcticFrost',this)">⚪ আর্কটিক ফ্রস্ট</button>
+      </div>
+      <div class="sep" style="margin:16px 0;"></div>
+      <div class="color-row"><span class="color-label">ব্যাজ রঙ (বাইরে)</span><input type="color" id="badgeColorOuter" value="#38bdf8"></div>
+      <div class="color-row"><span class="color-label">ব্যাজ রঙ (ভেতরে)</span><input type="color" id="badgeColorInner" value="#063a52"></div>
+      <div class="color-row"><span class="color-label">রিং / উইং রঙ</span><input type="color" id="ringColor" value="#f59e0b"></div>
+      <div class="color-row"><span class="color-label">আর্ক টেক্সট রঙ</span><input type="color" id="arcTextColor" value="#ffffff"></div>
+      <div class="color-row"><span class="color-label">মাঝের টেক্সট রঙ</span><input type="color" id="centerTextColor" value="#ffffff"></div>
+      <div class="color-row"><span class="color-label">গ্লো রঙ</span><input type="color" id="glowColor" value="#38bdf8"></div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">⚡</div>অ্যানিমেশন সেটিংস</div>
+      <div class="form-row">
+        <label class="form-label">সময় (সেকেন্ড) <span class="value-badge" id="durationBadge">30s</span></label>
+        <input type="number" id="spinDuration" value="30" min="1" max="3600">
+        <div class="time-presets">
+          <button class="preset-btn" onclick="setDuration(5,this)">5s</button>
+          <button class="preset-btn" onclick="setDuration(10,this)">10s</button>
+          <button class="preset-btn active" onclick="setDuration(30,this)">30s</button>
+          <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+          <button class="preset-btn" onclick="setDuration(120,this)">2মিনিট</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">পালস তীব্রতা <span class="value-badge" id="pulseBadge">0.4</span></label>
+        <input type="range" id="pulseIntensity" min="0" max="1" step="0.05" value="0.4">
+      </div>
+      <div class="form-row">
+        <label class="form-label">3D রোটেশন স্পিড (RPM) <span class="value-badge" id="speedBadge">3.0 RPM</span></label>
+        <input type="range" id="spinSpeed" min="0" max="10" step="0.1" value="3.0">
+      </div>
+      <div class="form-row">
+        <label class="form-label">অরবিট স্পিড <span class="value-badge" id="orbitSpeedBadge">1.0</span></label>
+        <input type="range" id="orbitSpeed" min="0.2" max="3" step="0.1" value="1.0">
+      </div>
+      <div class="form-row">
+        <label class="form-label">দিক (Direction)</label>
+        <div class="direction-toggle">
+          <button class="dir-btn active" id="dirCW" onclick="setDirection('cw')">↻ ঘড়ির দিক</button>
+          <button class="dir-btn" id="dirCCW" onclick="setDirection('ccw')">↺ উল্টো দিক</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="checkbox-row"><input type="checkbox" id="loopSpinToggle" checked> সবসময় চলতে থাকবে (Loop)</label>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" id="startBtn" onclick="startBurst()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+        অ্যানিমেশন শুরু
+      </button>
+      <button class="btn btn-stop" id="stopBtn" onclick="stopBurst()" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+        বন্ধ করুন
+      </button>
+    </div>
+    <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট করুন</button>
+
+    <div class="control-card" style="margin-top:4px;">
+      <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+      <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.55;">বর্তমান ব্যাজ PNG (ট্রান্সপারেন্ট ব্যাকগ্রাউন্ড), অথবা একটি পূর্ণ অ্যানিমেশন সাইকেল GIF/ভিডিও হিসেবে সেভ করুন — সরাসরি ভিডিও/ফটো এডিটরে ব্যবহার করা যাবে।</p>
+      <div class="btn-group">
+        <button class="btn btn-primary" type="button" onclick="downloadPng()">PNG</button>
+        <button class="btn btn-primary" type="button" onclick="downloadGif()">GIF</button>
+        <button class="btn btn-primary" type="button" onclick="downloadVideo()">ভিডিও</button>
+      </div>
+      <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   TRAVEL AGENCY BADGE ANIMATION ENGINE — 3D EDITION
+   Shapes: faceted low-poly hexagon / shield / gem, extruded
+   for a 3D look, with a wobble "3D rotation" on the core,
+   orbiting plane icons, wing flourishes, ribbon banner.
+   Canvas background stays transparent for overlay use.
+===================================================== */
+
+const canvas = document.getElementById('badgeCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas(){
+  const wrapper = canvas.parentElement;
+  const size = Math.min(wrapper.clientWidth - 40, 460);
+  canvas.width = size; canvas.height = size;
+}
+resizeCanvas();
+window.addEventListener('resize', () => { resizeCanvas(); drawFrame(); });
+
+// === STATE ===
+let spinAngle = 0, pulsePhase = 0, orbitPhase = 0;
+let isSpinning = false, animFrame = null;
+let totalDurationMs = 30000, startTime = null;
+let direction = 1, speedRPM = 3.0, lastTimestamp = null, isExporting = false;
+let currentShape = 'hexagon';
+let logoImage = null;
+
+document.getElementById('logoUpload').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const img = new Image();
+    img.onload = function(){ logoImage = img; if (!isSpinning) drawFrame(); };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+function setShape(shapeName, btnEl){
+  currentShape = shapeName;
+  document.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  if (!isSpinning) drawFrame();
+}
+
+// === STYLE PRESETS (travel theme) ===
+const stylePresets = {
+  skyVoyage:       { badgeColorOuter:'#38bdf8', badgeColorInner:'#063a52', ringColor:'#f59e0b', arcTextColor:'#ffffff', centerTextColor:'#ffffff', glowColor:'#38bdf8' },
+  sunsetGold:       { badgeColorOuter:'#f59e0b', badgeColorInner:'#5a3200', ringColor:'#ffffff', arcTextColor:'#2a1a00', centerTextColor:'#2a1a00', glowColor:'#f59e0b' },
+  oceanTeal:        { badgeColorOuter:'#14b8a6', badgeColorInner:'#023730', ringColor:'#ffd700', arcTextColor:'#ffffff', centerTextColor:'#ffffff', glowColor:'#14b8a6' },
+  desertSand:       { badgeColorOuter:'#e0a458', badgeColorInner:'#4a2c0c', ringColor:'#0a3a52', arcTextColor:'#2a1a00', centerTextColor:'#2a1a00', glowColor:'#e0a458' },
+  emeraldExplorer:  { badgeColorOuter:'#10b981', badgeColorInner:'#022c22', ringColor:'#ffd700', arcTextColor:'#ffffff', centerTextColor:'#ffffff', glowColor:'#10b981' },
+  royalVoyage:      { badgeColorOuter:'#8b5cf6', badgeColorInner:'#1e0a4a', ringColor:'#ffd700', arcTextColor:'#ffffff', centerTextColor:'#ffffff', glowColor:'#8b5cf6' },
+  saharaBronze:     { badgeColorOuter:'#c2703d', badgeColorInner:'#3a1a0a', ringColor:'#f4d58d', arcTextColor:'#fff4e0', centerTextColor:'#fff4e0', glowColor:'#c2703d' },
+  arcticFrost:      { badgeColorOuter:'#a5f3fc', badgeColorInner:'#0e3a4a', ringColor:'#1e293b', arcTextColor:'#0e3a4a', centerTextColor:'#0e3a4a', glowColor:'#a5f3fc' },
+};
+
+function applyStyle(styleName, btnEl){
+  const s = stylePresets[styleName];
+  if (!s) return;
+  document.getElementById('badgeColorOuter').value = s.badgeColorOuter;
+  document.getElementById('badgeColorInner').value = s.badgeColorInner;
+  document.getElementById('ringColor').value       = s.ringColor;
+  document.getElementById('arcTextColor').value    = s.arcTextColor;
+  document.getElementById('centerTextColor').value = s.centerTextColor;
+  document.getElementById('glowColor').value       = s.glowColor;
+  document.querySelectorAll('.style-preset-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  drawFrame();
+}
+
+// === READ SETTINGS ===
+function getSettings(){
+  return {
+    outerTopText:    document.getElementById('outerTopText').value || '',
+    outerBottomText: document.getElementById('outerBottomText').value || '',
+    centerText:      document.getElementById('centerText').value || '',
+    centerSubText:   document.getElementById('centerSubText').value || '',
+    centerIcon:      document.getElementById('centerIcon').value || '',
+    useLogo:         document.getElementById('useLogoToggle').checked,
+    badgeColorOuter: document.getElementById('badgeColorOuter').value,
+    badgeColorInner: document.getElementById('badgeColorInner').value,
+    ringColor:       document.getElementById('ringColor').value,
+    arcTextColor:    document.getElementById('arcTextColor').value,
+    centerTextColor: document.getElementById('centerTextColor').value,
+    glowColor:       document.getElementById('glowColor').value,
+    dotCount:        parseInt(document.getElementById('dotCount').value) || 0,
+    dashDensity:     parseInt(document.getElementById('dashDensity').value) || 18,
+    pulseIntensity:  parseFloat(document.getElementById('pulseIntensity').value) || 0.4,
+    orbitSpeed:      parseFloat(document.getElementById('orbitSpeed').value) || 1.0,
+    showWings:       document.getElementById('wingToggle').checked,
+    showRibbon:      document.getElementById('ribbonToggle').checked,
+  };
+}
+
+// === SHAPE POINT SETS (unit radius, straight edges only — no round shapes) ===
+function getShapePoints(shape){
+  if (shape === 'shield'){
+    return [
+      [-0.72,-1.0],[0.72,-1.0],[1.0,-0.28],[0.95,0.15],
+      [0.5,0.62],[0,1.0],[-0.5,0.62],[-0.95,0.15],[-1.0,-0.28]
+    ];
+  }
+  if (shape === 'gem'){
+    // emerald-cut style elongated octagon
+    const raw = [];
+    for (let i=0;i<8;i++){
+      const a = -Math.PI/2 + i*(Math.PI/4);
+      raw.push([Math.cos(a), Math.sin(a)]);
+    }
+    return raw.map(([x,y]) => [x*0.82, y*1.18]);
+  }
+  if (shape === 'compassStar'){
+    // 8-pointed compass star, alternating long/short spikes
+    const pts = [];
+    for (let i=0;i<16;i++){
+      const a = -Math.PI/2 + i*(Math.PI/8);
+      const r = (i % 2 === 0) ? 1.0 : 0.5;
+      pts.push([Math.cos(a)*r, Math.sin(a)*r]);
+    }
+    return pts;
+  }
+  if (shape === 'passportCrest'){
+    // rectangular ID/passport crest with cut corners
+    return [
+      [-0.58,-1.0],[0.58,-1.0],[1.0,-0.66],[1.0,0.66],
+      [0.58,1.0],[-0.58,1.0],[-1.0,0.66],[-1.0,-0.66]
+    ];
+  }
+  if (shape === 'arrowBadge'){
+    // upward signpost / directional arrow badge
+    return [
+      [0,-1.05],[0.55,-0.5],[0.33,-0.5],[0.33,0.42],
+      [0.78,0.42],[0.78,0.78],[-0.78,0.78],[-0.78,0.42],
+      [-0.33,0.42],[-0.33,-0.5],[-0.55,-0.5]
+    ];
+  }
+  // hexagon (pointy-top)
+  const pts = [];
+  for (let i=0;i<6;i++){
+    const a = -Math.PI/2 + i*(Math.PI/3);
+    pts.push([Math.cos(a), Math.sin(a)]);
+  }
+  return pts;
+}
+
+function pathFromPoints(ctx, pts, r){
+  ctx.beginPath();
+  pts.forEach(([x,y], i) => {
+    if (i===0) ctx.moveTo(x*r, y*r); else ctx.lineTo(x*r, y*r);
+  });
+  ctx.closePath();
+}
+
+// draw low-poly faceted fill: triangles from center to each edge, shaded by a fixed light direction
+function drawFacetedFill(ctx, pts, r, colorLight, colorDark){
+  const lightAngle = -2.35; // ~ -135deg, light from top-left
+  for (let i=0;i<pts.length;i++){
+    const p1 = pts[i], p2 = pts[(i+1)%pts.length];
+    const midAngle = Math.atan2((p1[1]+p2[1])/2, (p1[0]+p2[0])/2);
+    let diff = Math.cos(midAngle - lightAngle);
+    const brightness = 0.55 + 0.55 * diff; // 0..1.1 roughly
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.lineTo(p1[0]*r, p1[1]*r);
+    ctx.lineTo(p2[0]*r, p2[1]*r);
+    ctx.closePath();
+    ctx.fillStyle = mixColor(colorDark, colorLight, Math.max(0, Math.min(1, brightness)));
+    ctx.fill();
+  }
+}
+
+// === WING FLOURISH (angular feather, travel wing motif) ===
+function drawWingFeather(ctx, x, y, angle, size, color){
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(size*0.85, -size*0.22);
+  ctx.lineTo(size, 0);
+  ctx.lineTo(size*0.85, size*0.22);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.restore();
+}
+function drawWing(ctx, side, coreR, color){
+  const featherCount = 6;
+  for (let i=0;i<featherCount;i++){
+    const t = i/(featherCount-1);
+    const angle = -Math.PI*0.12 - t*Math.PI*0.58;
+    const dist = coreR*(1.18 + t*0.38);
+    const x = side * Math.sin(angle) * dist * -1;
+    const y = Math.cos(angle)*dist*0.82 + coreR*0.15;
+    const size = coreR*(0.36 - t*0.12);
+    drawWingFeather(ctx, side*Math.abs(x), y, side>0 ? -angle - Math.PI/2 : angle + Math.PI/2, size, color);
+  }
+}
+
+// === RIBBON BANNER ===
+function drawRibbonTail(ctx, xOffset, width, topY, bottomY, color){
+  ctx.beginPath();
+  ctx.moveTo(xOffset - width/2, topY);
+  ctx.lineTo(xOffset + width/2, topY);
+  ctx.lineTo(xOffset + width/2, bottomY - width*0.4);
+  ctx.lineTo(xOffset, bottomY);
+  ctx.lineTo(xOffset - width/2, bottomY - width*0.4);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+}
+
+// === DRAW ENGINE ===
+function drawFrame(){
+  const w = canvas.width, h = canvas.height;
+  const cx = w/2, cy = h/2;
+  const baseR = Math.min(w,h) * 0.30;
+  const s = getSettings();
+  const pts = getShapePoints(currentShape);
+
+  ctx.clearRect(0,0,w,h);
+
+  const pulseScale = 1 + s.pulseIntensity * 0.06 * Math.sin(pulsePhase);
+  const coreR = baseR * pulseScale;
+
+  // --- ORBITING PLANE ICONS ---
+  if (s.dotCount > 0){
+    ctx.save();
+    ctx.translate(cx, cy);
+    for (let i=0;i<s.dotCount;i++){
+      const angle = (i/s.dotCount) * Math.PI*2 + orbitPhase * s.orbitSpeed;
+      const r = coreR * 1.42;
+      const x = Math.cos(angle)*r, y = Math.sin(angle)*r;
+      const twinkle = 0.7 + 0.3*Math.sin(orbitPhase*2 + i);
+      ctx.save();
+      ctx.translate(x,y);
+      ctx.rotate(angle + Math.PI/2);
+      ctx.globalAlpha = 0.55 * twinkle + 0.35;
+      ctx.font = `${Math.max(10, baseR*0.16*twinkle)}px sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('✈️', 0, 0);
+      ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+    ctx.restore();
+  }
+
+  // --- RIBBON TAILS ---
+  if (s.showRibbon){
+    ctx.save();
+    ctx.translate(cx, cy);
+    const ribbonW = coreR*0.32, ribbonTop = coreR*0.6, ribbonBottom = coreR*1.55;
+    drawRibbonTail(ctx, -coreR*0.3, ribbonW, ribbonTop, ribbonBottom, darkenColor(s.badgeColorOuter, 25));
+    drawRibbonTail(ctx, coreR*0.3, ribbonW, ribbonTop, ribbonBottom, darkenColor(s.ringColor, 15));
+    ctx.restore();
+  }
+
+  // --- WING FLOURISH (fixed) ---
+  if (s.showWings){
+    ctx.save();
+    ctx.translate(cx, cy);
+    drawWing(ctx, -1, coreR, s.ringColor);
+    drawWing(ctx, 1, coreR, s.ringColor);
+    ctx.restore();
+  }
+
+  // --- ROTATING DASHED RING (circular, sits around the polygon) ---
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(spinAngle);
+  const dashR = coreR * 1.22;
+  const dashCount = s.dashDensity;
+  const dashLen = (2*Math.PI*dashR) / (dashCount*2);
+  ctx.beginPath();
+  ctx.setLineDash([dashLen, dashLen]);
+  ctx.arc(0,0,dashR,0,Math.PI*2);
+  ctx.strokeStyle = s.ringColor;
+  ctx.lineWidth = Math.max(2, baseR*0.03);
+  ctx.shadowColor = s.glowColor;
+  ctx.shadowBlur = baseR*0.18;
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.shadowBlur = 0;
+  ctx.restore();
+
+  // --- 3D FACETED BADGE CORE ---
+  ctx.save();
+  ctx.translate(cx, cy);
+
+  // gentle "3D wobble" — squishes horizontally to fake a rotating solid
+  const flipScale = 0.55 + 0.45 * Math.cos(spinAngle);
+  ctx.save();
+  ctx.scale(flipScale, 1);
+
+  // extrusion / side thickness (depth shadow)
+  const depth = coreR * 0.14;
+  ctx.save();
+  ctx.translate(depth, depth);
+  pathFromPoints(ctx, pts, coreR);
+  ctx.fillStyle = darkenColor(s.badgeColorInner, 20);
+  ctx.fill();
+  ctx.restore();
+
+  // mid extrusion layer for extra thickness cue
+  ctx.save();
+  ctx.translate(depth*0.55, depth*0.55);
+  pathFromPoints(ctx, pts, coreR);
+  ctx.fillStyle = darkenColor(s.badgeColorOuter, 35);
+  ctx.fill();
+  ctx.restore();
+
+  // top faceted face with glow
+  ctx.save();
+  ctx.shadowColor = s.glowColor;
+  ctx.shadowBlur = coreR*0.5;
+  drawFacetedFill(ctx, pts, coreR, lightenColor(s.badgeColorOuter, 45), s.badgeColorInner);
+  ctx.restore();
+
+  // outer edge highlight
+  pathFromPoints(ctx, pts, coreR);
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+  ctx.stroke();
+
+  // inner facet ring (subtle)
+  pathFromPoints(ctx, pts, coreR*0.9);
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  // arc text (curved over the shape, badge-style)
+  if (s.outerTopText){
+    drawArcText(ctx, s.outerTopText, coreR*0.8, -Math.PI*0.75, Math.PI*0.75, s.arcTextColor, coreR*0.115, 'top');
+  }
+  if (s.outerBottomText){
+    drawArcText(ctx, s.outerBottomText, coreR*0.8, Math.PI*0.25, Math.PI*0.75, s.arcTextColor, coreR*0.10, 'bottom');
+  }
+
+  ctx.restore(); // end flipScale scope for shape/arc-text
+
+  // --- CENTER CONTENT (kept upright, not mirrored, gently squished with the wobble) ---
+  const textScale = Math.max(0.35, Math.abs(flipScale));
+  ctx.save();
+  ctx.scale(textScale, 1);
+
+  if (s.useLogo && logoImage){
+    const logoR = coreR * 0.62;
+    ctx.save();
+    pathFromPoints(ctx, pts, logoR);
+    ctx.clip();
+    ctx.drawImage(logoImage, -logoR, -logoR, logoR*2, logoR*2);
+    ctx.restore();
+  } else if (s.centerIcon){
+    const iconSize = Math.max(20, baseR*0.34);
+    ctx.font = `${iconSize}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(s.centerIcon, 0, -baseR*0.3);
+  }
+
+  if (s.centerText){
+    const bigFontSize = Math.max(16, baseR*0.20);
+    ctx.font = `900 ${bigFontSize}px 'Noto Sans Bengali','Outfit',sans-serif`;
+    ctx.fillStyle = s.centerTextColor;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = 'rgba(0,0,0,0.4)';
+    ctx.shadowBlur = 8;
+    const yBase = (s.useLogo && logoImage) ? baseR*0.62 : (s.centerSubText ? baseR*0.02 : baseR*0.06);
+    ctx.fillText(s.centerText, 0, yBase);
+    ctx.shadowBlur = 0;
+  }
+
+  if (s.centerSubText){
+    const subFontSize = Math.max(8, baseR*0.085);
+    ctx.font = `700 ${subFontSize}px 'Noto Sans Bengali','Outfit',sans-serif`;
+    ctx.fillStyle = s.centerTextColor;
+    ctx.globalAlpha = 0.88;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const subY = (s.useLogo && logoImage) ? baseR*0.85 : baseR*0.28;
+    ctx.fillText(s.centerSubText, 0, subY);
+    ctx.globalAlpha = 1;
+    const subWidth = ctx.measureText(s.centerSubText).width;
+    ctx.beginPath();
+    ctx.moveTo(-subWidth/2, subY + baseR*0.08);
+    ctx.lineTo(subWidth/2, subY + baseR*0.08);
+    ctx.strokeStyle = s.centerTextColor;
+    ctx.globalAlpha = 0.3;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  ctx.restore();
+  ctx.restore(); // end core translate
+}
+
+// === DRAW ARC TEXT ===
+function drawArcText(ctx, text, arcRadius, startAngle, endAngle, color, fontSize, position){
+  ctx.save();
+  ctx.font = `bold ${Math.round(fontSize)}px 'Noto Sans Bengali','Outfit',sans-serif`;
+  ctx.fillStyle = color;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  const chars = text.split('');
+  const totalAngle = position === 'top' ? -(endAngle - startAngle) : (endAngle - startAngle);
+  const angleStep = Math.abs(totalAngle) / Math.max(chars.length - 1, 1);
+
+  ctx.shadowColor = 'rgba(0,0,0,0.45)';
+  ctx.shadowBlur = 5;
+
+  chars.forEach((char, i) => {
+    const angle = position === 'top'
+      ? startAngle + i*angleStep
+      : Math.PI + startAngle + i*angleStep;
+    ctx.save();
+    ctx.rotate(angle);
+    ctx.translate(0, -arcRadius);
+    if (position === 'bottom') ctx.rotate(Math.PI);
+    ctx.fillText(char, 0, 0);
+    ctx.restore();
+  });
+
+  ctx.shadowBlur = 0;
+  ctx.restore();
+}
+
+// === COLOR HELPERS ===
+function hexToRgb(hex){
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return {r,g,b};
+}
+function lightenColor(hex, amt){
+  const {r,g,b} = hexToRgb(hex);
+  return `rgb(${Math.min(255,r+amt)},${Math.min(255,g+amt)},${Math.min(255,b+amt)})`;
+}
+function darkenColor(hex, amt){
+  const {r,g,b} = hexToRgb(hex);
+  return `rgb(${Math.max(0,r-amt)},${Math.max(0,g-amt)},${Math.max(0,b-amt)})`;
+}
+function mixColor(hexA, hexB, t){
+  const a = hexToRgb(hexA), b = hexToRgb(hexB);
+  const r = Math.round(a.r + (b.r - a.r)*t);
+  const g = Math.round(a.g + (b.g - a.g)*t);
+  const bl = Math.round(a.b + (b.b - a.b)*t);
+  return `rgb(${r},${g},${bl})`;
+}
+
+// === ANIMATION LOOP ===
+function animationLoop(timestamp){
+  if (!isSpinning) return;
+  if (!lastTimestamp) lastTimestamp = timestamp;
+  const delta = timestamp - lastTimestamp;
+  lastTimestamp = timestamp;
+
+  const radiansPerMs = (speedRPM * 2 * Math.PI) / 60000;
+  spinAngle += direction * radiansPerMs * delta;
+  pulsePhase += delta * 0.0022;
+  orbitPhase += delta * 0.0009;
+  orbitPhase = orbitPhase % 1000;
+
+  const elapsed = timestamp - startTime;
+  const remaining = Math.max(0, totalDurationMs - elapsed);
+  updateTimerUI(elapsed, remaining);
+
+  drawFrame();
+
+  if (remaining <= 0 && !document.getElementById('loopSpinToggle').checked){
+    finishBurst();
+    return;
+  }
+  if (remaining <= 0) startTime = timestamp;
+
+  animFrame = requestAnimationFrame(animationLoop);
+}
+
+// === TIMER UI ===
+function updateTimerUI(elapsed, remaining){
+  const totalSec = Math.ceil(remaining/1000);
+  const minutes = Math.floor(totalSec/60).toString().padStart(2,'0');
+  const seconds = (totalSec%60).toString().padStart(2,'0');
+  document.getElementById('timerBig').textContent = `${minutes}:${seconds}`;
+  const pct = Math.max(0, Math.min(100, ((totalDurationMs - remaining)/totalDurationMs)*100));
+  document.getElementById('timerPercent').textContent = Math.round(pct) + '%';
+  const circumference = 157;
+  const offset = circumference - (pct/100)*circumference;
+  document.getElementById('timerRing').style.strokeDashoffset = offset;
+}
+function resetTimerUI(){
+  document.getElementById('timerBig').textContent = '00:00';
+  document.getElementById('timerPercent').textContent = '—';
+  document.getElementById('timerRing').style.strokeDashoffset = 157;
+  document.getElementById('timerStatus').className = 'timer-status idle';
+  document.getElementById('timerStatus').textContent = 'প্রস্তুত';
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+}
+
+// === START / STOP ===
+function startBurst(){
+  if (isSpinning) return;
+  const durationSec = parseFloat(document.getElementById('spinDuration').value) || 30;
+  totalDurationMs = durationSec * 1000;
+  speedRPM = parseFloat(document.getElementById('spinSpeed').value) || 0;
+
+  isSpinning = true;
+  startTime = null;
+  lastTimestamp = null;
+
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+
+  const statusEl = document.getElementById('timerStatus');
+  statusEl.className = 'timer-status spinning';
+  statusEl.textContent = '⚡ চলছে';
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+
+  animFrame = requestAnimationFrame((ts) => {
+    startTime = ts; lastTimestamp = ts; animationLoop(ts);
+  });
+}
+
+function stopBurst(){
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  const statusEl = document.getElementById('timerStatus');
+  statusEl.className = 'timer-status idle';
+  statusEl.textContent = '⏸ থামানো হয়েছে';
+  drawFrame();
+}
+
+function finishBurst(){
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  document.getElementById('timerBig').textContent = '00:00';
+  document.getElementById('timerPercent').textContent = '100%';
+  document.getElementById('timerRing').style.strokeDashoffset = 0;
+  const statusEl = document.getElementById('timerStatus');
+  statusEl.className = 'timer-status done';
+  statusEl.textContent = '✅ সম্পন্ন!';
+  document.getElementById('timerSub').textContent = 'অ্যানিমেশন শেষ';
+  drawFrame();
+}
+
+function resetAll(){
+  stopBurst();
+  spinAngle = 0; pulsePhase = 0; orbitPhase = 0;
+  resetTimerUI();
+  drawFrame();
+}
+
+function setExportStatus(message){ document.getElementById('exportStatus').textContent = message; }
+
+function saveBlob(blob, filename){
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+function downloadPng(){
+  canvas.toBlob((blob) => {
+    if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+    saveBlob(blob, 'travel-agency-badge.png');
+    setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+  }, 'image/png');
+}
+
+function getExportCanvas(size = 720){
+  const exportCanvas = document.createElement('canvas');
+  exportCanvas.width = exportCanvas.height = size;
+  const oldWidth = canvas.width, oldHeight = canvas.height;
+  canvas.width = canvas.height = size;
+  drawFrame();
+  exportCanvas.getContext('2d').drawImage(canvas, 0, 0);
+  canvas.width = oldWidth; canvas.height = oldHeight;
+  drawFrame();
+  return exportCanvas;
+}
+
+async function downloadGif(){
+  if (!window.GIF){
+    setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ দিয়ে আবার চেষ্টা করুন।');
+    return;
+  }
+  if (isExporting) return;
+  isExporting = true;
+  const oldAngle = spinAngle, oldPhase = pulsePhase, oldOrbit = orbitPhase;
+  const gif = new GIF({
+    workers: 2, quality: 10, width: 720, height: 720,
+    workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'
+  });
+  const frames = 48, frameDelay = 50;
+  setExportStatus('GIF তৈরি হচ্ছে… 0%');
+  for (let frame=0; frame<frames; frame++){
+    const t = frame/frames;
+    spinAngle = oldAngle + direction * (Math.PI*2*t);
+    pulsePhase = oldPhase + (Math.PI*2*2*t);
+    orbitPhase = oldOrbit + t*2;
+    gif.addFrame(getExportCanvas(720), { copy: true, delay: frameDelay });
+    setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((frame+1)/frames*100)}%`);
+    await new Promise(requestAnimationFrame);
+  }
+  spinAngle = oldAngle; pulsePhase = oldPhase; orbitPhase = oldOrbit; drawFrame();
+  gif.on('finished', (blob) => {
+    saveBlob(blob, 'travel-agency-badge.gif');
+    setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
+    isExporting = false;
+  });
+  gif.render();
+}
+
+async function downloadVideo(){
+  if (!window.MediaRecorder || !canvas.captureStream){
+    setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।');
+    return;
+  }
+  if (isExporting) return;
+  isExporting = true;
+  const exportCanvas = document.createElement('canvas');
+  exportCanvas.width = exportCanvas.height = 720;
+  const exportCtx = exportCanvas.getContext('2d');
+  const stream = exportCanvas.captureStream(30);
+  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 5000000 });
+  const chunks = [];
+  const oldAngle = spinAngle, oldPhase = pulsePhase, oldOrbit = orbitPhase;
+  recorder.ondataavailable = (event) => event.data.size && chunks.push(event.data);
+  recorder.onstop = () => {
+    saveBlob(new Blob(chunks, { type: mimeType }), 'travel-agency-badge.webm');
+    spinAngle = oldAngle; pulsePhase = oldPhase; orbitPhase = oldOrbit; drawFrame(); isExporting = false;
+    setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+  };
+  recorder.start();
+  const start = performance.now();
+  const duration = 2400;
+  setExportStatus('ভিডিও তৈরি হচ্ছে…');
+  const render = (now) => {
+    const progress = Math.min(1, (now - start)/duration);
+    spinAngle = oldAngle + direction * Math.PI*2*progress;
+    pulsePhase = oldPhase + Math.PI*2*2*progress;
+    orbitPhase = oldOrbit + progress*2;
+    const frame = getExportCanvas(720);
+    exportCtx.clearRect(0,0,720,720);
+    exportCtx.drawImage(frame, 0, 0);
+    if (progress < 1) requestAnimationFrame(render); else recorder.stop();
+  };
+  requestAnimationFrame(render);
+}
+
+// === DIRECTION ===
+function setDirection(dir){
+  direction = dir === 'cw' ? 1 : -1;
+  document.getElementById('dirCW').classList.toggle('active', dir === 'cw');
+  document.getElementById('dirCCW').classList.toggle('active', dir === 'ccw');
+}
+
+// === TIME PRESET ===
+function setDuration(sec, btnEl){
+  document.getElementById('spinDuration').value = sec;
+  document.getElementById('durationBadge').textContent = sec >= 60 ? `${sec/60}মিনিট` : `${sec}s`;
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+}
+
+// === EVENT LISTENERS ===
+document.getElementById('spinSpeed').addEventListener('input', function(){
+  speedRPM = parseFloat(this.value);
+  document.getElementById('speedBadge').textContent = speedRPM.toFixed(1) + ' RPM';
+});
+document.getElementById('spinDuration').addEventListener('input', function(){
+  const v = parseFloat(this.value) || 30;
+  document.getElementById('durationBadge').textContent = v >= 60 ? `${(v/60).toFixed(1)}মিনিট` : `${v}s`;
+});
+document.getElementById('dotCount').addEventListener('input', function(){
+  document.getElementById('dotCountBadge').textContent = this.value;
+  if (!isSpinning) drawFrame();
+});
+document.getElementById('dashDensity').addEventListener('input', function(){
+  document.getElementById('dashDensityBadge').textContent = this.value;
+  if (!isSpinning) drawFrame();
+});
+document.getElementById('pulseIntensity').addEventListener('input', function(){
+  document.getElementById('pulseBadge').textContent = parseFloat(this.value).toFixed(2);
+});
+document.getElementById('orbitSpeed').addEventListener('input', function(){
+  document.getElementById('orbitSpeedBadge').textContent = parseFloat(this.value).toFixed(1);
+});
+
+['outerTopText','outerBottomText','centerText','centerSubText','centerIcon',
+ 'badgeColorOuter','badgeColorInner','ringColor','arcTextColor','centerTextColor','glowColor',
+ 'wingToggle','ribbonToggle','useLogoToggle'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el){
+    el.addEventListener('input', () => { if (!isSpinning) drawFrame(); });
+    el.addEventListener('change', () => { if (!isSpinning) drawFrame(); });
+  }
+});
+
+// === INITIAL DRAW ===
+drawFrame();
+setTimeout(startBurst, 150);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+</body>
+</html>

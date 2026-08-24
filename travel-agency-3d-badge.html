@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travel Agency — 3D Luggage Tag Badge Generator</title>
+<meta name="description" content="৩ডি লাগেজ ট্যাগ স্টাইল ট্রাভেল এজেন্সি অ্যানিমেটেড ব্যাজ — এক্সট্রুডেড টেক্সট, চ্যামফার শেপ, বর্ডার লাইট চেজ — PNG/GIF/WebM এক্সপোর্ট">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Poppins:wght@400;600;700;800&family=Noto+Sans+Bengali:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-primary:#050810; --bg-secondary:#0b0f1a; --bg-card:#0f1420; --bg-card-hover:#161d2b;
+    --border:rgba(255,255,255,0.08); --accent:#ffcf4d; --accent-glow:rgba(255,207,77,0.45);
+    --accent-2:#2fb8ff; --accent-3:#ff6b6b; --text-primary:#f2f5ff; --text-secondary:#9aa8c2;
+    --text-muted:#4c5670; --radius:16px; --shadow:0 20px 60px rgba(0,0,0,0.6);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Poppins','Noto Sans Bengali',sans-serif;background:var(--bg-primary);color:var(--text-primary);
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 80% 50% at 18% 12%,rgba(255,207,77,0.10) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 88% 88%,rgba(47,184,255,0.10) 0%,transparent 60%);}
+  .app-header{width:100%;padding:22px 32px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);
+    background:rgba(5,8,16,0.85);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+  .header-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent-2),#0a5a8a);
+    clip-path:polygon(15% 0,100% 0,85% 100%,0 100%);display:flex;align-items:center;justify-content:center;
+    font-size:19px;box-shadow:0 0 20px rgba(47,184,255,0.4);flex-shrink:0;}
+  .header-text h1{font-size:19px;font-weight:700;background:linear-gradient(135deg,#fff 0%,var(--accent) 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .header-text p{font-size:12.5px;color:var(--text-secondary);margin-top:2px;}
+  .main-content{width:100%;max-width:1260px;padding:36px 24px 80px;display:grid;grid-template-columns:1fr 380px;gap:28px;position:relative;z-index:1;}
+  @media (max-width:960px){.main-content{grid-template-columns:1fr;}}
+  .canvas-panel{display:flex;flex-direction:column;align-items:center;gap:20px;}
+  .canvas-wrapper{width:100%;aspect-ratio:16/9;background:
+    linear-gradient(45deg,#151a24 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,#151a24 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(45deg,transparent 75%,#151a24 75%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,transparent 75%,#151a24 75%) -0px -0px/24px 24px,
+    var(--bg-card);
+    border:1px solid var(--border);border-radius:20px;display:flex;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;box-shadow:var(--shadow);}
+  #badgeCanvas{display:block;max-width:100%;max-height:100%;}
+  .progress-display{display:flex;align-items:center;gap:14px;padding:14px 20px;background:var(--bg-card);
+    border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);width:100%;}
+  .progress-track{flex:1;height:10px;background:rgba(255,255,255,0.06);position:relative;
+    clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%);}
+  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .1s linear;}
+  .timer-text-group{display:flex;flex-direction:column;min-width:64px;}
+  .timer-big{font-family:'Space Grotesk',monospace;font-size:22px;font-weight:700;letter-spacing:-0.5px;}
+  .timer-sub{font-size:11px;color:var(--text-secondary);font-weight:500;}
+  .timer-status{padding:5px 12px;font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;
+    clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%);}
+  .timer-status.idle{background:rgba(255,255,255,0.06);color:var(--text-muted);}
+  .timer-status.spinning{background:rgba(255,207,77,0.15);color:var(--accent);}
+  .timer-status.done{background:rgba(47,184,255,0.15);color:var(--accent-2);}
+  .sidebar{display:flex;flex-direction:column;gap:14px;}
+  .control-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+  .card-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-secondary);
+    display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+  .card-title-icon{width:22px;height:22px;background:rgba(47,184,255,0.12);border-radius:6px;display:flex;
+    align-items:center;justify-content:center;font-size:12px;}
+  .form-row{margin-bottom:14px;}
+  .form-row:last-child{margin-bottom:0;}
+  .form-label{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;color:var(--text-secondary);margin-bottom:7px;}
+  .value-badge{background:rgba(255,207,77,0.14);color:var(--accent);padding:1px 8px;border-radius:6px;font-size:11px;font-weight:700;}
+  input[type=text]{width:100%;padding:10px 12px;background:var(--bg-secondary);border:1px solid var(--border);
+    border-radius:9px;color:var(--text-primary);font-size:13.5px;font-family:inherit;}
+  input[type=text]:focus{outline:none;border-color:var(--accent-2);}
+  input[type=range]{width:100%;accent-color:var(--accent-2);}
+  input[type=color]{width:100%;height:34px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;}
+  input[type=file]{width:100%;font-size:12px;color:var(--text-secondary);}
+  .color-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .lang-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  .lang-btn{padding:9px 6px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;}
+  .lang-btn.active{background:var(--accent-2);border-color:var(--accent-2);color:#001824;}
+  .toggle-row{display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer;color:var(--text-secondary);margin-bottom:10px;}
+  .toggle-row:last-child{margin-bottom:0;}
+  .preset-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .preset-btn{padding:7px 12px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;}
+  .preset-btn.active{background:var(--accent-2);border-color:var(--accent-2);color:#001824;}
+  .style-swatch{width:34px;height:34px;border-radius:9px;border:2px solid transparent;cursor:pointer;flex-shrink:0;}
+  .style-swatch.active{border-color:#fff;}
+  .pos-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .btn-group{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{flex:1;min-width:120px;padding:12px 16px;border:none;border-radius:11px;font-size:13.5px;font-weight:700;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;transition:.15s;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent-2),#0a6a9e);color:#001824;box-shadow:0 8px 20px rgba(47,184,255,0.28);}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-stop{background:rgba(239,68,68,0.15);color:#ef4444;}
+  .btn-stop:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-ghost{background:var(--bg-secondary);color:var(--text-secondary);border:1px solid var(--border);}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-icon">🧳</div>
+  <div class="header-text">
+    <h1>Travel Agency — 3D Luggage Tag Badge</h1>
+    <p>এক্সট্রুডেড ৩ডি টেক্সট, চ্যামফার শেপ (গোল নেই), সুইং অ্যানিমেশন — ভিডিও এডিটরে সরাসরি ব্যবহারযোগ্য</p>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="canvas-panel">
+    <div class="canvas-wrapper">
+      <canvas id="badgeCanvas" width="1600" height="900"></canvas>
+    </div>
+
+    <div class="progress-display">
+      <div class="timer-text-group">
+        <div class="timer-big" id="timerBig">00:00</div>
+        <div class="timer-sub" id="timerSub">সময় বাকি</div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="timer-status idle" id="timerStatus">প্রস্তুত</div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🌐</div>ভাষা প্রিসেট</div>
+      <div class="lang-row">
+        <button class="lang-btn" onclick="applyLanguage('bn',this)">বাংলা</button>
+        <button class="lang-btn active" onclick="applyLanguage('en',this)">English</button>
+        <button class="lang-btn" onclick="applyLanguage('both',this)">উভয়</button>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">✏️</div>টেক্সট</div>
+      <div class="form-row">
+        <label class="form-label">সাব-লাইন (উপরে)</label>
+        <input type="text" id="subText" value="WELCOME TO">
+      </div>
+      <div class="form-row">
+        <label class="form-label">মূল লাইন</label>
+        <input type="text" id="mainText" value="TRAVEL AGENCY">
+      </div>
+      <div class="form-row">
+        <label class="form-label">ট্যাগলাইন (নিচে, ঐচ্ছিক)</label>
+        <input type="text" id="tagText" value="FLY · EXPLORE · DISCOVER">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🖼️</div>লোগো / ছবি</div>
+      <div class="form-row">
+        <label class="form-label">ছবি আপলোড (ঐচ্ছিক)</label>
+        <input type="file" id="logoUpload" accept="image/*">
+      </div>
+      <div class="toggle-row"><input type="checkbox" id="logoToggle" checked>লোগো/আইকন প্যানেল দেখান</div>
+      <div class="form-row">
+        <label class="form-label">আইকনের পাশ</label>
+        <div class="pos-row">
+          <button class="preset-btn active" id="posLeftBtn" onclick="setIconSide('left')">বামে</button>
+          <button class="preset-btn" id="posRightBtn" onclick="setIconSide('right')">ডানে</button>
+        </div>
+      </div>
+      <button class="btn btn-ghost" style="width:100%" onclick="clearLogo()">🗑️ ছবি সরান (ডিফল্ট প্লেন আইকন)</button>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎨</div>রং</div>
+      <div class="color-grid">
+        <div class="form-row"><label class="form-label">ব্যাকগ্রাউন্ড</label><input type="color" id="boardBg" value="#0a0f18"></div>
+        <div class="form-row"><label class="form-label">ট্যাগ প্যানেল</label><input type="color" id="panelColor" value="#132038"></div>
+        <div class="form-row"><label class="form-label">টেক্সট / সোনালি</label><input type="color" id="goldColor" value="#ffcf4d"></div>
+        <div class="form-row"><label class="form-label">বর্ডার লাইট</label><input type="color" id="skyColor" value="#2fb8ff"></div>
+      </div>
+      <div class="preset-row" style="margin-top:4px;" id="stylePresets">
+        <div class="style-swatch active" style="background:linear-gradient(135deg,#0a0f18,#ffcf4d)" onclick="applyStyle('sky',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#160a06,#ff8a4d)" onclick="applyStyle('sunset',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#03120f,#3de8b8)" onclick="applyStyle('ocean',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#0a1206,#8fd14f)" onclick="applyStyle('forest',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#0c061a,#c084fc)" onclick="applyStyle('galaxy',this)"></div>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🔲</div>শেপ (গোল নেই)</div>
+      <div class="form-row">
+        <label class="form-label">কর্নার চ্যামফার <span class="value-badge" id="chamferBadge">30</span></label>
+        <input type="range" id="chamfer" min="0" max="70" step="2" value="30">
+      </div>
+      <div class="form-row">
+        <label class="form-label">ট্যাগ প্রস্থ <span class="value-badge" id="widthBadge">82%</span></label>
+        <input type="range" id="boardWidth" min="55" max="96" step="1" value="82">
+      </div>
+      <div class="form-row">
+        <label class="form-label">৩ডি এক্সট্রুশন গভীরতা <span class="value-badge" id="depthBadge">16</span></label>
+        <input type="range" id="depth3d" min="4" max="34" step="1" value="16">
+      </div>
+      <div class="toggle-row"><input type="checkbox" id="notchToggle" checked>টিকিট-স্টাব পারফোরেশন নচ</div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎬</div>অ্যানিমেশন</div>
+      <div class="toggle-row"><input type="checkbox" id="swingToggle" checked>৩ডি সুইং (ঝুলন্ত ট্যাগ)</div>
+      <div class="toggle-row"><input type="checkbox" id="popToggle" checked>টেক্সট পপ-ইন (অক্ষর ধরে ধরে)</div>
+      <div class="toggle-row"><input type="checkbox" id="chaseToggle" checked>বর্ডার লাইট চেজ</div>
+      <div class="form-row">
+        <label class="form-label">গতি <span class="value-badge" id="speedBadge">1.5</span></label>
+        <input type="range" id="chaseSpeed" min="0" max="5" step="0.1" value="1.5">
+      </div>
+      <div class="form-row">
+        <label class="form-label">সময়কাল</label>
+        <div class="preset-row">
+          <button class="preset-btn" onclick="setDuration(5,this)">5s</button>
+          <button class="preset-btn" onclick="setDuration(10,this)">10s</button>
+          <button class="preset-btn active" onclick="setDuration(30,this)">30s</button>
+          <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:10px;">
+        <label class="toggle-row" style="margin:0;"><input type="checkbox" id="loopToggle" checked>সবসময় লুপ চলবে</label>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" id="startBtn" onclick="startAnim()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg> শুরু
+      </button>
+      <button class="btn btn-stop" id="stopBtn" onclick="stopAnim()" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg> বন্ধ
+      </button>
+    </div>
+    <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট</button>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+      <div class="toggle-row"><input type="checkbox" id="transparentToggle">PNG ট্রান্সপারেন্ট ব্যাকগ্রাউন্ড</div>
+      <p style="font-size:11.5px;color:var(--text-muted);margin:2px 0 12px;line-height:1.55;">
+        GIF/ভিডিও সবসময় সলিড ব্যাকগ্রাউন্ড সহ এক্সপোর্ট হয় যাতে ভিডিও এডিটরে সরাসরি ওভারলে ক্লিপ হিসেবে বসানো যায়। PNG-তে ট্রান্সপারেন্ট চাইলে উপরের বক্সে টিক দিন।
+      </p>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="downloadPng()">PNG</button>
+        <button class="btn btn-primary" onclick="downloadGif()">GIF</button>
+        <button class="btn btn-primary" onclick="downloadVideo()">ভিডিও (WebM)</button>
+      </div>
+      <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   TRAVEL AGENCY — 3D LUGGAGE TAG BADGE ENGINE
+   Shape language: chamfered (angle-cut) panels only —
+   no circles, no round-rects. Depth is faked with a
+   stacked-layer extrusion (pseudo-3D bevel) on every
+   shape and on the text itself. A gentle sway simulates
+   the tag hanging and turning in 3D space.
+===================================================== */
+
+const canvas = document.getElementById('badgeCanvas');
+const ctx = canvas.getContext('2d');
+const CW = canvas.width, CH = canvas.height;
+
+// === STATE ===
+let chaseOffset = 0, popPhase = 0, swingPhase = 0;
+let isSpinning = false, animFrame = null, lastTimestamp = null;
+let totalDurationMs = 30000, startTime = null, isExporting = false;
+let iconSide = 'left';
+let logoImg = null;
+
+// === LANGUAGE PRESETS ===
+const languagePresets = {
+  bn: { subText: 'স্বাগতম', mainText: 'ভ্রমণ সংস্থা', tagText: 'ভ্রমণ করুন · উপভোগ করুন · আবিষ্কার করুন' },
+  en: { subText: 'WELCOME TO', mainText: 'TRAVEL AGENCY', tagText: 'FLY · EXPLORE · DISCOVER' },
+  both: { subText: 'স্বাগতম / WELCOME TO', mainText: 'TRAVEL AGENCY', tagText: 'ভ্রমণ করুন · FLY · EXPLORE' },
+};
+function applyLanguage(lang, btnEl) {
+  const p = languagePresets[lang]; if (!p) return;
+  document.getElementById('subText').value = p.subText;
+  document.getElementById('mainText').value = p.mainText;
+  document.getElementById('tagText').value = p.tagText;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  if (!isSpinning) drawFrame();
+}
+
+// === STYLE PRESETS ===
+const stylePresets = {
+  sky:    { boardBg:'#0a0f18', panelColor:'#132038', goldColor:'#ffcf4d', skyColor:'#2fb8ff' },
+  sunset: { boardBg:'#160a06', panelColor:'#2a120c', goldColor:'#ffd88a', skyColor:'#ff8a4d' },
+  ocean:  { boardBg:'#03120f', panelColor:'#0a2420', goldColor:'#eafff7', skyColor:'#3de8b8' },
+  forest: { boardBg:'#0a1206', panelColor:'#16240c', goldColor:'#f2ffb8', skyColor:'#8fd14f' },
+  galaxy: { boardBg:'#0c061a', panelColor:'#1c1036', goldColor:'#ffd8ff', skyColor:'#c084fc' },
+};
+function applyStyle(name, el) {
+  const s = stylePresets[name]; if (!s) return;
+  document.getElementById('boardBg').value = s.boardBg;
+  document.getElementById('panelColor').value = s.panelColor;
+  document.getElementById('goldColor').value = s.goldColor;
+  document.getElementById('skyColor').value = s.skyColor;
+  document.querySelectorAll('.style-swatch').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  drawFrame();
+}
+
+function setIconSide(side) {
+  iconSide = side;
+  document.getElementById('posLeftBtn').classList.toggle('active', side === 'left');
+  document.getElementById('posRightBtn').classList.toggle('active', side === 'right');
+  if (!isSpinning) drawFrame();
+}
+
+document.getElementById('logoUpload').addEventListener('change', function(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const img = new Image();
+    img.onload = function() { logoImg = img; if (!isSpinning) drawFrame(); };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+function clearLogo() {
+  logoImg = null;
+  document.getElementById('logoUpload').value = '';
+  if (!isSpinning) drawFrame();
+}
+
+// === SETTINGS ===
+function getSettings() {
+  return {
+    subText: document.getElementById('subText').value || '',
+    mainText: document.getElementById('mainText').value || '',
+    tagText: document.getElementById('tagText').value || '',
+    boardBg: document.getElementById('boardBg').value,
+    panelColor: document.getElementById('panelColor').value,
+    goldColor: document.getElementById('goldColor').value,
+    skyColor: document.getElementById('skyColor').value,
+    chamfer: parseInt(document.getElementById('chamfer').value) || 30,
+    boardWidthPct: parseInt(document.getElementById('boardWidth').value) || 82,
+    depth3d: parseInt(document.getElementById('depth3d').value) || 16,
+    showNotch: document.getElementById('notchToggle').checked,
+    showLogoPanel: document.getElementById('logoToggle').checked,
+    showSwing: document.getElementById('swingToggle').checked,
+    showPop: document.getElementById('popToggle').checked,
+    showChase: document.getElementById('chaseToggle').checked,
+  };
+}
+
+// === COLOR HELPERS ===
+function hexToRgb(hex) {
+  hex = hex.replace('#', '');
+  if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+  return { r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16) };
+}
+function hexToRgba(hex, a) { const {r,g,b} = hexToRgb(hex); return `rgba(${r},${g},${b},${a})`; }
+function lerpHex(hexA, hexB, t) {
+  const a = hexToRgb(hexA), b = hexToRgb(hexB);
+  const r = Math.round(a.r + (b.r - a.r) * t);
+  const g = Math.round(a.g + (b.g - a.g) * t);
+  const bl = Math.round(a.b + (b.b - a.b) * t);
+  return `rgb(${r},${g},${bl})`;
+}
+function shadeHex(hex, factor) {
+  const { r, g, b } = hexToRgb(hex);
+  const f = c => Math.max(0, Math.min(255, Math.round(c * factor)));
+  return `rgb(${f(r)},${f(g)},${f(b)})`;
+}
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+function easeOutBack(t) {
+  const c1 = 1.70158, c3 = c1 + 1;
+  t = clamp(t, 0, 1);
+  return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+}
+
+// === CHAMFERED RECT PATH (all straight lines, angle-cut corners) ===
+function chamferedRectPoints(w, h, c) {
+  c = Math.min(c, Math.min(w, h) / 2 - 1);
+  const left = -w/2, right = w/2, top = -h/2, bottom = h/2;
+  return [
+    [left + c, top], [right - c, top], [right, top + c], [right, bottom - c],
+    [right - c, bottom], [left + c, bottom], [left, bottom - c], [left, top + c],
+  ];
+}
+function pathFromPoints(ctx, pts) {
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+  ctx.closePath();
+}
+
+// === PSEUDO-3D EXTRUSION (stacked-layer bevel, works for any polygon) ===
+function drawExtrudedPolygon(ctx, pts, depth, sideFrom, sideTo, topFillStyle, strokeStyle) {
+  const steps = Math.max(1, Math.round(depth));
+  for (let i = steps; i >= 1; i--) {
+    ctx.save();
+    ctx.translate(i, i * 0.8);
+    pathFromPoints(ctx, pts);
+    ctx.fillStyle = lerpHex(sideFrom, sideTo, i / steps);
+    ctx.fill();
+    ctx.restore();
+  }
+  pathFromPoints(ctx, pts);
+  ctx.fillStyle = topFillStyle;
+  ctx.fill();
+  if (strokeStyle) { ctx.lineWidth = 2; ctx.strokeStyle = strokeStyle; ctx.stroke(); }
+}
+
+// === PERIMETER SAMPLING (for border chase lights / corner ticks) ===
+function samplePerimeter(pts, count, offset) {
+  const segs = [];
+  let total = 0;
+  for (let i = 0; i < pts.length; i++) {
+    const a = pts[i], b = pts[(i + 1) % pts.length];
+    const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    segs.push({ a, b, len });
+    total += len;
+  }
+  const out = [];
+  for (let i = 0; i < count; i++) {
+    let d = ((i / count) * total + offset) % total;
+    if (d < 0) d += total;
+    for (const seg of segs) {
+      if (d <= seg.len) {
+        const t = seg.len === 0 ? 0 : d / seg.len;
+        out.push([seg.a[0] + (seg.b[0] - seg.a[0]) * t, seg.a[1] + (seg.b[1] - seg.a[1]) * t]);
+        break;
+      }
+      d -= seg.len;
+    }
+  }
+  return out;
+}
+
+// === DIAMOND MARKER (angular, not round) ===
+function drawDiamond(ctx, x, y, r, color, glow) {
+  ctx.save();
+  if (glow) { ctx.shadowColor = color; ctx.shadowBlur = 14; }
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(x, y - r); ctx.lineTo(x + r, y); ctx.lineTo(x, y + r); ctx.lineTo(x - r, y);
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+
+// === LOW-POLY PAPER PLANE (default icon, all straight edges) ===
+function planePoints(scale) {
+  const p = [
+    [0, -78], [22, 18], [64, 46], [10, 34], [0, 78], [-10, 34], [-64, 46], [-22, 18],
+  ];
+  return p.map(([x, y]) => [x * scale, y * scale]);
+}
+
+// === 3D EXTRUDED TEXT (static, used for sub/tag lines) ===
+function draw3DText(text, x, y, font, sideFrom, sideTo, topGradA, topGradB, depth, align) {
+  if (!text) return;
+  ctx.save();
+  ctx.font = font;
+  ctx.textAlign = align || 'center';
+  ctx.textBaseline = 'alphabetic';
+  const steps = Math.max(1, Math.round(depth));
+  for (let i = steps; i >= 1; i--) {
+    ctx.fillStyle = lerpHex(sideFrom, sideTo, i / steps);
+    ctx.fillText(text, x + i, y + i * 0.8);
+  }
+  const grad = ctx.createLinearGradient(x, y - 40, x, y + 6);
+  grad.addColorStop(0, topGradA);
+  grad.addColorStop(1, topGradB);
+  ctx.fillStyle = grad;
+  ctx.fillText(text, x, y);
+  ctx.restore();
+}
+
+// === 3D TEXT WITH PER-LETTER POP-IN (used for the main headline) ===
+function draw3DTextPop(text, cx, y, font, sideFrom, sideTo, topGradA, topGradB, baseDepth, phase, animate) {
+  if (!text) return;
+  ctx.save();
+  ctx.font = font;
+  ctx.textBaseline = 'alphabetic';
+  const chars = [...text];
+  const widths = chars.map(c => ctx.measureText(c).width);
+  const gap = Math.max(2, ctx.measureText('M').width * 0.12);
+  const totalW = widths.reduce((a, b) => a + b, 0) + gap * (chars.length - 1);
+  let cursor = cx - totalW / 2;
+  const stagger = chars.length > 1 ? 0.6 / chars.length : 0;
+  for (let i = 0; i < chars.length; i++) {
+    const w = widths[i];
+    const localX = cursor + w / 2;
+    let ease = 1, extraDepth = 0, fly = 0;
+    if (animate) {
+      const t = clamp((phase - i * stagger) * 3.2, 0, 1);
+      ease = easeOutBack(t);
+      extraDepth = (1 - clamp(t, 0, 1)) * 22;
+      fly = (1 - ease) * -26;
+    }
+    ctx.save();
+    ctx.translate(localX, y + fly);
+    ctx.scale(clamp(ease, 0.001, 1.4), clamp(ease, 0.001, 1.4));
+    ctx.textAlign = 'center';
+    const steps = Math.max(1, Math.round(baseDepth + extraDepth));
+    for (let s = steps; s >= 1; s--) {
+      ctx.fillStyle = lerpHex(sideFrom, sideTo, s / steps);
+      ctx.fillText(chars[i], s, s * 0.8);
+    }
+    const grad = ctx.createLinearGradient(0, -40, 0, 6);
+    grad.addColorStop(0, topGradA);
+    grad.addColorStop(1, topGradB);
+    ctx.fillStyle = grad;
+    ctx.fillText(chars[i], 0, 0);
+    ctx.restore();
+    cursor += w + gap;
+  }
+  ctx.restore();
+}
+
+// === FONT AUTO-FIT (prevents text from overflowing the card) ===
+function fitSimpleFont(text, weight, baseSizePx, family, maxWidth) {
+  if (!text) return baseSizePx;
+  ctx.save();
+  ctx.font = `${weight} ${baseSizePx}px ${family}`;
+  const width = ctx.measureText(text).width;
+  ctx.restore();
+  if (width <= maxWidth || width === 0) return baseSizePx;
+  return baseSizePx * (maxWidth / width) * 0.97;
+}
+function fitPopFont(text, baseSizePx, family, maxWidth) {
+  if (!text) return baseSizePx;
+  ctx.save();
+  ctx.font = `800 ${baseSizePx}px ${family}`;
+  const chars = [...text];
+  const widths = chars.map(c => ctx.measureText(c).width);
+  const gap = Math.max(2, ctx.measureText('M').width * 0.12);
+  const totalW = widths.reduce((a, b) => a + b, 0) + gap * (chars.length - 1);
+  ctx.restore();
+  if (totalW <= maxWidth || totalW === 0) return baseSizePx;
+  return baseSizePx * (maxWidth / totalW) * 0.97;
+}
+
+// === DRAW ENGINE ===
+function drawFrame(opts) {
+  opts = opts || {};
+  const w = canvas.width, h = canvas.height;
+  const s = getSettings();
+  const cx = w / 2, cy = h / 2;
+
+  ctx.clearRect(0, 0, w, h);
+
+  if (!opts.transparent) {
+    const bg = ctx.createRadialGradient(cx, cy * 0.6, w * 0.1, cx, cy, w * 0.75);
+    bg.addColorStop(0, shadeHex(opts.bgColor || s.boardBg, 1.4));
+    bg.addColorStop(1, opts.bgColor || s.boardBg);
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, w, h);
+  }
+
+  const cardW = w * (s.boardWidthPct / 100);
+  const cardH = cardW * 0.42;
+
+  // --- swing (hanging-tag pseudo-3D tilt) ---
+  const tilt = s.showSwing ? Math.sin(swingPhase) * 0.42 : 0;
+  const bob = s.showSwing ? Math.sin(swingPhase * 1.3) * 8 : 0;
+  const scaleX = Math.cos(tilt);
+  const skewY = Math.sin(tilt) * 0.05;
+
+  ctx.save();
+  ctx.translate(cx, cy + bob);
+  ctx.transform(scaleX, skewY, 0, 1, 0, 0);
+
+  const dyn3d = s.depth3d * (0.55 + 0.45 * Math.abs(Math.cos(tilt)));
+
+  // --- card extrusion + top face ---
+  const cardPts = chamferedRectPoints(cardW, cardH, s.chamfer);
+  const panelTop = ctx.createLinearGradient(-cardW/2, -cardH/2, cardW/2, cardH/2);
+  panelTop.addColorStop(0, shadeHex(s.panelColor, 1.35));
+  panelTop.addColorStop(0.5, s.panelColor);
+  panelTop.addColorStop(1, shadeHex(s.panelColor, 0.75));
+  drawExtrudedPolygon(ctx, cardPts, dyn3d, shadeHex(s.panelColor, 0.25), shadeHex(s.panelColor, 0.55), panelTop, hexToRgba(s.skyColor, 0.55));
+
+  // --- hang-hole (chamfered slot near top edge, cut with destination-out) ---
+  ctx.save();
+  ctx.globalCompositeOperation = 'destination-out';
+  const holeW = cardH * 0.16, holeH = cardH * 0.1;
+  const holePts = chamferedRectPoints(holeW, holeH, holeW * 0.3).map(([x, y]) => [x, y - cardH/2 + holeH * 0.9]);
+  pathFromPoints(ctx, holePts);
+  ctx.fillStyle = '#000';
+  ctx.fill();
+  ctx.restore();
+
+  // --- perforation notches along the icon/text divider ---
+  const iconZoneW = cardW * 0.32;
+  const dividerX = (iconSide === 'left' ? -cardW/2 + iconZoneW : cardW/2 - iconZoneW);
+  if (s.showNotch) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-out';
+    const notchCount = 7, notchSize = cardH * 0.045;
+    for (let i = 0; i < notchCount; i++) {
+      const ny = -cardH/2 + (i + 0.5) * (cardH / notchCount);
+      ctx.beginPath();
+      ctx.moveTo(dividerX - notchSize, ny);
+      ctx.lineTo(dividerX + notchSize, ny - notchSize * 0.6);
+      ctx.lineTo(dividerX + notchSize, ny + notchSize * 0.6);
+      ctx.closePath();
+      ctx.fillStyle = '#000';
+      ctx.fill();
+    }
+    ctx.restore();
+    ctx.save();
+    ctx.strokeStyle = hexToRgba(s.skyColor, 0.35);
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 8]);
+    ctx.beginPath();
+    ctx.moveTo(dividerX, -cardH/2 + 6);
+    ctx.lineTo(dividerX, cardH/2 - 6);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // --- icon zone (logo image or default low-poly plane) ---
+  if (s.showLogoPanel) {
+    const zx = iconSide === 'left' ? -cardW/2 + iconZoneW/2 : cardW/2 - iconZoneW/2;
+    ctx.save();
+    ctx.translate(zx, 0);
+    if (logoImg) {
+      const boxW = iconZoneW * 0.72, boxH = cardH * 0.72;
+      const scale = Math.min(boxW / logoImg.width, boxH / logoImg.height);
+      const iw = logoImg.width * scale, ih = logoImg.height * scale;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(-boxW/2, -boxH/2, boxW, boxH);
+      ctx.clip();
+      ctx.drawImage(logoImg, -iw/2, -ih/2, iw, ih);
+      ctx.restore();
+    } else {
+      const planeScale = (Math.min(iconZoneW, cardH) / 200) * 0.9;
+      const spin = s.showSwing ? Math.sin(swingPhase * 0.7) * 0.12 : 0;
+      ctx.rotate(spin);
+      const pPts = planePoints(planeScale);
+      drawExtrudedPolygon(ctx, pPts, dyn3d * 0.7, shadeHex(s.goldColor, 0.35), shadeHex(s.goldColor, 0.65),
+        s.goldColor, hexToRgba('#ffffff', 0.5));
+    }
+    ctx.restore();
+  }
+
+  // --- text zone ---
+  const textZoneW = cardW - iconZoneW - cardW * 0.06;
+  const textCx = (s.showLogoPanel ? (iconSide === 'left' ? cardW/2 - textZoneW/2 - cardW*0.03 : -cardW/2 + textZoneW/2 + cardW*0.03) : 0);
+
+  const zoneMaxW = textZoneW * 0.94;
+  const subSize = fitSimpleFont(s.subText, 600, cardH * 0.11, "'Poppins','Noto Sans Bengali',sans-serif", zoneMaxW);
+  const mainSize = fitPopFont(s.mainText, cardH * 0.22, "'Poppins','Noto Sans Bengali',sans-serif", zoneMaxW);
+  const tagSize = fitSimpleFont(s.tagText, 600, cardH * 0.085, "'Space Grotesk','Noto Sans Bengali',sans-serif", zoneMaxW);
+  const subFont = `600 ${Math.round(subSize)}px 'Poppins','Noto Sans Bengali',sans-serif`;
+  const mainFont = `800 ${Math.round(mainSize)}px 'Poppins','Noto Sans Bengali',sans-serif`;
+  const tagFont = `600 ${Math.round(tagSize)}px 'Space Grotesk','Noto Sans Bengali',sans-serif`;
+
+  draw3DText(s.subText, textCx, -cardH * 0.12, subFont,
+    shadeHex(s.skyColor, 0.3), shadeHex(s.skyColor, 0.6), '#ffffff', s.skyColor, dyn3d * 0.45, 'center');
+
+  draw3DTextPop(s.mainText, textCx, cardH * 0.10, mainFont,
+    shadeHex(s.goldColor, 0.3), shadeHex(s.goldColor, 0.6), '#fff8e0', s.goldColor, dyn3d * 0.8, popPhase, s.showPop);
+
+  draw3DText(s.tagText, textCx, cardH * 0.30, tagFont,
+    shadeHex(s.skyColor, 0.25), shadeHex(s.skyColor, 0.55), s.skyColor, '#ffffff', dyn3d * 0.35, 'center');
+
+  // --- corner HUD ticks ---
+  const tickLen = cardW * 0.035;
+  const corners = [
+    [-cardW/2 + 4, -cardH/2 + 4, 1, 1],
+    [cardW/2 - 4, -cardH/2 + 4, -1, 1],
+    [cardW/2 - 4, cardH/2 - 4, -1, -1],
+    [-cardW/2 + 4, cardH/2 - 4, 1, -1],
+  ];
+  ctx.save();
+  ctx.strokeStyle = hexToRgba(s.skyColor, 0.8);
+  ctx.lineWidth = 3;
+  for (const [x, y, dx, dy] of corners) {
+    ctx.beginPath();
+    ctx.moveTo(x, y + tickLen * dy);
+    ctx.lineTo(x, y);
+    ctx.lineTo(x + tickLen * dx, y);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // --- border chase lights (diamonds, not dots) ---
+  if (s.showChase) {
+    const pts = chamferedRectPoints(cardW + dyn3d, cardH + dyn3d, s.chamfer);
+    const markers = samplePerimeter(pts, 28, chaseOffset);
+    markers.forEach((m, i) => {
+      const pulse = 0.5 + 0.5 * Math.sin((i / markers.length) * Math.PI * 2 - chaseOffset * 0.06);
+      drawDiamond(ctx, m[0], m[1], 4 + pulse * 3, s.goldColor, pulse > 0.6);
+    });
+  }
+
+  ctx.restore();
+}
+
+// === ANIMATION LOOP ===
+function tick(now) {
+  if (!isSpinning) return;
+  if (lastTimestamp == null) lastTimestamp = now;
+  const dt = now - lastTimestamp;
+  lastTimestamp = now;
+  const speed = parseFloat(document.getElementById('chaseSpeed').value) || 0;
+
+  chaseOffset += dt * 0.09 * speed;
+  swingPhase += dt * 0.0011 * (0.6 + speed * 0.25);
+  popPhase = (popPhase + dt * 0.00035 * (0.6 + speed * 0.3)) % 1;
+
+  const elapsed = now - startTime;
+  const remaining = Math.max(0, totalDurationMs - elapsed);
+  updateTimerUI(remaining, totalDurationMs);
+
+  drawFrame({ transparent: false, bgColor: document.getElementById('boardBg').value });
+
+  if (remaining <= 0) {
+    if (document.getElementById('loopToggle').checked) {
+      startTime = now;
+    } else {
+      finishAnim();
+      return;
+    }
+  }
+  animFrame = requestAnimationFrame(tick);
+}
+
+function updateTimerUI(remainingMs, totalMs) {
+  const totalSec = Math.ceil(remainingMs / 1000);
+  const mm = String(Math.floor(totalSec / 60)).padStart(2, '0');
+  const ss = String(totalSec % 60).padStart(2, '0');
+  document.getElementById('timerBig').textContent = `${mm}:${ss}`;
+  const pct = totalMs > 0 ? clamp(100 - (remainingMs / totalMs) * 100, 0, 100) : 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function resetTimerUI() {
+  document.getElementById('timerBig').textContent = formatDuration(totalDurationMs);
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+  document.getElementById('progressFill').style.width = '0%';
+}
+function formatDuration(ms) {
+  const totalSec = Math.ceil(ms / 1000);
+  const mm = String(Math.floor(totalSec / 60)).padStart(2, '0');
+  const ss = String(totalSec % 60).padStart(2, '0');
+  return `${mm}:${ss}`;
+}
+
+function setDuration(sec, btnEl) {
+  totalDurationMs = sec * 1000;
+  const group = btnEl.parentElement;
+  group.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  if (!isSpinning) resetTimerUI();
+}
+
+function startAnim() {
+  if (isSpinning) return;
+  isSpinning = true;
+  lastTimestamp = null;
+  startTime = performance.now();
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status spinning';
+  st.textContent = '▶ চলছে';
+  animFrame = requestAnimationFrame(tick);
+}
+function stopAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status idle';
+  st.textContent = '⏸ থামানো হয়েছে';
+  drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor: document.getElementById('boardBg').value });
+}
+function finishAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  document.getElementById('timerBig').textContent = '00:00';
+  document.getElementById('progressFill').style.width = '100%';
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status done';
+  st.textContent = '✅ সম্পন্ন';
+  document.getElementById('timerSub').textContent = 'অ্যানিমেশন শেষ';
+  drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor: document.getElementById('boardBg').value });
+}
+function resetAll() {
+  stopAnim();
+  chaseOffset = 0; swingPhase = 0; popPhase = 0;
+  resetTimerUI();
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status idle';
+  st.textContent = 'প্রস্তুত';
+  drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor: document.getElementById('boardBg').value });
+}
+
+// === EXPORT ===
+function setExportStatus(msg) { document.getElementById('exportStatus').textContent = msg; }
+function saveBlob(blob, filename) {
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+function downloadPng() {
+  const transparent = document.getElementById('transparentToggle').checked;
+  const bgColor = document.getElementById('boardBg').value;
+  drawFrame({ transparent, bgColor });
+  canvas.toBlob(blob => {
+    drawFrame({ transparent: false, bgColor });
+    if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+    saveBlob(blob, 'travel-agency-3d-badge.png');
+    setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+  }, 'image/png');
+}
+
+async function downloadGif() {
+  if (!window.GIF) { setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন।'); return; }
+  if (isExporting) return;
+  isExporting = true;
+  const bgColor = document.getElementById('boardBg').value;
+  const oldChase = chaseOffset, oldSwing = swingPhase, oldPop = popPhase;
+  const gif = new GIF({ workers: 2, quality: 10, width: CW, height: CH,
+    workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
+  const frames = 72, frameDelay = 45;
+  const speed = parseFloat(document.getElementById('chaseSpeed').value) || 0;
+  setExportStatus('GIF তৈরি হচ্ছে… 0%');
+  for (let i = 0; i < frames; i++) {
+    const t = i / frames;
+    chaseOffset = oldChase + speed * 0.9 * (t * frames);
+    swingPhase = oldSwing + t * Math.PI * 2;
+    popPhase = t;
+    drawFrame({ transparent: false, bgColor });
+    gif.addFrame(canvas, { copy: true, delay: frameDelay });
+    setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((i + 1) / frames * 100)}%`);
+    await new Promise(requestAnimationFrame);
+  }
+  chaseOffset = oldChase; swingPhase = oldSwing; popPhase = oldPop;
+  drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor });
+  gif.on('finished', blob => {
+    saveBlob(blob, 'travel-agency-3d-badge.gif');
+    setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
+    isExporting = false;
+  });
+  gif.render();
+}
+
+async function downloadVideo() {
+  if (!window.MediaRecorder || !canvas.captureStream) {
+    setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।'); return;
+  }
+  if (isExporting) return;
+  isExporting = true;
+  const bgColor = document.getElementById('boardBg').value;
+  const stream = canvas.captureStream(30);
+  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 6000000 });
+  const chunks = [];
+  const oldChase = chaseOffset, oldSwing = swingPhase, oldPop = popPhase;
+  recorder.ondataavailable = e => e.data.size && chunks.push(e.data);
+  recorder.onstop = () => {
+    saveBlob(new Blob(chunks, { type: mimeType }), 'travel-agency-3d-badge.webm');
+    chaseOffset = oldChase; swingPhase = oldSwing; popPhase = oldPop;
+    drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor });
+    isExporting = false;
+    setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+  };
+  recorder.start();
+  const start = performance.now();
+  const duration = 6000;
+  const speed = parseFloat(document.getElementById('chaseSpeed').value) || 0;
+  setExportStatus('ভিডিও তৈরি হচ্ছে…');
+  const render = (now) => {
+    const elapsedMs = now - start;
+    const progress = Math.min(1, elapsedMs / duration);
+    chaseOffset = oldChase + speed * 0.9 * (elapsedMs / 45);
+    swingPhase = oldSwing + progress * Math.PI * 2;
+    popPhase = progress;
+    drawFrame({ transparent: false, bgColor });
+    if (progress < 1) requestAnimationFrame(render); else recorder.stop();
+  };
+  requestAnimationFrame(render);
+}
+
+// === UI EVENTS ===
+['chamfer', 'boardWidth', 'depth3d', 'chaseSpeed'].forEach(id => {
+  document.getElementById(id).addEventListener('input', function() {
+    const badges = { chamfer: 'chamferBadge', boardWidth: 'widthBadge', depth3d: 'depthBadge', chaseSpeed: 'speedBadge' };
+    const el = document.getElementById(badges[id]);
+    if (id === 'boardWidth') el.textContent = this.value + '%';
+    else el.textContent = this.value;
+    if (!isSpinning) drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor: document.getElementById('boardBg').value });
+  });
+});
+['subText', 'mainText', 'tagText', 'boardBg', 'panelColor', 'goldColor', 'skyColor',
+ 'notchToggle', 'logoToggle', 'swingToggle', 'popToggle', 'chaseToggle', 'transparentToggle'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => { if (!isSpinning) drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor: document.getElementById('boardBg').value }); });
+  el.addEventListener('change', () => { if (!isSpinning) drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor: document.getElementById('boardBg').value }); });
+});
+
+// === INITIAL DRAW ===
+resetTimerUI();
+drawFrame({ transparent: false, bgColor: document.getElementById('boardBg').value });
+setTimeout(startAnim, 150);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+</body>
+</html>

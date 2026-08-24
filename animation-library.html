@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>অ্যানিমেশন লাইব্রেরি — Shakib's Animation Library</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Noto+Sans+Bengali:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #05050c;
+            --bg-card: #12121f;
+            --bg-card-hover: #171728;
+            --border: rgba(255,255,255,0.08);
+            --border-active: rgba(124,140,255,0.5);
+            --accent: #7c8cff;
+            --accent-glow: rgba(124,140,255,0.4);
+            --text-primary: #f4f6ff;
+            --text-secondary: #9aa0c2;
+            --text-muted: #4c5170;
+            --success: #10b981;
+            --danger: #ef4444;
+            --radius: 16px;
+            --radius-sm: 10px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans Bengali', 'Inter', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 15% 10%, rgba(124,140,255,0.12) 0%, transparent 55%),
+                radial-gradient(ellipse 60% 40% at 85% 90%, rgba(0,229,180,0.08) 0%, transparent 55%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            padding: 22px 28px;
+            background: rgba(5,5,12,0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 14px; }
+
+        .header-icon {
+            width: 44px; height: 44px;
+            background: linear-gradient(135deg, #7c8cff, #00e5c8);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 0 20px var(--accent-glow);
+            flex-shrink: 0;
+        }
+
+        .header-left h1 { font-size: 19px; font-weight: 700; }
+        .header-left p { font-size: 12.5px; color: var(--text-secondary); margin-top: 2px; }
+
+        .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        .btn {
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.04);
+            color: var(--text-primary);
+            font-size: 13.5px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            white-space: nowrap;
+        }
+        .btn:hover { border-color: var(--border-active); background: rgba(124,140,255,0.1); }
+        .btn-primary {
+            background: linear-gradient(135deg, #7c8cff, #00e5c8);
+            color: #05050c;
+            border: none;
+        }
+        .btn-primary:hover { filter: brightness(1.08); transform: translateY(-1px); }
+        .btn-danger { color: #ff8080; border-color: rgba(239,68,68,0.3); }
+        .btn-danger:hover { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.5); }
+
+        .toolbar {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 22px 28px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .search-row { display: flex; gap: 12px; margin-bottom: 16px; }
+        .search-box {
+            flex: 1;
+            position: relative;
+        }
+        .search-box input {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 13px 20px 13px 44px;
+            color: var(--text-primary);
+            font-size: 14.5px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .search-box input:focus { border-color: var(--accent); }
+        .search-box::before {
+            content: '🔍';
+            position: absolute;
+            left: 16px; top: 50%;
+            transform: translateY(-50%);
+            font-size: 15px;
+            opacity: 0.6;
+        }
+
+        .category-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
+        .chip {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.03);
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .chip:hover { border-color: var(--border-active); color: var(--text-primary); }
+        .chip.active {
+            background: linear-gradient(135deg, rgba(124,140,255,0.25), rgba(0,229,200,0.15));
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+        .chip .count { opacity: 0.6; font-weight: 500; margin-left: 3px; }
+
+        .content-area {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 28px 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .card:hover {
+            border-color: var(--border-active);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+        }
+
+        
+        .card-thumb {
+            aspect-ratio: 16 / 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background: #090a14;
+            border-bottom: 1px solid var(--border);
+        }
+        .card-thumb iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1200px;
+            height: 750px;
+            border: none;
+            transform-origin: 0 0;
+            transform: scale(0.24);
+            pointer-events: none;
+            opacity: 0.95;
+            transition: opacity 0.2s, transform 0.2s;
+            background: #000;
+        }
+        .card:hover .card-thumb iframe {
+            opacity: 1;
+        }
+        .shape-badge-pill {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            backdrop-filter: blur(10px);
+            background: rgba(10, 14, 26, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #ffffff;
+            z-index: 10;
+            pointer-events: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        .design-type-tag {
+            position: absolute;
+            bottom: 8px;
+            left: 10px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            backdrop-filter: blur(8px);
+            background: rgba(0, 0, 0, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--accent);
+            z-index: 10;
+            pointer-events: none;
+        }
+        .preview-toggle-btn {
+            background: rgba(124,140,255,0.12);
+            border: 1px solid var(--accent);
+            color: #fff;
+        }
+        .preview-toggle-btn.off {
+            background: rgba(255,255,255,0.04);
+            border-color: var(--border);
+            color: var(--text-secondary);
+        }
+        .icon-fallback-large {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            z-index: 2;
+        }
+        .icon-fallback-large .ico {
+            font-size: 38px;
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5));
+        }
+        .icon-fallback-large .shape-label {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #fff;
+            background: rgba(0,0,0,0.5);
+            padding: 2px 8px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .card-thumb-old {
+            aspect-ratio: 1.5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .card-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .card-thumb .icon-fallback {
+            font-size: 44px;
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
+        }
+
+        .card-body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+        .card-title { font-size: 14.5px; font-weight: 700; line-height: 1.3; }
+        .card-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; min-height: 18px; }
+        .card-tag {
+            display: inline-flex;
+            align-self: flex-start;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .card-footer { display: flex; gap: 8px; margin-top: auto; padding-top: 6px; }
+        .card-open {
+            flex: 1;
+            text-align: center;
+            padding: 9px 10px;
+            border-radius: var(--radius-sm);
+            background: rgba(124,140,255,0.15);
+            color: var(--text-primary);
+            font-size: 12.5px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .card-open:hover { background: rgba(124,140,255,0.28); }
+        .icon-btn {
+            width: 34px; height: 34px;
+            border-radius: var(--radius-sm);
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .icon-btn:hover { border-color: var(--border-active); color: var(--text-primary); }
+        .icon-btn.danger:hover { border-color: rgba(239,68,68,0.5); color: #ff8080; background: rgba(239,68,68,0.1); }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-secondary);
+        }
+        .empty-state .big-icon { font-size: 52px; margin-bottom: 16px; opacity: 0.5; }
+        .empty-state h3 { font-size: 17px; margin-bottom: 8px; color: var(--text-primary); }
+        .empty-state p { font-size: 13.5px; max-width: 400px; margin: 0 auto; line-height: 1.6; }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center; justify-content: center;
+            z-index: 200;
+            padding: 20px;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 28px;
+            width: 100%;
+            max-width: 460px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+        }
+        .modal h2 { font-size: 17px; margin-bottom: 4px; }
+        .modal .modal-sub { font-size: 12.5px; color: var(--text-secondary); margin-bottom: 20px; }
+
+        .form-row { margin-bottom: 14px; }
+        .form-row label {
+            display: block; font-size: 12.5px; font-weight: 600;
+            color: var(--text-secondary); margin-bottom: 6px;
+        }
+        .form-row input[type="text"], .form-row textarea, .form-row select {
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px 13px;
+            color: var(--text-primary);
+            font-size: 13.5px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-row input:focus, .form-row textarea:focus, .form-row select:focus { border-color: var(--accent); }
+        .form-row textarea { resize: vertical; min-height: 50px; }
+        .form-row-split { display: flex; gap: 10px; }
+        .form-row-split > div { flex: 1; }
+        .form-row input[type="color"] {
+            width: 100%; height: 38px; border-radius: var(--radius-sm);
+            border: 1px solid var(--border); background: none; cursor: pointer; padding: 3px;
+        }
+        .file-pick-row { display: flex; gap: 8px; }
+        .file-pick-row input { flex: 1; }
+        .hint { font-size: 11px; color: var(--text-muted); margin-top: 5px; line-height: 1.5; }
+
+        .modal-actions { display: flex; gap: 10px; margin-top: 22px; }
+        .modal-actions .btn { flex: 1; justify-content: center; }
+
+        .toast {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+            background: var(--bg-card); border: 1px solid var(--border-active);
+            padding: 12px 22px; border-radius: 30px; font-size: 13px; font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 300; opacity: 0; pointer-events: none; transition: opacity 0.25s, transform 0.25s;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(-6px); }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 10px; }
+
+        input[type="file"] { display: none; }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="header-left">
+            <div class="header-icon">🎬</div>
+            <div>
+                <h1>অ্যানিমেশন লাইব্রেরি</h1>
+                <p id="entryCountLabel">লোড হচ্ছে…</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn preview-toggle-btn" id="livePreviewBtn" onclick="toggleLivePreview()" title="কার্ডের ভেতরে সরাসরি লাইভ অ্যানিমেশন প্রিভিউ দেখান">🎥 লাইভ প্রিভিউ: চালু</button>
+            <a class="btn" href="http://localhost:4000" target="_blank" title="ভিডিও এডিটর খুলুন" style="text-decoration:none;">🎬 ভিডিও এডিটর</a>
+            <button class="btn" onclick="syncAllSeeds()" title="সব নতুন অ্যানিমেশন লোড করুন">🔄 রিসেট/সিঙ্ক</button>
+            <button class="btn" onclick="triggerImport()">⬆️ ইমপোর্ট</button>
+            <button class="btn" onclick="exportLibrary()">⬇️ ব্যাকআপ (Export)</button>
+            <button class="btn btn-primary" onclick="openAddModal()">+ নতুন যোগ করুন</button>
+        </div>
+    </header>
+
+    <div class="toolbar">
+        <div class="search-row">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="নাম, ক্যাটাগরি বা ট্যাগ দিয়ে খুঁজুন...">
+            </div>
+        </div>
+        <div class="category-chips" id="categoryChips"></div>
+    </div>
+
+    <div class="content-area">
+        <div class="grid" id="grid"></div>
+        <div class="empty-state" id="emptyState" style="display:none;">
+            <div class="big-icon">🗂️</div>
+            <h3>কিছু পাওয়া যায়নি</h3>
+            <p>সার্চ বা ক্যাটাগরি পরিবর্তন করে দেখুন, অথবা উপরে থেকে "নতুন যোগ করুন" চেপে আপনার অ্যানিমেশন ফাইল লাইব্রেরিতে যোগ করুন।</p>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h2 id="modalTitle">নতুন অ্যানিমেশন যোগ করুন</h2>
+            <p class="modal-sub">ফাইলটি এই লাইব্রেরি HTML-এর সাথে একই ফোল্ডারে রাখুন, তাহলে "খুলুন" বাটনে ক্লিক করলেই সরাসরি চলবে।</p>
+
+            <div class="form-row">
+                <label>নাম (টাইটেল) *</label>
+                <input type="text" id="fTitle" placeholder="যেমন: ফ্ল্যাশ সেল ব্যাজ">
+            </div>
+
+            <div class="form-row">
+                <label>ফাইলের নাম / পাথ *</label>
+                <div class="file-pick-row">
+                    <input type="text" id="fFile" placeholder="যেমন: flash-sale-badge-animation.html">
+                    <button type="button" class="icon-btn" onclick="document.getElementById('filePicker').click()" title="ফাইল বেছে নিন">📁</button>
+                </div>
+                <input type="file" id="filePicker" accept=".html">
+                <p class="hint">📁 বাটনে ক্লিক করে ফাইল বেছে নিলে নামটা এমনি বসে যাবে — তবে ফাইলটা অবশ্যই এই লাইব্রেরির ফোল্ডারেই থাকতে হবে।</p>
+            </div>
+
+            <div class="form-row-split">
+                <div class="form-row">
+                    <label>ক্যাটাগরি *</label>
+                    <input type="text" id="fCategory" list="categoryList" placeholder="যেমন: প্রোমো ব্যাজ">
+                    <datalist id="categoryList"></datalist>
+                </div>
+                <div class="form-row">
+                    <label>আইকন / ইমোজি</label>
+                    <input type="text" id="fIcon" placeholder="🎬" value="🎬">
+                </div>
+            </div>
+
+            <div class="form-row-split">
+                <div class="form-row">
+                    <label>থিম কালার</label>
+                    <input type="color" id="fColor" value="#7c8cff">
+                </div>
+                <div class="form-row">
+                    <label>থাম্বনেইল ছবি (ঐচ্ছিক)</label>
+                    <input type="text" id="fThumb" placeholder="যেমন: thumbs/flash-sale.png">
+                </div>
+            </div>
+            <p class="hint" style="margin-top:-8px;margin-bottom:14px;">💡 প্রতিটা অ্যানিমেশন ফাইলে "PNG ডাউনলোড" বাটন আছে — সেটা দিয়ে একটা স্ন্যাপশট সেভ করে এখানে পাথ বসিয়ে দিলে আসল প্রিভিউ দেখাবে। খালি রাখলে আইকন দেখাবে।</p>
+
+            <div class="form-row">
+                <label>বিবরণ / ট্যাগ (ঐচ্ছিক)</label>
+                <textarea id="fDesc" placeholder="ছোট নোট, কোথায় ব্যবহার করবেন ইত্যাদি"></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn" onclick="closeModal()">বাতিল</button>
+                <button class="btn btn-primary" onclick="saveEntry()">সেভ করুন</button>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="importFileInput" accept=".json">
+    <div class="toast" id="toast"></div>
+
+    <script>
+    /* =====================================================
+       ANIMATION LIBRARY / LAUNCHER
+       by Shakib — organizes all local animation HTML files
+       into a searchable, category-filtered gallery.
+       Data persists in localStorage; Export/Import gives a
+       portable JSON backup so the list is never lost.
+    ===================================================== */
+
+    const STORAGE_KEY = 'shakib_animation_library_v3';
+    let entries = [];
+    let activeCategory = 'সব';
+    let editingId = null;
+
+    // --- SEED DATA (auto-generated from user's uploaded animation library zip) ---
+    const seedEntries = [
+        {
+                "id": "s1",
+                "title": "3D মেডেল কয়েন ব্যাজ",
+                "file": "3d-medal-coin-badge.html",
+                "category": "একাডেমিক ও সার্টিফিকেট",
+                "icon": "🏅",
+                "shape": "৩ডি গোল্ড মেডেল কয়েন",
+                "color": "#f59e0b",
+                "desc": "ঘুরন্ত ৩ডি মেডেল/কয়েন — রিম এক্সট্রুশন, মেটালিক শেডিং, গ্লসি হাইলাইট, ঝুলন্ত রিবন",
+                "thumb": ""
+        },
+        {
+                "id": "s2",
+                "title": "3D অ্যাড্রেস সাইনপোস্ট",
+                "file": "address-3d-signpost.html",
+                "category": "ইনফো ও CTA",
+                "icon": "🏠",
+                "shape": "৩ডি হাউস সাইনপোস্ট",
+                "color": "#3b82f6",
+                "desc": "৩ডি অ্যাড্রেস সাইনপোস্ট / হাউস বিল্ড অ্যানিমেশন — এক্সট্রুডেড ব্লক শেপ",
+                "thumb": ""
+        },
+        {
+                "id": "s3",
+                "title": "3D এয়ার টিকেট",
+                "file": "air-ticket-3d.html",
+                "category": "ট্রাভেল ও ভিসা",
+                "icon": "✈️",
+                "shape": "৩ডি বোর্ডিং পাস টিকিট",
+                "color": "#0ea5e9",
+                "desc": "৩ডি বোর্ডিং পাস টিকিট + লো-পলি পেপার প্লেন + ড্যাশড ফ্লাইট পাথ অ্যানিমেশন",
+                "thumb": ""
+        },
+        {
+                "id": "s4",
+                "title": "বাউন্সিং অ্যারো পয়েন্টার",
+                "file": "bouncing-arrow-pointer-animation.html",
+                "category": "ইনফো ও CTA",
+                "icon": "👉",
+                "shape": "বাউন্সিং গ্লো পয়েন্টার",
+                "color": "#8b5cf6",
+                "desc": "বাউন্সিং অ্যারো/পয়েন্টার — CTA নির্দেশক অ্যানিমেশন, উজ্জ্বল কালার ও গ্লো হ্যালো",
+                "thumb": ""
+        },
+        {
+                "id": "s5",
+                "title": "কল করুন — 3D হেক্স ব্যাজ",
+                "file": "call-us-3d-badge-animation.html",
+                "category": "যোগাযোগ",
+                "icon": "⬡",
+                "shape": "৩ডি হেক্সাগন ব্যাজ",
+                "color": "#14b8a6",
+                "desc": "৩ডি ঘূর্ণায়মান হেক্স ব্যাজ, প্রতিটি সারফেসে টেক্সট",
+                "thumb": ""
+        },
+        {
+                "id": "s6",
+                "title": "কল করুন — 3D ডায়মন্ড ব্যাজ",
+                "file": "call-us-3d-diamond-badge.html",
+                "category": "যোগাযোগ",
+                "icon": "💎",
+                "shape": "৩ডি ডায়মন্ড / জেম ব্যাজ",
+                "color": "#c084fc",
+                "desc": "৩ডি ঘূর্ণায়মান ডায়মন্ড/জেম ব্যাজ, প্রতিটি সারফেসে টেক্সট ও পার্পল গ্লো",
+                "thumb": ""
+        },
+        {
+                "id": "s7",
+                "title": "কল করুন — 3D শিল্ড ব্যাজ",
+                "file": "call-us-3d-shield-badge.html",
+                "category": "যোগাযোগ",
+                "icon": "🛡️",
+                "shape": "৩ডি শিল্ড ক্রেস্ট ব্যাজ",
+                "color": "#0284c7",
+                "desc": "৩ডি ঘূর্ণায়মান শিল্ড/ক্রেস্ট ব্যাজ, প্রতিটি সারফেসে টেক্সট",
+                "thumb": ""
+        },
+        {
+                "id": "s8",
+                "title": "ক্যারিয়ার ব্যাজ (শিল্ড ভার্সন)",
+                "file": "career-badge-animation (1).html",
+                "category": "ক্যারিয়ার ও গ্রোথ",
+                "icon": "🛡️",
+                "shape": "শেভরন উইংস শিল্ড",
+                "color": "#10b981",
+                "desc": "অ্যাঙ্গুলার শিল্ড ব্যাজ, আপওয়ার্ড শেভরন উইংস, রোটেটিং ড্যাশড বর্ডার",
+                "thumb": ""
+        },
+        {
+                "id": "s9",
+                "title": "ক্যারিয়ার ব্যাজ (অক্টাগন ভার্সন)",
+                "file": "career-badge-animation (2).html",
+                "category": "ক্যারিয়ার ও গ্রোথ",
+                "icon": "🛑",
+                "shape": "অক্টাগন সিল ও রিবন",
+                "color": "#059669",
+                "desc": "নন-রাউন্ড শিল্ড/অক্টাগন ক্যারিয়ার ব্যাজ — গ্রোথ চার্ট + রাইজিং পার্টিকেল + রিবন",
+                "thumb": ""
+        },
+        {
+                "id": "s10",
+                "title": "ক্যারিয়ার ব্যাজ (শিল্ড ভার্সন ২)",
+                "file": "career-badge-animation (3).html",
+                "category": "ক্যারিয়ার ও গ্রোথ",
+                "icon": "🚀",
+                "shape": "অ্যাঙ্গুলার শিল্ড ক্রেস্ট",
+                "color": "#10b981",
+                "desc": "অ্যাঙ্গুলার শিল্ড ব্যাজ, আপওয়ার্ড শেভরন উইংস, রোটেটিং ড্যাশড বর্ডার",
+                "thumb": ""
+        },
+        {
+                "id": "s11",
+                "title": "CAREER",
+                "file": "career-badge-animation.html",
+                "category": "ক্যারিয়ার ও গ্রোথ",
+                "icon": "💼",
+                "shape": "গ্রোথ চার্ট সিলুয়েট",
+                "color": "#047857",
+                "desc": "গ্রোথ-চার্ট বার সিলুয়েট + রাইজিং বাবল + প্রফেশনাল রিবন",
+                "thumb": ""
+        },
+        {
+                "id": "s12",
+                "title": "3D ক্যারিয়ার গ্রোথ স্টেয়ারকেস",
+                "file": "career-growth-3d.html",
+                "category": "ক্যারিয়ার ও গ্রোথ",
+                "icon": "📈",
+                "shape": "৩ডি স্টেয়ারকেস গ্রোথ",
+                "color": "#10b981",
+                "desc": "৩ডি ক্যারিয়ার-গ্রোথ স্টেয়ারকেস — লো-পলি আইসোমেট্রিক ব্লক, ক্লাইম্বার ফ্ল্যাগ",
+                "thumb": ""
+        },
+        {
+                "id": "s13",
+                "title": "যোগাযোগ করুন",
+                "file": "contact-us-badge-animation 2.html",
+                "category": "যোগাযোগ",
+                "icon": "📞",
+                "shape": "রিপল কল আর্ক ব্যাজ",
+                "color": "#059669",
+                "desc": "চ্যাট-বাবল টেইল + সিগনাল/রিং-কল রিপল আর্ক",
+                "thumb": ""
+        },
+        {
+                "id": "s14",
+                "title": "আমাদের সাথে যোগাযোগ করুন (পালস রিং)",
+                "file": "contact-us-badge-animation.html",
+                "category": "যোগাযোগ",
+                "icon": "📡",
+                "shape": "পালস রিং ও ড্যাশ বর্ডার",
+                "color": "#6366f1",
+                "desc": "কল পালস রিং + রোটেটিং ড্যাশড বর্ডার + স্পিচ বাবল ব্যাজ",
+                "thumb": ""
+        },
+        {
+                "id": "s15",
+                "title": "যোগাযোগ করুন — বাবল ভার্সন",
+                "file": "contact-us-bubble-animation.html",
+                "category": "যোগাযোগ",
+                "icon": "💬",
+                "shape": "স্পিচ বাবল ও টাইপিং ডটস",
+                "color": "#06b6d4",
+                "desc": "চ্যাট/স্পিচ বাবল শেপ — মার্চিং ড্যাশড আউটলাইন + এক্সপ্যান্ডিং বাবল পালস রিং",
+                "thumb": ""
+        },
+        {
+                "id": "s16",
+                "title": "কর্নার রিবন ব্যানার",
+                "file": "corner-ribbon-banner-animation.html",
+                "category": "প্রোমো ব্যাজ",
+                "icon": "🎗️",
+                "shape": "কর্নার শিমার রিবন",
+                "color": "#ef4444",
+                "desc": "কর্নার রিবন ব্যানার — শিমার সুইপ + পালস অ্যানিমেশন — SALE/NEW ট্যাগের জন্য",
+                "thumb": ""
+        },
+        {
+                "id": "s17",
+                "title": "COURSE",
+                "file": "course-badge-animation.html",
+                "category": "একাডেমিক ও সার্টিফিকেট",
+                "icon": "🎓",
+                "shape": "ডিপ্লোমা সিল ও লরেল উইংস",
+                "color": "#eab308",
+                "desc": "ডিপ্লোমা-সিল স্টাইল লরেল উইংস + মেডেল রিবন + অরবিটিং নলেজ ডট",
+                "thumb": ""
+        },
+        {
+                "id": "s18",
+                "title": "Facebook — 3D ব্যাজ",
+                "file": "facebook-3d-badge-animation.html",
+                "category": "যোগাযোগ",
+                "icon": "📘",
+                "shape": "ফেসবুক ৩ডি হেক্সাগন",
+                "color": "#1877f2",
+                "desc": "৩ডি ঘূর্ণায়মান ফেসবুক হেক্স ব্যাজ, প্রতিটি সারফেসে টেক্সট",
+                "thumb": ""
+        },
+        {
+                "id": "s19",
+                "title": "ফ্ল্যাশ সেল",
+                "file": "flash-sale-badge-animation.html",
+                "category": "প্রোমো ব্যাজ",
+                "icon": "⚡",
+                "shape": "লাইটনিং বার্স্ট ও ফ্ল্যাশ",
+                "color": "#f97316",
+                "desc": "জ্যাগড লাইটনিং বার্স্ট শেপ + স্ট্রোব ফ্ল্যাশ ওভারলে + শকওয়েভ রিং",
+                "thumb": ""
+        },
+        {
+                "id": "s20",
+                "title": "ফ্রি ডেলিভারি",
+                "file": "free-delivery-badge-animation.html",
+                "category": "প্রোমো ব্যাজ",
+                "icon": "🚚",
+                "shape": "স্পিড ভ্যান ও মোশন রিং",
+                "color": "#ef4444",
+                "desc": "চাকার মত ঘুরন্ত ড্যাশড রিং + স্পিড-লাইন মোশন এফেক্ট",
+                "thumb": ""
+        },
+        {
+                "id": "s21",
+                "title": "ফ্রি সেমিনার ব্যাজ (হেক্সাগন)",
+                "file": "free-seminar-badge-animation (1).html",
+                "category": "একাডেমিক ও সার্টিফিকেট",
+                "icon": "⬡",
+                "shape": "হেক্সাগন একাডেমিক সিল",
+                "color": "#eab308",
+                "desc": "ষড়ভুজ একাডেমিক সিল, লরেল রিথ, রোটেটিং ড্যাশড বর্ডার",
+                "thumb": ""
+        },
+        {
+                "id": "s22",
+                "title": "ফ্রি সেমিনার ব্যাজ",
+                "file": "free-seminar-badge-animation.html",
+                "category": "একাডেমিক ও সার্টিফিকেট",
+                "icon": "🎓",
+                "shape": "লরেল রিথ সার্কেল সিল",
+                "color": "#f59e0b",
+                "desc": "লরেল রিথ + গ্র্যাজুয়েশন ক্যাপ + রোটেটিং ড্যাশড আউটার রিং",
+                "thumb": ""
+        },
+        {
+                "id": "s23",
+                "title": "3D ফ্রি সেমিনার কিউব",
+                "file": "free-seminar-cube-animation.html",
+                "category": "একাডেমিক ও সার্টিফিকেট",
+                "icon": "🧊",
+                "shape": "৩ডি রোটেটিং কিউব",
+                "color": "#f59e0b",
+                "desc": "৩ডি ঘূর্ণায়মান কিউব — প্রতিটা ফেইসে গ্র্যাজুয়েশন ক্যাপ, স্টুডেন্ট আইকন",
+                "thumb": ""
+        },
+        {
+                "id": "s24",
+                "title": "3D বিজনেস গ্রোথ আইসোমেট্রিক",
+                "file": "growth-3d.html",
+                "category": "ক্যারিয়ার ও গ্রোথ",
+                "icon": "📊",
+                "shape": "৩ডি আইসোমেট্রিক গ্রাফ",
+                "color": "#10b981",
+                "desc": "৩ডি বিজনেস-গ্রোথ প্ল্যাটফর্ম — স্টেয়ার-স্টেপ কিউবস, রোটেটিং পাইচার্ট, আপওয়ার্ড অ্যারো",
+                "thumb": ""
+        },
+        {
+                "id": "s25",
+                "title": "তাড়াতাড়ি করুন (Hurry Up)",
+                "file": "hurry-up-badge-animation.html",
+                "category": "প্রোমো ব্যাজ",
+                "icon": "⏰",
+                "shape": "অ্যালার্ম ক্লক ও পালস",
+                "color": "#ef4444",
+                "desc": "অ্যালার্ম ক্লক উইগল + টিকিং হ্যান্ডস + এক্সপ্যান্ডিং অ্যালার্ম রিং",
+                "thumb": ""
+        },
+        {
+                "id": "s26",
+                "title": "HURRY UP (স্কয়ার ভার্সন ২)",
+                "file": "hurry-up-badge-square (2).html",
+                "category": "প্রোমো ব্যাজ",
+                "icon": "⏹️",
+                "shape": "স্কয়ার ওয়ার্নিং বক্স ২",
+                "color": "#f97316",
+                "desc": "নন-রাউন্ড স্কয়ার ব্যাজ — সাইরেন লাইট + টিকিং ক্লক + এক্সপ্যান্ডিং অ্যালার্ম ওয়েভ",
+                "thumb": ""
+        },
+        {
+                "id": "s27",
+                "title": "HURRY UP (স্কয়ার ভার্সন)",
+                "file": "hurry-up-badge-square.html",
+                "category": "প্রোমো ব্যাজ",
+                "icon": "⏹️",
+                "shape": "স্কয়ার ওয়ার্নিং বক্স ১",
+                "color": "#f97316",
+                "desc": "নন-রাউন্ড স্কয়ার ব্যাজ — সাইরেন লাইট + টিকিং ক্লক + এক্সপ্যান্ডিং অ্যালার্ম ওয়েভ",
+                "thumb": ""
+        },
+        {
+                "id": "s28",
+                "title": "আরও জানুন (Learn More)",
+                "file": "learn-more-badge-animation.html",
+                "category": "ইনফো ও CTA",
+                "icon": "🔍",
+                "shape": "সার্চ গ্লাস ও পয়েন্টার",
+                "color": "#3b82f6",
+                "desc": "ম্যাগনিফাইং গ্লাস সুইপ + অ্যারো পয়েন্টার পালস + অরবিট ডটস",
+                "thumb": ""
+        },
+        {
+                "id": "s29",
+                "title": "লিকুইড ব্লব মরফ",
+                "file": "liquid-blob-morph-animation.html",
+                "category": "ব্যাকগ্রাউন্ড ও ইফেক্ট",
+                "icon": "🫧",
+                "shape": "অর্গানিক লিকুইড ব্লব",
+                "color": "#ec4899",
+                "desc": "অর্গানিক লিকুইড ব্লব মরফিং ব্যাকগ্রাউন্ড — সফট গ্রেডিয়েন্ট গ্লো",
+                "thumb": ""
+        },
+        {
+                "id": "s30",
+                "title": "টাকার ব্যাজ (ভার্সন ২)",
+                "file": "money-badge-animation (2).html",
+                "category": "প্রোমো ব্যাজ",
+                "icon": "💰",
+                "shape": "মানি সিল ও ফ্লোটিং কয়েন",
+                "color": "#eab308",
+                "desc": "সার্কুলার ব্যাজ, ফ্লোটিং মানি কয়েন পার্টিকেল, রোটেটিং ড্যাশড বর্ডার",
+                "thumb": ""
+        },
+        {
+                "id": "s31",
+                "title": "টাকার ব্যাজ (নন-রাউন্ড ভার্সন)",
+                "file": "money-badge-animation (3).html",
+                "category": "প্রোমো ব্যাজ",
+                "icon": "💵",
+                "shape": "নন-রাউন্ড কারেন্সি বক্স",
+                "color": "#eab308",
+                "desc": "নন-রাউন্ড ডায়মন্ড/শিল্ড মানি ব্যাজ — গ্লোয়িং কারেন্সি সিম্বল + ফলিং গোল্ড কয়েন",
+                "thumb": ""
+        },
+        {
+                "id": "s32",
+                "title": "টাকার ব্যাজ (ভার্সন ১)",
+                "file": "money-badge-animation.html",
+                "category": "প্রোমো ব্যাজ",
+                "icon": "🪙",
+                "shape": "মানি রিবন ও কয়েন",
+                "color": "#eab308",
+                "desc": "সার্কুলার ব্যাজ, ফ্লোটিং মানি কয়েন পার্টিকেল, রোটেটিং ড্যাশড বর্ডার",
+                "thumb": ""
+        },
+        {
+                "id": "s33",
+                "title": "নিয়ন হেক্সাগন পালস",
+                "file": "neon-hexagon-pulse-animation (1).html",
+                "category": "ব্যাকগ্রাউন্ড ও ইফেক্ট",
+                "icon": "⬡",
+                "shape": "নিয়ন হেক্সাগন পালস",
+                "color": "#8b5cf6",
+                "desc": "নিয়ন হেক্সাগন পালস — মাল্টি-লেয়ার পালসিং হেক্সাগন ফ্রেম ও সাইবারপাঙ্ক গ্লো",
+                "thumb": ""
+        },
+        {
+                "id": "s34",
+                "title": "নতুন স্টক (New Stock)",
+                "file": "new-stock-badge-animation.html",
+                "category": "প্রোমো ব্যাজ",
+                "icon": "📦",
+                "shape": "আনবক্সিং স্টক সিল",
+                "color": "#3b82f6",
+                "desc": "কার্টন বক্স ওপেনিং ইফেক্ট + স্পার্কল স্টারবার্স্ট + বাউন্সিং অ্যারো",
+                "thumb": ""
+        },
+        {
+                "id": "s35",
+                "title": "3D অর্ডার নাও CTA",
+                "file": "order-now-3d-cta.html",
+                "category": "ইনফো ও CTA",
+                "icon": "📦",
+                "shape": "৩ডি এক্সট্রুডেড বক্স CTA",
+                "color": "#f97316",
+                "desc": "৩ডি অর্ডার নাও সিটিএ অ্যানিমেশন — এক্সট্রুডেড বক্স + প্লেট + শেভরন",
+                "thumb": ""
+        },
+        {
+                "id": "s36",
+                "title": "সালাম আউট্রো টেক্সট",
+                "file": "salam-outro-animation.html",
+                "category": "আউট্রো ও ওয়েলকাম",
+                "icon": "🌙",
+                "shape": "সালাম আউট্রো মোশন টেক্সট",
+                "color": "#10b981",
+                "desc": "আসসালামু আলাইকুম — ভিডিও আউট্রো টেক্সট অ্যানিমেশন",
+                "thumb": ""
+        },
+        {
+                "id": "s37",
+                "title": "সালাম আউট্রো — ফ্রেম শিমার",
+                "file": "salam-outro-frame-shimmer.html",
+                "category": "আউট্রো ও ওয়েলকাম",
+                "icon": "✨",
+                "shape": "অর্নামেন্টাল ফ্রেম শিমার",
+                "color": "#10b981",
+                "desc": "আসসালামু আলাইকুম — অর্নামেন্টাল ফ্রেম ও শাইন-সুইপ অ্যানিমেশন",
+                "thumb": ""
+        },
+        {
+                "id": "s38",
+                "title": "সীমিত আসন (Seats Limited)",
+                "file": "seats-limited-badge-animation.html",
+                "category": "প্রোমো ব্যাজ",
+                "icon": "🪑",
+                "shape": "সিট চেয়ার ও ব্লিংক রিং",
+                "color": "#ef4444",
+                "desc": "চেয়ার আইকন + কাউন্টিং-ডাউন ব্লিংকিং ডটস + পালসিং ওয়ার্নিং রিং",
+                "thumb": ""
+        },
+        {
+                "id": "s39",
+                "title": "3D স্কিল মেজারিং সিলিন্ডার",
+                "file": "skill-3d.html",
+                "category": "ক্যারিয়ার ও গ্রোথ",
+                "icon": "⚡",
+                "shape": "৩ডি স্কিল সিলিন্ডার",
+                "color": "#06b6d4",
+                "desc": "৩ডি স্কিল-লেভেল গেজ — এক্সট্রুডেড হেক্সাগোনাল কলাম, ফ্লুইড লেভেল ফিল",
+                "thumb": ""
+        },
+        {
+                "id": "s40",
+                "title": "স্পেশাল ডিসকাউন্ট",
+                "file": "special-discount-badge-animation.html",
+                "category": "প্রোমো ব্যাজ",
+                "icon": "🏷️",
+                "shape": "ডিসকাউন্ট প্রাইস ট্যাগ",
+                "color": "#f97316",
+                "desc": "সুইংগিং প্রাইস ট্যাগ + মার্চিং ড্যাশ বর্ডার + ফ্লোটিং ডিসকাউন্ট স্টারস",
+                "thumb": ""
+        },
+        {
+                "id": "s41",
+                "title": "স্পিনিং সার্কেল ব্যাকগ্রাউন্ড",
+                "file": "spinning-circle-animation.html",
+                "category": "ব্যাকগ্রাউন্ড ও ইফেক্ট",
+                "icon": "🔄",
+                "shape": "কনসেন্ট্রিক স্পিনিং রিং",
+                "color": "#8b5cf6",
+                "desc": "কনসেন্ট্রিক স্পিনিং সার্কেল ব্যাকগ্রাউন্ড — রোটেটিং ড্যাশড রিং",
+                "thumb": ""
+        },
+        {
+                "id": "s42",
+                "title": "স্টারবার্স্ট বিজ্ঞাপন ব্যাজ",
+                "file": "starburst-ad-badge-animation.html",
+                "category": "প্রোমো ব্যাজ",
+                "icon": "💥",
+                "shape": "স্টারবার্স্ট সেল স্পার্ক",
+                "color": "#ef4444",
+                "desc": "১৬-পয়েন্ট স্টারবার্স্ট / এক্সপ্লোশন শেপ — স্ট্রোব পপ + রোটেটিং স্টার স্পার্ক",
+                "thumb": ""
+        },
+        {
+                "id": "s43",
+                "title": "3D সাকসেস ট্রফি প্ল্যাটফর্ম",
+                "file": "success-3d.html",
+                "category": "ক্যারিয়ার ও গ্রোথ",
+                "icon": "🏆",
+                "shape": "৩ডি সাকসেস ট্রফি ও স্টার",
+                "color": "#f59e0b",
+                "desc": "৩ডি সাকসেস পডিয়াম — লো-পলি গোল্ড কাপ, স্পিনিং স্টারস, এক্সট্রুডেড টেক্সট",
+                "thumb": ""
+        },
+        {
+                "id": "s44",
+                "title": "টাকা ব্যাজ (সার্কুলার)",
+                "file": "taka-badge-animation.html",
+                "category": "প্রোমো ব্যাজ",
+                "icon": "৳",
+                "shape": "টাকা কারেন্সি গোল্ডেন সিল",
+                "color": "#eab308",
+                "desc": "টাকা (৳) ব্যাজ অ্যানিমেশন — স্পার্কল, রোটেটিং ড্যাশ বর্ডার",
+                "thumb": ""
+        },
+        {
+                "id": "s45",
+                "title": "ট্রাভেল এজেন্সি 3D ব্যাজ (ভার্সন ২)",
+                "file": "travel-agency-3d-badge (2).html",
+                "category": "ট্রাভেল ও ভিসা",
+                "icon": "🛡️",
+                "shape": "৩ডি ট্রাভেল হেক্স ব্যাজ ২",
+                "color": "#0ea5e9",
+                "desc": "৩ডি ঘূর্ণায়মান হেক্স ব্যাজ, প্রতিটি সারফেসে টেক্সট",
+                "thumb": ""
+        },
+        {
+                "id": "s46",
+                "title": "ট্রাভেল এজেন্সি 3D ব্যাজ",
+                "file": "travel-agency-3d-badge.html",
+                "category": "ট্রাভেল ও ভিসা",
+                "icon": "🛡️",
+                "shape": "৩ডি ট্রাভেল হেক্স ব্যাজ ১",
+                "color": "#0ea5e9",
+                "desc": "৩ডি ঘূর্ণায়মান হেক্স ব্যাজ, প্রতিটি সারফেসে টেক্সট",
+                "thumb": ""
+        },
+        {
+                "id": "s47",
+                "title": "ট্রাভেল এজেন্সি 3D সিন",
+                "file": "travel-agency-3d-scene.html",
+                "category": "ট্রাভেল ও ভিসা",
+                "icon": "🌍",
+                "shape": "৩ডি গ্লোব ও এয়ারক্রাফট",
+                "color": "#0ea5e9",
+                "desc": "৩ডি ওয়ার্ল্ড গ্লোব + অরবিটিং এয়ারপ্লেন + ক্লাউডস + ফ্লোটিং লোকেশন পিন",
+                "thumb": ""
+        },
+        {
+                "id": "s48",
+                "title": "ট্রাভেল এজেন্সি 3D",
+                "file": "travel-agency-3d.html",
+                "category": "ট্রাভেল ও ভিসা",
+                "icon": "✈️",
+                "shape": "৩ডি এয়ারপ্লেন সিন",
+                "color": "#0ea5e9",
+                "desc": "৩ডি ওয়ার্ল্ড গ্লোব + অরবিটিং এয়ারপ্লেন + ক্লাউডস",
+                "thumb": ""
+        },
+        {
+                "id": "s49",
+                "title": "ট্রাভেল এজেন্সি ব্যাজ",
+                "file": "travel-agency-badge-animation (1).html",
+                "category": "ট্রাভেল ও ভিসা",
+                "icon": "🎫",
+                "shape": "ট্রাভেল এজেন্সি সিল",
+                "color": "#0ea5e9",
+                "desc": "কম্পাস রোজ + অরবিটিং পেপার প্লেন + ড্যাশড ফ্লাইট রিং",
+                "thumb": ""
+        },
+        {
+                "id": "s50",
+                "title": "ট্রাভেল ক্যারিয়ার টিকেট ব্যাজ (ভার্সন ২)",
+                "file": "travel-career-ticket-badge (2).html",
+                "category": "ট্রাভেল ও ভিসা",
+                "icon": "🎟️",
+                "shape": "বোর্ডিং টিকেট ব্যাজ ২",
+                "color": "#0284c7",
+                "desc": "বোর্ডিং পাস / এয়ার টিকিট শেপ — বারকোড + সিট ইনফো + শিমার সুইপ",
+                "thumb": ""
+        },
+        {
+                "id": "s51",
+                "title": "ট্রাভেল ক্যারিয়ার টিকেট ব্যাজ",
+                "file": "travel-career-ticket-badge.html",
+                "category": "ট্রাভেল ও ভিসা",
+                "icon": "🎟️",
+                "shape": "বোর্ডিং টিকেট ব্যাজ ১",
+                "color": "#0284c7",
+                "desc": "বোর্ডিং পাস / এয়ার টিকিট শেপ — বারকোড + সিট ইনফো + শিমার সুইপ",
+                "thumb": ""
+        },
+        {
+                "id": "s52",
+                "title": "VISA — 3D পাসপোর্ট স্ট্যাম্প",
+                "file": "visa-3d.html",
+                "category": "ট্রাভেল ও ভিসা",
+                "icon": "🛂",
+                "shape": "৩ডি পাসপোর্ট ও স্ট্যাম্প",
+                "color": "#0284c7",
+                "desc": "৩ডি পাসপোর্ট + স্ট্রেট-এজ হেক্সাগোনাল ভিসা স্ট্যাম্প ইমপ্যাক্ট অ্যানিমেশন",
+                "thumb": ""
+        },
+        {
+                "id": "s53",
+                "title": "ওয়েভি লিকুইড ব্যাকগ্রাউন্ড",
+                "file": "wavy-liquid-background-animation.html",
+                "category": "ব্যাকগ্রাউন্ড ও ইফেক্ট",
+                "icon": "🌊",
+                "shape": "ওয়েভি লিকুইড ওয়েভ",
+                "color": "#a855f7",
+                "desc": "লেয়ারড ওয়েভি লিকুইড ব্যাকগ্রাউন্ড — উজ্জ্বল গ্রেডিয়েন্ট",
+                "thumb": ""
+        },
+        {
+                "id": "s54",
+                "title": "WhatsApp — 3D ব্যাজ",
+                "file": "whatsapp-3d-badge-animation.html",
+                "category": "যোগাযোগ",
+                "icon": "🟢",
+                "shape": "হোয়াটসঅ্যাপ ৩ডি হেক্স",
+                "color": "#22c55e",
+                "desc": "৩ডি ঘূর্ণায়মান হোয়াটসঅ্যাপ হেক্স ব্যাজ, প্রতিটি সারফেসে টেক্সট",
+                "thumb": ""
+        },
+        {
+                "id": "s55",
+                "title": "WhatsApp — 3D মেসেজ",
+                "file": "whatsapp-3d-message.html",
+                "category": "যোগাযোগ",
+                "icon": "📱",
+                "shape": "হোয়াটসঅ্যাপ ৩ডি ফোন বিল্ড",
+                "color": "#22c55e",
+                "desc": "৩ডি হোয়াটসঅ্যাপ মেসেজ / ফোন বিল্ড অ্যানিমেশন — এক্সট্রুডেড ব্লক শেপ",
+                "thumb": ""
+        },
+        {
+                "id": "s56",
+                "title": "Wings Fly — অ্যানিমেটেড ব্যাজ লোগো",
+                "file": "wings-fly-aviation-academy-badge.html",
+                "category": "উইংস ফ্লাই একাডেমি",
+                "icon": "⬡",
+                "shape": "উইংস ফ্লাই স্পিনিং ব্যাজ",
+                "color": "#1e3a8a",
+                "desc": "hexagonal ব্যাজ স্পিনিং অ্যানিমেশন, PNG/GIF/Video ডাউনলোড সহ",
+                "thumb": ""
+        },
+        {
+                "id": "s57",
+                "title": "Wings Fly — উড়ন্ত প্লেন ব্যাকগ্রাউন্ড",
+                "file": "wings-fly-aviation-academy-flying-plane.html",
+                "category": "উইংস ফ্লাই একাডেমি",
+                "icon": "✈️",
+                "shape": "স্কাই ফ্লাইং প্লেন ও ক্লাউড",
+                "color": "#1e3a8a",
+                "desc": "আকাশে উড়ন্ত প্লেন, মেঘ ও টো ব্যানার সহ ব্যাকগ্রাউন্ড অ্যানিমেশন",
+                "thumb": ""
+        },
+        {
+                "id": "s58",
+                "title": "Wings Fly — 3D পেপার-ফোল্ড ওয়েলকাম",
+                "file": "wings-fly-paper-fold.html",
+                "category": "উইংস ফ্লাই একাডেমি",
+                "icon": "📐",
+                "shape": "৩ডি অরিগামি পেপার ফোল্ড",
+                "color": "#1e3a8a",
+                "desc": "৩ডি পেপার-ফোল্ড / অরিগামি স্টাইল ওয়েলকাম — অ্যাকর্ডিয়ন ফোল্ড শেডিং",
+                "thumb": ""
+        },
+        {
+                "id": "s59",
+                "title": "Wings Fly — ওয়েলকাম ব্যানার",
+                "file": "wings-fly-welcome-banner.html",
+                "category": "উইংস ফ্লাই একাডেমি",
+                "icon": "🎗️",
+                "shape": "কৌণিক রিবন ব্যানার",
+                "color": "#1e3a8a",
+                "desc": "কৌণিক রিবন শেপ (নন-রাউন্ড) + মার্চিং ড্যাশ বর্ডার + শাইন সুইপ",
+                "thumb": ""
+        },
+        {
+                "id": "s60",
+                "title": "Wings Fly — ডিপারচার বোর্ড ওয়েলকাম",
+                "file": "wings-fly-welcome-board.html",
+                "category": "উইংস ফ্লাই একাডেমি",
+                "icon": "🛫",
+                "shape": "রেট্রো ডিপারচার ফ্ল্যাপ বোর্ড",
+                "color": "#1e3a8a",
+                "desc": "রেট্রো এয়ারপোর্ট স্প্লিট-ফ্ল্যাপ ডিপারচার বোর্ড — রানওয়ে LED চেজ লাইট",
+                "thumb": ""
+        },
+        {
+                "id": "s61",
+                "title": "3D অ্যানিমেটেড সিম্বল জেনারেটর",
+                "file": "3d-animated-symbol-generator.html",
+                "category": "3D ও সিম্বল জেনারেটর",
+                "icon": "✨",
+                "shape": "৩ডি সিম্বল ও গ্লো জেনারেটর",
+                "color": "#8b5cf6",
+                "desc": "৩ডি অ্যানিমেটেড সিম্বল ও শেইপ জেনারেটর — কাস্টমাইজযোগ্য মেটেরিয়াল ও রোটেশন",
+                "thumb": ""
+        },
+        {
+                "id": "s62",
+                "title": "3D কন্টাক্ট ব্যাজ অ্যানিমেশন",
+                "file": "3d-contact-badge-animation.html",
+                "category": "যোগাযোগ",
+                "icon": "☎️",
+                "shape": "মাল্টি-সারফেস ৩ডি কন্টাক্ট",
+                "color": "#00d6b4",
+                "desc": "৩ডি কন্টাক্ট ব্যাজ — ফোন, ইমেইল ও সোশ্যাল আইকন সহ রোটেটিং ব্যাজ",
+                "thumb": ""
+        },
+        {
+                "id": "s63",
+                "title": "3D শেইপস — অ্যানিমেটেড ইমোজি বিল্ডার",
+                "file": "3d-shapes-animated-emoji (1).html",
+                "category": "3D ও সিম্বল জেনারেটর",
+                "icon": "😃",
+                "shape": "৩ডি ইমোজি বিল্ডার ও পার্টিকেল",
+                "color": "#f59e0b",
+                "desc": "৩ডি শেইপস এবং অ্যানিমেটেড ইমোজি বিল্ডার — মোশন পার্টিকেল ও এক্সপ্রেশন",
+                "thumb": ""
+        },
+        {
+                "id": "s64",
+                "title": "3D টেক্সট বক্স ও সিম্বল জেনারেটর",
+                "file": "3d-textbox-symbol-generator.html",
+                "category": "3D ও সিম্বল জেনারেটর",
+                "icon": "🏷️",
+                "shape": "৩ডি টেক্সট বক্স টাইটেল কার্ড",
+                "color": "#3b82f6",
+                "desc": "৩ডি টেক্সট বক্স, টাইটেল কার্ড ও সিম্বল জেনারেটর — ভিডিও ও ফটো এডিটর রেডি",
+                "thumb": ""
+        },
+        {
+                "id": "s65",
+                "title": "এয়ার টিকেট ও ভিসা প্রসেসিং অ্যানিমেশন",
+                "file": "air-ticket-visa-animation.html",
+                "category": "ট্রাভেল ও ভিসা",
+                "icon": "✈️",
+                "shape": "পাসপোর্ট ও বোর্ডিং মোশন",
+                "color": "#00b4ff",
+                "desc": "এয়ারটিকেটিং ও ভিসা প্রসেসিং মোশন গ্রাফিক্স — পাসপোর্ট, বোর্ডিং ও ট্রাভেল স্টাইল",
+                "thumb": ""
+        },
+        {
+                "id": "s66",
+                "title": "এয়ার টিকেট ও ভিসা ব্যাজ (3D এডিশন)",
+                "file": "air-ticket-visa-badge-animation (1).html",
+                "category": "ট্রাভেল ও ভিসা",
+                "icon": "🎫",
+                "shape": "৩ডি গোল্ডেন টিকেট ব্যাজ",
+                "color": "#00b4ff",
+                "desc": "এয়ার টিকেট ও ভিসা প্রসেসিং ৩ডি এডিশন ব্যাজ — গোল্ডেন রিম ও ডাইনামিক লাইট",
+                "thumb": ""
+        },
+        {
+                "id": "s67",
+                "title": "এয়ার টিকেট ও ভিসা ব্যাজ",
+                "file": "air-ticket-visa-badge-animation.html",
+                "category": "ট্রাভেল ও ভিসা",
+                "icon": "🎟️",
+                "shape": "ট্রাভেল সার্ভিস ব্যাজ",
+                "color": "#00b4ff",
+                "desc": "ভিসা ও এয়ার টিকিট সার্ভিস প্রমোশনাল ব্যাজ অ্যানিমেশন",
+                "thumb": ""
+        },
+        {
+                "id": "s68",
+                "title": "এয়ার টিকেট ও ভিসা ব্যানার",
+                "file": "air-ticket-visa-banner.html",
+                "category": "ট্রাভেল ও ভিসা",
+                "icon": "🚩",
+                "shape": "অ্যাডভান্সড অ্যানিমেটেড ব্যানার",
+                "color": "#0284c7",
+                "desc": "ট্রাভেল এজেন্সি ও ভিসা কনসালটেন্সির জন্য অ্যাডভান্সড অ্যানিমেটেড ব্যানার",
+                "thumb": ""
+        },
+        {
+                "id": "s69",
+                "title": "এয়ারটিকেটিং ও ভিসা 3D জেনারেটর",
+                "file": "air-ticketing-visa-3d.html",
+                "category": "ট্রাভেল ও ভিসা",
+                "icon": "🌐",
+                "shape": "৩ডি এয়ারক্রাফট সিনারিও",
+                "color": "#00b4ff",
+                "desc": "৩ডি এয়ারটিকেটিং ও ভিসা সিনারিও — কাস্টমাইজেবল এয়ারক্রাফট ও টিকিট",
+                "thumb": ""
+        },
+        {
+                "id": "s70",
+                "title": "এয়ার টিকেটিং ও ভিসা ব্যাজ অ্যানিমেশন",
+                "file": "air-ticketing-visa-badge-animation.html",
+                "category": "ট্রাভেল ও ভিসা",
+                "icon": "✈️",
+                "shape": "মার্চিং বর্ডার ও শাইন ব্যাজ",
+                "color": "#00b4ff",
+                "desc": "মার্চিং বর্ডার ও শাইন ইফেক্ট সহ এয়ার টিকেটিং ব্যাজ",
+                "thumb": ""
+        },
+        {
+                "id": "s71",
+                "title": "এয়ার টিকেটিং ও ভিসা প্রসেসিং ব্যাজ",
+                "file": "air-ticketing-visa-badge.html",
+                "category": "ট্রাভেল ও ভিসা",
+                "icon": "🛂",
+                "shape": "প্রফেশনাল মার্কেটিং টেমপ্লেট",
+                "color": "#00b4ff",
+                "desc": "ভিসা প্রসেসিং ও এয়ার টিকেট ব্যাজ — প্রফেশনাল মার্কেটিং টেমপ্লেট",
+                "thumb": ""
+        },
+        {
+                "id": "s72",
+                "title": "অ্যানিমেটেড ইমোজি ও শেইপস",
+                "file": "animated-emoji-shapes.html",
+                "category": "ব্যাকগ্রাউন্ড ও ইফেক্ট",
+                "icon": "✨",
+                "shape": "ফ্লোটিং শেইপস ও ইমোজি",
+                "color": "#ec4899",
+                "desc": "অ্যানিমেটেড ইমোজি, ফ্লোটিং শেইপস এবং রিয়েকশন পার্টিকেলস",
+                "thumb": ""
+        },
+        {
+                "id": "s73",
+                "title": "বেস্ট কোয়ালিটি ব্যাজ (Best Quality)",
+                "file": "best-quality-badge-animation.html",
+                "category": "প্রোমো ব্যাজ",
+                "icon": "⭐",
+                "shape": "১০০% গোল্ডেন কোয়ালিটি সিল",
+                "color": "#eab308",
+                "desc": "সেরা মানের ১০০% গ্যারান্টি গোল্ডেন ব্যাজ অ্যানিমেশন — প্রিমিয়াম শাইন",
+                "thumb": ""
+        },
+        {
+                "id": "s74",
+                "title": "B-Roll অ্যানিমেটেড ব্যাকগ্রাউন্ড জেনারেটর",
+                "file": "broll-background-generator final.html",
+                "category": "ব্যাকগ্রাউন্ড ও ইফেক্ট",
+                "icon": "🎥",
+                "shape": "বি-রোল মোশন ব্যাকগ্রাউন্ড",
+                "color": "#6366f1",
+                "desc": "ভিডিও এডিটরদের জন্য বি-রোল অ্যানিমেটেড মোশন ব্যাকগ্রাউন্ড জেনারেটর",
+                "thumb": ""
+        },
+        {
+                "id": "s75",
+                "title": "কল করুন — 3D রিবন ব্যাজ",
+                "file": "call-us-3d-ribbon-animation.html",
+                "category": "যোগাযোগ",
+                "icon": "🎗️",
+                "shape": "৩ডি রিবন মোশন ব্যাজ",
+                "color": "#10b981",
+                "desc": "৩ডি রিবন মোশন সহ কল করুন ব্যাজ অ্যানিমেশন",
+                "thumb": ""
+        },
+        {
+                "id": "s76",
+                "title": "ট্রাভেল ভিসা 3D টিকিট ব্যাজ",
+                "file": "travel-visa-3d-ticket-badge.html",
+                "category": "ট্রাভেল ও ভিসা",
+                "icon": "🎫",
+                "shape": "৩ডি ট্রাভেল টিকেট স্ট্যাম্প",
+                "color": "#06b6d4",
+                "desc": "৩ডি ট্রাভেল টিকেট ও ভিসা স্ট্যাম্প ব্যাজ অ্যানিমেশন",
+                "thumb": ""
+        },
+        {
+                "id": "s77",
+                "title": "ট্রাভেল ভিসা ব্যাজ অ্যানিমেশন",
+                "file": "travel-visa-badge-animation.html",
+                "category": "ট্রাভেল ও ভিসা",
+                "icon": "✈️",
+                "shape": "আকর্ষণীয় মোশন ভিসা ব্যাজ",
+                "color": "#06b6d4",
+                "desc": "ট্রাভেল ও ভিসা সার্ভিসের জন্য আকর্ষণীয় মোশন ব্যাজ",
+                "thumb": ""
+        },
+        {
+                "id": "s78",
+                "title": "WhatsApp কন্টাক্ট ব্যাজ",
+                "file": "whatsapp-contact-badge.html",
+                "category": "যোগাযোগ",
+                "icon": "💬",
+                "shape": "হোয়াটসঅ্যাপ পালসিং রিং",
+                "color": "#22c55e",
+                "desc": "হোয়াটসঅ্যাপ কন্টাক্ট ব্যাজ — পালসিং রিং ও কল-টু-অ্যাকশন",
+                "thumb": ""
+        },
+        {
+                "id": "s79",
+                "title": "WhatsApp নম্বর ব্যাজ (3D এডিশন)",
+                "file": "whatsapp-number-badge (1).html",
+                "category": "যোগাযোগ",
+                "icon": "📱",
+                "shape": "৩ডি হোয়াটসঅ্যাপ নম্বর কার্ড",
+                "color": "#22c55e",
+                "desc": "৩ডি হোয়াটসঅ্যাপ নম্বর কার্ড ও ব্যাজ অ্যানিমেশন",
+                "thumb": ""
+        },
+        {
+                "id": "s80",
+                "title": "WhatsApp নম্বর ব্যাজ অ্যানিমেশন",
+                "file": "whatsapp-number-badge.html",
+                "category": "যোগাযোগ",
+                "icon": "💬",
+                "shape": "হোয়াটসঅ্যাপ নম্বর ডিসপ্লে",
+                "color": "#22c55e",
+                "desc": "সরাসরি হোয়াটসঅ্যাপ নম্বর প্রদর্শন করার স্টাইলিশ ব্যাজ",
+                "thumb": ""
+        },
+        {
+                "id": "s81",
+                "title": "WhatsApp নম্বর কার্ড অ্যানিমেশন",
+                "file": "whatsapp-number-card-animation.html",
+                "category": "যোগাযোগ",
+                "icon": "📇",
+                "shape": "ফ্লোটিং নম্বর কার্ড ও কর্নার",
+                "color": "#22c55e",
+                "desc": "অ্যানিমেটেড হোয়াটসঅ্যাপ নম্বর কার্ড — ভিডিওর কর্নারে ব্যবহারের উপযোগী",
+                "thumb": ""
+        },
+        {
+                "id": "s82",
+                "title": "Wings Fly — সিনেম্যাটিক ক্রেস্ট (WOW)",
+                "file": "wings-fly-aviation-academy-cinematic-crest.html",
+                "category": "উইংস ফ্লাই একাডেমি",
+                "icon": "🦅",
+                "shape": "লাক্সারি গোল্ডেন ক্রেস্ট",
+                "color": "#1a3a8f",
+                "desc": "উইংস ফ্লাই এভিয়েশন একাডেমি সিনেম্যাটিক গোল্ডেন ক্রেস্ট ও লাক্সারি লোগো",
+                "thumb": ""
+        },
+        {
+                "id": "s83",
+                "title": "Wings Fly — হলোগ্রাফিক HUD ওয়েলকাম",
+                "file": "wings-fly-hud-welcome.html",
+                "category": "উইংস ফ্লাই একাডেমি",
+                "icon": "🛩️",
+                "shape": "হলোগ্রাফিক ককপিট HUD",
+                "color": "#00e5c8",
+                "desc": "ফিউচারিস্টিক হলোগ্রাফিক HUD ওয়েলকাম স্ক্রিন — ককপিট ও রাডার ভিজ্যুয়ালস",
+                "thumb": ""
+        }
+];
+
+    // === LOAD / SAVE ===
+    function loadLibrary() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) {
+                const saved = JSON.parse(raw);
+                const existingFiles = new Set(saved.map(e => e.file));
+                let addedCount = 0;
+                seedEntries.forEach(seed => {
+                    if (!existingFiles.has(seed.file)) {
+                        saved.push(seed);
+                        addedCount++;
+                    }
+                });
+                entries = saved;
+                if (addedCount > 0) {
+                    saveLibrary();
+                }
+            } else {
+                entries = seedEntries.slice();
+                saveLibrary();
+            }
+        } catch (e) {
+            entries = seedEntries.slice();
+        }
+    }
+
+    
+    function syncAllSeeds() {
+        const existingMap = new Map();
+        entries.forEach(e => existingMap.set(e.file, e));
+        seedEntries.forEach(seed => {
+            if (!existingMap.has(seed.file)) {
+                existingMap.set(seed.file, seed);
+            }
+        });
+        entries = Array.from(existingMap.values());
+        saveLibrary();
+        renderChips();
+        renderGrid();
+        showToast('✅ লাইব্রেরি সিঙ্ক সম্পন্ন! মোট ' + entries.length + 'টি অ্যানিমেশন প্রস্তুত।');
+    }
+
+    function saveLibrary() {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+        } catch (e) {
+            showToast('⚠️ সেভ করা যায়নি — ব্রাউজার স্টোরেজ পূর্ণ হতে পারে');
+        }
+    }
+
+    // === RENDER ===
+    function getCategories() {
+        const cats = {};
+        entries.forEach(e => { cats[e.category] = (cats[e.category] || 0) + 1; });
+        return cats;
+    }
+
+    function renderChips() {
+        const cats = getCategories();
+        const chipsEl = document.getElementById('categoryChips');
+        const total = entries.length;
+        let html = `<div class="chip ${activeCategory === 'সব' ? 'active' : ''}" onclick="setCategory('সব')">সব <span class="count">${total}</span></div>`;
+        Object.keys(cats).sort().forEach(cat => {
+            html += `<div class="chip ${activeCategory === cat ? 'active' : ''}" onclick="setCategory('${escapeAttr(cat)}')">${escapeHtml(cat)} <span class="count">${cats[cat]}</span></div>`;
+        });
+        chipsEl.innerHTML = html;
+
+        // update datalist for the add-form
+        const dl = document.getElementById('categoryList');
+        dl.innerHTML = Object.keys(cats).sort().map(c => `<option value="${escapeAttr(c)}">`).join('');
+    }
+
+    function setCategory(cat) {
+        activeCategory = cat;
+        renderChips();
+        renderGrid();
+    }
+
+    function renderGrid() {
+        const search = document.getElementById('searchInput').value.trim().toLowerCase();
+        const grid = document.getElementById('grid');
+        const emptyState = document.getElementById('emptyState');
+
+        let filtered = entries.filter(e => {
+            const matchesCat = activeCategory === 'সব' || e.category === activeCategory;
+            const haystack = `${e.title} ${e.category} ${e.desc || ''}`.toLowerCase();
+            const matchesSearch = !search || haystack.includes(search);
+            return matchesCat && matchesSearch;
+        });
+
+        filtered.sort((a, b) => a.category.localeCompare(b.category) || a.title.localeCompare(b.title));
+
+        if (filtered.length === 0) {
+            grid.innerHTML = '';
+            emptyState.style.display = 'block';
+            document.getElementById('entryCountLabel').textContent = `মোট ${entries.length}টি অ্যানিমেশন সেভ করা আছে`;
+            return;
+        }
+        emptyState.style.display = 'none';
+        document.getElementById('entryCountLabel').textContent = `মোট ${entries.length}টি অ্যানিমেশন সেভ করা আছে${activeCategory !== 'সব' || search ? ` · ${filtered.length}টি দেখানো হচ্ছে` : ''}`;
+
+        grid.innerHTML = filtered.map(e => cardHtml(e)).join('');
+    }
+
+    
+    let livePreviewEnabled = true;
+
+    function toggleLivePreview() {
+        livePreviewEnabled = !livePreviewEnabled;
+        const btn = document.getElementById('livePreviewBtn');
+        if (btn) {
+            btn.textContent = livePreviewEnabled ? '🎥 লাইভ প্রিভিউ: চালু' : '🎥 লাইভ প্রিভিউ: বন্ধ';
+            btn.className = 'btn ' + (livePreviewEnabled ? 'preview-toggle-btn' : 'preview-toggle-btn off');
+        }
+        renderGrid();
+    }
+
+    function cardHtml(e) {
+        const color = e.color || '#7c8cff';
+        const shapeText = e.shape || e.title;
+        const iconChar = e.icon || '🎬';
+
+        let thumbContent = '';
+        if (e.thumb) {
+            thumbContent = `<img src="${escapeAttr(e.thumb)}" alt="${escapeAttr(e.title)}" onerror="this.style.display='none'">`;
+        } else if (livePreviewEnabled) {
+            thumbContent = `
+                <iframe src="${escapeAttr(e.file)}" loading="lazy" title="${escapeAttr(e.title)}" scrolling="no" tabindex="-1"></iframe>
+            `;
+        } else {
+            thumbContent = `
+                <div class="icon-fallback-large">
+                    <span class="ico">${escapeHtml(iconChar)}</span>
+                    <span class="shape-label">${escapeHtml(shapeText)}</span>
+                </div>
+            `;
+        }
+
+        return `
+        <div class="card">
+            <div class="card-thumb" style="background: radial-gradient(circle at center, ${color}25 0%, #080912 85%);">
+                <div class="shape-badge-pill" style="border-color:${color}66;">
+                    <span>${escapeHtml(iconChar)}</span>
+                    <span>${escapeHtml(shapeText)}</span>
+                </div>
+                ${thumbContent}
+                <div class="design-type-tag" style="color:${color};">${escapeHtml(e.file)}</div>
+            </div>
+            <div class="card-body">
+                <div class="card-tag" style="background:${color}22; color:${color}; border:1px solid ${color}44;">${escapeHtml(e.category)}</div>
+                <div class="card-title">${escapeHtml(e.title)}</div>
+                ${e.desc ? `<div class="card-desc">${escapeHtml(e.desc)}</div>` : ''}
+                <div class="card-footer">
+                    <a class="card-open" href="${escapeAttr(e.file)}" target="_blank" rel="noopener">▶ খুলুন</a>
+                    <button class="icon-btn" onclick="openEditModal('${e.id}')" title="এডিট করুন">✏️</button>
+                    <button class="icon-btn danger" onclick="deleteEntry('${e.id}')" title="ডিলিট করুন">🗑️</button>
+                </div>
+            </div>
+        </div>`;
+    }
+
+
+    // === MODAL ===
+    function openAddModal() {
+        editingId = null;
+        document.getElementById('modalTitle').textContent = 'নতুন অ্যানিমেশন যোগ করুন';
+        document.getElementById('fTitle').value = '';
+        document.getElementById('fFile').value = '';
+        document.getElementById('fCategory').value = '';
+        document.getElementById('fIcon').value = '🎬';
+        document.getElementById('fColor').value = '#7c8cff';
+        document.getElementById('fThumb').value = '';
+        document.getElementById('fDesc').value = '';
+        document.getElementById('modalOverlay').classList.add('open');
+    }
+
+    function openEditModal(id) {
+        const e = entries.find(x => x.id === id);
+        if (!e) return;
+        editingId = id;
+        document.getElementById('modalTitle').textContent = 'অ্যানিমেশন এডিট করুন';
+        document.getElementById('fTitle').value = e.title;
+        document.getElementById('fFile').value = e.file;
+        document.getElementById('fCategory').value = e.category;
+        document.getElementById('fIcon').value = e.icon || '🎬';
+        document.getElementById('fColor').value = e.color || '#7c8cff';
+        document.getElementById('fThumb').value = e.thumb || '';
+        document.getElementById('fDesc').value = e.desc || '';
+        document.getElementById('modalOverlay').classList.add('open');
+    }
+
+    function closeModal() {
+        document.getElementById('modalOverlay').classList.remove('open');
+    }
+
+    function saveEntry() {
+        const title = document.getElementById('fTitle').value.trim();
+        const file = document.getElementById('fFile').value.trim();
+        const category = document.getElementById('fCategory').value.trim();
+
+        if (!title || !file || !category) {
+            showToast('⚠️ নাম, ফাইলের পাথ ও ক্যাটাগরি অবশ্যই দিতে হবে');
+            return;
+        }
+
+        const data = {
+            title,
+            file,
+            category,
+            icon: document.getElementById('fIcon').value.trim() || '🎬',
+            color: document.getElementById('fColor').value || '#7c8cff',
+            thumb: document.getElementById('fThumb').value.trim(),
+            desc: document.getElementById('fDesc').value.trim(),
+        };
+
+        if (editingId) {
+            const idx = entries.findIndex(x => x.id === editingId);
+            if (idx > -1) entries[idx] = { ...entries[idx], ...data };
+            showToast('✓ আপডেট হয়েছে');
+        } else {
+            entries.push({ id: 'e' + Date.now(), ...data });
+            showToast('✓ যোগ করা হয়েছে');
+        }
+
+        saveLibrary();
+        closeModal();
+        renderChips();
+        renderGrid();
+    }
+
+    function deleteEntry(id) {
+        const e = entries.find(x => x.id === id);
+        if (!e) return;
+        if (!confirm(`"${e.title}" লাইব্রেরি থেকে মুছে ফেলতে চান? (আসল ফাইলটা মুছবে না, শুধু তালিকা থেকে সরবে)`)) return;
+        entries = entries.filter(x => x.id !== id);
+        saveLibrary();
+        renderChips();
+        renderGrid();
+        showToast('🗑️ মুছে ফেলা হয়েছে');
+    }
+
+    // === FILE PICKER (fills filename field) ===
+    document.getElementById('filePicker').addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            document.getElementById('fFile').value = this.files[0].name;
+        }
+    });
+
+    // === EXPORT / IMPORT ===
+    function exportLibrary() {
+        const blob = new Blob([JSON.stringify(entries, null, 2)], { type: 'application/json' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'animation-library-backup.json';
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+        showToast('⬇️ ব্যাকআপ ডাউনলোড হয়েছে');
+    }
+
+    function triggerImport() {
+        document.getElementById('importFileInput').click();
+    }
+
+    document.getElementById('importFileInput').addEventListener('change', function() {
+        const file = this.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            try {
+                const imported = JSON.parse(evt.target.result);
+                if (!Array.isArray(imported)) throw new Error('invalid');
+                const merge = confirm('বিদ্যমান তালিকার সাথে যোগ করতে চান? (Cancel দিলে পুরনো তালিকা প্রতিস্থাপিত হবে)');
+                if (merge) {
+                    const existingIds = new Set(entries.map(e => e.id));
+                    imported.forEach(item => {
+                        if (!item.id || existingIds.has(item.id)) item.id = 'e' + Date.now() + Math.random().toString(36).slice(2, 7);
+                        entries.push(item);
+                    });
+                } else {
+                    entries = imported;
+                }
+                saveLibrary();
+                renderChips();
+                renderGrid();
+                showToast('✓ ইমপোর্ট সম্পন্ন হয়েছে');
+            } catch (err) {
+                showToast('⚠️ ফাইলটি সঠিক ফরম্যাটে নেই');
+            }
+        };
+        reader.readAsText(file);
+        this.value = '';
+    });
+
+    // === HELPERS ===
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str || '';
+        return div.innerHTML;
+    }
+    function escapeAttr(str) {
+        return (str || '').replace(/"/g, '&quot;');
+    }
+
+    let toastTimer = null;
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+    }
+
+    document.getElementById('searchInput').addEventListener('input', renderGrid);
+
+    document.getElementById('modalOverlay').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+
+    // === INIT ===
+    loadLibrary();
+    renderChips();
+    renderGrid();
+
+    </script>
+</body>
+</html>

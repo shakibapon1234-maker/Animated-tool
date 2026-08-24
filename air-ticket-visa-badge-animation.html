@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Air Ticket & Visa Badge — এয়ার টিকেট ও ভিসা ব্যাজ</title>
+<meta name="description" content="এয়ার টিকেটিং রিজার্ভেশন ও প্রফেশনাল ভিসা প্রসেসিং ব্যাজ অ্যানিমেশন — থ্রিডি প্লেন, বোর্ডিং টিকেট, পাসপোর্ট, ভিসা স্ট্যাম্প, গ্লোব, লাগেজ — PNG/GIF/ভিডিও এক্সপোর্ট">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Noto+Sans+Bengali:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-primary:#070a0e; --bg-secondary:#0a0f15; --bg-card:#0d141c; --bg-card-hover:#111a24;
+    --border:rgba(255,255,255,0.08); --border-active:rgba(31,111,178,0.55);
+    --accent:#1f6fb2; --accent-glow:rgba(31,111,178,0.4);
+    --accent-2:#d4af37; --accent-3:#c7cdd6;
+    --text-primary:#f2f5f8; --text-secondary:#9aabb9; --text-muted:#4c5a66;
+    --radius:16px; --radius-sm:10px;
+    --shadow:0 20px 60px rgba(0,0,0,0.6); --shadow-glow:0 0 45px rgba(31,111,178,0.2);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Outfit','Noto Sans Bengali',system-ui,sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;overflow-x:hidden;display:flex;flex-direction:column;align-items:center;}
+  body::before{content:'';position:fixed;inset:0;background:
+    radial-gradient(ellipse 80% 50% at 15% 15%, rgba(31,111,178,0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 85%, rgba(212,175,55,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 50% 50%, rgba(199,205,214,0.04) 0%, transparent 70%);
+    pointer-events:none; z-index:0;}
+  .app-header{width:100%;padding:22px 32px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);background:rgba(7,10,14,0.82);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+  .header-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),var(--accent-2));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 20px var(--accent-glow);flex-shrink:0;}
+  .header-text h1{font-size:19px;font-weight:700;background:linear-gradient(135deg,#fff 0%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .header-text p{font-size:12.5px;color:var(--text-secondary);margin-top:2px;}
+  .main-content{width:100%;max-width:1220px;padding:36px 22px 80px;display:grid;grid-template-columns:1fr 380px;gap:28px;position:relative;z-index:1;}
+  @media (max-width:900px){.main-content{grid-template-columns:1fr;}}
+  .canvas-panel{display:flex;flex-direction:column;align-items:center;gap:20px;}
+  .canvas-wrapper{width:100%;aspect-ratio:1;max-width:500px;background:var(--bg-card);border:1px solid var(--border);border-radius:24px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;box-shadow:var(--shadow),var(--shadow-glow);}
+  .canvas-wrapper::before{content:'';position:absolute;inset:-1px;border-radius:25px;background:linear-gradient(135deg,rgba(31,111,178,0.32),rgba(212,175,55,0.14),rgba(199,205,214,0.08));z-index:-1;animation:borderGlow 4s ease-in-out infinite;}
+  @keyframes borderGlow{0%,100%{opacity:.5;}50%{opacity:1;}}
+  .canvas-bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:30px 30px;border-radius:24px;}
+  #badgeCanvas{display:block;max-width:100%;max-height:100%;}
+  .toggle-pair{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
+  .lang-toggle,.service-toggle{display:flex;gap:8px;background:var(--bg-card);border:1px solid var(--border);border-radius:60px;padding:6px;}
+  .lang-btn{padding:8px 20px;border-radius:50px;border:none;background:transparent;color:var(--text-secondary);font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;transition:.2s;}
+  .lang-btn.active{background:linear-gradient(135deg,var(--accent),#124a76);color:#eaf4ff;}
+  .controls-panel{display:flex;flex-direction:column;gap:16px;}
+  .control-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+  .card-title{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-secondary);margin-bottom:14px;}
+  .card-title-icon{width:22px;height:22px;border-radius:6px;background:rgba(31,111,178,0.16);display:flex;align-items:center;justify-content:center;font-size:12px;}
+  .form-row{margin-bottom:12px;}
+  .form-row:last-child{margin-bottom:0;}
+  .form-label{display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px;font-weight:500;}
+  .form-input,.form-select{width:100%;padding:10px 12px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-family:inherit;font-size:13.5px;outline:none;transition:.2s;}
+  .form-input:focus,.form-select:focus{border-color:var(--border-active);}
+  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .color-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+  .color-row:last-child{margin-bottom:0;}
+  .color-row label{font-size:12.5px;color:var(--text-secondary);}
+  .color-row input[type=color]{width:38px;height:30px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;padding:0;}
+  .preset-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .style-preset-btn{padding:9px 4px;border-radius:10px;border:1px solid var(--border);cursor:pointer;font-family:inherit;font-size:11px;font-weight:600;color:var(--text-primary);transition:.2s;}
+  .style-preset-btn.active{border-color:var(--border-active);box-shadow:0 0 0 1px var(--border-active);}
+  .slider-row{margin-bottom:14px;}
+  .slider-row:last-child{margin-bottom:0;}
+  .slider-label-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:6px;}
+  .slider-badge{color:var(--accent);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--accent);}
+  .toggle-row{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--text-secondary);cursor:pointer;margin-bottom:10px;}
+  .toggle-row:last-child{margin-bottom:0;}
+  .dir-btn{flex:1;padding:9px;border-radius:10px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;transition:.2s;}
+  .dir-btn.active{border-color:var(--border-active);color:var(--accent);}
+  .btn-group{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{flex:1;min-width:110px;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border-radius:12px;border:none;font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;transition:.2s;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),#124a76);color:#eaf4ff;box-shadow:0 8px 22px rgba(31,111,178,0.3);}
+  .btn-primary:hover{transform:translateY(-1px);}
+  .btn-stop{background:var(--bg-secondary);color:var(--text-secondary);border:1px solid var(--border);}
+  .btn-stop:disabled,.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text-secondary);}
+  #exportStatus{font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-icon">✈️</div>
+  <div class="header-text">
+    <h1>Air Ticket & Visa Badge Animation</h1>
+    <p>থ্রিডি অ্যাঙ্গুলার ট্রাভেল ব্যাজ — PNG · GIF · ভিডিও এক্সপোর্ট</p>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="canvas-panel">
+    <div class="canvas-wrapper">
+      <div class="canvas-bg-grid"></div>
+      <canvas id="badgeCanvas" width="460" height="460"></canvas>
+    </div>
+    <div class="toggle-pair">
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="langBn" onclick="setLanguage('bn')">বাংলা</button>
+        <button class="lang-btn" id="langEn" onclick="setLanguage('en')">English</button>
+      </div>
+      <div class="service-toggle">
+        <button class="lang-btn active" id="svcBoth" onclick="setService('both')">উভয়</button>
+        <button class="lang-btn" id="svcAir" onclick="setService('airticket')">এয়ার টিকেট</button>
+        <button class="lang-btn" id="svcVisa" onclick="setService('visa')">ভিসা</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls-panel">
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">✎</div>টেক্সট</div>
+      <div class="form-row">
+        <label class="form-label">উপরের ব্যানার টেক্সট</label>
+        <input class="form-input" id="topText" value="এয়ার টিকেট ও">
+      </div>
+      <div class="form-row">
+        <label class="form-label">মূল টেক্সট (কেন্দ্র)</label>
+        <input class="form-input" id="centerText" value="ভিসা">
+      </div>
+      <div class="form-row">
+        <label class="form-label">সাব-টেক্সট</label>
+        <input class="form-input" id="centerSubText" value="সার্ভিস">
+      </div>
+      <div class="form-row">
+        <label class="form-label">নিচের ব্যানার টেক্সট</label>
+        <input class="form-input" id="bottomText" value="বিশ্বস্ত এজেন্সি">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">◆</div>ব্যাজের শেপ (থ্রিডি)</div>
+      <div class="preset-grid" id="shapeGrid">
+        <button class="style-preset-btn active" data-shape="airplane" onclick="applyShape('airplane',this)">Airplane</button>
+        <button class="style-preset-btn" data-shape="ticket" onclick="applyShape('ticket',this)">Boarding Pass</button>
+        <button class="style-preset-btn" data-shape="passport" onclick="applyShape('passport',this)">Passport</button>
+        <button class="style-preset-btn" data-shape="visaStamp" onclick="applyShape('visaStamp',this)">Visa Stamp</button>
+        <button class="style-preset-btn" data-shape="globe" onclick="applyShape('globe',this)">Globe</button>
+        <button class="style-preset-btn" data-shape="suitcase" onclick="applyShape('suitcase',this)">Suitcase</button>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎨</div>স্টাইল প্রিসেট</div>
+      <div class="preset-grid">
+        <button class="style-preset-btn active" onclick="applyStyle('skyBlue',this)">Sky Blue</button>
+        <button class="style-preset-btn" onclick="applyStyle('navyElite',this)">Navy Elite</button>
+        <button class="style-preset-btn" onclick="applyStyle('goldPassport',this)">Gold Passport</button>
+        <button class="style-preset-btn" onclick="applyStyle('emeraldVisa',this)">Emerald Visa</button>
+        <button class="style-preset-btn" onclick="applyStyle('rubyExpress',this)">Ruby Express</button>
+        <button class="style-preset-btn" onclick="applyStyle('platinumTravel',this)">Platinum</button>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🖌</div>কাস্টম রং</div>
+      <div class="color-row"><label>ব্যাজ (বাইরে)</label><input type="color" id="badgeColorOuter" value="#1f6fb2"></div>
+      <div class="color-row"><label>ব্যাজ (ভেতরে)</label><input type="color" id="badgeColorInner" value="#0a2c47"></div>
+      <div class="color-row"><label>বর্ডার/রিং</label><input type="color" id="ringColor" value="#ffffff"></div>
+      <div class="color-row"><label>ব্যানার টেক্সট</label><input type="color" id="bannerTextColor" value="#ffffff"></div>
+      <div class="color-row"><label>কেন্দ্র টেক্সট</label><input type="color" id="centerTextColor" value="#ffffff"></div>
+      <div class="color-row"><label>গ্লো</label><input type="color" id="glowColor" value="#1f6fb2"></div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">✨</div>এলিমেন্ট</div>
+      <div class="toggle-row"><input type="checkbox" id="flightPathToggle" checked> ফ্লাইট পাথ ড্যাশড লাইন (ব্যাকগ্রাউন্ড)</div>
+      <div class="toggle-row"><input type="checkbox" id="chevronToggle" checked> উইং এক্সেন্ট (দুই পাশে)</div>
+      <div class="toggle-row"><input type="checkbox" id="ribbonToggle" checked> নিচের রিবন টেইল</div>
+      <div class="toggle-row"><input type="checkbox" id="sparkleToggle" checked> ডায়মন্ড স্পার্কল কণা</div>
+      <div class="toggle-row"><input type="checkbox" id="pingToggle" checked> এক্সপ্যান্ডিং শেপ রিং</div>
+      <div class="toggle-row"><input type="checkbox" id="shineToggle" checked> শাইন সুইপ (হলোগ্রাফিক আলো)</div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">⚙</div>অ্যানিমেশন</div>
+      <div class="slider-row">
+        <div class="slider-label-row"><span>বর্ডার ঘূর্ণন গতি</span><span class="slider-badge" id="speedBadge">1.5 RPM</span></div>
+        <input type="range" id="spinSpeed" min="0" max="8" step="0.1" value="1.5">
+      </div>
+      <div class="slider-row">
+        <div class="slider-label-row"><span>পালস তীব্রতা</span><span class="slider-badge" id="pulseBadge">0.50</span></div>
+        <input type="range" id="pulseIntensity" min="0" max="1" step="0.05" value="0.5">
+      </div>
+      <div class="slider-row">
+        <div class="slider-label-row"><span>রিং গতি</span><span class="slider-badge" id="ringSpeedBadge">1.0</span></div>
+        <input type="range" id="ringSpeed" min="0.2" max="3" step="0.1" value="1.0">
+      </div>
+      <div class="form-row">
+        <label class="form-label">ঘূর্ণনের দিক</label>
+        <div class="row-2">
+          <button class="dir-btn active" id="dirCW" onclick="setDirection('cw')">↻ ঘড়ির কাঁটার দিকে</button>
+          <button class="dir-btn" id="dirCCW" onclick="setDirection('ccw')">↺ উল্টো দিক</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">সময়কাল</label>
+        <input type="range" id="spinDuration" min="5" max="120" step="1" value="30">
+      </div>
+      <div class="toggle-row"><input type="checkbox" id="loopSpinToggle" checked> সবসময় চলতে থাকবে (Loop)</div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" id="startBtn" onclick="startBurst()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+        অ্যানিমেশন শুরু
+      </button>
+      <button class="btn btn-stop" id="stopBtn" onclick="stopBurst()" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+        বন্ধ করুন
+      </button>
+    </div>
+    <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট করুন</button>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">⬇</div>ডাউনলোড</div>
+      <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.55;">PNG (ট্রান্সপারেন্ট ব্যাকগ্রাউন্ড), GIF অথবা ভিডিও হিসেবে সরাসরি আপনার ভিডিও/ফটো এডিটর অ্যাপে ব্যবহারের জন্য ডাউনলোড করুন।</p>
+      <div class="btn-group">
+        <button class="btn btn-primary" type="button" onclick="downloadPng()">PNG</button>
+        <button class="btn btn-primary" type="button" onclick="downloadGif()">GIF</button>
+        <button class="btn btn-primary" type="button" onclick="downloadVideo()">ভিডিও</button>
+      </div>
+      <div id="exportStatus"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   AIR TICKET & VISA PROCESSING BADGE ANIMATION ENGINE
+   6 selectable ANGULAR 3D shapes (no circles/round shapes):
+   Airplane, Boarding Pass, Passport, Visa Stamp (octagon),
+   Globe (hexagon), Suitcase — each rendered as a true
+   extruded/beveled 3D solid (front face + side faces),
+   plus a dashed flight-path trail, rotating dashed outline,
+   expanding "ping" outlines, wing accents, a ribbon tail,
+   diamond sparkle particles and a holographic shine sweep.
+   Canvas background stays transparent for overlay use.
+===================================================== */
+const canvas = document.getElementById('badgeCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas(){
+  const wrapper = canvas.parentElement;
+  const size = Math.min(wrapper.clientWidth - 40, 460);
+  canvas.width = size; canvas.height = size;
+}
+resizeCanvas();
+window.addEventListener('resize', () => { resizeCanvas(); drawFrame(); });
+
+// === STATE ===
+let spinAngle=0, pulsePhase=0, ringPhase=0, sparklePhase=0, shinePhase=0, routePhase=0;
+let isSpinning=false, animFrame=null, totalDurationMs=30000, startTime=null;
+let direction=1, speedRPM=1.5, lastTimestamp=null, isExporting=false;
+let currentLang='bn', currentService='both';
+let currentShape='airplane';
+
+function applyShape(name, btnEl){
+  currentShape = name;
+  document.querySelectorAll('#shapeGrid .style-preset-btn').forEach(b=>b.classList.remove('active'));
+  btnEl.classList.add('active');
+  drawFrame();
+}
+
+// Diamond-shaped (angular) sparkle particles — no round dots.
+const sparkles = Array.from({length:14}, (_,i)=>({
+  angle: (i/14)*Math.PI*2, dist: 0.58+Math.random()*0.5,
+  speed: 0.4+Math.random()*0.8, size: 0.35+Math.random()*0.55, offset: Math.random()*10
+}));
+
+const strings = {
+  bn:{
+    airticket:{ top:'বুক করুন', center:'এয়ার টিকেট', sub:'রিজার্ভেশন', bottom:'বিশ্বস্ত সেবা' },
+    visa:{ top:'প্রফেশনাল', center:'ভিসা', sub:'প্রসেসিং', bottom:'অভিজ্ঞ সহায়তা' },
+    both:{ top:'এয়ার টিকেট ও', center:'ভিসা', sub:'সার্ভিস', bottom:'বিশ্বস্ত এজেন্সি' }
+  },
+  en:{
+    airticket:{ top:'BOOK YOUR', center:'AIR TICKET', sub:'RESERVATION', bottom:'FLY WITH TRUST' },
+    visa:{ top:'PROFESSIONAL', center:'VISA', sub:'PROCESSING', bottom:'EXPERT SUPPORT' },
+    both:{ top:'AIR TICKET &', center:'VISA', sub:'SERVICES', bottom:'TRUSTED AGENCY' }
+  }
+};
+
+function applyStrings(){
+  const s = strings[currentLang][currentService];
+  document.getElementById('topText').value = s.top;
+  document.getElementById('centerText').value = s.center;
+  document.getElementById('centerSubText').value = s.sub;
+  document.getElementById('bottomText').value = s.bottom;
+  if(!isSpinning) drawFrame();
+}
+function setLanguage(lang){
+  currentLang = lang;
+  document.getElementById('langBn').classList.toggle('active', lang==='bn');
+  document.getElementById('langEn').classList.toggle('active', lang==='en');
+  applyStrings();
+}
+function setService(svc){
+  currentService = svc;
+  document.getElementById('svcBoth').classList.toggle('active', svc==='both');
+  document.getElementById('svcAir').classList.toggle('active', svc==='airticket');
+  document.getElementById('svcVisa').classList.toggle('active', svc==='visa');
+  applyStrings();
+}
+
+// === STYLE PRESETS (professional travel / visa palettes) ===
+const stylePresets = {
+  skyBlue:        { outer:'#1f6fb2', inner:'#0a2c47', ring:'#ffffff', bannerText:'#ffffff', centerText:'#ffffff', glow:'#1f6fb2' },
+  navyElite:      { outer:'#16305c', inner:'#050e1f', ring:'#d4af37', bannerText:'#ffffff', centerText:'#ffffff', glow:'#1f4a8a' },
+  goldPassport:   { outer:'#d4af37', inner:'#5c3d05', ring:'#16305c', bannerText:'#2b1c00', centerText:'#ffffff', glow:'#d4af37' },
+  emeraldVisa:    { outer:'#0e8a4d', inner:'#04321c', ring:'#ffd700', bannerText:'#ffffff', centerText:'#ffffff', glow:'#1fbf6f' },
+  rubyExpress:    { outer:'#c81d4f', inner:'#4a0018', ring:'#ffd700', bannerText:'#ffffff', centerText:'#ffffff', glow:'#e0295f' },
+  platinumTravel: { outer:'#c7cdd6', inner:'#2b3038', ring:'#1f6fb2', bannerText:'#14161a', centerText:'#ffffff', glow:'#c7cdd6' },
+};
+
+function applyStyle(name, btnEl){
+  const s = stylePresets[name]; if(!s) return;
+  document.getElementById('badgeColorOuter').value = s.outer;
+  document.getElementById('badgeColorInner').value = s.inner;
+  document.getElementById('ringColor').value = s.ring;
+  document.getElementById('bannerTextColor').value = s.bannerText;
+  document.getElementById('centerTextColor').value = s.centerText;
+  document.getElementById('glowColor').value = s.glow;
+  document.querySelectorAll('.style-preset-btn').forEach(b=>b.classList.remove('active'));
+  btnEl.classList.add('active');
+  drawFrame();
+}
+
+// === READ SETTINGS ===
+function getSettings(){
+  return {
+    topText: document.getElementById('topText').value||'',
+    centerText: document.getElementById('centerText').value||'',
+    centerSubText: document.getElementById('centerSubText').value||'',
+    bottomText: document.getElementById('bottomText').value||'',
+    badgeColorOuter: document.getElementById('badgeColorOuter').value,
+    badgeColorInner: document.getElementById('badgeColorInner').value,
+    ringColor: document.getElementById('ringColor').value,
+    bannerTextColor: document.getElementById('bannerTextColor').value,
+    centerTextColor: document.getElementById('centerTextColor').value,
+    glowColor: document.getElementById('glowColor').value,
+    pulseIntensity: parseFloat(document.getElementById('pulseIntensity').value)||0.5,
+    ringSpeed: parseFloat(document.getElementById('ringSpeed').value)||1.0,
+    showFlightPath: document.getElementById('flightPathToggle').checked,
+    showChevron: document.getElementById('chevronToggle').checked,
+    showRibbon: document.getElementById('ribbonToggle').checked,
+    showSparkle: document.getElementById('sparkleToggle').checked,
+    showPing: document.getElementById('pingToggle').checked,
+    showShine: document.getElementById('shineToggle').checked,
+  };
+}
+
+// === COLOR HELPERS ===
+function hexToRgb(hex){
+  hex = (hex||'#888888').replace('#','');
+  if(hex.length===3) hex = hex.split('').map(c=>c+c).join('');
+  const num = parseInt(hex,16)||0x888888;
+  return {r:(num>>16)&255, g:(num>>8)&255, b:num&255};
+}
+function shade(hex, amt){
+  const {r,g,b} = hexToRgb(hex);
+  const f = (c)=> Math.max(0, Math.min(255, Math.round(amt>=0 ? c+(255-c)*amt : c*(1+amt))));
+  return `rgb(${f(r)},${f(g)},${f(b)})`;
+}
+function rgba(hex, a){ const {r,g,b}=hexToRgb(hex); return `rgba(${r},${g},${b},${a})`; }
+
+// === ANGULAR SHAPE POINT SETS (all straight-edged, no circles) ===
+function octagonPoints(){
+  const pts=[];
+  for(let i=0;i<8;i++){ const a=i*(Math.PI/4)-Math.PI/2+Math.PI/8; pts.push([Math.cos(a),Math.sin(a)]); }
+  return pts;
+}
+function hexagonPoints(){
+  const pts=[];
+  for(let i=0;i<6;i++){ const a=i*(Math.PI/3)-Math.PI/2+Math.PI/6; pts.push([Math.cos(a),Math.sin(a)]); }
+  return pts;
+}
+
+function polyPointsFor(shapeName){
+  switch(shapeName){
+    case 'airplane':
+      return [[0,-1.1],[0.85,0.65],[0.05,0.35],[-0.85,0.65]];
+    case 'ticket':
+      return [[-1.0,-0.5],[0.6,-0.5],[0.6,-0.12],[0.74,0],[0.6,0.12],[0.6,0.5],[-1.0,0.5]];
+    case 'passport':
+      return [[-0.75,-0.95],[0.5,-0.95],[0.75,-0.72],[0.75,0.95],[-0.75,0.95]];
+    case 'visaStamp':
+      return octagonPoints();
+    case 'globe':
+      return hexagonPoints();
+    case 'suitcase':
+      return [[-0.9,-0.5],[-0.32,-0.5],[-0.32,-0.78],[0.32,-0.78],[0.32,-0.5],[0.9,-0.5],[0.9,0.75],[-0.9,0.75]];
+    default:
+      return [[0,-1.1],[0.85,0.65],[0.05,0.35],[-0.85,0.65]];
+  }
+}
+
+// How much horizontal/vertical room each shape gives text near the middle band.
+const SHAPE_TEXT_WIDTH = { airplane:0.55, ticket:0.95, passport:0.62, visaStamp:0.8, globe:0.86, suitcase:0.75 };
+const SHAPE_V_SCALE    = { airplane:1, ticket:0.5, passport:1, visaStamp:1, globe:1, suitcase:0.78 };
+
+function transformPts(pts, r, rotationOffset, extraRotate, offX, offY){
+  extraRotate = extraRotate||0; offX = offX||0; offY = offY||0;
+  const rot = rotationOffset+extraRotate;
+  const cosA=Math.cos(rot), sinA=Math.sin(rot);
+  return pts.map(p=>{
+    const x=p[0]*r, y=p[1]*r;
+    return [x*cosA - y*sinA + offX, x*sinA + y*cosA + offY];
+  });
+}
+
+function pathFromPts(ctx, pts){
+  ctx.beginPath();
+  pts.forEach((p,i)=> i===0?ctx.moveTo(p[0],p[1]):ctx.lineTo(p[0],p[1]));
+  ctx.closePath();
+}
+
+// Draws one true extruded 3D face: side quads (depth) + front face on top.
+function draw3DFace(ctx, pts, extrude, fillFront, sideDark, sideLight){
+  const n=pts.length;
+  ctx.save();
+  for(let i=0;i<n;i++){
+    const a=pts[i], b=pts[(i+1)%n];
+    ctx.beginPath();
+    ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]);
+    ctx.lineTo(b[0]+extrude.dx,b[1]+extrude.dy);
+    ctx.lineTo(a[0]+extrude.dx,a[1]+extrude.dy);
+    ctx.closePath();
+    ctx.fillStyle = sideDark;
+    ctx.fill();
+  }
+  ctx.strokeStyle = sideLight;
+  ctx.globalAlpha = 0.45;
+  ctx.lineWidth = 1.2;
+  for(let i=0;i<n;i++){
+    ctx.beginPath();
+    ctx.moveTo(pts[i][0],pts[i][1]);
+    ctx.lineTo(pts[i][0]+extrude.dx,pts[i][1]+extrude.dy);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+
+  pathFromPts(ctx, pts);
+  ctx.fillStyle = fillFront;
+  ctx.fill();
+}
+
+// Draws the full 3D badge and returns the outline point set for
+// the dashed rotating border / ping rings / shine clip.
+function drawBadgeShape(ctx, shapeName, r, rotationOffset, s, extrudeDepth){
+  const grad = ctx.createLinearGradient(-r,-r*0.6,r*0.7,r);
+  grad.addColorStop(0, shade(s.badgeColorOuter, 0.4));
+  grad.addColorStop(0.5, s.badgeColorOuter);
+  grad.addColorStop(1, s.badgeColorInner);
+  const sideDark = shade(s.badgeColorInner, -0.3);
+  const sideLight = shade(s.badgeColorOuter, 0.2);
+  const extrude = {dx: extrudeDepth*0.4, dy: extrudeDepth};
+
+  const pts = transformPts(polyPointsFor(shapeName), r, rotationOffset);
+  draw3DFace(ctx, pts, extrude, grad, sideDark, sideLight);
+  return pts;
+}
+
+// Shrinks ctx.font (same family/weight) until `text` fits within maxWidth.
+function fitFontSize(ctx, text, fontSpecFn, startPx, minPx, maxWidth){
+  let size = startPx;
+  ctx.font = fontSpecFn(size);
+  let width = ctx.measureText(text).width;
+  if(width > maxWidth && width > 0){
+    size = Math.max(minPx, Math.floor(startPx * (maxWidth/width)));
+    ctx.font = fontSpecFn(size);
+  }
+  return size;
+}
+
+// Angular ribbon-style banner background (trapezoid with notched ends) — no rounded pills.
+function drawRibbonBanner(ctx, cx, cy, w, h, fill){
+  const notch = h*0.5;
+  ctx.beginPath();
+  ctx.moveTo(cx-w/2, cy-h/2);
+  ctx.lineTo(cx+w/2, cy-h/2);
+  ctx.lineTo(cx+w/2+notch*0.5, cy);
+  ctx.lineTo(cx+w/2, cy+h/2);
+  ctx.lineTo(cx-w/2, cy+h/2);
+  ctx.lineTo(cx-w/2-notch*0.5, cy);
+  ctx.closePath();
+  ctx.fillStyle = fill;
+  ctx.fill();
+}
+
+// Diamond sparkle (angular, not round)
+function drawDiamondSparkle(ctx, x, y, size, fill, alpha){
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = fill;
+  ctx.beginPath();
+  ctx.moveTo(x, y-size);
+  ctx.lineTo(x+size*0.55, y);
+  ctx.lineTo(x, y+size);
+  ctx.lineTo(x-size*0.55, y);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+// Angular wing accent flanking the badge (like small aircraft wing fins)
+function drawWingAccentFill(ctx, side, r, s){
+  const flip = side==='left'?-1:1;
+  ctx.beginPath();
+  ctx.moveTo(flip*r*1.18, r*0.32);
+  ctx.lineTo(flip*r*1.18+flip*r*0.34, 0);
+  ctx.lineTo(flip*r*1.18, -r*0.32);
+  ctx.lineTo(flip*r*1.18+flip*r*0.12, -r*0.32);
+  ctx.lineTo(flip*r*1.18+flip*r*0.46, 0);
+  ctx.lineTo(flip*r*1.18+flip*r*0.12, r*0.32);
+  ctx.closePath();
+  ctx.fillStyle = shade(s.badgeColorOuter, 0.1);
+  ctx.strokeStyle = rgba(s.ringColor, 0.5);
+  ctx.lineWidth = 1.5;
+  ctx.fill();
+  ctx.stroke();
+}
+
+// Dashed flight-path trail behind the badge (a route line, not the badge shape itself)
+function drawFlightPath(ctx, r, phase, ringColor){
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(-r*2.0, r*1.0);
+  ctx.quadraticCurveTo(0, -r*2.0, r*2.0, r*1.0);
+  ctx.setLineDash([r*0.07, r*0.1]);
+  ctx.lineDashOffset = -phase*r*0.7;
+  ctx.strokeStyle = rgba(ringColor, 0.4);
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.restore();
+}
+
+// === DRAW ENGINE ===
+function drawFrame(){
+  const w=canvas.width, h=canvas.height, cx=w/2, cy=h/2;
+  const baseR = Math.min(w,h)*0.30;
+  const s = getSettings();
+  const pulse = 1 + Math.sin(pulsePhase)*0.05*s.pulseIntensity;
+  const r = baseR*pulse;
+  const vScale = SHAPE_V_SCALE[currentShape] || 1;
+
+  ctx.clearRect(0,0,w,h);
+  ctx.save();
+  ctx.translate(cx, cy);
+
+  // --- dashed flight-path trail (background) ---
+  if(s.showFlightPath){
+    drawFlightPath(ctx, r, routePhase, s.ringColor);
+  }
+
+  // --- ambient glow behind the badge (soft shadow, no explicit circle drawn) ---
+  ctx.save();
+  ctx.shadowColor = rgba(s.glowColor, 0.55);
+  ctx.shadowBlur = 40 + Math.sin(pulsePhase*0.8)*14*s.pulseIntensity;
+  pathFromPts(ctx, transformPts(polyPointsFor(currentShape), r*0.7, spinAngle*0.15));
+  ctx.fillStyle = 'rgba(0,0,0,0)';
+  ctx.fill();
+  ctx.restore();
+
+  // --- expanding "ping" outline rings tracing the badge shape ---
+  if(s.showPing){
+    for(let k=0;k<2;k++){
+      const t = ((ringPhase*s.ringSpeed*0.4)+k*0.5)%1;
+      const scale = 1 + t*0.55;
+      const alpha = (1-t)*0.45;
+      if(alpha<=0.01) continue;
+      ctx.save();
+      pathFromPts(ctx, transformPts(polyPointsFor(currentShape), r*scale, spinAngle*0.2));
+      ctx.strokeStyle = rgba(s.ringColor, alpha);
+      ctx.lineWidth = 2.4;
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  // --- diamond sparkle particles ---
+  if(s.showSparkle){
+    sparkles.forEach(sp=>{
+      const t = sparklePhase*sp.speed + sp.offset;
+      const a = sp.angle + t*0.3;
+      const d = sp.dist*(1 + Math.sin(t*1.7)*0.08);
+      const x = Math.cos(a)*r*d, y = Math.sin(a)*r*d*vScale;
+      const twinkle = (Math.sin(t*3)+1)/2;
+      drawDiamondSparkle(ctx, x, y, r*0.06*sp.size*(0.6+twinkle*0.6), s.ringColor, 0.25+twinkle*0.55);
+    });
+  }
+
+  // --- wing accents ---
+  if(s.showChevron){
+    ['left','right'].forEach(side=>{
+      ctx.save();
+      const bob = Math.sin(pulsePhase)*r*0.03;
+      ctx.translate(0, bob);
+      drawWingAccentFill(ctx, side, r, s);
+      ctx.restore();
+    });
+  }
+
+  // --- ribbon tail beneath the badge ---
+  if(s.showRibbon){
+    ctx.save();
+    [-1,1].forEach(dir=>{
+      ctx.beginPath();
+      ctx.moveTo(dir*r*0.28, r*0.55*vScale);
+      ctx.lineTo(dir*r*0.5, r*1.05*vScale);
+      ctx.lineTo(dir*r*0.3, r*0.95*vScale);
+      ctx.lineTo(dir*r*0.12, r*0.6*vScale);
+      ctx.closePath();
+      ctx.fillStyle = shade(s.badgeColorInner, -0.05);
+      ctx.fill();
+    });
+    ctx.restore();
+  }
+
+  // --- main 3D badge shape ---
+  const extrudeDepth = r*0.16;
+  const outlinePts = drawBadgeShape(ctx, currentShape, r, spinAngle*0.25, s, extrudeDepth);
+
+  // --- holographic shine sweep (moving highlight band across the front face) ---
+  if(s.showShine){
+    ctx.save();
+    pathFromPts(ctx, outlinePts.map(p=>[p[0]-extrudeDepth*0.4, p[1]-extrudeDepth]));
+    ctx.clip();
+    const sweepX = ((shinePhase%2)-1)*r*2.2;
+    const band = ctx.createLinearGradient(sweepX-r*0.5, -r, sweepX+r*0.5, r);
+    band.addColorStop(0, 'rgba(255,255,255,0)');
+    band.addColorStop(0.5, 'rgba(255,255,255,0.55)');
+    band.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = band;
+    ctx.fillRect(-r*2, -r*2, r*4, r*4);
+    ctx.restore();
+  }
+
+  // --- rotating dashed outline hugging the shape edge ---
+  ctx.save();
+  const dashPts = transformPts(polyPointsFor(currentShape), r*1.1, spinAngle);
+  pathFromPts(ctx, dashPts);
+  ctx.setLineDash([r*0.14, r*0.09]);
+  ctx.lineDashOffset = -spinAngle*r*0.6;
+  ctx.strokeStyle = rgba(s.ringColor, 0.85);
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  ctx.restore();
+
+  // --- text layout ---
+  const textMaxW = r*2*(SHAPE_TEXT_WIDTH[currentShape]||0.7);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  // top banner
+  if(s.topText){
+    const fontPx = fitFontSize(ctx, s.topText, (sz)=>`700 ${sz}px 'Noto Sans Bengali', Outfit, sans-serif`, r*0.13, r*0.07, textMaxW*0.9);
+    const bw = ctx.measureText(s.topText).width + r*0.3;
+    drawRibbonBanner(ctx, 0, -r*1.02*vScale, bw, fontPx*1.7, shade(s.badgeColorOuter,0.05));
+    ctx.fillStyle = s.bannerTextColor;
+    ctx.font = `700 ${fontPx}px 'Noto Sans Bengali', Outfit, sans-serif`;
+    ctx.fillText(currentLang==='en' ? s.topText.toUpperCase() : s.topText, 0, -r*1.02*vScale);
+  }
+
+  // center text
+  if(s.centerText){
+    const fontPx = fitFontSize(ctx, s.centerText, (sz)=>`900 ${sz}px 'Noto Sans Bengali', Outfit, sans-serif`, r*0.34, r*0.15, textMaxW);
+    ctx.font = `900 ${fontPx}px 'Noto Sans Bengali', Outfit, sans-serif`;
+    const label = currentLang==='en' ? s.centerText.toUpperCase() : s.centerText;
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.fillText(label, r*0.02, -r*0.02*vScale+r*0.02);
+    ctx.fillStyle = s.centerTextColor;
+    ctx.fillText(label, 0, -r*0.02*vScale);
+  }
+
+  // sub text
+  if(s.centerSubText){
+    const fontPx = fitFontSize(ctx, s.centerSubText, (sz)=>`600 ${sz}px 'Noto Sans Bengali', Outfit, sans-serif`, r*0.13, r*0.07, textMaxW*0.9);
+    ctx.font = `600 ${fontPx}px 'Noto Sans Bengali', Outfit, sans-serif`;
+    ctx.fillStyle = s.centerTextColor;
+    ctx.globalAlpha = 0.85;
+    ctx.fillText(currentLang==='en' ? s.centerSubText.toUpperCase() : s.centerSubText, 0, r*0.28*vScale);
+    ctx.globalAlpha = 1;
+  }
+
+  // bottom banner
+  if(s.bottomText){
+    const fontPx = fitFontSize(ctx, s.bottomText, (sz)=>`700 ${sz}px 'Noto Sans Bengali', Outfit, sans-serif`, r*0.12, r*0.06, textMaxW*0.9);
+    const bw = ctx.measureText(s.bottomText).width + r*0.3;
+    drawRibbonBanner(ctx, 0, r*0.62*vScale+r*0.22, bw, fontPx*1.6, shade(s.badgeColorOuter,0.05));
+    ctx.fillStyle = s.bannerTextColor;
+    ctx.font = `700 ${fontPx}px 'Noto Sans Bengali', Outfit, sans-serif`;
+    ctx.fillText(currentLang==='en' ? s.bottomText.toUpperCase() : s.bottomText, 0, r*0.62*vScale+r*0.22);
+  }
+
+  ctx.restore();
+}
+
+// === ANIMATION LOOP ===
+function tick(timestamp){
+  if(!lastTimestamp) lastTimestamp = timestamp;
+  const dt = (timestamp - lastTimestamp)/1000;
+  lastTimestamp = timestamp;
+
+  spinAngle += direction * (speedRPM/60) * Math.PI*2 * dt;
+  pulsePhase += dt*2;
+  ringPhase += dt*0.5;
+  sparklePhase += dt;
+  shinePhase += dt*0.35;
+  routePhase += dt*1.2;
+
+  drawFrame();
+
+  if(!startTime) startTime = timestamp;
+  const elapsed = timestamp - startTime;
+  const loop = document.getElementById('loopSpinToggle').checked;
+  if(loop || elapsed < totalDurationMs){
+    animFrame = requestAnimationFrame(tick);
+  } else {
+    finishBurst();
+  }
+}
+
+function startBurst(){
+  if(isSpinning) return;
+  isSpinning = true;
+  lastTimestamp = null; startTime = null;
+  totalDurationMs = parseFloat(document.getElementById('spinDuration').value)*1000;
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+  animFrame = requestAnimationFrame(tick);
+}
+function stopBurst(){
+  isSpinning=false; if(animFrame) cancelAnimationFrame(animFrame); lastTimestamp=null;
+  document.getElementById('startBtn').disabled=false;
+  document.getElementById('stopBtn').disabled=true;
+  drawFrame();
+}
+function finishBurst(){
+  isSpinning=false; if(animFrame) cancelAnimationFrame(animFrame); lastTimestamp=null;
+  document.getElementById('startBtn').disabled=false;
+  document.getElementById('stopBtn').disabled=true;
+  drawFrame();
+}
+function resetAll(){
+  stopBurst(); spinAngle=0; pulsePhase=0; ringPhase=0; sparklePhase=0; shinePhase=0; routePhase=0; drawFrame();
+}
+
+function setExportStatus(msg){ document.getElementById('exportStatus').textContent = msg; }
+function saveBlob(blob, filename){
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob); link.download = filename; link.click();
+  setTimeout(()=>URL.revokeObjectURL(link.href), 1000);
+}
+
+function downloadPng(){
+  canvas.toBlob((blob)=>{
+    if(!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+    saveBlob(blob, `travel-badge-${currentShape}.png`);
+    setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+  }, 'image/png');
+}
+
+function getExportCanvas(size){
+  size = size||720;
+  const exportCanvas = document.createElement('canvas');
+  exportCanvas.width = exportCanvas.height = size;
+  const oldW=canvas.width, oldH=canvas.height;
+  canvas.width = canvas.height = size;
+  drawFrame();
+  exportCanvas.getContext('2d').drawImage(canvas,0,0);
+  canvas.width=oldW; canvas.height=oldH; drawFrame();
+  return exportCanvas;
+}
+
+async function downloadGif(){
+  if(!window.GIF){ setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ দিয়ে আবার চেষ্টা করুন।'); return; }
+  if(isExporting) return; isExporting=true;
+  const oldAngle=spinAngle, oldPulse=pulsePhase, oldRing=ringPhase, oldSpark=sparklePhase, oldShine=shinePhase, oldRoute=routePhase;
+  const gif = new GIF({ workers:2, quality:10, width:720, height:720,
+    workerScript:'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
+  const frames=48, frameDelay=50;
+  setExportStatus('GIF তৈরি হচ্ছে… 0%');
+  for(let f=0; f<frames; f++){
+    const t=f/frames;
+    spinAngle = oldAngle + direction*(Math.PI*2*t);
+    pulsePhase = oldPulse + (Math.PI*2*2*t);
+    ringPhase = oldRing + t*2;
+    sparklePhase = oldSpark + t*4;
+    shinePhase = oldShine + t*1.4;
+    routePhase = oldRoute + t*3;
+    gif.addFrame(getExportCanvas(720), { copy:true, delay:frameDelay });
+    setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((f+1)/frames*100)}%`);
+    await new Promise(requestAnimationFrame);
+  }
+  spinAngle=oldAngle; pulsePhase=oldPulse; ringPhase=oldRing; sparklePhase=oldSpark; shinePhase=oldShine; routePhase=oldRoute; drawFrame();
+  gif.on('finished',(blob)=>{ saveBlob(blob,`travel-badge-${currentShape}.gif`); setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।'); isExporting=false; });
+  gif.render();
+}
+
+async function downloadVideo(){
+  if(!window.MediaRecorder || !canvas.captureStream){ setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।'); return; }
+  if(isExporting) return; isExporting=true;
+  const exportCanvas = document.createElement('canvas');
+  exportCanvas.width = exportCanvas.height = 720;
+  const exportCtx = exportCanvas.getContext('2d');
+  const stream = exportCanvas.captureStream(30);
+  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond:5000000 });
+  const chunks=[];
+  const oldAngle=spinAngle, oldPulse=pulsePhase, oldRing=ringPhase, oldSpark=sparklePhase, oldShine=shinePhase, oldRoute=routePhase;
+  recorder.ondataavailable = (e)=> e.data.size && chunks.push(e.data);
+  recorder.onstop = ()=>{
+    saveBlob(new Blob(chunks,{type:mimeType}), `travel-badge-${currentShape}.webm`);
+    spinAngle=oldAngle; pulsePhase=oldPulse; ringPhase=oldRing; sparklePhase=oldSpark; shinePhase=oldShine; routePhase=oldRoute; drawFrame();
+    isExporting=false; setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+  };
+  recorder.start();
+  const start = performance.now(); const duration = 2400;
+  setExportStatus('ভিডিও তৈরি হচ্ছে…');
+  const render = (now)=>{
+    const progress = Math.min(1,(now-start)/duration);
+    spinAngle = oldAngle + direction*Math.PI*2*progress;
+    pulsePhase = oldPulse + Math.PI*2*2*progress;
+    ringPhase = oldRing + progress*2;
+    sparklePhase = oldSpark + progress*4;
+    shinePhase = oldShine + progress*1.4;
+    routePhase = oldRoute + progress*3;
+    const frame = getExportCanvas(720);
+    exportCtx.clearRect(0,0,720,720); exportCtx.drawImage(frame,0,0);
+    if(progress<1) requestAnimationFrame(render); else recorder.stop();
+  };
+  requestAnimationFrame(render);
+}
+
+// === DIRECTION ===
+function setDirection(dir){
+  direction = dir==='cw' ? 1 : -1;
+  document.getElementById('dirCW').classList.toggle('active', dir==='cw');
+  document.getElementById('dirCCW').classList.toggle('active', dir==='ccw');
+}
+
+// === EVENT LISTENERS ===
+document.getElementById('spinSpeed').addEventListener('input', function(){
+  speedRPM = parseFloat(this.value);
+  document.getElementById('speedBadge').textContent = speedRPM.toFixed(1)+' RPM';
+});
+document.getElementById('pulseIntensity').addEventListener('input', function(){
+  document.getElementById('pulseBadge').textContent = parseFloat(this.value).toFixed(2);
+});
+document.getElementById('ringSpeed').addEventListener('input', function(){
+  document.getElementById('ringSpeedBadge').textContent = parseFloat(this.value).toFixed(1);
+});
+
+['topText','centerText','centerSubText','bottomText',
+ 'badgeColorOuter','badgeColorInner','ringColor','bannerTextColor','centerTextColor','glowColor',
+ 'flightPathToggle','chevronToggle','ribbonToggle','sparkleToggle','pingToggle','shineToggle'].forEach(id=>{
+  const el = document.getElementById(id);
+  if(el){
+    el.addEventListener('input', ()=>{ if(!isSpinning) drawFrame(); });
+    el.addEventListener('change', ()=>{ if(!isSpinning) drawFrame(); });
+  }
+});
+
+// === INITIAL DRAW ===
+drawFrame();
+setTimeout(startBurst, 150);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+</body>
+</html>

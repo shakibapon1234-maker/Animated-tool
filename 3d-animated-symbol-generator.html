@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Animated Symbol Generator — by Shakib</title>
+    <meta name="description" content="৩ডি অ্যানিমেটেড সিম্বল/আইকন জেনারেটর — তীর, টিক, তারা, পিন, হোম ইত্যাদি — গ্লসি ৩ডি ব্যাজ স্টাইল, বাউন্স/পালস/রোটেট/ওয়াবল অ্যানিমেশন — বিজ্ঞাপন/ভিডিও/ফটো এডিটর অ্যাপের জন্য">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #05060f;
+            --bg-secondary: #0a0c1a;
+            --bg-card: #0f1224;
+            --bg-card-hover: #15192e;
+            --border: rgba(255,255,255,0.08);
+            --border-active: rgba(99,102,241,0.55);
+            --accent: #6366f1;
+            --accent-glow: rgba(99,102,241,0.4);
+            --accent-2: #22d3ee;
+            --accent-3: #f472b6;
+            --text-primary: #eef0ff;
+            --text-secondary: #9498c2;
+            --text-muted: #4a4d70;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 20px 60px rgba(0,0,0,0.55);
+            --shadow-glow: 0 0 45px rgba(99,102,241,0.2);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 20%, rgba(99,102,241,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(34,211,238,0.10) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app-header { width: 100%; padding: 24px 32px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--border); background: rgba(5,6,15,0.8); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 100; }
+        .header-icon { width: 44px; height: 44px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 0 20px var(--accent-glow); flex-shrink: 0; }
+        .header-text h1 { font-size: 20px; font-weight: 700; background: linear-gradient(135deg, #fff 0%, var(--accent-2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .header-text p { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+        .main-content { width: 100%; max-width: 1200px; padding: 40px 24px 80px; display: grid; grid-template-columns: 1fr 380px; gap: 32px; position: relative; z-index: 1; }
+        @media (max-width: 900px) { .main-content { grid-template-columns: 1fr; } }
+
+        .canvas-panel { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+        .canvas-wrapper { width: 100%; aspect-ratio: 1; max-width: 500px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; box-shadow: var(--shadow), var(--shadow-glow); }
+        .canvas-wrapper::before { content: ''; position: absolute; inset: -1px; border-radius: 25px; background: linear-gradient(135deg, rgba(99,102,241,0.3), rgba(34,211,238,0.1)); z-index: -1; animation: borderGlow 4s ease-in-out infinite; }
+        @keyframes borderGlow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+        .canvas-bg-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 30px 30px; border-radius: 24px; }
+        #symbolCanvas { display: block; max-width: 100%; max-height: 100%; }
+
+        .timer-display { display: flex; align-items: center; gap: 16px; padding: 16px 28px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 60px; box-shadow: var(--shadow); }
+        .timer-ring-wrap { position: relative; width: 56px; height: 56px; }
+        .timer-ring-wrap svg { transform: rotate(-90deg); }
+        .timer-ring-bg { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 4; }
+        .timer-ring-fill { fill: none; stroke: url(#ringGradient); stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 1s linear; stroke-dasharray: 157; stroke-dashoffset: 0; }
+        .timer-label-inner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--accent-2); }
+        .timer-text-group { display: flex; flex-direction: column; }
+        .timer-big { font-size: 32px; font-weight: 800; color: var(--text-primary); letter-spacing: -1px; }
+        .timer-sub { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+        .timer-status { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+        .timer-status.idle { background: rgba(255,255,255,0.06); color: var(--text-muted); }
+        .timer-status.spinning { background: rgba(99,102,241,0.2); color: var(--accent); animation: pulse 2s ease-in-out infinite; }
+        .timer-status.done { background: rgba(16,185,129,0.2); color: var(--success); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        .controls-panel { display: flex; flex-direction: column; gap: 20px; }
+        .control-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: border-color 0.2s, box-shadow 0.2s; }
+        .control-card:hover { border-color: var(--border-active); box-shadow: 0 0 20px rgba(99,102,241,0.1); }
+        .card-title { font-size: 13px; font-weight: 700; color: var(--text-secondary); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+        .card-title-icon { width: 24px; height: 24px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+
+        .symbol-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .symbol-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px 4px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: rgba(255,255,255,0.03); color: var(--text-secondary); font-size: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .symbol-btn .glyph { font-size: 18px; line-height: 1; color: var(--text-primary); }
+        .symbol-btn:hover { border-color: var(--accent); background: rgba(99,102,241,0.08); }
+        .symbol-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(99,102,241,0.15); }
+        .symbol-btn.active .glyph { color: var(--accent); }
+
+        .form-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+        .form-row:last-child { margin-bottom: 0; }
+        .form-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center; }
+        .form-label .value-badge { background: rgba(99,102,241,0.15); color: var(--accent); padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+
+        input[type="text"], input[type="number"] { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 16px; color: var(--text-primary); font-size: 14px; font-family: inherit; transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
+        input[type="text"]:focus, input[type="number"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+
+        input[type="range"] { width: 100%; height: 6px; -webkit-appearance: none; appearance: none; background: rgba(255,255,255,0.08); border-radius: 10px; outline: none; cursor: pointer; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: 0 0 10px rgba(99,102,241,0.5); cursor: pointer; transition: transform 0.15s; }
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+        input[type="color"] { width: 48px; height: 36px; border: 1px solid var(--border); border-radius: 8px; background: none; cursor: pointer; padding: 2px; }
+        .color-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .color-row:last-child { margin-bottom: 0; }
+        .color-label { font-size: 13px; color: var(--text-secondary); flex: 1; }
+
+        .time-presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+        .preset-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .preset-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(99,102,241,0.1); }
+        .preset-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(99,102,241,0.15); }
+
+        .option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .option-btn { padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: transparent; color: var(--text-secondary); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .option-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .option-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(99,102,241,0.12); }
+
+        .btn-group { display: flex; gap: 12px; }
+        .btn { flex: 1; padding: 14px 20px; border-radius: var(--radius-sm); border: none; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; letter-spacing: 0.3px; }
+        .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #05060f; box-shadow: 0 4px 20px rgba(99,102,241,0.4); }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(99,102,241,0.5); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-stop { background: linear-gradient(135deg, var(--danger), #b91c1c); color: white; box-shadow: 0 4px 20px rgba(239,68,68,0.3); }
+        .btn-stop:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(239,68,68,0.4); }
+        .btn-stop:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-ghost { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text-secondary); }
+        .btn-ghost:hover { border-color: var(--border-active); color: var(--text-primary); background: rgba(255,255,255,0.07); }
+
+        .style-presets { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .style-preset-btn { padding: 10px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: transparent; color: var(--text-secondary); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; text-align: center; }
+        .style-preset-btn:hover { border-color: var(--accent); color: var(--text-primary); background: rgba(99,102,241,0.08); }
+        .style-preset-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(99,102,241,0.15); }
+
+        .sep { height: 1px; background: var(--border); margin: 4px 0; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="header-icon">✨</div>
+        <div class="header-text">
+            <h1>3D Animated Symbol Generator</h1>
+            <p>তীর, টিক, তারা, পিন, হোম ইত্যাদি সিম্বল — গ্লসি ৩ডি + বাউন্স/পালস/রোটেট অ্যানিমেশন — by Shakib</p>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <div class="canvas-panel">
+            <div class="canvas-wrapper">
+                <div class="canvas-bg-grid"></div>
+                <canvas id="symbolCanvas" width="460" height="460"></canvas>
+            </div>
+
+            <div class="timer-display" id="timerDisplay">
+                <div class="timer-ring-wrap">
+                    <svg width="56" height="56" viewBox="0 0 56 56">
+                        <defs>
+                            <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#6366f1"/>
+                                <stop offset="100%" stop-color="#22d3ee"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="timer-ring-bg" cx="28" cy="28" r="25"/>
+                        <circle class="timer-ring-fill" id="timerRing" cx="28" cy="28" r="25"/>
+                    </svg>
+                    <div class="timer-label-inner" id="timerPercent">—</div>
+                </div>
+                <div class="timer-text-group">
+                    <div class="timer-big" id="timerBig">00:00</div>
+                    <div class="timer-sub" id="timerSub">সময় বাকি</div>
+                </div>
+                <div class="timer-status idle" id="timerStatus">প্রস্তুত</div>
+            </div>
+        </div>
+
+        <div class="controls-panel">
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">🔣</div>সিম্বল বাছাই করুন</div>
+                <div class="symbol-grid" id="symbolGrid">
+                    <button class="symbol-btn active" data-icon="arrow" onclick="setIcon('arrow',this)"><span class="glyph">→</span>তীর</button>
+                    <button class="symbol-btn" data-icon="doubleArrow" onclick="setIcon('doubleArrow',this)"><span class="glyph">⇄</span>দুইমুখী তীর</button>
+                    <button class="symbol-btn" data-icon="plus" onclick="setIcon('plus',this)"><span class="glyph">+</span>প্লাস</button>
+                    <button class="symbol-btn" data-icon="cross" onclick="setIcon('cross',this)"><span class="glyph">✕</span>ক্রস</button>
+                    <button class="symbol-btn" data-icon="check" onclick="setIcon('check',this)"><span class="glyph">✓</span>টিক</button>
+                    <button class="symbol-btn" data-icon="question" onclick="setIcon('question',this)"><span class="glyph">?</span>প্রশ্ন</button>
+                    <button class="symbol-btn" data-icon="exclamation" onclick="setIcon('exclamation',this)"><span class="glyph">!</span>বিস্ময়</button>
+                    <button class="symbol-btn" data-icon="star" onclick="setIcon('star',this)"><span class="glyph">★</span>তারা</button>
+                    <button class="symbol-btn" data-icon="circle" onclick="setIcon('circle',this)"><span class="glyph">○</span>বৃত্ত</button>
+                    <button class="symbol-btn" data-icon="triangle" onclick="setIcon('triangle',this)"><span class="glyph">△</span>ত্রিভুজ</button>
+                    <button class="symbol-btn" data-icon="pin" onclick="setIcon('pin',this)"><span class="glyph">📍</span>লোকেশন</button>
+                    <button class="symbol-btn" data-icon="home" onclick="setIcon('home',this)"><span class="glyph">🏠</span>বাসা/হোম</button>
+                    <button class="symbol-btn" data-icon="star6" onclick="setIcon('star6',this)"><span class="glyph">✦</span>৬-পয়েন্ট তারা</button>
+                </div>
+                <p style="font-size:11px;color:var(--text-muted);margin-top:12px;line-height:1.5;">স্পিচ বাবল, থট ক্লাউড, ব্যানার-জাতীয় শেপ (যেগুলোর ভেতরে টেক্সট লিখতে হয়) এখন আলাদা "3D Text Box Symbol Generator" ফাইলে আছে।</p>
+            </div>
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">✍️</div>লেবেল টেক্সট</div>
+                <div class="form-row">
+                    <label class="form-label">টেক্সট (ঐচ্ছিক)</label>
+                    <input type="text" id="labelText" value="" placeholder="সিম্বলের নিচে টেক্সট (না চাইলে খালি রাখুন)">
+                </div>
+            </div>
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">🎨</div>কালার স্টাইল (উজ্জ্বল)</div>
+                <div class="style-presets" id="stylePresets">
+                    <button class="style-preset-btn active" data-style="indigoCyan" onclick="applyStyle('indigoCyan',this)">💠 ইন্ডিগো-সায়ান</button>
+                    <button class="style-preset-btn" data-style="hotPink" onclick="applyStyle('hotPink',this)">💗 হট পিংক</button>
+                    <button class="style-preset-btn" data-style="limeGreen" onclick="applyStyle('limeGreen',this)">🟢 লাইম গ্রিন</button>
+                    <button class="style-preset-btn" data-style="fireOrange" onclick="applyStyle('fireOrange',this)">🟠 ফায়ার অরেঞ্জ</button>
+                    <button class="style-preset-btn" data-style="goldClassic" onclick="applyStyle('goldClassic',this)">🟡 গোল্ড ক্লাসিক</button>
+                    <button class="style-preset-btn" data-style="dangerRed" onclick="applyStyle('dangerRed',this)">🔴 ডেঞ্জার রেড</button>
+                </div>
+                <div class="sep" style="margin-top:16px;"></div>
+                <div style="margin-top:14px;">
+                    <div class="color-row">
+                        <span class="color-label">ব্যাজ রঙ (হালকা)</span>
+                        <input type="color" id="badgeColorStart" value="#6366f1">
+                    </div>
+                    <div class="color-row">
+                        <span class="color-label">ব্যাজ রঙ (গাঢ়)</span>
+                        <input type="color" id="badgeColorEnd" value="#3730a3">
+                    </div>
+                    <div class="color-row">
+                        <span class="color-label">সিম্বল রঙ</span>
+                        <input type="color" id="symbolColor" value="#ffffff">
+                    </div>
+                    <div class="color-row">
+                        <span class="color-label">লেবেল টেক্সট রঙ</span>
+                        <input type="color" id="labelColor" value="#ffffff">
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">⚡</div>অ্যানিমেশন সেটিংস</div>
+                <div class="form-row">
+                    <label class="form-label">অ্যানিমেশন টাইপ</label>
+                    <div class="option-grid">
+                        <button class="option-btn active" data-anim="bounce" onclick="setAnim('bounce',this)">↕ বাউন্স</button>
+                        <button class="option-btn" data-anim="pulse" onclick="setAnim('pulse',this)">💗 পালস</button>
+                        <button class="option-btn" data-anim="rotate" onclick="setAnim('rotate',this)">↻ রোটেট</button>
+                        <button class="option-btn" data-anim="wobble" onclick="setAnim('wobble',this)">〰 ওয়াবল</button>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label class="form-label">তীব্রতা <span class="value-badge" id="ampBadge">0.5</span></label>
+                    <input type="range" id="animAmp" min="0.1" max="1" step="0.05" value="0.5">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">স্পিড <span class="value-badge" id="speedBadge">1.0</span></label>
+                    <input type="range" id="animSpeed" min="0.2" max="3" step="0.1" value="1.0">
+                </div>
+                <div class="form-row">
+                    <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                        <input type="checkbox" id="showRippleToggle" checked>
+                        রিপল রিং দেখান
+                    </label>
+                </div>
+                <div class="form-row">
+                    <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                        <input type="checkbox" id="showShineToggle" checked>
+                        শাইন সুইপ দেখান
+                    </label>
+                </div>
+            </div>
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">⏱️</div>টাইমিং</div>
+                <div class="form-row">
+                    <label class="form-label">সময় (সেকেন্ড) <span class="value-badge" id="durationBadge">30s</span></label>
+                    <input type="number" id="spinDuration" value="30" min="1" max="3600">
+                    <div class="time-presets">
+                        <button class="preset-btn" onclick="setDuration(5,this)">5s</button>
+                        <button class="preset-btn" onclick="setDuration(10,this)">10s</button>
+                        <button class="preset-btn active" onclick="setDuration(30,this)">30s</button>
+                        <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+                        <button class="preset-btn" onclick="setDuration(120,this)">2মিনিট</button>
+                        <button class="preset-btn" onclick="setDuration(300,this)">5মিনিট</button>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                        <input type="checkbox" id="loopSpinToggle" checked>
+                        সবসময় চলতে থাকবে (Loop)
+                    </label>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="startBtn" onclick="startBurst()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+                    অ্যানিমেশন শুরু
+                </button>
+                <button class="btn btn-stop" id="stopBtn" onclick="stopBurst()" disabled>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+                    বন্ধ করুন
+                </button>
+            </div>
+            <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট করুন</button>
+
+            <div class="control-card" style="margin-top:16px;">
+                <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+                <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.55;">বর্তমান সিম্বল PNG হিসেবে, অথবা একটি পূর্ণ অ্যানিমেশন সাইকেল GIF/ভিডিও হিসেবে সেভ করুন।</p>
+                <div class="btn-group">
+                    <button class="btn btn-primary" type="button" onclick="downloadPng()">PNG ডাউনলোড</button>
+                    <button class="btn btn-primary" type="button" onclick="downloadGif()">GIF ডাউনলোড</button>
+                    <button class="btn btn-primary" type="button" onclick="downloadVideo()">ভিডিও (WebM)</button>
+                </div>
+                <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+    /* =====================================================
+       3D ANIMATED SYMBOL GENERATOR ENGINE
+       by Shakib — Ad / Photo / Video Editor Project
+       All symbols (arrow, check, star, pin, home, etc.) are
+       drawn from scratch as vector paths inside a glossy 3D
+       badge — generic UI pictograms, not copied brand assets.
+       Multiple animation modes: bounce, pulse, rotate, wobble.
+    ===================================================== */
+
+    const canvas = document.getElementById('symbolCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        const wrapper = canvas.parentElement;
+        const size = Math.min(wrapper.clientWidth - 40, 460);
+        canvas.width = size;
+        canvas.height = size;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', () => { resizeCanvas(); drawFrame(); });
+
+    // === STATE ===
+    let phase = 0;
+    let ripplePhase = 0;
+    let shinePhase = 0;
+    let isSpinning = false;
+    let animFrame = null;
+    let totalDurationMs = 30000;
+    let startTime = null;
+    let lastTimestamp = null;
+    let isExporting = false;
+    let currentIcon = 'arrow';
+    let currentAnim = 'bounce';
+    let speedVal = 1.0;
+
+    const stylePresets = {
+        indigoCyan: { badgeColorStart: '#6366f1', badgeColorEnd: '#3730a3', symbolColor: '#ffffff', labelColor: '#ffffff' },
+        hotPink:    { badgeColorStart: '#ff1f6d', badgeColorEnd: '#9d174d', symbolColor: '#ffffff', labelColor: '#ffffff' },
+        limeGreen:  { badgeColorStart: '#84cc16', badgeColorEnd: '#3f6212', symbolColor: '#0a1a00', labelColor: '#ffffff' },
+        fireOrange: { badgeColorStart: '#ff8a00', badgeColorEnd: '#c2410c', symbolColor: '#ffffff', labelColor: '#ffffff' },
+        goldClassic:{ badgeColorStart: '#ffd700', badgeColorEnd: '#a16207', symbolColor: '#241a00', labelColor: '#ffffff' },
+        dangerRed:  { badgeColorStart: '#ef4444', badgeColorEnd: '#7f1d1d', symbolColor: '#ffffff', labelColor: '#ffffff' },
+    };
+
+    function applyStyle(styleName, btnEl) {
+        const s = stylePresets[styleName];
+        if (!s) return;
+        document.getElementById('badgeColorStart').value = s.badgeColorStart;
+        document.getElementById('badgeColorEnd').value   = s.badgeColorEnd;
+        document.getElementById('symbolColor').value     = s.symbolColor;
+        document.getElementById('labelColor').value      = s.labelColor;
+        document.querySelectorAll('.style-preset-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+        drawFrame();
+    }
+
+    function setIcon(icon, btnEl) {
+        currentIcon = icon;
+        document.querySelectorAll('.symbol-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+        drawFrame();
+    }
+
+    function setAnim(anim, btnEl) {
+        currentAnim = anim;
+        document.querySelectorAll('.option-btn[data-anim]').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+        drawFrame();
+    }
+
+    function getSettings() {
+        return {
+            labelText:      document.getElementById('labelText').value || '',
+            badgeColorStart:document.getElementById('badgeColorStart').value,
+            badgeColorEnd:  document.getElementById('badgeColorEnd').value,
+            symbolColor:    document.getElementById('symbolColor').value,
+            labelColor:     document.getElementById('labelColor').value,
+            showRipple:     document.getElementById('showRippleToggle').checked,
+            showShine:      document.getElementById('showShineToggle').checked,
+            amplitude:      parseFloat(document.getElementById('animAmp').value) || 0.5,
+        };
+    }
+
+    function hexToRgba(hex, alpha) {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgba(${r},${g},${b},${alpha})`;
+    }
+    function lightenColor(hex, amt) {
+        const r = Math.min(255, parseInt(hex.slice(1,3),16) + amt);
+        const g = Math.min(255, parseInt(hex.slice(3,5),16) + amt);
+        const b = Math.min(255, parseInt(hex.slice(5,7),16) + amt);
+        return `rgb(${r},${g},${b})`;
+    }
+
+    // === SYMBOL DRAWING (all original vector paths) ===
+    function drawSymbol(ctx, type, size, color) {
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.lineWidth = size * 0.13;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        switch (type) {
+            case 'arrow':
+                ctx.beginPath();
+                ctx.moveTo(-size * 0.42, 0); ctx.lineTo(size * 0.28, 0);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(size * 0.08, -size * 0.26); ctx.lineTo(size * 0.42, 0); ctx.lineTo(size * 0.08, size * 0.26);
+                ctx.stroke();
+                break;
+            case 'doubleArrow':
+                ctx.beginPath();
+                ctx.moveTo(-size * 0.30, 0); ctx.lineTo(size * 0.30, 0);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(-size * 0.08, -size * 0.22); ctx.lineTo(-size * 0.38, 0); ctx.lineTo(-size * 0.08, size * 0.22);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(size * 0.08, -size * 0.22); ctx.lineTo(size * 0.38, 0); ctx.lineTo(size * 0.08, size * 0.22);
+                ctx.stroke();
+                break;
+            case 'plus':
+                ctx.lineWidth = size * 0.16;
+                ctx.beginPath();
+                ctx.moveTo(0, -size * 0.38); ctx.lineTo(0, size * 0.38);
+                ctx.moveTo(-size * 0.38, 0); ctx.lineTo(size * 0.38, 0);
+                ctx.stroke();
+                break;
+            case 'cross':
+                ctx.lineWidth = size * 0.15;
+                ctx.beginPath();
+                ctx.moveTo(-size * 0.28, -size * 0.28); ctx.lineTo(size * 0.28, size * 0.28);
+                ctx.moveTo(size * 0.28, -size * 0.28); ctx.lineTo(-size * 0.28, size * 0.28);
+                ctx.stroke();
+                break;
+            case 'check':
+                ctx.lineWidth = size * 0.15;
+                ctx.beginPath();
+                ctx.moveTo(-size * 0.30, 0); ctx.lineTo(-size * 0.05, size * 0.26); ctx.lineTo(size * 0.36, -size * 0.26);
+                ctx.stroke();
+                break;
+            case 'question':
+                ctx.font = `900 ${Math.round(size * 0.9)}px 'Outfit', sans-serif`;
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText('?', 0, -size * 0.02);
+                break;
+            case 'exclamation':
+                ctx.font = `900 ${Math.round(size * 0.9)}px 'Outfit', sans-serif`;
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText('!', 0, -size * 0.02);
+                break;
+            case 'star': {
+                const spikes = 5, outerR = size * 0.46, innerR = size * 0.18;
+                ctx.beginPath();
+                for (let i = 0; i < spikes * 2; i++) {
+                    const r = (i % 2 === 0) ? outerR : innerR;
+                    const angle = i * Math.PI / spikes - Math.PI / 2;
+                    const x = Math.cos(angle) * r, y = Math.sin(angle) * r;
+                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+                ctx.fill();
+                break;
+            }
+            case 'circle':
+                ctx.lineWidth = size * 0.12;
+                ctx.beginPath();
+                ctx.arc(0, 0, size * 0.34, 0, Math.PI * 2);
+                ctx.stroke();
+                break;
+            case 'triangle':
+                ctx.beginPath();
+                ctx.moveTo(0, -size * 0.38);
+                ctx.lineTo(size * 0.38, size * 0.30);
+                ctx.lineTo(-size * 0.38, size * 0.30);
+                ctx.closePath();
+                ctx.fill();
+                break;
+            case 'pin':
+                ctx.beginPath();
+                ctx.arc(0, -size * 0.10, size * 0.26, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.moveTo(-size * 0.16, size * 0.02);
+                ctx.lineTo(0, size * 0.42);
+                ctx.lineTo(size * 0.16, size * 0.02);
+                ctx.closePath();
+                ctx.fill();
+                ctx.save();
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath();
+                ctx.arc(0, -size * 0.10, size * 0.10, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+                break;
+            case 'home':
+                ctx.beginPath();
+                ctx.moveTo(0, -size * 0.38);
+                ctx.lineTo(size * 0.34, -size * 0.06);
+                ctx.lineTo(size * 0.34, size * 0.34);
+                ctx.lineTo(-size * 0.34, size * 0.34);
+                ctx.lineTo(-size * 0.34, -size * 0.06);
+                ctx.closePath();
+                ctx.fill();
+                break;
+            case 'star6': {
+                const spikes = 6, outerR = size * 0.46, innerR = size * 0.22;
+                ctx.beginPath();
+                for (let i = 0; i < spikes * 2; i++) {
+                    const r = (i % 2 === 0) ? outerR : innerR;
+                    const angle = i * Math.PI / spikes - Math.PI / 2;
+                    const x = Math.cos(angle) * r, y = Math.sin(angle) * r;
+                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+                ctx.fill();
+                break;
+            }
+        }
+        ctx.restore();
+    }
+
+    // === DRAW ENGINE ===
+    function drawFrame() {
+        const w = canvas.width, h = canvas.height;
+        const cx = w / 2, cy = h / 2;
+        const s = getSettings();
+        ctx.clearRect(0, 0, w, h);
+
+        const badgeR = Math.min(w, h) * 0.28;
+
+        let dy = 0, rotation = 0, scale = 1;
+        switch (currentAnim) {
+            case 'bounce':  dy = Math.sin(phase) * s.amplitude * h * 0.06; break;
+            case 'pulse':   scale = 1 + s.amplitude * 0.16 * Math.sin(phase); break;
+            case 'rotate':  rotation = phase; break;
+            case 'wobble':  rotation = s.amplitude * 0.35 * Math.sin(phase); break;
+        }
+
+        // ground shadow
+        const shadowShrink = currentAnim === 'bounce' ? Math.abs(Math.sin(phase)) * 0.18 : 0;
+        ctx.save();
+        ctx.translate(cx, h * 0.80);
+        ctx.scale(1 - shadowShrink, 1);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, w * 0.24, h * 0.03, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,0,0,0.35)';
+        ctx.fill();
+        ctx.restore();
+
+        // ripple rings
+        if (s.showRipple) {
+            for (let i = 0; i < 3; i++) {
+                const rp = (ripplePhase + i / 3) % 1;
+                const ringR = badgeR * (1 + rp * 1.6);
+                const ringAlpha = (1 - rp) * 0.3;
+                ctx.beginPath();
+                ctx.arc(cx, cy + dy, ringR, 0, Math.PI * 2);
+                ctx.strokeStyle = hexToRgba(s.badgeColorStart, ringAlpha);
+                ctx.lineWidth = 3;
+                ctx.stroke();
+            }
+        }
+
+        ctx.save();
+        ctx.translate(cx, cy + dy);
+        ctx.rotate(rotation);
+        ctx.scale(scale, scale);
+
+        // badge circle with 3D shading
+        ctx.save();
+        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = 22;
+        ctx.shadowOffsetY = 9;
+        ctx.beginPath();
+        ctx.arc(0, 0, badgeR, 0, Math.PI * 2);
+        const badgeGrad = ctx.createLinearGradient(-badgeR, -badgeR, badgeR, badgeR);
+        badgeGrad.addColorStop(0, lightenColor(s.badgeColorStart, 30));
+        badgeGrad.addColorStop(0.5, s.badgeColorStart);
+        badgeGrad.addColorStop(1, s.badgeColorEnd);
+        ctx.fillStyle = badgeGrad;
+        ctx.fill();
+        ctx.restore();
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(0, 0, badgeR, 0, Math.PI * 2);
+        ctx.clip();
+        const glossGrad = ctx.createRadialGradient(-badgeR * 0.35, -badgeR * 0.45, 0, -badgeR * 0.35, -badgeR * 0.45, badgeR * 1.1);
+        glossGrad.addColorStop(0, 'rgba(255,255,255,0.55)');
+        glossGrad.addColorStop(0.4, 'rgba(255,255,255,0.12)');
+        glossGrad.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = glossGrad;
+        ctx.fillRect(-badgeR, -badgeR, badgeR * 2, badgeR * 2);
+
+        const rimGrad = ctx.createRadialGradient(0, 0, badgeR * 0.6, 0, 0, badgeR);
+        rimGrad.addColorStop(0, 'rgba(0,0,0,0)');
+        rimGrad.addColorStop(1, 'rgba(0,0,0,0.25)');
+        ctx.fillStyle = rimGrad;
+        ctx.fillRect(-badgeR, -badgeR, badgeR * 2, badgeR * 2);
+
+        if (s.showShine) {
+            const sweepX = ((shinePhase % 1) * (badgeR * 3.6)) - badgeR * 1.8;
+            const shineGrad = ctx.createLinearGradient(sweepX - 25, -badgeR, sweepX + 25, badgeR);
+            shineGrad.addColorStop(0, 'rgba(255,255,255,0)');
+            shineGrad.addColorStop(0.5, 'rgba(255,255,255,0.4)');
+            shineGrad.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.fillStyle = shineGrad;
+            ctx.fillRect(-badgeR, -badgeR, badgeR * 2, badgeR * 2);
+        }
+        ctx.restore();
+
+        ctx.beginPath();
+        ctx.arc(0, 0, badgeR, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // symbol — counter-rotate for 'rotate' mode so it stays readable
+        // (keeps the whole badge spinning but the glyph itself upright)
+        if (currentAnim !== 'rotate') {
+            drawSymbol(ctx, currentIcon, badgeR * 1.05, s.symbolColor);
+        } else {
+            ctx.save();
+            ctx.rotate(-rotation);
+            drawSymbol(ctx, currentIcon, badgeR * 1.05, s.symbolColor);
+            ctx.restore();
+        }
+
+        ctx.restore(); // end badge transform
+
+        // label text
+        if (s.labelText) {
+            ctx.save();
+            ctx.translate(cx, cy + dy + badgeR * 1.55);
+            const fontSize = Math.max(14, badgeR * 0.28);
+            ctx.font = `800 ${fontSize}px 'Outfit', sans-serif`;
+            ctx.fillStyle = s.labelColor;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = 'rgba(0,0,0,0.35)';
+            ctx.shadowBlur = 6;
+            ctx.fillText(s.labelText.toUpperCase(), 0, 0);
+            ctx.restore();
+        }
+    }
+
+    // === ANIMATION LOOP ===
+    function animationLoop(timestamp) {
+        if (!isSpinning) return;
+        if (!lastTimestamp) lastTimestamp = timestamp;
+        const delta = timestamp - lastTimestamp;
+        lastTimestamp = timestamp;
+
+        const phaseSpeed = (currentAnim === 'rotate') ? 0.0018 : 0.004;
+        phase += delta * phaseSpeed * speedVal;
+        ripplePhase = (ripplePhase + delta * 0.0006) % 1;
+        shinePhase += delta * 0.0005;
+
+        const elapsed = timestamp - startTime;
+        const remaining = Math.max(0, totalDurationMs - elapsed);
+        updateTimerUI(elapsed, remaining);
+
+        drawFrame();
+
+        if (remaining <= 0 && !document.getElementById('loopSpinToggle').checked) {
+            finishBurst();
+            return;
+        }
+        if (remaining <= 0) startTime = timestamp;
+
+        animFrame = requestAnimationFrame(animationLoop);
+    }
+
+    function updateTimerUI(elapsed, remaining) {
+        const totalSec = Math.ceil(remaining / 1000);
+        const minutes = Math.floor(totalSec / 60).toString().padStart(2, '0');
+        const seconds = (totalSec % 60).toString().padStart(2, '0');
+        document.getElementById('timerBig').textContent = `${minutes}:${seconds}`;
+        const pct = Math.max(0, Math.min(100, ((totalDurationMs - remaining) / totalDurationMs) * 100));
+        document.getElementById('timerPercent').textContent = Math.round(pct) + '%';
+        const circumference = 157;
+        const offset = circumference - (pct / 100) * circumference;
+        document.getElementById('timerRing').style.strokeDashoffset = offset;
+    }
+
+    function resetTimerUI() {
+        document.getElementById('timerBig').textContent = '00:00';
+        document.getElementById('timerPercent').textContent = '—';
+        document.getElementById('timerRing').style.strokeDashoffset = 157;
+        document.getElementById('timerStatus').className = 'timer-status idle';
+        document.getElementById('timerStatus').textContent = 'প্রস্তুত';
+        document.getElementById('timerSub').textContent = 'সময় বাকি';
+    }
+
+    function startBurst() {
+        if (isSpinning) return;
+        const durationSec = parseFloat(document.getElementById('spinDuration').value) || 30;
+        totalDurationMs = durationSec * 1000;
+        speedVal = parseFloat(document.getElementById('animSpeed').value) || 1.0;
+
+        isSpinning = true;
+        startTime = null;
+        lastTimestamp = null;
+
+        document.getElementById('startBtn').disabled = true;
+        document.getElementById('stopBtn').disabled = false;
+
+        const statusEl = document.getElementById('timerStatus');
+        statusEl.className = 'timer-status spinning';
+        statusEl.textContent = '⚡ চলছে';
+        document.getElementById('timerSub').textContent = 'সময় বাকি';
+
+        animFrame = requestAnimationFrame((ts) => {
+            startTime = ts;
+            lastTimestamp = ts;
+            animationLoop(ts);
+        });
+    }
+
+    function stopBurst() {
+        isSpinning = false;
+        if (animFrame) cancelAnimationFrame(animFrame);
+        lastTimestamp = null;
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('stopBtn').disabled = true;
+        const statusEl = document.getElementById('timerStatus');
+        statusEl.className = 'timer-status idle';
+        statusEl.textContent = '⏸ থামানো হয়েছে';
+        drawFrame();
+    }
+
+    function finishBurst() {
+        isSpinning = false;
+        if (animFrame) cancelAnimationFrame(animFrame);
+        lastTimestamp = null;
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('stopBtn').disabled = true;
+        document.getElementById('timerBig').textContent = '00:00';
+        document.getElementById('timerPercent').textContent = '100%';
+        document.getElementById('timerRing').style.strokeDashoffset = 0;
+        const statusEl = document.getElementById('timerStatus');
+        statusEl.className = 'timer-status done';
+        statusEl.textContent = '✅ সম্পন্ন!';
+        document.getElementById('timerSub').textContent = 'অ্যানিমেশন শেষ';
+        drawFrame();
+    }
+
+    function resetAll() {
+        stopBurst();
+        phase = 0;
+        ripplePhase = 0;
+        shinePhase = 0;
+        resetTimerUI();
+        drawFrame();
+    }
+
+    function setExportStatus(message) { document.getElementById('exportStatus').textContent = message; }
+
+    function saveBlob(blob, filename) {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    }
+
+    function downloadPng() {
+        canvas.toBlob((blob) => {
+            if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+            saveBlob(blob, `ad-3d-symbol-${currentIcon}.png`);
+            setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+        }, 'image/png');
+    }
+
+    function getExportCanvas(size = 720) {
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = exportCanvas.height = size;
+        const oldWidth = canvas.width, oldHeight = canvas.height;
+        canvas.width = canvas.height = size;
+        drawFrame();
+        exportCanvas.getContext('2d').drawImage(canvas, 0, 0);
+        canvas.width = oldWidth; canvas.height = oldHeight;
+        drawFrame();
+        return exportCanvas;
+    }
+
+    async function downloadGif() {
+        if (!window.GIF) {
+            setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ দিয়ে আবার চেষ্টা করুন।');
+            return;
+        }
+        if (isExporting) return;
+        isExporting = true;
+        const oldPhase = phase, oldRipple = ripplePhase, oldShine = shinePhase;
+        const gif = new GIF({ workers: 2, quality: 10, width: 720, height: 720, workerScript: 'gif.worker.js' });
+        const frames = 48;
+        const frameDelay = 50;
+        setExportStatus('GIF তৈরি হচ্ছে… 0%');
+        for (let frame = 0; frame < frames; frame++) {
+            const t = frame / frames;
+            phase = oldPhase + t * Math.PI * 2;
+            ripplePhase = t;
+            shinePhase = oldShine + t * 1.2;
+            gif.addFrame(getExportCanvas(720), { copy: true, delay: frameDelay });
+            setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((frame + 1) / frames * 100)}%`);
+            await new Promise(requestAnimationFrame);
+        }
+        phase = oldPhase; ripplePhase = oldRipple; shinePhase = oldShine; drawFrame();
+        gif.on('finished', (blob) => {
+            saveBlob(blob, `ad-3d-symbol-${currentIcon}.gif`);
+            setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
+            isExporting = false;
+        });
+        gif.render();
+    }
+
+    async function downloadVideo() {
+        if (!window.MediaRecorder || !canvas.captureStream) {
+            setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।');
+            return;
+        }
+        if (isExporting) return;
+        isExporting = true;
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = exportCanvas.height = 720;
+        const exportCtx = exportCanvas.getContext('2d');
+        const stream = exportCanvas.captureStream(30);
+        const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+        const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 5000000 });
+        const chunks = [];
+        const oldPhase = phase, oldRipple = ripplePhase, oldShine = shinePhase;
+        recorder.ondataavailable = (event) => event.data.size && chunks.push(event.data);
+        recorder.onstop = () => {
+            saveBlob(new Blob(chunks, { type: mimeType }), `ad-3d-symbol-${currentIcon}.webm`);
+            phase = oldPhase; ripplePhase = oldRipple; shinePhase = oldShine; drawFrame(); isExporting = false;
+            setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+        };
+        recorder.start();
+        const start = performance.now();
+        const duration = 2600;
+        setExportStatus('ভিডিও তৈরি হচ্ছে…');
+        const render = (now) => {
+            const progress = Math.min(1, (now - start) / duration);
+            phase = oldPhase + progress * Math.PI * 2;
+            ripplePhase = progress;
+            shinePhase = oldShine + progress * 1.2;
+            const frame = getExportCanvas(720);
+            exportCtx.clearRect(0, 0, 720, 720);
+            exportCtx.drawImage(frame, 0, 0);
+            if (progress < 1) requestAnimationFrame(render); else recorder.stop();
+        };
+        requestAnimationFrame(render);
+    }
+
+    function setDuration(sec, btnEl) {
+        document.getElementById('spinDuration').value = sec;
+        document.getElementById('durationBadge').textContent = sec >= 60 ? `${sec / 60}মিনিট` : `${sec}s`;
+        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+    }
+
+    document.getElementById('spinDuration').addEventListener('input', function() {
+        const v = parseFloat(this.value) || 30;
+        document.getElementById('durationBadge').textContent = v >= 60 ? `${(v / 60).toFixed(1)}মিনিট` : `${v}s`;
+    });
+    document.getElementById('animAmp').addEventListener('input', function() {
+        document.getElementById('ampBadge').textContent = parseFloat(this.value).toFixed(2);
+        if (!isSpinning) drawFrame();
+    });
+    document.getElementById('animSpeed').addEventListener('input', function() {
+        document.getElementById('speedBadge').textContent = parseFloat(this.value).toFixed(1);
+    });
+
+    ['labelText', 'badgeColorStart', 'badgeColorEnd', 'symbolColor', 'labelColor',
+     'showRippleToggle', 'showShineToggle'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', () => { if (!isSpinning) drawFrame(); });
+            el.addEventListener('change', () => { if (!isSpinning) drawFrame(); });
+        }
+    });
+
+    drawFrame();
+    setTimeout(startBurst, 150);
+
+    </script>
+    <script src="gif.js" defer></script>
+</body>
+</html>

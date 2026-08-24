@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D Shapes — Animated Emoji Builder</title>
+<meta name="description" content="কিউট মুখওয়ালা ৩ডি শেপ অ্যানিমেটেড ইমোজি — সিলিন্ডার, কিউব, স্ফিয়ার, কোন, বোল, রেকট্যাঙ্গেল — চোখ পলক, বাউন্স, কথা বলা অ্যানিমেশন — PNG/GIF/WebM এক্সপোর্ট">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-primary:#0a0d0f; --bg-secondary:#0f1316; --bg-card:#151a1d; --bg-card-hover:#1b2124;
+    --border:rgba(255,255,255,0.08); --accent:#ff5cb1; --accent-glow:rgba(255,92,177,0.4);
+    --accent-2:#3dd6d0; --text-primary:#f3f1ea; --text-secondary:#9ba3a1;
+    --text-muted:#576260; --radius:16px; --shadow:0 20px 60px rgba(0,0,0,0.6);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Outfit','Noto Sans Bengali',sans-serif;background:var(--bg-primary);color:var(--text-primary);
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 80% 50% at 20% 15%,rgba(255,92,177,0.09) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 85%,rgba(61,214,208,0.08) 0%,transparent 60%);}
+  .app-header{width:100%;padding:22px 32px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);
+    background:rgba(10,13,15,0.85);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+  .header-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),#7a1150);
+    border-radius:12px;display:flex;align-items:center;justify-content:center;
+    font-size:19px;box-shadow:0 0 20px var(--accent-glow);flex-shrink:0;}
+  .header-text h1{font-size:19px;font-weight:700;background:linear-gradient(135deg,#fff 0%,var(--accent) 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .header-text p{font-size:12.5px;color:var(--text-secondary);margin-top:2px;}
+  .main-content{width:100%;max-width:1260px;padding:36px 24px 80px;display:grid;grid-template-columns:1fr 380px;gap:28px;position:relative;z-index:1;}
+  @media (max-width:960px){.main-content{grid-template-columns:1fr;}}
+  .canvas-panel{display:flex;flex-direction:column;align-items:center;gap:20px;}
+  .canvas-wrapper{width:100%;aspect-ratio:16/9;background:
+    linear-gradient(45deg,#181d20 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,#181d20 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(45deg,transparent 75%,#181d20 75%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,transparent 75%,#181d20 75%) -0px -0px/24px 24px,
+    var(--bg-card);
+    border:1px solid var(--border);border-radius:20px;display:flex;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;box-shadow:var(--shadow);}
+  #sceneCanvas{display:block;max-width:100%;max-height:100%;}
+  .timer-display{display:flex;align-items:center;gap:14px;padding:14px 24px;background:var(--bg-card);
+    border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);width:100%;}
+  .timer-ring-wrap{position:relative;width:50px;height:50px;}
+  .timer-ring-wrap svg{transform:rotate(-90deg);}
+  .timer-ring-bg{fill:none;stroke:rgba(255,255,255,0.07);stroke-width:4;}
+  .timer-ring-fill{fill:none;stroke:url(#ringGradient4);stroke-width:4;stroke-linecap:round;
+    transition:stroke-dashoffset 1s linear;stroke-dasharray:141;stroke-dashoffset:0;}
+  .timer-label-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:700;color:var(--accent);}
+  .timer-text-group{display:flex;flex-direction:column;}
+  .timer-big{font-size:26px;font-weight:800;letter-spacing:-1px;}
+  .timer-sub{font-size:11.5px;color:var(--text-secondary);font-weight:500;}
+  .timer-status{padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;}
+  .timer-status.idle{background:rgba(255,255,255,0.06);color:var(--text-muted);}
+  .timer-status.spinning{background:rgba(255,92,177,0.15);color:var(--accent);}
+  .timer-status.done{background:rgba(61,214,208,0.15);color:var(--accent-2);}
+  .sidebar{display:flex;flex-direction:column;gap:14px;}
+  .control-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+  .card-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-secondary);
+    display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+  .card-title-icon{width:22px;height:22px;background:rgba(255,92,177,0.14);border-radius:6px;display:flex;
+    align-items:center;justify-content:center;font-size:12px;}
+  .form-row{margin-bottom:14px;}
+  .form-row:last-child{margin-bottom:0;}
+  .form-label{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;color:var(--text-secondary);margin-bottom:7px;}
+  .value-badge{background:rgba(255,92,177,0.16);color:var(--accent);padding:1px 8px;border-radius:6px;font-size:11px;font-weight:700;}
+  input[type=text]{width:100%;padding:10px 12px;background:var(--bg-secondary);border:1px solid var(--border);
+    border-radius:9px;color:var(--text-primary);font-size:13.5px;font-family:inherit;}
+  input[type=text]:focus{outline:none;border-color:var(--accent);}
+  input[type=range]{width:100%;accent-color:var(--accent);}
+  input[type=color]{width:100%;height:34px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;}
+  .shape-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .shape-item{display:flex;align-items:center;gap:8px;background:var(--bg-secondary);border:2px solid var(--border);
+    border-radius:9px;padding:8px 10px;cursor:pointer;transition:.15s;}
+  .shape-item:hover{background:var(--bg-card-hover);}
+  .shape-item.selected{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 0 16px var(--accent-glow);background:var(--bg-card-hover);}
+  .shape-item .shape-emoji-icon{font-size:15px;flex-shrink:0;}
+  .shape-item label{font-size:12px;font-weight:600;color:var(--text-secondary);display:flex;align-items:center;gap:6px;flex:1;pointer-events:none;}
+  .shape-item.selected label{color:var(--text-primary);}
+  .shape-item input[type=color]{width:30px;height:26px;padding:0;flex-shrink:0;}
+  .selected-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,92,177,0.14);color:var(--accent);
+    padding:4px 10px;border-radius:8px;font-size:11.5px;font-weight:700;margin-bottom:12px;}
+  .lang-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  .lang-btn{padding:9px 6px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;}
+  .lang-btn.active{background:var(--accent);border-color:var(--accent);color:#2b0819;}
+  .toggle-row{display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer;color:var(--text-secondary);margin-bottom:10px;}
+  .toggle-row:last-child{margin-bottom:0;}
+  .preset-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .preset-btn{padding:7px 12px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;}
+  .preset-btn.active{background:var(--accent);border-color:var(--accent);color:#2b0819;}
+  .style-swatch{width:34px;height:34px;border-radius:9px;border:2px solid transparent;cursor:pointer;flex-shrink:0;}
+  .style-swatch.active{border-color:#fff;}
+  .btn-group{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{flex:1;min-width:120px;padding:12px 16px;border:none;border-radius:11px;font-size:13.5px;font-weight:700;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;transition:.15s;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),#7a1150);color:#fff;box-shadow:0 8px 20px rgba(255,92,177,0.28);}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-stop{background:rgba(239,68,68,0.15);color:#ef4444;}
+  .btn-stop:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-ghost{background:var(--bg-secondary);color:var(--text-secondary);border:1px solid var(--border);}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-icon">🟪</div>
+  <div class="header-text">
+    <h1>3D Shapes — Animated Emoji Builder</h1>
+    <p>কিউট মুখওয়ালা শেপ ইমোজি — চোখ পলক, বাউন্স, কথা বলা অ্যানিমেশন — PNG/GIF/WebM এক্সপোর্ট</p>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="canvas-panel">
+    <div class="canvas-wrapper">
+      <canvas id="sceneCanvas" width="1600" height="900"></canvas>
+    </div>
+
+    <div class="timer-display">
+      <div class="timer-ring-wrap">
+        <svg width="50" height="50" viewBox="0 0 50 50">
+          <defs>
+            <linearGradient id="ringGradient4" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#ff5cb1"/><stop offset="100%" stop-color="#3dd6d0"/>
+            </linearGradient>
+          </defs>
+          <circle class="timer-ring-bg" cx="25" cy="25" r="22.5"></circle>
+          <circle class="timer-ring-fill" id="timerRing" cx="25" cy="25" r="22.5"></circle>
+        </svg>
+        <div class="timer-label-inner" id="timerPercent">—</div>
+      </div>
+      <div class="timer-text-group">
+        <div class="timer-big" id="timerBig">00:00</div>
+        <div class="timer-sub" id="timerSub">সময় বাকি</div>
+      </div>
+      <div class="timer-status idle" id="timerStatus" style="margin-left:auto;">প্রস্তুত</div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🌐</div>টাইটেল ভাষা</div>
+      <div class="lang-row">
+        <button class="lang-btn" onclick="applyLanguage('bn',this)">বাংলা</button>
+        <button class="lang-btn active" onclick="applyLanguage('en',this)">English</button>
+        <button class="lang-btn" onclick="applyLanguage('both',this)">উভয়</button>
+      </div>
+      <div class="form-row" style="margin-top:12px;">
+        <label class="form-label">টাইটেল টেক্সট</label>
+        <input type="text" id="titleText" value="3D Shapes">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🔷</div>একটা শেপ সিলেক্ট করুন</div>
+      <div class="selected-badge">✓ নির্বাচিত: <span id="selectedShapeLabel">সিলিন্ডার</span></div>
+      <div class="shape-grid" id="shapeGrid">
+        <div class="shape-item selected" data-shape="cylinder" onclick="selectShape('cylinder',this)"><label><span class="shape-emoji-icon">🥫</span>সিলিন্ডার</label><input type="color" id="cylinderColor" value="#4be8f0" onclick="event.stopPropagation()"></div>
+        <div class="shape-item" data-shape="cube" onclick="selectShape('cube',this)"><label><span class="shape-emoji-icon">🧊</span>কিউব</label><input type="color" id="cubeColor" value="#ffcc29" onclick="event.stopPropagation()"></div>
+        <div class="shape-item" data-shape="sphere" onclick="selectShape('sphere',this)"><label><span class="shape-emoji-icon">🔵</span>স্ফিয়ার</label><input type="color" id="sphereColor" value="#2e5bff" onclick="event.stopPropagation()"></div>
+        <div class="shape-item" data-shape="cone" onclick="selectShape('cone',this)"><label><span class="shape-emoji-icon">🔺</span>কোন</label><input type="color" id="coneColor" value="#a63bff" onclick="event.stopPropagation()"></div>
+        <div class="shape-item" data-shape="bowl" onclick="selectShape('bowl',this)"><label><span class="shape-emoji-icon">🥣</span>বোল</label><input type="color" id="bowlColor" value="#ff3ec9" onclick="event.stopPropagation()"></div>
+        <div class="shape-item" data-shape="rect" onclick="selectShape('rect',this)"><label><span class="shape-emoji-icon">📦</span>রেকট্যাঙ্গেল</label><input type="color" id="rectColor" value="#b6e829" onclick="event.stopPropagation()"></div>
+      </div>
+      <p style="font-size:11.5px;color:var(--text-muted);margin:10px 0 0;line-height:1.5;">যেকোনো কার্ডে ক্লিক করে শেপ বদলান — ক্যানভাসে শুধু নির্বাচিত শেপটাই দেখাবে ও ডাউনলোড হবে। প্রতিটা শেপের নিজস্ব রং মনে থাকবে।</p>
+      <div class="preset-row" style="margin-top:12px;" id="stylePresets">
+        <div class="style-swatch active" style="background:linear-gradient(135deg,#4be8f0,#ffcc29,#2e5bff)" onclick="applyStyle('original',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#ff6b9d,#c86bff,#6bd9ff)" onclick="applyStyle('candy',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#ffd6e8,#c9f7d6,#d6e4ff)" onclick="applyStyle('pastel',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#39ff14,#ff00c8,#00e5ff)" onclick="applyStyle('neon',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#ff7a3d,#ffc93d,#ff3d77)" onclick="applyStyle('sunset',this)"></div>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">📐</div>সাইজ ও আউটলাইন</div>
+      <div class="form-row">
+        <label class="form-label">শেপের আকার <span class="value-badge" id="sizeBadge">100%</span></label>
+        <input type="range" id="shapeSize" min="60" max="140" step="1" value="100">
+      </div>
+      <div class="form-row">
+        <label class="form-label">কার্টুন আউটলাইন পুরুত্ব <span class="value-badge" id="outlineBadge">6</span></label>
+        <input type="range" id="outlineWidth" min="0" max="12" step="1" value="6">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎬</div>অ্যানিমেশন</div>
+      <div class="toggle-row"><input type="checkbox" id="blinkToggle" checked>চোখে পলক (ব্লিংক)</div>
+      <div class="toggle-row"><input type="checkbox" id="bounceToggle" checked>ভাসমান বাউন্স</div>
+      <div class="toggle-row"><input type="checkbox" id="talkToggle" checked>কথা বলা মুখ (মাউথ পাল্‌স)</div>
+      <div class="toggle-row"><input type="checkbox" id="titleWiggleToggle" checked>টাইটেল হালকা দোলা</div>
+      <div class="form-row">
+        <label class="form-label">সময়কাল</label>
+        <div class="preset-row">
+          <button class="preset-btn" onclick="setDuration(5,this)">5s</button>
+          <button class="preset-btn" onclick="setDuration(10,this)">10s</button>
+          <button class="preset-btn active" onclick="setDuration(30,this)">30s</button>
+          <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:10px;">
+        <label class="toggle-row" style="margin:0;"><input type="checkbox" id="loopToggle" checked>সবসময় লুপ চলবে</label>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" id="startBtn" onclick="startAnim()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg> শুরু
+      </button>
+      <button class="btn btn-stop" id="stopBtn" onclick="stopAnim()" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg> বন্ধ
+      </button>
+    </div>
+    <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট</button>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+      <div class="toggle-row"><input type="checkbox" id="transparentToggle" checked>PNG ট্রান্সপারেন্ট ব্যাকগ্রাউন্ড</div>
+      <div class="form-row" id="exportBgRow" style="display:none;">
+        <label class="form-label">GIF/ভিডিও ব্যাকগ্রাউন্ড রং</label>
+        <input type="color" id="exportBgColor" value="#ffffff">
+      </div>
+      <p style="font-size:11.5px;color:var(--text-muted);margin:2px 0 12px;line-height:1.55;">
+        PNG ট্রান্সপারেন্ট থাকে (ভিডিও এডিটরে সরাসরি ওভারলে করা যাবে)। GIF ও ভিডিও একটি ব্যাকগ্রাউন্ড রং সহ এক্সপোর্ট হয়।
+      </p>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="downloadPng()">PNG</button>
+        <button class="btn btn-primary" onclick="downloadGif()">GIF</button>
+        <button class="btn btn-primary" onclick="downloadVideo()">ভিডিও (WebM)</button>
+      </div>
+      <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   3D SHAPES — CUTE ANIMATED EMOJI BUILDER
+   Cylinder / Cube / Sphere / Cone / Bowl / Rectangle,
+   each with a blinking, bouncing, talking cartoon face.
+===================================================== */
+
+const canvas = document.getElementById('sceneCanvas');
+const ctx = canvas.getContext('2d');
+const CW = canvas.width, CH = canvas.height;
+
+// === STATE ===
+let idlePhase = 0;
+let isSpinning = false, animFrame = null, lastTimestamp = null;
+let totalDurationMs = 30000, startTime = null, isExporting = false;
+let currentShape = 'cylinder';
+
+// Each shape keeps its own idle-animation phase offset so blink/talk timing
+// feels varied when you switch between shapes.
+const SHAPE_OFFSET = { cylinder: 0, cube: 0.7, sphere: 1.4, cone: 2.1, bowl: 2.8, rect: 3.5 };
+const SHAPE_LABELS = { cylinder: 'সিলিন্ডার', cube: 'কিউব', sphere: 'স্ফিয়ার', cone: 'কোন', bowl: 'বোল', rect: 'রেকট্যাঙ্গেল' };
+
+function selectShape(name, el) {
+  currentShape = name;
+  document.querySelectorAll('#shapeGrid .shape-item').forEach(x => x.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('selectedShapeLabel').textContent = SHAPE_LABELS[name] || name;
+  if (!isSpinning) drawFrame();
+}
+
+// === LANGUAGE PRESETS ===
+const languagePresets = { bn: '৩ডি শেপ', en: '3D Shapes', both: '3D Shapes / ৩ডি শেপ' };
+function applyLanguage(lang, btnEl) {
+  const t = languagePresets[lang]; if (!t) return;
+  document.getElementById('titleText').value = t;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  if (!isSpinning) drawFrame();
+}
+
+// === STYLE PRESETS ===
+const stylePresets = {
+  original: { cylinderColor:'#4be8f0', cubeColor:'#ffcc29', sphereColor:'#2e5bff', coneColor:'#a63bff', bowlColor:'#ff3ec9', rectColor:'#b6e829' },
+  candy:    { cylinderColor:'#6bd9ff', cubeColor:'#ff9ecf', sphereColor:'#c86bff', coneColor:'#ff6b9d', bowlColor:'#ff8a3d', rectColor:'#7dffb0' },
+  pastel:   { cylinderColor:'#bfe9ff', cubeColor:'#ffe3b0', sphereColor:'#d6e4ff', coneColor:'#f0c9ff', bowlColor:'#ffd6e8', rectColor:'#c9f7d6' },
+  neon:     { cylinderColor:'#00e5ff', cubeColor:'#faff00', sphereColor:'#3d5bff', coneColor:'#c400ff', bowlColor:'#ff00c8', rectColor:'#39ff14' },
+  sunset:   { cylinderColor:'#ffb84d', cubeColor:'#ffc93d', sphereColor:'#ff7a3d', coneColor:'#c8508a', bowlColor:'#ff3d77', rectColor:'#ffe14d' },
+};
+function applyStyle(name, el) {
+  const s = stylePresets[name]; if (!s) return;
+  document.getElementById('cylinderColor').value = s.cylinderColor;
+  document.getElementById('cubeColor').value = s.cubeColor;
+  document.getElementById('sphereColor').value = s.sphereColor;
+  document.getElementById('coneColor').value = s.coneColor;
+  document.getElementById('bowlColor').value = s.bowlColor;
+  document.getElementById('rectColor').value = s.rectColor;
+  document.querySelectorAll('.style-swatch').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  drawFrame();
+}
+
+// === SETTINGS ===
+function getSettings() {
+  return {
+    titleText: document.getElementById('titleText').value || '',
+    cylinderColor: document.getElementById('cylinderColor').value,
+    cubeColor: document.getElementById('cubeColor').value,
+    sphereColor: document.getElementById('sphereColor').value,
+    coneColor: document.getElementById('coneColor').value,
+    bowlColor: document.getElementById('bowlColor').value,
+    rectColor: document.getElementById('rectColor').value,
+    sizePct: parseInt(document.getElementById('shapeSize').value) || 100,
+    outlineW: parseInt(document.getElementById('outlineWidth').value) || 6,
+    blinkOn: document.getElementById('blinkToggle').checked,
+    bounceOn: document.getElementById('bounceToggle').checked,
+    talkOn: document.getElementById('talkToggle').checked,
+    titleWiggleOn: document.getElementById('titleWiggleToggle').checked,
+  };
+}
+
+// === COLOR HELPERS ===
+function hexToRgb(hex) {
+  hex = hex.replace('#', '');
+  return { r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16) };
+}
+function lighten(hex, amt) { const {r,g,b} = hexToRgb(hex); return `rgb(${Math.min(255,r+amt)},${Math.min(255,g+amt)},${Math.min(255,b+amt)})`; }
+function darken(hex, amt) { const {r,g,b} = hexToRgb(hex); return `rgb(${Math.max(0,r-amt)},${Math.max(0,g-amt)},${Math.max(0,b-amt)})`; }
+function clamp01(t) { return Math.max(0, Math.min(1, t)); }
+
+// === CUTE FACE ===
+function drawEye(x, y, rx, ry, blink) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(1, Math.max(0.06, 1 - blink));
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#111111'; ctx.lineWidth = Math.max(1.5, rx * 0.09); ctx.stroke();
+  ctx.fillStyle = '#141414';
+  ctx.beginPath(); ctx.ellipse(rx * 0.12, ry * 0.18, rx * 0.46, ry * 0.46, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); ctx.ellipse(-rx * 0.05, -ry * 0.08, rx * 0.16, ry * 0.16, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+  // eyebrow (small arch, drawn independent of blink squash)
+  ctx.strokeStyle = '#111111';
+  ctx.lineWidth = Math.max(2, rx * 0.16);
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(x - rx * 0.7, y - ry * 1.5);
+  ctx.quadraticCurveTo(x, y - ry * 2.05, x + rx * 0.7, y - ry * 1.55);
+  ctx.stroke();
+}
+function drawMouth(cx, cy, w, talk) {
+  const openH = w * 0.28 + talk * w * 0.30;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, w / 2, openH / 2, 0, 0, Math.PI * 2);
+  ctx.fillStyle = '#7a1f2b'; ctx.fill();
+  ctx.strokeStyle = '#111111'; ctx.lineWidth = Math.max(1.5, w * 0.06); ctx.stroke();
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + openH * 0.20, w * 0.36, Math.max(1, openH * 0.22), 0, 0, Math.PI * 2);
+  ctx.fill();
+}
+function drawFace(cx, cy, scale, offset, s) {
+  const eyeRx = 24 * scale, eyeRy = 28 * scale;
+  const eyeGap = 42 * scale;
+  const eyeY = cy - 10 * scale;
+
+  let blink = 0;
+  if (s.blinkOn) {
+    const cycle = 3.2;
+    const t = ((idlePhase * 0.55 + offset) % cycle + cycle) % cycle;
+    if (t < 0.20) blink = 1 - Math.abs((t - 0.10) / 0.10);
+  }
+  drawEye(cx - eyeGap, eyeY, eyeRx, eyeRy, blink);
+  drawEye(cx + eyeGap, eyeY, eyeRx, eyeRy, blink);
+
+  let talk = 0;
+  if (s.talkOn) talk = clamp01((Math.sin(idlePhase * 3.1 + offset * 2.3) + 1) / 2 - 0.15);
+  drawMouth(cx, cy + 40 * scale, 62 * scale, talk);
+}
+
+function bobFor(offset, s) {
+  return s.bounceOn ? Math.sin(idlePhase * 1.5 + offset * 1.8) * 10 : 0;
+}
+
+// === SHAPE DRAWERS (cute cartoon 3D shapes) ===
+function drawCylinder(cx, cy, w, h, color, ow) {
+  const ellH = w * 0.30;
+  const topY = cy - h / 2, botY = cy + h / 2;
+  // bottom ellipse (darker)
+  ctx.beginPath(); ctx.ellipse(cx, botY, w / 2, ellH / 2, 0, 0, Math.PI * 2);
+  ctx.fillStyle = darken(color, 26); ctx.fill();
+  if (ow > 0) { ctx.strokeStyle = '#111'; ctx.lineWidth = ow; ctx.stroke(); }
+  // side body
+  const grad = ctx.createLinearGradient(cx - w / 2, 0, cx + w / 2, 0);
+  grad.addColorStop(0, darken(color, 16)); grad.addColorStop(0.5, lighten(color, 14)); grad.addColorStop(1, darken(color, 16));
+  ctx.fillStyle = grad;
+  ctx.fillRect(cx - w / 2, topY, w, botY - topY);
+  if (ow > 0) {
+    ctx.strokeStyle = '#111'; ctx.lineWidth = ow;
+    ctx.beginPath(); ctx.moveTo(cx - w / 2, topY); ctx.lineTo(cx - w / 2, botY); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + w / 2, topY); ctx.lineTo(cx + w / 2, botY); ctx.stroke();
+  }
+  // top ellipse (lighter)
+  ctx.beginPath(); ctx.ellipse(cx, topY, w / 2, ellH / 2, 0, 0, Math.PI * 2);
+  ctx.fillStyle = lighten(color, 16); ctx.fill();
+  if (ow > 0) { ctx.strokeStyle = '#111'; ctx.lineWidth = ow; ctx.stroke(); }
+}
+
+function drawCube(cx, cy, w, h, color, ow, depthRatio) {
+  const d = w * (depthRatio || 0.34);
+  const ox = d * 0.72, oy = -d * 0.5;
+  const x = cx - w / 2, y = cy - h / 2;
+  ctx.fillStyle = lighten(color, 22);
+  ctx.beginPath();
+  ctx.moveTo(x, y); ctx.lineTo(x + ox, y + oy); ctx.lineTo(x + w + ox, y + oy); ctx.lineTo(x + w, y);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = darken(color, 24);
+  ctx.beginPath();
+  ctx.moveTo(x + w, y); ctx.lineTo(x + w + ox, y + oy); ctx.lineTo(x + w + ox, y + oy + h); ctx.lineTo(x + w, y + h);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = color;
+  ctx.fillRect(x, y, w, h);
+  if (ow > 0) {
+    ctx.strokeStyle = '#111'; ctx.lineWidth = ow; ctx.lineJoin = 'round';
+    ctx.strokeRect(x, y, w, h);
+    ctx.beginPath();
+    ctx.moveTo(x, y); ctx.lineTo(x + ox, y + oy); ctx.lineTo(x + w + ox, y + oy); ctx.lineTo(x + w, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x + w, y); ctx.lineTo(x + w + ox, y + oy); ctx.lineTo(x + w + ox, y + oy + h); ctx.lineTo(x + w, y + h);
+    ctx.stroke();
+  }
+}
+
+function drawSphere(cx, cy, r, color, ow) {
+  const grad = ctx.createRadialGradient(cx - r * 0.32, cy - r * 0.38, r * 0.15, cx, cy, r * 1.05);
+  grad.addColorStop(0, lighten(color, 55));
+  grad.addColorStop(0.45, color);
+  grad.addColorStop(1, darken(color, 26));
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fillStyle = grad; ctx.fill();
+  if (ow > 0) { ctx.strokeStyle = '#111'; ctx.lineWidth = ow; ctx.stroke(); }
+}
+
+function drawCone(cx, cy, w, h, color, ow) {
+  const topY = cy - h / 2, botY = cy + h / 2;
+  const ellH = w * 0.26;
+  ctx.beginPath(); ctx.ellipse(cx, botY, w / 2, ellH / 2, 0, 0, Math.PI * 2);
+  ctx.fillStyle = darken(color, 26); ctx.fill();
+  if (ow > 0) { ctx.strokeStyle = '#111'; ctx.lineWidth = ow; ctx.stroke(); }
+  const grad = ctx.createLinearGradient(cx - w / 2, 0, cx + w / 2, 0);
+  grad.addColorStop(0, darken(color, 12)); grad.addColorStop(0.5, lighten(color, 16)); grad.addColorStop(1, darken(color, 16));
+  ctx.beginPath();
+  ctx.moveTo(cx, topY); ctx.lineTo(cx - w / 2, botY); ctx.lineTo(cx + w / 2, botY);
+  ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
+  if (ow > 0) {
+    ctx.strokeStyle = '#111'; ctx.lineWidth = ow; ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(cx, topY); ctx.lineTo(cx - w / 2, botY);
+    ctx.moveTo(cx, topY); ctx.lineTo(cx + w / 2, botY);
+    ctx.stroke();
+  }
+}
+
+function drawBowl(cx, cy, w, h, color, ow) {
+  const rimY = cy - h * 0.32;
+  const depth = h * 0.62;
+  ctx.beginPath();
+  ctx.moveTo(cx - w / 2, rimY);
+  ctx.bezierCurveTo(cx - w / 2, rimY + depth * 1.05, cx - w * 0.18, rimY + depth, cx, rimY + depth);
+  ctx.bezierCurveTo(cx + w * 0.18, rimY + depth, cx + w / 2, rimY + depth * 1.05, cx + w / 2, rimY);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(cx - w / 2, 0, cx + w / 2, 0);
+  grad.addColorStop(0, darken(color, 18)); grad.addColorStop(0.5, lighten(color, 12)); grad.addColorStop(1, darken(color, 22));
+  ctx.fillStyle = grad; ctx.fill();
+  if (ow > 0) { ctx.strokeStyle = '#111'; ctx.lineWidth = ow; ctx.stroke(); }
+  const rimH = w * 0.20;
+  ctx.beginPath(); ctx.ellipse(cx, rimY, w / 2, rimH / 2, 0, 0, Math.PI * 2);
+  ctx.fillStyle = lighten(color, 24); ctx.fill();
+  if (ow > 0) { ctx.strokeStyle = '#111'; ctx.lineWidth = ow; ctx.stroke(); }
+}
+
+function drawRectPrism(cx, cy, w, h, color, ow) {
+  drawCube(cx, cy, w, h, color, ow, 0.24);
+}
+
+// === MAIN DRAW ===
+function drawFrame(opts) {
+  opts = opts || {};
+  const w = canvas.width, h = canvas.height;
+  const s = getSettings();
+  const scale = s.sizePct / 100;
+
+  ctx.clearRect(0, 0, w, h);
+  if (opts.solidBg) { ctx.fillStyle = opts.bgColor || '#ffffff'; ctx.fillRect(0, 0, w, h); }
+
+  // TITLE
+  if (s.titleText) {
+    const wiggle = s.titleWiggleOn ? Math.sin(idlePhase * 1.2) * 0.035 : 0;
+    ctx.save();
+    ctx.translate(w / 2, h * 0.09);
+    ctx.rotate(wiggle);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    let fSize = 78;
+    ctx.font = `700 ${fSize}px 'Fredoka','Noto Sans Bengali',sans-serif`;
+    while (ctx.measureText(s.titleText).width > w * 0.7 && fSize > 30) { fSize -= 3; ctx.font = `700 ${fSize}px 'Fredoka','Noto Sans Bengali',sans-serif`; }
+    ctx.lineWidth = fSize * 0.14;
+    ctx.strokeStyle = '#111111';
+    ctx.strokeText(s.titleText, 0, 0);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(s.titleText, 0, 0);
+    ctx.restore();
+  }
+
+  // SINGLE SELECTED SHAPE — centered, larger, since only one emoji is shown/exported at a time.
+  const cx = w / 2, cy = h * 0.56;
+  const off = SHAPE_OFFSET[currentShape] || 0;
+  const bob = bobFor(off, s);
+  const FACE_MULT = 1.45; // faces scale up to match the bigger single-shape size
+
+  switch (currentShape) {
+    case 'cylinder':
+      drawCylinder(cx, cy + bob, 320 * scale, 360 * scale, s.cylinderColor, s.outlineW);
+      drawFace(cx, cy + bob + 14 * scale, scale * FACE_MULT, off, s);
+      break;
+    case 'cube':
+      drawCube(cx - 14 * scale, cy + bob, 330 * scale, 330 * scale, s.cubeColor, s.outlineW);
+      drawFace(cx - 24 * scale, cy + bob + 8 * scale, scale * FACE_MULT, off, s);
+      break;
+    case 'sphere':
+      drawSphere(cx, cy + bob, 195 * scale, s.sphereColor, s.outlineW);
+      drawFace(cx, cy + bob + 11 * scale, scale * 0.98 * FACE_MULT, off, s);
+      break;
+    case 'cone':
+      drawCone(cx, cy + bob, 320 * scale, 360 * scale, s.coneColor, s.outlineW);
+      drawFace(cx, cy + bob + 58 * scale, scale * 0.9 * FACE_MULT, off, s);
+      break;
+    case 'bowl':
+      drawBowl(cx, cy + bob, 430 * scale, 270 * scale, s.bowlColor, s.outlineW);
+      drawFace(cx, cy + bob - 8 * scale, scale * 0.92 * FACE_MULT, off, s);
+      break;
+    case 'rect':
+      drawRectPrism(cx - 14 * scale, cy + bob, 390 * scale, 300 * scale, s.rectColor, s.outlineW);
+      drawFace(cx - 14 * scale, cy + bob + 6 * scale, scale * FACE_MULT, off, s);
+      break;
+  }
+}
+
+// === ANIMATION LOOP ===
+function animationLoop(timestamp) {
+  if (!isSpinning) return;
+  if (!lastTimestamp) lastTimestamp = timestamp;
+  const delta = timestamp - lastTimestamp;
+  lastTimestamp = timestamp;
+
+  idlePhase += delta * 0.0016;
+
+  const elapsed = timestamp - startTime;
+  const remaining = Math.max(0, totalDurationMs - elapsed);
+  updateTimerUI(elapsed, remaining);
+
+  drawFrame();
+
+  if (remaining <= 0 && !document.getElementById('loopToggle').checked) { finishAnim(); return; }
+  if (remaining <= 0) { startTime = timestamp; }
+
+  animFrame = requestAnimationFrame(animationLoop);
+}
+
+function updateTimerUI(elapsed, remaining) {
+  const totalSec = Math.ceil(remaining / 1000);
+  const m = Math.floor(totalSec / 60).toString().padStart(2, '0');
+  const sec = (totalSec % 60).toString().padStart(2, '0');
+  document.getElementById('timerBig').textContent = `${m}:${sec}`;
+  const pct = Math.max(0, Math.min(100, ((totalDurationMs - remaining) / totalDurationMs) * 100));
+  document.getElementById('timerPercent').textContent = Math.round(pct) + '%';
+  const circumference = 141;
+  document.getElementById('timerRing').style.strokeDashoffset = circumference - (pct / 100) * circumference;
+}
+function resetTimerUI() {
+  document.getElementById('timerBig').textContent = '00:00';
+  document.getElementById('timerPercent').textContent = '—';
+  document.getElementById('timerRing').style.strokeDashoffset = 141;
+  document.getElementById('timerStatus').className = 'timer-status idle';
+  document.getElementById('timerStatus').textContent = 'প্রস্তুত';
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+}
+
+let currentDuration = 30;
+function setDuration(sec, btnEl) {
+  currentDuration = sec;
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+}
+
+function startAnim() {
+  if (isSpinning) return;
+  totalDurationMs = currentDuration * 1000;
+  isSpinning = true; startTime = null; lastTimestamp = null;
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status spinning'; st.textContent = '⚡ চলছে';
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+  animFrame = requestAnimationFrame(ts => { startTime = ts; lastTimestamp = ts; animationLoop(ts); });
+}
+function stopAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status idle'; st.textContent = '⏸ থামানো হয়েছে';
+  drawFrame();
+}
+function finishAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  document.getElementById('timerBig').textContent = '00:00';
+  document.getElementById('timerPercent').textContent = '100%';
+  document.getElementById('timerRing').style.strokeDashoffset = 0;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status done'; st.textContent = '✅ সম্পন্ন';
+  document.getElementById('timerSub').textContent = 'অ্যানিমেশন শেষ';
+  drawFrame();
+}
+function resetAll() {
+  stopAnim();
+  idlePhase = 0;
+  resetTimerUI();
+  drawFrame();
+}
+
+// === EXPORT ===
+function setExportStatus(msg) { document.getElementById('exportStatus').textContent = msg; }
+function saveBlob(blob, filename) {
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+function downloadPng() {
+  const transparent = document.getElementById('transparentToggle').checked;
+  const bgColor = document.getElementById('exportBgColor').value;
+  drawFrame({ solidBg: !transparent, bgColor });
+  canvas.toBlob(blob => {
+    drawFrame({ solidBg: false });
+    if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+    saveBlob(blob, `emoji-${currentShape}.png`);
+    setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+  }, 'image/png');
+}
+
+async function downloadGif() {
+  if (!window.GIF) { setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন।'); return; }
+  if (isExporting) return;
+  isExporting = true;
+  const bgColor = document.getElementById('exportBgColor').value;
+  const oldIdle = idlePhase;
+  const gif = new GIF({ workers: 2, quality: 10, width: CW, height: CH,
+    workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
+  const frames = 60, frameDelay = 60, clipMs = 5000;
+  setExportStatus('GIF তৈরি হচ্ছে… 0%');
+  for (let i = 0; i < frames; i++) {
+    const t = i / frames;
+    idlePhase = oldIdle + t * clipMs * 0.0016;
+    drawFrame({ solidBg: true, bgColor });
+    gif.addFrame(canvas, { copy: true, delay: frameDelay });
+    setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((i + 1) / frames * 100)}%`);
+    await new Promise(requestAnimationFrame);
+  }
+  idlePhase = oldIdle;
+  drawFrame({ solidBg: false });
+  gif.on('finished', blob => {
+    saveBlob(blob, `emoji-${currentShape}.gif`);
+    setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
+    isExporting = false;
+  });
+  gif.render();
+}
+
+async function downloadVideo() {
+  if (!window.MediaRecorder || !canvas.captureStream) {
+    setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।'); return;
+  }
+  if (isExporting) return;
+  isExporting = true;
+  const bgColor = document.getElementById('exportBgColor').value;
+  const stream = canvas.captureStream(30);
+  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 6000000 });
+  const chunks = [];
+  const oldIdle = idlePhase;
+  recorder.ondataavailable = e => e.data.size && chunks.push(e.data);
+  recorder.onstop = () => {
+    saveBlob(new Blob(chunks, { type: mimeType }), `emoji-${currentShape}.webm`);
+    idlePhase = oldIdle;
+    drawFrame({ solidBg: false });
+    isExporting = false;
+    setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+  };
+  recorder.start();
+  const start = performance.now();
+  const duration = 6000;
+  setExportStatus('ভিডিও তৈরি হচ্ছে…');
+  const render = (now) => {
+    const elapsedMs = now - start;
+    idlePhase = oldIdle + elapsedMs * 0.0016;
+    drawFrame({ solidBg: true, bgColor });
+    if (elapsedMs < duration) requestAnimationFrame(render); else recorder.stop();
+  };
+  requestAnimationFrame(render);
+}
+
+// === UI EVENTS ===
+['shapeSize', 'outlineWidth'].forEach(id => {
+  document.getElementById(id).addEventListener('input', function () {
+    const badges = { shapeSize: 'sizeBadge', outlineWidth: 'outlineBadge' };
+    const el = document.getElementById(badges[id]);
+    el.textContent = id === 'shapeSize' ? this.value + '%' : this.value;
+    if (!isSpinning) drawFrame();
+  });
+});
+['titleText',
+  'cylinderColor', 'cubeColor', 'sphereColor', 'coneColor', 'bowlColor', 'rectColor',
+  'blinkToggle', 'bounceToggle', 'talkToggle', 'titleWiggleToggle'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => { if (!isSpinning) drawFrame(); });
+  el.addEventListener('change', () => { if (!isSpinning) drawFrame(); });
+});
+document.getElementById('transparentToggle').addEventListener('change', function () {
+  document.getElementById('exportBgRow').style.display = this.checked ? 'none' : 'block';
+});
+
+// === INITIAL DRAW ===
+drawFrame();
+setTimeout(startAnim, 150);
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+</body>
+</html>

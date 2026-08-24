@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Air Ticketing & Visa Processing — 3D Animation Generator</title>
+<meta name="description" content="৩ডি এক্সট্রুডেড বোর্ডিং পাস (Air Ticketing) ও পাসপোর্ট+অ্যাপ্রুভাল স্ট্যাম্প (Visa Processing) — কোনো গোল/সার্কেল শেপ নেই — PNG/GIF/WebM এক্সপোর্ট">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Noto+Sans+Bengali:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-primary:#080b0c; --bg-secondary:#0d1112; --bg-card:#121718; --bg-card-hover:#181f20;
+    --border:rgba(255,255,255,0.08); --accent:#ffb703; --accent-glow:rgba(255,183,3,0.35);
+    --text-primary:#f2f7f8; --text-secondary:#9fb0b3; --text-muted:#556064; --radius:16px;
+    --shadow:0 20px 60px rgba(0,0,0,0.6);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Outfit','Noto Sans Bengali',sans-serif;background:var(--bg-primary);color:var(--text-primary);
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 80% 50% at 18% 12%,rgba(255,183,3,0.10) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 88% 88%,rgba(31,122,140,0.14) 0%,transparent 60%);}
+  .app-header{width:100%;padding:22px 32px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);
+    background:rgba(8,11,12,0.85);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+  .header-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),#a3660b);
+    clip-path:polygon(15% 0,85% 0,100% 30%,100% 100%,0 100%,0 30%);display:flex;align-items:center;justify-content:center;
+    font-size:19px;box-shadow:0 0 20px var(--accent-glow);flex-shrink:0;}
+  .header-text h1{font-size:19px;font-weight:700;background:linear-gradient(135deg,#fff 0%,var(--accent) 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .header-text p{font-size:12.5px;color:var(--text-secondary);margin-top:2px;}
+  .main-content{width:100%;max-width:1260px;padding:28px 24px 80px;display:grid;grid-template-columns:1fr 380px;gap:28px;position:relative;z-index:1;}
+  @media (max-width:960px){.main-content{grid-template-columns:1fr;}}
+  .canvas-panel{display:flex;flex-direction:column;align-items:center;gap:20px;}
+  .theme-tabs{display:flex;gap:10px;width:100%;}
+  .theme-tab{flex:1;padding:13px 14px;border-radius:12px;border:1px solid var(--border);background:var(--bg-card);
+    color:var(--text-secondary);font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;transition:.15s;
+    display:flex;align-items:center;justify-content:center;gap:8px;}
+  .theme-tab.active{background:linear-gradient(135deg,var(--accent),#a3660b);color:#231a0d;border-color:transparent;
+    box-shadow:0 8px 20px rgba(255,183,3,0.25);}
+  .canvas-wrapper{width:100%;aspect-ratio:16/9;background:
+    linear-gradient(45deg,#161d1e 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,#161d1e 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(45deg,transparent 75%,#161d1e 75%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,transparent 75%,#161d1e 75%) -0px -0px/24px 24px,
+    var(--bg-card);
+    border:1px solid var(--border);border-radius:20px;display:flex;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;box-shadow:var(--shadow);}
+  #mainCanvas{display:block;max-width:100%;max-height:100%;}
+  .timer-display{display:flex;align-items:center;gap:14px;padding:14px 24px;background:var(--bg-card);
+    border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);width:100%;}
+  .timer-ring-wrap{position:relative;width:50px;height:50px;}
+  .timer-ring-wrap svg{transform:rotate(-90deg);}
+  .timer-ring-bg{fill:none;stroke:rgba(255,255,255,0.07);stroke-width:4;}
+  .timer-ring-fill{fill:none;stroke:url(#ringGradientAV);stroke-width:4;stroke-linecap:round;
+    transition:stroke-dashoffset 1s linear;stroke-dasharray:141;stroke-dashoffset:0;}
+  .timer-label-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:700;color:var(--accent);}
+  .timer-text-group{display:flex;flex-direction:column;}
+  .timer-big{font-size:26px;font-weight:800;letter-spacing:-1px;}
+  .timer-sub{font-size:11.5px;color:var(--text-secondary);font-weight:500;}
+  .timer-status{padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;}
+  .timer-status.idle{background:rgba(255,255,255,0.06);color:var(--text-muted);}
+  .timer-status.spinning{background:rgba(255,183,3,0.15);color:var(--accent);}
+  .timer-status.done{background:rgba(46,196,182,0.15);color:#2ec4b6;}
+  .sidebar{display:flex;flex-direction:column;gap:14px;}
+  .control-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+  .card-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-secondary);
+    display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+  .card-title-icon{width:22px;height:22px;background:rgba(255,183,3,0.14);border-radius:6px;display:flex;
+    align-items:center;justify-content:center;font-size:12px;}
+  .form-row{margin-bottom:14px;}
+  .form-row:last-child{margin-bottom:0;}
+  .form-label{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;color:var(--text-secondary);margin-bottom:7px;}
+  .value-badge{background:rgba(255,183,3,0.16);color:var(--accent);padding:1px 8px;border-radius:6px;font-size:11px;font-weight:700;}
+  input[type=text]{width:100%;padding:10px 12px;background:var(--bg-secondary);border:1px solid var(--border);
+    border-radius:9px;color:var(--text-primary);font-size:13.5px;font-family:inherit;}
+  input[type=text]:focus{outline:none;border-color:var(--accent);}
+  input[type=range]{width:100%;accent-color:var(--accent);}
+  input[type=color]{width:100%;height:34px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;}
+  input[type=file]{width:100%;font-size:12px;color:var(--text-secondary);}
+  .color-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .lang-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  .lang-btn{padding:9px 6px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;}
+  .lang-btn.active{background:var(--accent);border-color:var(--accent);color:#231a0d;}
+  .toggle-row{display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer;color:var(--text-secondary);margin-bottom:10px;}
+  .toggle-row:last-child{margin-bottom:0;}
+  .preset-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .preset-btn{padding:7px 12px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;}
+  .preset-btn.active{background:var(--accent);border-color:var(--accent);color:#231a0d;}
+  .style-swatch{width:34px;height:34px;border-radius:9px;border:2px solid transparent;cursor:pointer;flex-shrink:0;}
+  .style-swatch.active{border-color:#fff;}
+  .btn-group{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{flex:1;min-width:120px;padding:12px 16px;border:none;border-radius:11px;font-size:13.5px;font-weight:700;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;transition:.15s;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),#a3660b);color:#231a0d;box-shadow:0 8px 20px rgba(255,183,3,0.28);}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-stop{background:rgba(239,68,68,0.15);color:#ef4444;}
+  .btn-stop:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-ghost{background:var(--bg-secondary);color:var(--text-secondary);border:1px solid var(--border);}
+  .logo-preview{display:flex;align-items:center;gap:10px;margin-top:8px;}
+  .logo-thumb{width:36px;height:36px;border-radius:6px;border:1px solid var(--border);object-fit:cover;background:#fff;}
+  .logo-remove{font-size:11px;color:#ef4444;cursor:pointer;background:none;border:none;font-family:inherit;}
+  .hero-controls{display:none;}
+  .hero-controls.active{display:block;}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-icon">🛫</div>
+  <div class="header-text">
+    <h1>Air Ticketing & Visa Processing — 3D Generator</h1>
+    <p>এক্সট্রুডেড বোর্ডিং পাস / পাসপোর্ট + অ্যাপ্রুভাল স্ট্যাম্প — কোনো সার্কেল/গোল শেপ নেই, স্ট্রেট-এজ ৩ডি</p>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="canvas-panel">
+
+    <div class="theme-tabs">
+      <button class="theme-tab active" id="tabTicket" onclick="switchTheme('ticket')">✈️ Air Ticketing Reservation</button>
+      <button class="theme-tab" id="tabVisa" onclick="switchTheme('visa')">🛂 Professional Visa Processing</button>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="mainCanvas" width="1600" height="900"></canvas>
+    </div>
+
+    <div class="timer-display">
+      <div class="timer-ring-wrap">
+        <svg width="50" height="50" viewBox="0 0 50 50">
+          <defs>
+            <linearGradient id="ringGradientAV" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#ffb703"/><stop offset="100%" stop-color="#1f7a8c"/>
+            </linearGradient>
+          </defs>
+          <circle class="timer-ring-bg" cx="25" cy="25" r="22.5"></circle>
+          <circle class="timer-ring-fill" id="timerRing" cx="25" cy="25" r="22.5"></circle>
+        </svg>
+        <div class="timer-label-inner" id="timerPercent">—</div>
+      </div>
+      <div class="timer-text-group">
+        <div class="timer-big" id="timerBig">00:00</div>
+        <div class="timer-sub" id="timerSub">সময় বাকি</div>
+      </div>
+      <div class="timer-status idle" id="timerStatus" style="margin-left:auto;">প্রস্তুত</div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🌐</div>ভাষা প্রিসেট</div>
+      <div class="lang-row">
+        <button class="lang-btn" onclick="applyLanguage('bn',this)">বাংলা</button>
+        <button class="lang-btn active" onclick="applyLanguage('en',this)">English</button>
+        <button class="lang-btn" onclick="applyLanguage('both',this)">উভয়</button>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">✏️</div>টেক্সট</div>
+      <div class="form-row">
+        <label class="form-label">সাব-লাইন (উপরে)</label>
+        <input type="text" id="subText" value="FAST & RELIABLE">
+      </div>
+      <div class="form-row">
+        <label class="form-label">মূল লাইন</label>
+        <input type="text" id="mainText" value="AIR TICKETING RESERVATION">
+      </div>
+      <div class="form-row">
+        <label class="form-label">ট্যাগলাইন (নিচে, ঐচ্ছিক)</label>
+        <input type="text" id="tagText" value="Book Your Flight With Confidence">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎨</div>রং</div>
+      <div class="color-grid">
+        <div class="form-row"><label class="form-label">কার্ড / বেস রং</label><input type="color" id="paperColor" value="#1f7a8c"></div>
+        <div class="form-row"><label class="form-label">শ্যাডো রং</label><input type="color" id="shadowColor" value="#0b2e3d"></div>
+        <div class="form-row"><label class="form-label">টেক্সট রং</label><input type="color" id="textColor" value="#f4faff"></div>
+        <div class="form-row"><label class="form-label">অ্যাক্সেন্ট (স্ট্যাম্প/রুট)</label><input type="color" id="accentColor" value="#ffb703"></div>
+      </div>
+      <div class="preset-row" style="margin-top:4px;">
+        <div class="style-swatch active" style="background:linear-gradient(135deg,#1f7a8c,#0b2e3d)" onclick="applyStyle('ocean',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#ff7e5f,#6a1b3d)" onclick="applyStyle('sunset',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#2ec4b6,#114b3f)" onclick="applyStyle('tropical',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#d4a373,#5c3d2e)" onclick="applyStyle('desert',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#2b6cb0,#0f2942)" onclick="applyStyle('navy',this)"></div>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🔺</div>হিরো শেপ</div>
+      <div class="form-row">
+        <label class="form-label">হিরো এলিমেন্টের সাইজ <span class="value-badge" id="heroSizeBadge">100%</span></label>
+        <input type="range" id="heroSize" min="60" max="140" step="5" value="100">
+      </div>
+      <div class="form-row">
+        <label class="form-label">৩ডি ডেপথ <span class="value-badge" id="depthBadge">40</span></label>
+        <input type="range" id="depthAmt" min="15" max="70" step="5" value="40">
+      </div>
+
+      <div class="hero-controls active" id="ticketControls">
+        <div class="toggle-row"><input type="checkbox" id="showRoute" checked>মিনি ফ্লাইট রুট দেখান</div>
+        <div class="toggle-row"><input type="checkbox" id="showPlaneIcon" checked>প্লেন আইকন দেখান</div>
+        <div class="toggle-row"><input type="checkbox" id="showBarcode" checked>বারকোড / স্টাব দেখান</div>
+      </div>
+      <div class="hero-controls" id="visaControls">
+        <div class="toggle-row"><input type="checkbox" id="showStamp" checked>অ্যাপ্রুভাল স্ট্যাম্প অ্যানিমেশন</div>
+        <div class="toggle-row"><input type="checkbox" id="showPages" checked>পাসপোর্ট পেজ লেয়ার</div>
+        <div class="toggle-row"><input type="checkbox" id="showEmblem" checked>এমব্লেম ব্যাজ দেখান</div>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🖼️</div>লোগো / ছবি (ঐচ্ছিক)</div>
+      <input type="file" id="logoInput" accept="image/*">
+      <div class="logo-preview" id="logoPreviewRow" style="display:none;">
+        <img id="logoThumb" class="logo-thumb" alt="logo">
+        <span style="font-size:12px;color:var(--text-secondary);flex:1;">লোগো লোড হয়েছে</span>
+        <button class="logo-remove" onclick="removeLogo()">সরান</button>
+      </div>
+      <div class="toggle-row" style="margin-top:12px;"><input type="checkbox" id="showLogoToggle" checked>স্ট্যাম্প হিসেবে দেখান</div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎬</div>অ্যানিমেশন</div>
+      <div class="toggle-row"><input type="checkbox" id="showHeroToggle" checked>হিরো এলিমেন্ট দেখান</div>
+      <div class="toggle-row"><input type="checkbox" id="sweepToggle" checked>টেক্সট শাইন সুইপ</div>
+      <div class="form-row">
+        <label class="form-label">গ্রোথ (লুপ) স্পিড <span class="value-badge" id="growBadge">1.0</span></label>
+        <input type="range" id="growSpeed" min="0.5" max="3" step="0.1" value="1.0">
+      </div>
+      <div class="form-row">
+        <label class="form-label">শাইন স্পিড <span class="value-badge" id="shineBadge">1.2</span></label>
+        <input type="range" id="shineSpeed" min="0" max="4" step="0.1" value="1.2">
+      </div>
+      <div class="form-row">
+        <label class="form-label">সময়কাল</label>
+        <div class="preset-row">
+          <button class="preset-btn" onclick="setDuration(5,this)">5s</button>
+          <button class="preset-btn" onclick="setDuration(10,this)">10s</button>
+          <button class="preset-btn active" onclick="setDuration(30,this)">30s</button>
+          <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:10px;">
+        <label class="toggle-row" style="margin:0;"><input type="checkbox" id="loopToggle" checked>সবসময় লুপ চলবে</label>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" id="startBtn" onclick="startAnim()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg> শুরু
+      </button>
+      <button class="btn btn-stop" id="stopBtn" onclick="stopAnim()" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg> বন্ধ
+      </button>
+    </div>
+    <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট</button>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+      <div class="toggle-row"><input type="checkbox" id="transparentToggle" checked>PNG ট্রান্সপারেন্ট ব্যাকগ্রাউন্ড</div>
+      <div class="form-row" id="exportBgRow" style="display:none;">
+        <label class="form-label">GIF/ভিডিও ব্যাকগ্রাউন্ড রং</label>
+        <input type="color" id="exportBgColor" value="#080b0c">
+      </div>
+      <p style="font-size:11.5px;color:var(--text-muted);margin:2px 0 12px;line-height:1.55;">
+        PNG ট্রান্সপারেন্ট থাকে (ভিডিও এডিটরে সরাসরি ওভারলে করা যাবে)। GIF সবসময় একটি সম্পূর্ণ সিমলেস লুপ এক্সপোর্ট করে। ফাইলের নাম বর্তমানে সিলেক্ট করা থিম (Ticketing/Visa) অনুযায়ী সেট হবে।
+      </p>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="downloadPng()">PNG</button>
+        <button class="btn btn-primary" onclick="downloadGif()">GIF</button>
+        <button class="btn btn-primary" onclick="downloadVideo()">ভিডিও (WebM)</button>
+      </div>
+      <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   AIR TICKETING + VISA PROCESSING — 3D ENGINE
+   Two themes, one canvas/engine. Shape language: extruded
+   flat-faced 3D cards (boarding pass / passport), straight
+   zigzag/dashed dividers, diamond markers, a low-poly
+   paper-plane, and a square (not circular) approval stamp
+   with straight-line burst rays. No ctx.arc()/circle fills
+   anywhere in the rendered scene.
+===================================================== */
+
+const canvas = document.getElementById('mainCanvas');
+const ctx = canvas.getContext('2d');
+const CW = canvas.width, CH = canvas.height;
+
+// === STATE ===
+let currentTheme = 'ticket';
+let currentLang = 'en';
+let cyclePhase = 0, shinePhase = 0;
+let isSpinning = false, animFrame = null, lastTimestamp = null;
+let totalDurationMs = 30000, startTime = null, isExporting = false;
+let logoImg = null;
+
+// === LANGUAGE PRESETS (per theme) ===
+const languagePresets = {
+  ticket: {
+    bn:   { subText: 'দ্রুত ও নির্ভরযোগ্য', mainText: 'এয়ার টিকেটিং রিজার্ভেশন', tagText: 'আত্মবিশ্বাসের সাথে ফ্লাইট বুক করুন' },
+    en:   { subText: 'FAST & RELIABLE', mainText: 'AIR TICKETING RESERVATION', tagText: 'Book Your Flight With Confidence' },
+    both: { subText: 'FAST & RELIABLE / দ্রুত বুকিং', mainText: 'AIR TICKETING RESERVATION', tagText: 'আত্মবিশ্বাসের সাথে ফ্লাইট বুক করুন' },
+  },
+  visa: {
+    bn:   { subText: 'বিশেষজ্ঞ সহায়তা', mainText: 'প্রফেশনাল ভিসা প্রসেসিং', tagText: 'আপনার বিশ্বস্ত ভিসা পার্টনার' },
+    en:   { subText: 'EXPERT GUIDANCE', mainText: 'PROFESSIONAL VISA PROCESSING', tagText: 'Your Trusted Visa Partner' },
+    both: { subText: 'EXPERT GUIDANCE / বিশেষজ্ঞ সহায়তা', mainText: 'PROFESSIONAL VISA PROCESSING', tagText: 'আপনার বিশ্বস্ত ভিসা পার্টনার' },
+  },
+};
+function applyLanguage(lang, btnEl) {
+  currentLang = lang;
+  const p = languagePresets[currentTheme][lang]; if (!p) return;
+  document.getElementById('subText').value = p.subText;
+  document.getElementById('mainText').value = p.mainText;
+  document.getElementById('tagText').value = p.tagText;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  if (!isSpinning) drawFrame();
+}
+
+// === THEME SWITCH ===
+function switchTheme(theme) {
+  currentTheme = theme;
+  document.getElementById('tabTicket').classList.toggle('active', theme === 'ticket');
+  document.getElementById('tabVisa').classList.toggle('active', theme === 'visa');
+  document.getElementById('ticketControls').classList.toggle('active', theme === 'ticket');
+  document.getElementById('visaControls').classList.toggle('active', theme === 'visa');
+  const p = languagePresets[theme][currentLang];
+  document.getElementById('subText').value = p.subText;
+  document.getElementById('mainText').value = p.mainText;
+  document.getElementById('tagText').value = p.tagText;
+  if (!isSpinning) drawFrame();
+}
+
+// === STYLE PRESETS ===
+const stylePresets = {
+  ocean:    { paperColor:'#1f7a8c', shadowColor:'#0b2e3d', textColor:'#f4faff', accentColor:'#ffb703' },
+  sunset:   { paperColor:'#ff7e5f', shadowColor:'#6a1b3d', textColor:'#fff5eb', accentColor:'#ffd60a' },
+  tropical: { paperColor:'#2ec4b6', shadowColor:'#114b3f', textColor:'#0b1f1c', accentColor:'#ff9f1c' },
+  desert:   { paperColor:'#d4a373', shadowColor:'#5c3d2e', textColor:'#fefae0', accentColor:'#bc6c25' },
+  navy:     { paperColor:'#2b6cb0', shadowColor:'#0f2942', textColor:'#f0f5fa', accentColor:'#f2c14e' },
+};
+function applyStyle(name, el) {
+  const s = stylePresets[name]; if (!s) return;
+  document.getElementById('paperColor').value = s.paperColor;
+  document.getElementById('shadowColor').value = s.shadowColor;
+  document.getElementById('textColor').value = s.textColor;
+  document.getElementById('accentColor').value = s.accentColor;
+  document.querySelectorAll('.style-swatch').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  if (!isSpinning) drawFrame();
+}
+
+// === LOGO UPLOAD ===
+document.getElementById('logoInput').addEventListener('change', function(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const img = new Image();
+    img.onload = function() {
+      logoImg = img;
+      document.getElementById('logoThumb').src = ev.target.result;
+      document.getElementById('logoPreviewRow').style.display = 'flex';
+      document.getElementById('showLogoToggle').checked = true;
+      if (!isSpinning) drawFrame();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+function removeLogo() {
+  logoImg = null;
+  document.getElementById('logoInput').value = '';
+  document.getElementById('logoPreviewRow').style.display = 'none';
+  if (!isSpinning) drawFrame();
+}
+
+// === SETTINGS ===
+function getSettings() {
+  return {
+    subText: document.getElementById('subText').value || '',
+    mainText: document.getElementById('mainText').value || '',
+    tagText: document.getElementById('tagText').value || '',
+    paperColor: document.getElementById('paperColor').value,
+    shadowColor: document.getElementById('shadowColor').value,
+    textColor: document.getElementById('textColor').value,
+    accentColor: document.getElementById('accentColor').value,
+    heroSize: parseInt(document.getElementById('heroSize').value) || 100,
+    depthAmt: parseInt(document.getElementById('depthAmt').value) || 40,
+    showRoute: document.getElementById('showRoute').checked,
+    showPlaneIcon: document.getElementById('showPlaneIcon').checked,
+    showBarcode: document.getElementById('showBarcode').checked,
+    showStamp: document.getElementById('showStamp').checked,
+    showPages: document.getElementById('showPages').checked,
+    showEmblem: document.getElementById('showEmblem').checked,
+    showLogo: document.getElementById('showLogoToggle').checked,
+    showHero: document.getElementById('showHeroToggle').checked,
+    showSweep: document.getElementById('sweepToggle').checked,
+    growSpeed: parseFloat(document.getElementById('growSpeed').value) || 1.0,
+    shineSpeed: parseFloat(document.getElementById('shineSpeed').value) || 1.2,
+  };
+}
+
+// === COLOR HELPERS (accept both #hex and rgb(...) strings — prevents NaN colors) ===
+function hexToRgb(hex) {
+  if (typeof hex === 'string' && hex.indexOf('rgb') === 0) {
+    const m = hex.match(/[\d.]+/g);
+    return { r: parseInt(m[0],10), g: parseInt(m[1],10), b: parseInt(m[2],10) };
+  }
+  hex = hex.replace('#', '');
+  return { r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16) };
+}
+function hexToRgba(hex, a) { const {r,g,b} = hexToRgb(hex); return `rgba(${r},${g},${b},${a})`; }
+function lighten(hex, amt) { const {r,g,b} = hexToRgb(hex); return `rgb(${Math.min(255,r+amt)},${Math.min(255,g+amt)},${Math.min(255,b+amt)})`; }
+function darken(hex, amt) { const {r,g,b} = hexToRgb(hex); return `rgb(${Math.max(0,r-amt)},${Math.max(0,g-amt)},${Math.max(0,b-amt)})`; }
+function clamp01(v){ return Math.max(0, Math.min(1, v)); }
+function easeOutCubic(x){ return 1 - Math.pow(1-x, 3); }
+function easeOutBack(x){ const c1=1.70158, c3=c1+1; return 1 + c3*Math.pow(x-1,3) + c1*Math.pow(x-1,2); }
+function quadBezier(p0,p1,p2,t){ const mt=1-t; return { x: mt*mt*p0.x+2*mt*t*p1.x+t*t*p2.x, y: mt*mt*p0.y+2*mt*t*p1.y+t*t*p2.y }; }
+function quadBezierDeriv(p0,p1,p2,t){ return { x: 2*(1-t)*(p1.x-p0.x)+2*t*(p2.x-p1.x), y: 2*(1-t)*(p1.y-p0.y)+2*t*(p2.y-p1.y) }; }
+
+// === LOW-POLY PAPER AIRPLANE (straight edges only) ===
+function drawPlane(ctx, x, y, angle, size, color, shadowColor, alpha) {
+  if (alpha <= 0.01) return;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.fillStyle = lighten(color, 25);
+  ctx.beginPath();
+  ctx.moveTo(size*1.4, 0); ctx.lineTo(-size*0.9, -size*0.65); ctx.lineTo(-size*0.25, 0);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = darken(color, 25);
+  ctx.beginPath();
+  ctx.moveTo(size*1.4, 0); ctx.lineTo(-size*0.9, size*0.65); ctx.lineTo(-size*0.25, 0);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = darken(color, 40);
+  ctx.beginPath();
+  ctx.moveTo(-size*0.5, 0); ctx.lineTo(-size*0.9, -size*0.35); ctx.lineTo(-size*0.65, 0);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = darken(shadowColor, 10); ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(size*1.4,0); ctx.lineTo(-size*0.9,0); ctx.stroke();
+  ctx.restore();
+}
+
+// === LOGO STAMP (square frame, straight edges only) ===
+function drawLogoStamp(ctx, x, y, size, img, accentColor, alpha) {
+  if (!img || alpha <= 0.01) return;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.translate(x, y);
+  ctx.rotate(-0.09);
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.fillRect(-size/2+5, -size/2+7, size, size);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(-size/2, -size/2, size, size);
+  ctx.save();
+  ctx.beginPath(); ctx.rect(-size/2+6, -size/2+6, size-12, size-12); ctx.clip();
+  ctx.drawImage(img, -size/2+6, -size/2+6, size-12, size-12);
+  ctx.restore();
+  ctx.strokeStyle = accentColor; ctx.lineWidth = 4;
+  ctx.strokeRect(-size/2, -size/2, size, size);
+  ctx.restore();
+}
+
+// === TICKET HERO: extruded boarding pass with torn stub, barcode, mini flight route ===
+function drawTicketHero(ctx, cx, cy, t, fadeOutMul, s) {
+  const growthScale = Math.max(0, easeOutBack(clamp01(t/0.32)));
+  const alpha = clamp01((t-0.02)/0.12) * fadeOutMul;
+  if (growthScale <= 0.01 || alpha <= 0.01) return;
+  const heroScale = s.heroSize/100;
+  const w = 640*heroScale*growthScale, h = 270*heroScale*growthScale;
+  const depth = (16 + (s.depthAmt/100)*26) * heroScale * growthScale;
+  const angle = -0.05;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.translate(cx, cy);
+  ctx.rotate(angle);
+
+  const hw = w/2, hh = h/2;
+  const dx = depth*0.6, dy = -depth*0.6;
+
+  // ground shadow (flattened diamond, not an ellipse)
+  ctx.save();
+  ctx.globalAlpha = alpha*0.3;
+  ctx.fillStyle = s.shadowColor;
+  ctx.beginPath();
+  ctx.moveTo(-hw*0.5, hh+depth+14); ctx.lineTo(hw*0.9, hh+depth+2); ctx.lineTo(hw*0.5, hh+depth+26); ctx.lineTo(-hw*0.9, hh+depth+14);
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+
+  // right side face (3D extrusion)
+  ctx.fillStyle = darken(s.paperColor, 55);
+  ctx.beginPath();
+  ctx.moveTo(hw,-hh); ctx.lineTo(hw+dx,-hh+dy); ctx.lineTo(hw+dx,hh+dy); ctx.lineTo(hw,hh);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = hexToRgba(darken(s.shadowColor,5), 0.6); ctx.lineWidth = 2; ctx.stroke();
+
+  // bottom face
+  ctx.fillStyle = darken(s.paperColor, 40);
+  ctx.beginPath();
+  ctx.moveTo(-hw,hh); ctx.lineTo(hw,hh); ctx.lineTo(hw+dx,hh+dy); ctx.lineTo(-hw+dx,hh+dy);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+
+  // front face
+  ctx.fillStyle = s.paperColor;
+  ctx.beginPath();
+  ctx.moveTo(-hw,-hh); ctx.lineTo(hw,-hh); ctx.lineTo(hw,hh); ctx.lineTo(-hw,hh);
+  ctx.closePath(); ctx.fill();
+  ctx.lineWidth = 2.5; ctx.strokeStyle = hexToRgba(darken(s.shadowColor,5), 0.7); ctx.stroke();
+
+  // stub area (right portion, slightly darker) + dashed tear line
+  const stubX = hw*0.40;
+  ctx.save();
+  ctx.beginPath(); ctx.rect(stubX, -hh, hw-stubX, h); ctx.clip();
+  ctx.fillStyle = darken(s.paperColor, 18);
+  ctx.fillRect(stubX, -hh, hw-stubX, h);
+  ctx.restore();
+
+  ctx.strokeStyle = hexToRgba(s.textColor, 0.5);
+  ctx.lineWidth = 2;
+  ctx.setLineDash([6,5]);
+  ctx.beginPath(); ctx.moveTo(stubX,-hh); ctx.lineTo(stubX,hh); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // barcode bars
+  if (s.showBarcode) {
+    const barCount = 10;
+    const barAreaW = (hw-stubX)*0.7, barAreaX = stubX + (hw-stubX)*0.15;
+    for (let i=0;i<barCount;i++) {
+      const bw = (i%3===0) ? 4.5 : 2.2;
+      const bh = h*0.32*(0.6 + (i%4)*0.12);
+      const bx = barAreaX + i*(barAreaW/barCount);
+      ctx.fillStyle = hexToRgba(s.textColor, 0.75);
+      ctx.fillRect(bx, hh-bh-10, bw, bh);
+    }
+  }
+
+  // mini flight route diagram
+  if (s.showRoute) {
+    const p0 = {x:-hw*0.62, y:hh*0.24}, p2 = {x:stubX*0.72, y:hh*0.24}, p1 = {x:(-hw*0.62+stubX*0.72)/2, y:-hh*0.5};
+    ctx.strokeStyle = hexToRgba(s.accentColor, 0.75); ctx.lineWidth = 2; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(p0.x,p0.y);
+    for (let k=1;k<=20;k++) { const pt = quadBezier(p0,p1,p2,k/20); ctx.lineTo(pt.x,pt.y); }
+    ctx.stroke(); ctx.setLineDash([]);
+    [p0,p2].forEach(p => {
+      ctx.fillStyle = s.accentColor;
+      ctx.beginPath();
+      ctx.moveTo(p.x,p.y-6); ctx.lineTo(p.x+6,p.y); ctx.lineTo(p.x,p.y+6); ctx.lineTo(p.x-6,p.y);
+      ctx.closePath(); ctx.fill();
+    });
+    if (s.showPlaneIcon) {
+      const mid = quadBezier(p0,p1,p2,0.5);
+      const der = quadBezierDeriv(p0,p1,p2,0.5);
+      drawPlane(ctx, mid.x, mid.y, Math.atan2(der.y,der.x), 13, s.accentColor, s.shadowColor, 1);
+    }
+  }
+
+  ctx.restore();
+}
+
+// === VISA HERO: extruded passport + square approval stamp (no circles) ===
+function drawVisaHero(ctx, cx, cy, t, fadeOutMul, s) {
+  const growthScale = Math.max(0, easeOutBack(clamp01(t/0.32)));
+  const alpha = clamp01((t-0.02)/0.12) * fadeOutMul;
+  if (growthScale <= 0.01 || alpha <= 0.01) return;
+  const heroScale = s.heroSize/100;
+  const w = 300*heroScale*growthScale, h = 400*heroScale*growthScale;
+  const depth = (14 + (s.depthAmt/100)*22) * heroScale * growthScale;
+  const angle = -0.04;
+
+  const hw = w/2, hh = h/2;
+  const dx = depth*0.55, dy = -depth*0.55;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.translate(cx, cy);
+  ctx.rotate(angle);
+
+  // shadow
+  ctx.save();
+  ctx.globalAlpha = alpha*0.3;
+  ctx.fillStyle = s.shadowColor;
+  ctx.beginPath();
+  ctx.moveTo(-hw*0.4, hh+depth+16); ctx.lineTo(hw*0.75, hh+depth+4); ctx.lineTo(hw*0.4, hh+depth+30); ctx.lineTo(-hw*0.75, hh+depth+16);
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+
+  // page slivers
+  if (s.showPages) {
+    for (let i=3;i>=1;i--) {
+      const off = i*5;
+      ctx.fillStyle = lighten(s.shadowColor, 90-i*10);
+      ctx.beginPath();
+      ctx.moveTo(-hw+off,-hh+off*0.4); ctx.lineTo(hw+off*0.6,-hh+off*0.4); ctx.lineTo(hw+off*0.6,hh+off*0.4); ctx.lineTo(-hw+off,hh+off*0.4);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.stroke();
+    }
+  }
+
+  // right side face
+  ctx.fillStyle = darken(s.paperColor, 55);
+  ctx.beginPath();
+  ctx.moveTo(hw,-hh); ctx.lineTo(hw+dx,-hh+dy); ctx.lineTo(hw+dx,hh+dy); ctx.lineTo(hw,hh);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = hexToRgba(darken(s.shadowColor,5), 0.6); ctx.lineWidth = 2; ctx.stroke();
+
+  // bottom face
+  ctx.fillStyle = darken(s.paperColor, 40);
+  ctx.beginPath();
+  ctx.moveTo(-hw,hh); ctx.lineTo(hw,hh); ctx.lineTo(hw+dx,hh+dy); ctx.lineTo(-hw+dx,hh+dy);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+
+  // front cover
+  ctx.fillStyle = s.paperColor;
+  ctx.beginPath();
+  ctx.moveTo(-hw,-hh); ctx.lineTo(hw,-hh); ctx.lineTo(hw,hh); ctx.lineTo(-hw,hh);
+  ctx.closePath(); ctx.fill();
+  ctx.lineWidth = 2.5; ctx.strokeStyle = hexToRgba(darken(s.shadowColor,5), 0.7); ctx.stroke();
+
+  // inset border frame
+  ctx.strokeStyle = hexToRgba(s.textColor, 0.55); ctx.lineWidth = 1.5;
+  ctx.strokeRect(-hw+14, -hh+14, w-28, h-28);
+
+  // emblem badge (diamond, not circle)
+  if (s.showEmblem) {
+    const ex=0, ey=-hh*0.18, es=hw*0.28;
+    ctx.fillStyle = hexToRgba(s.accentColor, 0.9);
+    ctx.beginPath();
+    ctx.moveTo(ex,ey-es); ctx.lineTo(ex+es*0.72,ey); ctx.lineTo(ex,ey+es); ctx.lineTo(ex-es*0.72,ey);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = hexToRgba(s.textColor, 0.8); ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = hexToRgba(s.textColor, 0.85);
+    ctx.beginPath();
+    ctx.moveTo(ex,ey-es*0.45); ctx.lineTo(ex+es*0.32,ey); ctx.lineTo(ex,ey+es*0.45); ctx.lineTo(ex-es*0.32,ey);
+    ctx.closePath(); ctx.fill();
+  }
+
+  // decorative embossed lines
+  ctx.fillStyle = hexToRgba(s.textColor, 0.32);
+  ctx.fillRect(-hw*0.5, hh*0.55, hw*1.0, 5);
+  ctx.fillRect(-hw*0.35, hh*0.68, hw*0.7, 5);
+
+  ctx.restore();
+
+  // === APPROVAL STAMP (independent transform/timing) ===
+  if (s.showStamp) {
+    const stampT = clamp01((t-0.50)/0.16);
+    if (stampT > 0.001) {
+      const stampAlpha = clamp01((t-0.50)/0.08) * fadeOutMul;
+      const dropProgress = Math.min(1, stampT/0.7);
+      const startY = cy - h*0.9;
+      const endY = cy - h*0.05;
+      const sy = startY + (endY-startY)*easeOutCubic(dropProgress);
+      const punch = stampT > 0.65 ? Math.max(0.7, 1 - (stampT-0.65)*0.9) : 1;
+      const stampSize = 92*heroScale;
+
+      ctx.save();
+      ctx.globalAlpha = stampAlpha;
+      ctx.translate(cx + hw*0.55, sy);
+      ctx.rotate(0.18);
+      ctx.scale(1, punch);
+      const sd = 10;
+      ctx.fillStyle = darken(s.accentColor, 40);
+      ctx.beginPath();
+      ctx.moveTo(stampSize/2,-stampSize/2); ctx.lineTo(stampSize/2+sd,-stampSize/2-sd); ctx.lineTo(stampSize/2+sd,stampSize/2-sd); ctx.lineTo(stampSize/2,stampSize/2);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = s.accentColor;
+      ctx.fillRect(-stampSize/2,-stampSize/2,stampSize,stampSize);
+      ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 3;
+      ctx.strokeRect(-stampSize/2+8,-stampSize/2+8,stampSize-16,stampSize-16);
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 7; ctx.lineCap = 'square';
+      ctx.beginPath();
+      ctx.moveTo(-stampSize*0.22,0); ctx.lineTo(-stampSize*0.05,stampSize*0.18); ctx.lineTo(stampSize*0.26,-stampSize*0.20);
+      ctx.stroke();
+      ctx.restore();
+
+      if (dropProgress >= 0.98) {
+        const burstAlpha = clamp01((stampT-0.7)/0.15) * (1-clamp01((stampT-0.95)/0.05)) * fadeOutMul;
+        if (burstAlpha > 0.02) {
+          ctx.save();
+          ctx.globalAlpha = burstAlpha;
+          ctx.strokeStyle = s.accentColor; ctx.lineWidth = 3; ctx.lineCap = 'square';
+          const bx = cx+hw*0.55, by = endY;
+          for (let k=0;k<8;k++) {
+            const a = k*(Math.PI*2/8);
+            const r1 = stampSize*0.55, r2 = stampSize*0.85;
+            ctx.beginPath();
+            ctx.moveTo(bx+Math.cos(a)*r1, by+Math.sin(a)*r1);
+            ctx.lineTo(bx+Math.cos(a)*r2, by+Math.sin(a)*r2);
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+      }
+    }
+  }
+}
+
+// === DRAW ENGINE ===
+function drawFrame(opts) {
+  opts = opts || {};
+  const w = canvas.width, h = canvas.height;
+  const s = getSettings();
+  const cx = w / 2;
+
+  ctx.clearRect(0, 0, w, h);
+  if (opts.solidBg) { ctx.fillStyle = opts.bgColor || '#080b0c'; ctx.fillRect(0, 0, w, h); }
+
+  const cycleMs = 5200 / s.growSpeed;
+  const t = (opts.tOverride !== undefined) ? opts.tOverride : (cyclePhase % cycleMs) / cycleMs;
+  const shineT = (opts.shineOverride !== undefined) ? opts.shineOverride : shinePhase;
+  const fadeOutMul = 1 - clamp01((t - 0.90) / 0.08);
+
+  const heroCx = cx, heroCy = h*0.54;
+  if (s.showHero) {
+    if (currentTheme === 'ticket') drawTicketHero(ctx, heroCx, heroCy, t, fadeOutMul, s);
+    else drawVisaHero(ctx, heroCx, heroCy, t, fadeOutMul, s);
+  }
+
+  // === BANNER TEXT ===
+  const bannerAlpha = clamp01((t-0.50)/0.15) * fadeOutMul;
+  if (bannerAlpha > 0.01) {
+    const slideOffset = (1 - clamp01((t-0.50)/0.15)) * 26;
+    ctx.save();
+    ctx.globalAlpha = bannerAlpha;
+    ctx.textAlign = 'center';
+
+    const mainFontSize = Math.min(h*0.115, (w*0.92)/Math.max(4, s.mainText.length*0.60));
+    const mainY = h*0.14 - slideOffset;
+
+    if (s.subText) {
+      ctx.font = `700 ${mainFontSize*0.30}px 'Outfit','Noto Sans Bengali',sans-serif`;
+      ctx.fillStyle = hexToRgba(s.shadowColor, 0.9);
+      ctx.fillText(s.subText, cx+2, mainY - mainFontSize*0.78+2);
+      ctx.fillStyle = s.accentColor;
+      ctx.fillText(s.subText, cx, mainY - mainFontSize*0.78);
+    }
+
+    ctx.font = `900 ${mainFontSize}px 'Outfit','Noto Sans Bengali',sans-serif`;
+    const depthSteps = Math.round(6 + (s.depthAmt/100)*7);
+    for (let k = depthSteps; k >= 1; k--) {
+      ctx.fillStyle = hexToRgba(s.shadowColor, 0.55);
+      ctx.fillText(s.mainText, cx + k*1.5, mainY + k*1.5);
+    }
+    ctx.fillStyle = s.textColor;
+    ctx.fillText(s.mainText, cx, mainY);
+
+    if (s.showSweep) {
+      const textWidth = ctx.measureText(s.mainText).width;
+      const boxLeft = cx - textWidth/2 - 14, boxTop = mainY - mainFontSize*0.88;
+      const boxW = textWidth + 28, boxH = mainFontSize*1.05;
+      const sweepPos = ((shineT * 0.00028 * s.shineSpeed) % 1) * (boxW + 140) - 70;
+      ctx.save();
+      ctx.beginPath(); ctx.rect(boxLeft, boxTop, boxW, boxH); ctx.clip();
+      ctx.globalCompositeOperation = 'source-atop';
+      const grad = ctx.createLinearGradient(boxLeft+sweepPos-45, boxTop, boxLeft+sweepPos+45, boxTop+boxH);
+      grad.addColorStop(0, hexToRgba(s.accentColor, 0));
+      grad.addColorStop(0.5, hexToRgba('#ffffff', 0.85));
+      grad.addColorStop(1, hexToRgba(s.accentColor, 0));
+      ctx.fillStyle = grad;
+      ctx.fillRect(boxLeft, boxTop, boxW, boxH);
+      ctx.restore();
+    }
+
+    if (s.tagText) {
+      ctx.font = `600 ${mainFontSize*0.24}px 'Outfit','Noto Sans Bengali',sans-serif`;
+      ctx.fillStyle = hexToRgba(s.shadowColor, 0.9);
+      ctx.fillText(s.tagText, cx+2, mainY + mainFontSize*0.5+2);
+      ctx.fillStyle = s.textColor;
+      ctx.fillText(s.tagText, cx, mainY + mainFontSize*0.5);
+    }
+    ctx.restore();
+  }
+
+  // === LOGO STAMP ===
+  if (s.showLogo && logoImg) {
+    const logoAlpha = clamp01((t-0.30)/0.12) * fadeOutMul;
+    drawLogoStamp(ctx, w*0.90, h*0.12, h*0.13, logoImg, s.accentColor, logoAlpha);
+  }
+}
+
+// === TIMER UI ===
+function formatTime(ms) {
+  const totalSec = Math.max(0, Math.ceil(ms/1000));
+  const m = Math.floor(totalSec/60), sec = totalSec%60;
+  return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
+function resetTimerUI() {
+  document.getElementById('timerBig').textContent = formatTime(totalDurationMs);
+  document.getElementById('timerPercent').textContent = '—';
+  document.getElementById('timerRing').style.strokeDashoffset = 0;
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status idle'; st.textContent = 'প্রস্তুত';
+}
+function setDuration(sec, btnEl) {
+  totalDurationMs = sec*1000;
+  document.querySelectorAll('.preset-row .preset-btn').forEach(b => { if (b.parentElement === btnEl.parentElement) b.classList.remove('active'); });
+  btnEl.classList.add('active');
+  if (!isSpinning) resetTimerUI();
+}
+
+// === ANIMATION LOOP ===
+function tick(timestamp) {
+  if (!isSpinning) return;
+  if (lastTimestamp === null) { lastTimestamp = timestamp; startTime = timestamp; }
+  const dt = timestamp - lastTimestamp;
+  lastTimestamp = timestamp;
+  cyclePhase += dt;
+  shinePhase += dt;
+  drawFrame();
+
+  const elapsed = timestamp - startTime;
+  let remaining = totalDurationMs - elapsed;
+  const loop = document.getElementById('loopToggle').checked;
+  if (remaining <= 0) {
+    if (loop) { startTime = timestamp; remaining = totalDurationMs; }
+    else { finishAnim(); return; }
+  }
+  document.getElementById('timerBig').textContent = formatTime(remaining);
+  const pct = Math.round((remaining/totalDurationMs)*100);
+  document.getElementById('timerPercent').textContent = pct + '%';
+  document.getElementById('timerRing').style.strokeDashoffset = String(141 * (1 - remaining/totalDurationMs));
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status spinning'; st.textContent = '● চলছে';
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+
+  animFrame = requestAnimationFrame(tick);
+}
+function startAnim() {
+  if (isSpinning) return;
+  isSpinning = true;
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+  animFrame = requestAnimationFrame(tick);
+}
+function stopAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status idle'; st.textContent = '⏸ থামানো হয়েছে';
+  drawFrame();
+}
+function finishAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  document.getElementById('timerBig').textContent = '00:00';
+  document.getElementById('timerPercent').textContent = '100%';
+  document.getElementById('timerRing').style.strokeDashoffset = 0;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status done'; st.textContent = '✅ সম্পন্ন';
+  document.getElementById('timerSub').textContent = 'অ্যানিমেশন শেষ';
+  drawFrame();
+}
+function resetAll() {
+  stopAnim();
+  cyclePhase = 0; shinePhase = 0;
+  resetTimerUI();
+  drawFrame();
+}
+
+// === EXPORT ===
+function fileBaseName() {
+  return currentTheme === 'ticket' ? 'air-ticketing-reservation-3d' : 'professional-visa-processing-3d';
+}
+function setExportStatus(msg) { document.getElementById('exportStatus').textContent = msg; }
+function saveBlob(blob, filename) {
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+function downloadPng() {
+  const transparent = document.getElementById('transparentToggle').checked;
+  const bgColor = document.getElementById('exportBgColor').value;
+  drawFrame({ solidBg: !transparent, bgColor, tOverride: 0.68, shineOverride: shinePhase });
+  canvas.toBlob(blob => {
+    drawFrame({});
+    if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+    saveBlob(blob, fileBaseName() + '.png');
+    setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+  }, 'image/png');
+}
+
+async function downloadGif() {
+  if (!window.GIF) { setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন।'); return; }
+  if (isExporting) return;
+  isExporting = true;
+  const bgColor = document.getElementById('exportBgColor').value;
+  const s = getSettings();
+  const cycleMs = 5200 / s.growSpeed;
+  const gif = new GIF({ workers: 2, quality: 10, width: CW, height: CH,
+    workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
+  const frames = 60;
+  const frameDelay = Math.round(cycleMs / frames);
+  setExportStatus('GIF তৈরি হচ্ছে (একটি সম্পূর্ণ লুপ)… 0%');
+  for (let i = 0; i < frames; i++) {
+    const t = i / frames;
+    drawFrame({ solidBg: true, bgColor, tOverride: t, shineOverride: t*cycleMs*4 });
+    gif.addFrame(canvas, { copy: true, delay: frameDelay });
+    setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((i+1)/frames*100)}%`);
+    await new Promise(requestAnimationFrame);
+  }
+  drawFrame({});
+  gif.on('finished', blob => {
+    saveBlob(blob, fileBaseName() + '.gif');
+    setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
+    isExporting = false;
+  });
+  gif.render();
+}
+
+async function downloadVideo() {
+  if (!window.MediaRecorder || !canvas.captureStream) {
+    setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।'); return;
+  }
+  if (isExporting) return;
+  isExporting = true;
+  const bgColor = document.getElementById('exportBgColor').value;
+  const stream = canvas.captureStream(30);
+  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 6000000 });
+  const chunks = [];
+  const oldCycle = cyclePhase, oldShine = shinePhase;
+  recorder.ondataavailable = e => e.data.size && chunks.push(e.data);
+  recorder.onstop = () => {
+    saveBlob(new Blob(chunks, { type: mimeType }), fileBaseName() + '.webm');
+    cyclePhase = oldCycle; shinePhase = oldShine;
+    drawFrame({});
+    isExporting = false;
+    setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+  };
+  recorder.start();
+  const start = performance.now();
+  const duration = totalDurationMs;
+  setExportStatus('ভিডিও তৈরি হচ্ছে…');
+  const render = (now) => {
+    const elapsedMs = now - start;
+    const progress = Math.min(1, elapsedMs / duration);
+    cyclePhase = oldCycle + elapsedMs;
+    shinePhase = oldShine + elapsedMs;
+    drawFrame({ solidBg: true, bgColor });
+    if (progress < 1) requestAnimationFrame(render); else recorder.stop();
+  };
+  requestAnimationFrame(render);
+}
+
+// === UI EVENTS ===
+['heroSize','depthAmt','growSpeed','shineSpeed'].forEach(id => {
+  document.getElementById(id).addEventListener('input', function() {
+    const badges = { heroSize:'heroSizeBadge', depthAmt:'depthBadge', growSpeed:'growBadge', shineSpeed:'shineBadge' };
+    const el = document.getElementById(badges[id]);
+    if (id === 'heroSize') el.textContent = this.value + '%';
+    else el.textContent = this.value;
+    if (!isSpinning) drawFrame();
+  });
+});
+['subText','mainText','tagText','paperColor','shadowColor','textColor','accentColor',
+ 'showRoute','showPlaneIcon','showBarcode','showStamp','showPages','showEmblem',
+ 'showHeroToggle','sweepToggle','showLogoToggle'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => { if (!isSpinning) drawFrame(); });
+  el.addEventListener('change', () => { if (!isSpinning) drawFrame(); });
+});
+document.getElementById('transparentToggle').addEventListener('change', function() {
+  document.getElementById('exportBgRow').style.display = this.checked ? 'none' : 'block';
+});
+
+// === INITIAL DRAW ===
+drawFrame({ tOverride: 0.68, shineOverride: 0 });
+setTimeout(startAnim, 150);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wings Fly Aviation Academy — Departure Board Welcome</title>
+<meta name="description" content="রেট্রো এয়ারপোর্ট স্প্লিট-ফ্ল্যাপ ডিপারচার বোর্ড স্টাইল ওয়েলকাম অ্যানিমেশন — রানওয়ে LED চেজ লাইট + ফ্ল্যাপ ফ্লিপ টেক্সট — PNG/GIF/WebM এক্সপোর্ট">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@400;600;700;800&family=Noto+Sans+Bengali:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-primary:#050607; --bg-secondary:#0b0d10; --bg-card:#101317; --bg-card-hover:#161a1f;
+    --border:rgba(255,255,255,0.08); --accent:#ffb300; --accent-glow:rgba(255,179,0,0.45);
+    --accent-2:#22a3ff; --accent-3:#17c98e; --text-primary:#f4f6ff; --text-secondary:#9aa4c2;
+    --text-muted:#4c5470; --radius:16px; --shadow:0 20px 60px rgba(0,0,0,0.6);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Outfit','Noto Sans Bengali',sans-serif;background:var(--bg-primary);color:var(--text-primary);
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 80% 50% at 20% 15%,rgba(255,179,0,0.10) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 85%,rgba(34,163,255,0.10) 0%,transparent 60%);}
+  .app-header{width:100%;padding:22px 32px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);
+    background:rgba(5,6,7,0.85);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+  .header-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),#8a5a00);
+    clip-path:polygon(20% 0,100% 0,80% 100%,0 100%);display:flex;align-items:center;justify-content:center;
+    font-size:19px;box-shadow:0 0 20px var(--accent-glow);flex-shrink:0;}
+  .header-text h1{font-size:19px;font-weight:700;background:linear-gradient(135deg,#fff 0%,var(--accent) 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .header-text p{font-size:12.5px;color:var(--text-secondary);margin-top:2px;}
+  .main-content{width:100%;max-width:1260px;padding:36px 24px 80px;display:grid;grid-template-columns:1fr 380px;gap:28px;position:relative;z-index:1;}
+  @media (max-width:960px){.main-content{grid-template-columns:1fr;}}
+  .canvas-panel{display:flex;flex-direction:column;align-items:center;gap:20px;}
+  .canvas-wrapper{width:100%;aspect-ratio:16/9;background:
+    linear-gradient(45deg,#181c22 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,#181c22 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(45deg,transparent 75%,#181c22 75%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,transparent 75%,#181c22 75%) -0px -0px/24px 24px,
+    var(--bg-card);
+    border:1px solid var(--border);border-radius:20px;display:flex;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;box-shadow:var(--shadow);}
+  #boardCanvas{display:block;max-width:100%;max-height:100%;}
+  .timer-display{display:flex;align-items:center;gap:14px;padding:14px 24px;background:var(--bg-card);
+    border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);}
+  .timer-ring-wrap{position:relative;width:50px;height:50px;}
+  .timer-ring-wrap svg{transform:rotate(-90deg);}
+  .timer-ring-bg{fill:none;stroke:rgba(255,255,255,0.07);stroke-width:4;}
+  .timer-ring-fill{fill:none;stroke:url(#ringGradient2);stroke-width:4;stroke-linecap:round;
+    transition:stroke-dashoffset 1s linear;stroke-dasharray:141;stroke-dashoffset:0;}
+  .timer-label-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:700;color:var(--accent);}
+  .timer-text-group{display:flex;flex-direction:column;}
+  .timer-big{font-size:26px;font-weight:800;letter-spacing:-1px;}
+  .timer-sub{font-size:11.5px;color:var(--text-secondary);font-weight:500;}
+  .timer-status{padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;}
+  .timer-status.idle{background:rgba(255,255,255,0.06);color:var(--text-muted);}
+  .timer-status.spinning{background:rgba(255,179,0,0.15);color:var(--accent);}
+  .timer-status.done{background:rgba(23,201,142,0.15);color:var(--accent-3);}
+  .sidebar{display:flex;flex-direction:column;gap:14px;}
+  .control-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+  .card-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-secondary);
+    display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+  .card-title-icon{width:22px;height:22px;background:rgba(255,179,0,0.12);border-radius:6px;display:flex;
+    align-items:center;justify-content:center;font-size:12px;}
+  .form-row{margin-bottom:14px;}
+  .form-row:last-child{margin-bottom:0;}
+  .form-label{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;color:var(--text-secondary);margin-bottom:7px;}
+  .value-badge{background:rgba(255,179,0,0.14);color:var(--accent);padding:1px 8px;border-radius:6px;font-size:11px;font-weight:700;}
+  input[type=text]{width:100%;padding:10px 12px;background:var(--bg-secondary);border:1px solid var(--border);
+    border-radius:9px;color:var(--text-primary);font-size:13.5px;font-family:inherit;}
+  input[type=text]:focus{outline:none;border-color:var(--accent);}
+  input[type=range]{width:100%;accent-color:var(--accent);}
+  input[type=color]{width:100%;height:34px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;}
+  .color-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .lang-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  .lang-btn{padding:9px 6px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;}
+  .lang-btn.active{background:var(--accent);border-color:var(--accent);color:#1a1200;}
+  .toggle-row{display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer;color:var(--text-secondary);margin-bottom:10px;}
+  .toggle-row:last-child{margin-bottom:0;}
+  .preset-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .preset-btn{padding:7px 12px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;}
+  .preset-btn.active{background:var(--accent);border-color:var(--accent);color:#1a1200;}
+  .style-swatch{width:34px;height:34px;border-radius:9px;border:2px solid transparent;cursor:pointer;flex-shrink:0;}
+  .style-swatch.active{border-color:#fff;}
+  .btn-group{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{flex:1;min-width:120px;padding:12px 16px;border:none;border-radius:11px;font-size:13.5px;font-weight:700;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;transition:.15s;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),#c98a00);color:#1a1200;box-shadow:0 8px 20px rgba(255,179,0,0.28);}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-stop{background:rgba(239,68,68,0.15);color:#ef4444;}
+  .btn-stop:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-ghost{background:var(--bg-secondary);color:var(--text-secondary);border:1px solid var(--border);}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-icon">🛫</div>
+  <div class="header-text">
+    <h1>Wings Fly Aviation Academy — Departure Board Welcome</h1>
+    <p>রেট্রো এয়ারপোর্ট স্প্লিট-ফ্ল্যাপ বোর্ড স্টাইল, রানওয়ে LED চেজ লাইট — সম্পূর্ণ ভিন্ন স্টাইল</p>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="canvas-panel">
+    <div class="canvas-wrapper">
+      <canvas id="boardCanvas" width="1600" height="900"></canvas>
+    </div>
+
+    <div class="timer-display">
+      <div class="timer-ring-wrap">
+        <svg width="50" height="50" viewBox="0 0 50 50">
+          <defs>
+            <linearGradient id="ringGradient2" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#ffb300"/><stop offset="100%" stop-color="#22a3ff"/>
+            </linearGradient>
+          </defs>
+          <circle class="timer-ring-bg" cx="25" cy="25" r="22.5"></circle>
+          <circle class="timer-ring-fill" id="timerRing" cx="25" cy="25" r="22.5"></circle>
+        </svg>
+        <div class="timer-label-inner" id="timerPercent">—</div>
+      </div>
+      <div class="timer-text-group">
+        <div class="timer-big" id="timerBig">00:00</div>
+        <div class="timer-sub" id="timerSub">সময় বাকি</div>
+      </div>
+      <div class="timer-status idle" id="timerStatus" style="margin-left:auto;">প্রস্তুত</div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🌐</div>ভাষা প্রিসেট</div>
+      <div class="lang-row">
+        <button class="lang-btn" onclick="applyLanguage('bn',this)">বাংলা</button>
+        <button class="lang-btn active" onclick="applyLanguage('en',this)">English</button>
+        <button class="lang-btn" onclick="applyLanguage('both',this)">উভয়</button>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">✏️</div>টেক্সট</div>
+      <div class="form-row">
+        <label class="form-label">সাব-লাইন (উপরে)</label>
+        <input type="text" id="subText" value="WELCOME TO">
+      </div>
+      <div class="form-row">
+        <label class="form-label">মূল লাইন</label>
+        <input type="text" id="mainText" value="WINGS FLY AVIATION ACADEMY">
+      </div>
+      <div class="form-row">
+        <label class="form-label">ট্যাগলাইন (নিচে, ঐচ্ছিক)</label>
+        <input type="text" id="tagText" value="GATE A1 · NOW BOARDING · EXCELLENCE IN FLIGHT TRAINING">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎨</div>রং</div>
+      <div class="color-grid">
+        <div class="form-row"><label class="form-label">বোর্ড ব্যাকগ্রাউন্ড</label><input type="color" id="boardBg" value="#0c0d0f"></div>
+        <div class="form-row"><label class="form-label">প্যানেল রং</label><input type="color" id="panelColor" value="#15171b"></div>
+        <div class="form-row"><label class="form-label">টেক্সট / LED রং</label><input type="color" id="ledColor" value="#ffb300"></div>
+        <div class="form-row"><label class="form-label">অ্যাক্সেন্ট গ্রিড</label><input type="color" id="gridColor" value="#22a3ff"></div>
+      </div>
+      <div class="preset-row" style="margin-top:4px;" id="stylePresets">
+        <div class="style-swatch active" style="background:linear-gradient(135deg,#0c0d0f,#ffb300)" onclick="applyStyle('amber',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#03110f,#17c98e)" onclick="applyStyle('green',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#040c14,#22a3ff)" onclick="applyStyle('cyan',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#12060a,#ff4d6d)" onclick="applyStyle('crimson',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#08040f,#c084fc)" onclick="applyStyle('violet',this)"></div>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🔲</div>শেপ</div>
+      <div class="form-row">
+        <label class="form-label">কর্নার চ্যামফার <span class="value-badge" id="chamferBadge">28</span></label>
+        <input type="range" id="chamfer" min="0" max="70" step="2" value="28">
+      </div>
+      <div class="form-row">
+        <label class="form-label">বোর্ড প্রস্থ <span class="value-badge" id="widthBadge">84%</span></label>
+        <input type="range" id="boardWidth" min="55" max="96" step="1" value="84">
+      </div>
+      <div class="form-row">
+        <label class="form-label">LED সাইজ <span class="value-badge" id="ledBadge">9</span></label>
+        <input type="range" id="ledSize" min="4" max="16" step="1" value="9">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎬</div>অ্যানিমেশন</div>
+      <div class="toggle-row"><input type="checkbox" id="flapToggle" checked>ফ্ল্যাপ ফ্লিপ টেক্সট</div>
+      <div class="toggle-row"><input type="checkbox" id="chaseToggle" checked>রানওয়ে LED চেজ লাইট</div>
+      <div class="toggle-row"><input type="checkbox" id="scanToggle" checked>স্ক্যানলাইন গ্লো</div>
+      <div class="form-row">
+        <label class="form-label">চেজ স্পিড <span class="value-badge" id="speedBadge">1.5</span></label>
+        <input type="range" id="chaseSpeed" min="0" max="5" step="0.1" value="1.5">
+      </div>
+      <div class="form-row">
+        <label class="form-label">সময়কাল</label>
+        <div class="preset-row">
+          <button class="preset-btn" onclick="setDuration(5,this)">5s</button>
+          <button class="preset-btn" onclick="setDuration(10,this)">10s</button>
+          <button class="preset-btn active" onclick="setDuration(30,this)">30s</button>
+          <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:10px;">
+        <label class="toggle-row" style="margin:0;"><input type="checkbox" id="loopToggle" checked>সবসময় লুপ চলবে</label>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" id="startBtn" onclick="startAnim()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg> শুরু
+      </button>
+      <button class="btn btn-stop" id="stopBtn" onclick="stopAnim()" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg> বন্ধ
+      </button>
+    </div>
+    <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট</button>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+      <div class="toggle-row"><input type="checkbox" id="transparentToggle">PNG ট্রান্সপারেন্ট ব্যাকগ্রাউন্ড</div>
+      <p style="font-size:11.5px;color:var(--text-muted);margin:2px 0 12px;line-height:1.55;">
+        এই বোর্ড ডিজাইনে ব্যাকগ্রাউন্ড প্যানেল ভিজ্যুয়াল স্টাইলের অংশ, তাই ডিফল্টভাবে সলিড থাকে। চাইলে PNG-তে ট্রান্সপারেন্ট করতে উপরের বক্সে টিক দিন। GIF/ভিডিও সবসময় সলিড বোর্ড ব্যাকগ্রাউন্ড সহ এক্সপোর্ট হয়।
+      </p>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="downloadPng()">PNG</button>
+        <button class="btn btn-primary" onclick="downloadGif()">GIF</button>
+        <button class="btn btn-primary" onclick="downloadVideo()">ভিডিও (WebM)</button>
+      </div>
+      <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   WINGS FLY AVIATION ACADEMY — DEPARTURE BOARD ENGINE
+   Shape: chamfered (angle-cut) rectangular gate-display panel
+   — no circles or round bubbles. Retro split-flap flip text,
+   runway LED chase lights around the border, HUD corner ticks
+   and a subtle scanline glow.
+===================================================== */
+
+const canvas = document.getElementById('boardCanvas');
+const ctx = canvas.getContext('2d');
+const CW = canvas.width, CH = canvas.height;
+
+// === STATE ===
+let chaseOffset = 0, flapPhase = 0, scanPhase = 0;
+let isSpinning = false, animFrame = null, lastTimestamp = null;
+let totalDurationMs = 30000, startTime = null, isExporting = false;
+
+// === LANGUAGE PRESETS ===
+const languagePresets = {
+  bn: { subText: 'স্বাগতম', mainText: 'উইংস ফ্লাই এভিয়েশন একাডেমি', tagText: 'গেট A1 · বোর্ডিং চলছে · সেরা এভিয়েশন প্রশিক্ষণ' },
+  en: { subText: 'WELCOME TO', mainText: 'WINGS FLY AVIATION ACADEMY', tagText: 'GATE A1 · NOW BOARDING · EXCELLENCE IN FLIGHT TRAINING' },
+  both: { subText: 'স্বাগতম / WELCOME TO', mainText: 'WINGS FLY AVIATION ACADEMY', tagText: 'গেট A1 · বোর্ডিং চলছে · NOW BOARDING' },
+};
+function applyLanguage(lang, btnEl) {
+  const p = languagePresets[lang]; if (!p) return;
+  document.getElementById('subText').value = p.subText;
+  document.getElementById('mainText').value = p.mainText;
+  document.getElementById('tagText').value = p.tagText;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  if (!isSpinning) drawFrame();
+}
+
+// === STYLE PRESETS ===
+const stylePresets = {
+  amber:   { boardBg:'#0c0d0f', panelColor:'#15171b', ledColor:'#ffb300', gridColor:'#22a3ff' },
+  green:   { boardBg:'#03110f', panelColor:'#0d1a17', ledColor:'#17c98e', gridColor:'#0a5c47' },
+  cyan:    { boardBg:'#040c14', panelColor:'#0c1a26', ledColor:'#22a3ff', gridColor:'#ffb300' },
+  crimson: { boardBg:'#12060a', panelColor:'#1f0d13', ledColor:'#ff4d6d', gridColor:'#ffb300' },
+  violet:  { boardBg:'#08040f', panelColor:'#150a24', ledColor:'#c084fc', gridColor:'#22a3ff' },
+};
+function applyStyle(name, el) {
+  const s = stylePresets[name]; if (!s) return;
+  document.getElementById('boardBg').value = s.boardBg;
+  document.getElementById('panelColor').value = s.panelColor;
+  document.getElementById('ledColor').value = s.ledColor;
+  document.getElementById('gridColor').value = s.gridColor;
+  document.querySelectorAll('.style-swatch').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  drawFrame();
+}
+
+// === SETTINGS ===
+function getSettings() {
+  return {
+    subText: document.getElementById('subText').value || '',
+    mainText: document.getElementById('mainText').value || '',
+    tagText: document.getElementById('tagText').value || '',
+    boardBg: document.getElementById('boardBg').value,
+    panelColor: document.getElementById('panelColor').value,
+    ledColor: document.getElementById('ledColor').value,
+    gridColor: document.getElementById('gridColor').value,
+    chamfer: parseInt(document.getElementById('chamfer').value) || 28,
+    boardWidthPct: parseInt(document.getElementById('boardWidth').value) || 84,
+    ledSize: parseInt(document.getElementById('ledSize').value) || 9,
+    showFlap: document.getElementById('flapToggle').checked,
+    showChase: document.getElementById('chaseToggle').checked,
+    showScan: document.getElementById('scanToggle').checked,
+  };
+}
+
+// === CHAMFERED RECT PATH (all straight lines, angle-cut corners) ===
+function buildBoardPath(ctx, w, h, c) {
+  c = Math.min(c, Math.min(w, h) / 2 - 2);
+  const left = -w/2, right = w/2, top = -h/2, bottom = h/2;
+  ctx.beginPath();
+  ctx.moveTo(left + c, top);
+  ctx.lineTo(right - c, top);
+  ctx.lineTo(right, top + c);
+  ctx.lineTo(right, bottom - c);
+  ctx.lineTo(right - c, bottom);
+  ctx.lineTo(left + c, bottom);
+  ctx.lineTo(left, bottom - c);
+  ctx.lineTo(left, top + c);
+  ctx.closePath();
+}
+
+function hexToRgb(hex) {
+  hex = hex.replace('#', '');
+  return { r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16) };
+}
+function hexToRgba(hex, a) { const {r,g,b} = hexToRgb(hex); return `rgba(${r},${g},${b},${a})`; }
+
+// === HUD CORNER TICK (viewfinder-style, straight lines) ===
+function drawCornerTick(ctx, x, y, size, dx, dy, color) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(x, y + size * dy);
+  ctx.lineTo(x, y);
+  ctx.lineTo(x + size * dx, y);
+  ctx.stroke();
+}
+
+// === FLAP-STYLE LINE RENDER ===
+// Each line periodically "flips" (scaleY squash) at a staggered phase,
+// mimicking a split-flap airport board character reveal.
+function drawFlapLine(ctx, text, x, y, font, color, phase, stagger, maxWidth, letterSpaced) {
+  ctx.save();
+  ctx.translate(x, y);
+  const cyclePos = ((phase + stagger) % 1 + 1) % 1;
+  const pulse = Math.exp(-Math.pow(cyclePos * 13, 2));
+  const scaleY = 1 - pulse * 0.92;
+  ctx.scale(1, Math.max(0.06, scaleY));
+  ctx.font = font;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = color;
+  if (letterSpaced) {
+    drawSpacedText(ctx, text, 0, 0, maxWidth);
+  } else {
+    ctx.fillText(text, 0, 0, maxWidth);
+  }
+  ctx.restore();
+}
+function drawSpacedText(ctx, text, cx, cy, maxWidth) {
+  let font = ctx.font;
+  let totalW = ctx.measureText(text.split('').join('\u200a\u200a')).width;
+  // fallback: just use normal fillText with manual spacing via letter loop
+  const chars = text.split('');
+  let widths = chars.map(c => ctx.measureText(c).width);
+  const gap = Math.max(2, ctx.measureText('M').width * 0.18);
+  let full = widths.reduce((a,b) => a+b, 0) + gap * (chars.length - 1);
+  let scale = 1;
+  if (full > maxWidth) scale = maxWidth / full;
+  let startX = cx - (full * scale) / 2;
+  let cursor = startX;
+  for (let i = 0; i < chars.length; i++) {
+    ctx.save();
+    ctx.textAlign = 'left';
+    ctx.translate(cursor, cy);
+    ctx.scale(scale, 1);
+    ctx.fillText(chars[i], 0, 0);
+    ctx.restore();
+    cursor += (widths[i] + gap) * scale;
+  }
+}
+
+// === DRAW ENGINE ===
+function drawFrame(opts) {
+  opts = opts || {};
+  const w = canvas.width, h = canvas.height;
+  const s = getSettings();
+  const cx = w / 2, cy = h / 2;
+
+  ctx.clearRect(0, 0, w, h);
+
+  const transparentPng = opts.transparent === true;
+  if (!transparentPng) {
+    ctx.fillStyle = opts.bgColor || '#050607';
+    ctx.fillRect(0, 0, w, h);
+  }
+
+  const bw = w * (s.boardWidthPct / 100);
+  const bh = h * 0.62;
+
+  ctx.save();
+  ctx.translate(cx, cy);
+
+  // outer chamfered board panel
+  buildBoardPath(ctx, bw, bh, s.chamfer);
+  ctx.save();
+  ctx.shadowColor = s.ledColor;
+  ctx.shadowBlur = bh * 0.12;
+  ctx.fillStyle = s.panelColor;
+  ctx.fill();
+  ctx.restore();
+
+  buildBoardPath(ctx, bw, bh, s.chamfer);
+  ctx.strokeStyle = hexToRgba(s.gridColor, 0.55);
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+
+  // inner subtle grid lines (rows) for board feel
+  ctx.save();
+  buildBoardPath(ctx, bw, bh, s.chamfer);
+  ctx.clip();
+  ctx.strokeStyle = hexToRgba(s.gridColor, 0.12);
+  ctx.lineWidth = 1;
+  for (let i = -3; i <= 3; i++) {
+    const yy = i * (bh / 8);
+    ctx.beginPath();
+    ctx.moveTo(-bw/2, yy);
+    ctx.lineTo(bw/2, yy);
+    ctx.stroke();
+  }
+  // scanline glow band
+  if (s.showScan) {
+    const scanY = (((scanPhase % 1) + 1) % 1) * bh - bh/2;
+    const sgrad = ctx.createLinearGradient(0, scanY - bh*0.08, 0, scanY + bh*0.08);
+    sgrad.addColorStop(0, 'rgba(255,255,255,0)');
+    sgrad.addColorStop(0.5, hexToRgba(s.ledColor, 0.10));
+    sgrad.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = sgrad;
+    ctx.fillRect(-bw/2, scanY - bh*0.08, bw, bh*0.16);
+  }
+  ctx.restore();
+
+  // inset inner border
+  buildBoardPath(ctx, bw - 20, bh - 20, Math.max(0, s.chamfer - 8));
+  ctx.strokeStyle = hexToRgba(s.gridColor, 0.3);
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  ctx.restore(); // end board translate
+
+  // === HUD CORNER TICKS ===
+  const tickSize = h * 0.05;
+  const margin = 22;
+  const hx = bw/2, hy = bh/2;
+  drawCornerTick(ctx, cx - hx - margin, cy - hy - margin, tickSize, 1, 1, s.gridColor);
+  ctx.save(); ctx.translate(cx + hx + margin, cy - hy - margin); ctx.scale(-1,1);
+  drawCornerTick(ctx, 0, 0, tickSize, 1, 1, s.gridColor); ctx.restore();
+  ctx.save(); ctx.translate(cx - hx - margin, cy + hy + margin); ctx.scale(1,-1);
+  drawCornerTick(ctx, 0, 0, tickSize, 1, 1, s.gridColor); ctx.restore();
+  ctx.save(); ctx.translate(cx + hx + margin, cy + hy + margin); ctx.scale(-1,-1);
+  drawCornerTick(ctx, 0, 0, tickSize, 1, 1, s.gridColor); ctx.restore();
+
+  // === RUNWAY LED CHASE LIGHTS around board perimeter ===
+  if (s.showChase) {
+    const perim = 2 * (bw + bh);
+    const spacing = s.ledSize * 3.2;
+    const count = Math.floor(perim / spacing);
+    for (let i = 0; i < count; i++) {
+      const d = (i * spacing + chaseOffset) % perim;
+      let px, py;
+      if (d < bw) { px = -bw/2 + d; py = -bh/2 - margin*0.55; }
+      else if (d < bw + bh) { px = bw/2 + margin*0.55; py = -bh/2 + (d - bw); }
+      else if (d < bw*2 + bh) { px = bw/2 - (d - bw - bh); py = bh/2 + margin*0.55; }
+      else { px = -bw/2 - margin*0.55; py = bh/2 - (d - bw*2 - bh); }
+      const chasePos = (i / count);
+      const bright = 0.35 + 0.65 * Math.pow(Math.sin(chasePos * Math.PI * 2 - (chaseOffset/perim) * Math.PI * 2), 2);
+      ctx.save();
+      ctx.translate(cx + px, cy + py);
+      ctx.fillStyle = hexToRgba(s.ledColor, Math.max(0.15, bright));
+      ctx.shadowColor = s.ledColor;
+      ctx.shadowBlur = s.ledSize * bright;
+      ctx.fillRect(-s.ledSize/2, -s.ledSize/2, s.ledSize, s.ledSize);
+      ctx.restore();
+    }
+  }
+
+  // === TEXT (flap-style board content) ===
+  const flapPh = s.showFlap ? flapPhase : -1;
+  const subSize = Math.max(16, h * 0.04);
+  drawFlapLine(ctx, s.subText, cx, cy - bh*0.26,
+    `700 ${subSize}px 'Space Mono','Noto Sans Bengali',monospace`,
+    hexToRgba(s.ledColor, 0.85), flapPh, 0.02, bw*0.88, true);
+
+  let mainSize = h * 0.088;
+  ctx.font = `700 ${mainSize}px 'Space Mono','Noto Sans Bengali',monospace`;
+  while (ctx.measureText(s.mainText.replace(/ /g,'  ')).width > bw*0.9 && mainSize > 14) {
+    mainSize -= 2;
+    ctx.font = `700 ${mainSize}px 'Space Mono','Noto Sans Bengali',monospace`;
+  }
+  drawFlapLine(ctx, s.mainText, cx, cy - bh*0.02,
+    `700 ${mainSize}px 'Space Mono','Noto Sans Bengali',monospace`,
+    s.ledColor, flapPh, 0.18, bw*0.9, true);
+
+  if (s.tagText) {
+    const tagSize = Math.max(12, h * 0.024);
+    drawFlapLine(ctx, s.tagText, cx, cy + bh*0.24,
+      `400 ${tagSize}px 'Space Mono','Noto Sans Bengali',monospace`,
+      hexToRgba(s.gridColor, 0.85), flapPh, 0.36, bw*0.86, true);
+  }
+}
+
+// === ANIMATION LOOP ===
+function animationLoop(timestamp) {
+  if (!isSpinning) return;
+  if (!lastTimestamp) lastTimestamp = timestamp;
+  const delta = timestamp - lastTimestamp;
+  lastTimestamp = timestamp;
+
+  const speed = parseFloat(document.getElementById('chaseSpeed').value) || 0;
+  chaseOffset += speed * 0.4 * delta;
+  flapPhase += delta * 0.00009;
+  scanPhase += delta * 0.00028;
+
+  const elapsed = timestamp - startTime;
+  const remaining = Math.max(0, totalDurationMs - elapsed);
+  updateTimerUI(elapsed, remaining);
+
+  drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor: document.getElementById('boardBg').value });
+
+  if (remaining <= 0 && !document.getElementById('loopToggle').checked) { finishAnim(); return; }
+  if (remaining <= 0) startTime = timestamp;
+
+  animFrame = requestAnimationFrame(animationLoop);
+}
+
+function updateTimerUI(elapsed, remaining) {
+  const totalSec = Math.ceil(remaining / 1000);
+  const m = Math.floor(totalSec / 60).toString().padStart(2, '0');
+  const sec = (totalSec % 60).toString().padStart(2, '0');
+  document.getElementById('timerBig').textContent = `${m}:${sec}`;
+  const pct = Math.max(0, Math.min(100, ((totalDurationMs - remaining) / totalDurationMs) * 100));
+  document.getElementById('timerPercent').textContent = Math.round(pct) + '%';
+  const circumference = 141;
+  document.getElementById('timerRing').style.strokeDashoffset = circumference - (pct/100)*circumference;
+}
+function resetTimerUI() {
+  document.getElementById('timerBig').textContent = '00:00';
+  document.getElementById('timerPercent').textContent = '—';
+  document.getElementById('timerRing').style.strokeDashoffset = 141;
+  document.getElementById('timerStatus').className = 'timer-status idle';
+  document.getElementById('timerStatus').textContent = 'প্রস্তুত';
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+}
+
+let currentDuration = 30;
+function setDuration(sec, btnEl) {
+  currentDuration = sec;
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+}
+
+function startAnim() {
+  if (isSpinning) return;
+  totalDurationMs = currentDuration * 1000;
+  isSpinning = true; startTime = null; lastTimestamp = null;
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status spinning'; st.textContent = '⚡ চলছে';
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+  animFrame = requestAnimationFrame(ts => { startTime = ts; lastTimestamp = ts; animationLoop(ts); });
+}
+function stopAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status idle'; st.textContent = '⏸ থামানো হয়েছে';
+  drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor: document.getElementById('boardBg').value });
+}
+function finishAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  document.getElementById('timerBig').textContent = '00:00';
+  document.getElementById('timerPercent').textContent = '100%';
+  document.getElementById('timerRing').style.strokeDashoffset = 0;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status done'; st.textContent = '✅ সম্পন্ন';
+  document.getElementById('timerSub').textContent = 'অ্যানিমেশন শেষ';
+  drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor: document.getElementById('boardBg').value });
+}
+function resetAll() {
+  stopAnim();
+  chaseOffset = 0; flapPhase = 0; scanPhase = 0;
+  resetTimerUI();
+  drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor: document.getElementById('boardBg').value });
+}
+
+// === EXPORT ===
+function setExportStatus(msg) { document.getElementById('exportStatus').textContent = msg; }
+function saveBlob(blob, filename) {
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+function downloadPng() {
+  const transparent = document.getElementById('transparentToggle').checked;
+  const bgColor = document.getElementById('boardBg').value;
+  drawFrame({ transparent, bgColor });
+  canvas.toBlob(blob => {
+    drawFrame({ transparent: false, bgColor });
+    if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+    saveBlob(blob, 'wings-fly-departure-board.png');
+    setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+  }, 'image/png');
+}
+
+async function downloadGif() {
+  if (!window.GIF) { setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন।'); return; }
+  if (isExporting) return;
+  isExporting = true;
+  const bgColor = document.getElementById('boardBg').value;
+  const oldChase = chaseOffset, oldFlap = flapPhase, oldScan = scanPhase;
+  const gif = new GIF({ workers: 2, quality: 10, width: CW, height: CH,
+    workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
+  const frames = 60, frameDelay = 50;
+  const speed = parseFloat(document.getElementById('chaseSpeed').value) || 0;
+  setExportStatus('GIF তৈরি হচ্ছে… 0%');
+  for (let i = 0; i < frames; i++) {
+    const t = i / frames;
+    chaseOffset = oldChase + speed * 0.4 * (t * frames * frameDelay);
+    flapPhase = oldFlap + t * 0.5;
+    scanPhase = oldScan + t * 1.4;
+    drawFrame({ transparent: false, bgColor });
+    gif.addFrame(canvas, { copy: true, delay: frameDelay });
+    setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((i+1)/frames*100)}%`);
+    await new Promise(requestAnimationFrame);
+  }
+  chaseOffset = oldChase; flapPhase = oldFlap; scanPhase = oldScan;
+  drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor });
+  gif.on('finished', blob => {
+    saveBlob(blob, 'wings-fly-departure-board.gif');
+    setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
+    isExporting = false;
+  });
+  gif.render();
+}
+
+async function downloadVideo() {
+  if (!window.MediaRecorder || !canvas.captureStream) {
+    setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।'); return;
+  }
+  if (isExporting) return;
+  isExporting = true;
+  const bgColor = document.getElementById('boardBg').value;
+  const stream = canvas.captureStream(30);
+  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 6000000 });
+  const chunks = [];
+  const oldChase = chaseOffset, oldFlap = flapPhase, oldScan = scanPhase;
+  recorder.ondataavailable = e => e.data.size && chunks.push(e.data);
+  recorder.onstop = () => {
+    saveBlob(new Blob(chunks, { type: mimeType }), 'wings-fly-departure-board.webm');
+    chaseOffset = oldChase; flapPhase = oldFlap; scanPhase = oldScan;
+    drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor });
+    isExporting = false;
+    setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+  };
+  recorder.start();
+  const start = performance.now();
+  const duration = 6000;
+  const speed = parseFloat(document.getElementById('chaseSpeed').value) || 0;
+  setExportStatus('ভিডিও তৈরি হচ্ছে…');
+  const render = (now) => {
+    const elapsedMs = now - start;
+    const progress = Math.min(1, elapsedMs / duration);
+    chaseOffset = oldChase + speed * 0.4 * elapsedMs;
+    flapPhase = oldFlap + progress * 0.75;
+    scanPhase = oldScan + progress * 2.1;
+    drawFrame({ transparent: false, bgColor });
+    if (progress < 1) requestAnimationFrame(render); else recorder.stop();
+  };
+  requestAnimationFrame(render);
+}
+
+// === UI EVENTS ===
+['chamfer','boardWidth','ledSize','chaseSpeed'].forEach(id => {
+  document.getElementById(id).addEventListener('input', function() {
+    const badges = { chamfer:'chamferBadge', boardWidth:'widthBadge', ledSize:'ledBadge', chaseSpeed:'speedBadge' };
+    const el = document.getElementById(badges[id]);
+    if (id === 'boardWidth') el.textContent = this.value + '%';
+    else el.textContent = this.value;
+    if (!isSpinning) drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor: document.getElementById('boardBg').value });
+  });
+});
+['subText','mainText','tagText','boardBg','panelColor','ledColor','gridColor',
+ 'flapToggle','chaseToggle','scanToggle','transparentToggle'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => { if (!isSpinning) drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor: document.getElementById('boardBg').value }); });
+  el.addEventListener('change', () => { if (!isSpinning) drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor: document.getElementById('boardBg').value }); });
+});
+
+// === INITIAL DRAW ===
+drawFrame({ transparent: false, bgColor: document.getElementById('boardBg').value });
+setTimeout(startAnim, 150);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+</body>
+</html>
