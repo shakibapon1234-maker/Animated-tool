@@ -240,7 +240,7 @@
         <button class="btn btn-primary" onclick="downloadGif()">GIF</button>
         <button class="btn btn-primary" onclick="downloadVideo()">ভিডিও (WebM)</button>
       </div>
-      <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+      <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"><div class="dl-progress-container"><div class="dl-progress-bar"><div class="dl-progress-fill"></div></div><div class="dl-progress-text"></div></div></div>
     </div>
 
   </div>
@@ -772,12 +772,16 @@ function resetAll() {
 // === EXPORT ===
 function setExportStatus(msg) { document.getElementById('exportStatus').textContent = msg; }
 function saveBlob(blob, filename) {
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = filename;
-  link.click();
-  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
-}
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+      }
 
 function downloadPng() {
   const transparent = document.getElementById('transparentToggle').checked;
@@ -800,7 +804,7 @@ async function downloadGif() {
   const bgColor = document.getElementById('exportBgColor').value;
   const oldSweep = sweepPhase, oldIdle = idlePhase, oldBuild = buildP;
   const gif = new GIF({ workers: 2, quality: 10, width: CW, height: CH,
-    workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
+    workerScript: 'gif.worker.js' });
   const frames = 60, frameDelay = 60, clipMs = 6000;
   setExportStatus('GIF তৈরি হচ্ছে… 0%');
   for (let i = 0; i < frames; i++) {
@@ -821,7 +825,11 @@ async function downloadGif() {
     setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
     isExporting = false;
   });
-  gif.render();
+        gif.on("error", function(err) {
+          if(typeof setExportStatus==="function") setExportStatus("GIF তৈরি করতে ত্রুটি হয়েছে: "+err.message);
+          if(typeof isExporting!=="undefined") isExporting=false;
+        });
+        gif.render();
 }
 
 async function downloadVideo() {
@@ -848,8 +856,13 @@ async function downloadVideo() {
   const start = performance.now();
   const duration = 7000;
   setExportStatus('ভিডিও তৈরি হচ্ছে…');
-  const render = (now) => {
-    const elapsedMs = now - start;
+            const _dlVideoStart = performance.now();
+            const _dlVideoDuration = 3000;
+            const render = (now) => {
+            const _dlElapsed = now - _dlVideoStart;
+            const _dlProg = Math.min(1, _dlElapsed / _dlVideoDuration);
+            const elapsedMs = now - start;
+            setExportStatus('ভিডিও তৈরি হচ্ছে… ' + Math.round(_dlProg * 100) + '%');
     const progress = Math.min(1, elapsedMs / duration);
     sweepPhase = oldSweep + elapsedMs * 0.0006;
     idlePhase = oldIdle + elapsedMs * 0.0016;
@@ -886,6 +899,8 @@ buildP = 0;
 setTimeout(startAnim, 150);
 
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+<script src="gif.js" defer></script>
+
+<script src="download-utils.js"></script>
 </body>
 </html>

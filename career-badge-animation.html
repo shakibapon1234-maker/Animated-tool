@@ -629,7 +629,7 @@
                     <button class="btn btn-primary" type="button" onclick="downloadGif()">GIF ডাউনলোড</button>
                     <button class="btn btn-primary" type="button" onclick="downloadVideo()">ভিডিও (WebM)</button>
                 </div>
-                <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+                <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"><div class="dl-progress-container"><div class="dl-progress-bar"><div class="dl-progress-fill"></div></div><div class="dl-progress-text"></div></div></div>
             </div>
 
         </div>
@@ -1125,12 +1125,16 @@
     }
 
     function saveBlob(blob, filename) {
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = filename;
-        link.click();
-        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
-    }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+      }
 
     function downloadPng() {
         canvas.toBlob((blob) => {
@@ -1162,7 +1166,7 @@
         const oldAngle = spinAngle, oldPhase = pulsePhase, oldBubble = bubblePhase;
         const gif = new GIF({
             workers: 2, quality: 10, width: 720, height: 720,
-            workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'
+            workerScript: 'gif.worker.js'
         });
         const frames = 48;
         const frameDelay = 50;
@@ -1181,6 +1185,10 @@
             saveBlob(blob, 'career-badge.gif');
             setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
             isExporting = false;
+        });
+        gif.on("error", function(err) {
+          if(typeof setExportStatus==="function") setExportStatus("GIF তৈরি করতে ত্রুটি হয়েছে: "+err.message);
+          if(typeof isExporting!=="undefined") isExporting=false;
         });
         gif.render();
     }
@@ -1210,8 +1218,13 @@
         const start = performance.now();
         const duration = 2400;
         setExportStatus('ভিডিও তৈরি হচ্ছে…');
-        const render = (now) => {
-            const progress = Math.min(1, (now - start) / duration);
+            const _dlVideoStart = performance.now();
+            const _dlVideoDuration = duration;
+            const render = (now) => {
+              const _dlElapsed = now - _dlVideoStart;
+              const _dlProg = Math.min(1, _dlElapsed / _dlVideoDuration);
+              const progress = Math.min(1, (now - start) / duration);
+            setExportStatus('ভিডিও তৈরি হচ্ছে… ' + Math.round(_dlProg * 100) + '%');
             spinAngle = oldAngle + direction * Math.PI * 2 * progress;
             pulsePhase = oldPhase + Math.PI * 2 * 2 * progress;
             bubblePhase = oldBubble + progress * 2;
@@ -1283,6 +1296,8 @@
     setTimeout(startBurst, 150);
 
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+    <script src="gif.js" defer></script>
+
+<script src="download-utils.js"></script>
 </body>
 </html>

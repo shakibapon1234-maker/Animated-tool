@@ -285,7 +285,7 @@
                 <button class="btn btn-ghost" onclick="downloadPng()" style="width:100%;"><span data-i18n="btnPng">🖼 PNG ডাউনলোড (ট্রান্সপারেন্ট)</span></button>
                 <button class="btn btn-ghost" onclick="downloadGif()" style="width:100%;"><span data-i18n="btnGif">🎞 GIF ডাউনলোড (ট্রান্সপারেন্ট, লুপিং)</span></button>
                 <button class="btn btn-ghost" onclick="downloadVideo()" style="width:100%;"><span data-i18n="btnVideo">🎬 ভিডিও (WEBM) ডাউনলোড</span></button>
-                <div class="export-status" id="exportStatus"></div>
+                <div class="export-status" id="exportStatus"><div class="dl-progress-container"><div class="dl-progress-bar"><div class="dl-progress-fill"></div></div><div class="dl-progress-text"></div></div></div>
             </div>
         </div>
 
@@ -552,13 +552,17 @@ function setDuration(sec, btnEl){
 // EXPORT HELPERS
 // ============================================================
 function setExportStatus(msg){ document.getElementById('exportStatus').textContent = msg; }
-function saveBlob(blob, filename){
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    link.click();
-    setTimeout(()=>URL.revokeObjectURL(link.href), 1000);
-}
+function saveBlob(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+      }
 
 function downloadPng(){
     canvas.toBlob((blob)=>{
@@ -582,7 +586,7 @@ async function downloadGif(){
     const gif = new GIF({
         workers: 2, quality: 8, width: W, height: H,
         transparent: 0x00FF00, // will be swapped per-pixel below via manual compositing
-        workerScript: 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js'
+        workerScript: 'gif.worker.js'
     });
 
     const frames = 36;
@@ -610,7 +614,11 @@ async function downloadGif(){
         isExporting = false;
         if(wasPlaying) startAnim();
     });
-    gif.render();
+        gif.on("error", function(err) {
+          if(typeof setExportStatus==="function") setExportStatus("GIF তৈরি করতে ত্রুটি হয়েছে: "+err.message);
+          if(typeof isExporting!=="undefined") isExporting=false;
+        });
+        gif.render();
 }
 
 // draws the normal frame but on top of a keyed background, so gif.js's
@@ -728,6 +736,8 @@ document.fonts.load("800 74px 'Noto Serif Bengali'").then(()=>document.fonts.rea
 });
 setTimeout(drawFrame, 50); // fallback draw in case font loading stalls
 </script>
-<script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js" defer></script>
+<script src="gif.js" defer></script>
+
+<script src="download-utils.js"></script>
 </body>
 </html>
