@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome To [Brand] Intro Animation — ওয়েলকাম ইন্ট্রো ব্যানার</title>
+<meta name="description" content="নন-রাউন্ড শেভরন ব্যানার ওয়েলকাম ইন্ট্রো — এডিটেবল ব্র্যান্ড নাম + কনফেটি + শাইন — ভিডিও/ফটো এডিটর অ্যাপের জন্য">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Noto+Sans+Bengali:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --bg-primary: #0a060f;
+        --bg-secondary: #0f0a18;
+        --bg-card: #150e1f;
+        --bg-card-hover: #1b1329;
+        --border: rgba(255,255,255,0.08);
+        --border-active: rgba(255,190,60,0.5);
+        --accent: #ffb703;
+        --accent-glow: rgba(255,183,3,0.45);
+        --accent-2: #ff2e8a;
+        --accent-3: #8b5cf6;
+        --text-primary: #faf6ff;
+        --text-secondary: #ada2c2;
+        --text-muted: #574c70;
+        --success: #10b981;
+        --radius: 16px;
+        --radius-sm: 10px;
+        --shadow: 0 20px 60px rgba(0,0,0,0.55);
+        --shadow-glow: 0 0 45px rgba(255,183,3,0.22);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: 'Outfit', 'Noto Sans Bengali', 'Inter', system-ui, sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        min-height: 100vh;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background:
+            radial-gradient(ellipse 80% 50% at 20% 15%, rgba(255,183,3,0.15) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 40% at 85% 80%, rgba(255,46,138,0.10) 0%, transparent 60%),
+            radial-gradient(ellipse 50% 60% at 50% 50%, rgba(139,92,246,0.08) 0%, transparent 70%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .app-header {
+        width: 100%;
+        padding: 24px 32px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(10,6,15,0.8);
+        backdrop-filter: blur(20px);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .header-icon {
+        width: 44px; height: 44px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px;
+        box-shadow: 0 0 20px var(--accent-glow);
+        flex-shrink: 0;
+    }
+
+    .header-text h1 { font-size: 20px; font-weight: 700;
+        background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .header-text p { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+    .main-content {
+        width: 100%; max-width: 1200px; padding: 40px 24px 80px;
+        display: grid; grid-template-columns: 1fr 380px; gap: 32px;
+        position: relative; z-index: 1;
+    }
+    @media (max-width: 900px) { .main-content { grid-template-columns: 1fr; } }
+
+    .canvas-panel { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+
+    .canvas-wrapper {
+        width: 100%; aspect-ratio: 1; max-width: 500px;
+        background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px;
+        display: flex; align-items: center; justify-content: center;
+        position: relative; overflow: hidden;
+        box-shadow: var(--shadow), var(--shadow-glow);
+    }
+    .canvas-wrapper::before {
+        content: ''; position: absolute; inset: -1px; border-radius: 25px;
+        background: linear-gradient(135deg, rgba(255,183,3,0.3), rgba(255,46,138,0.1), rgba(139,92,246,0.15));
+        z-index: -1; animation: borderGlow 4s ease-in-out infinite;
+    }
+    @keyframes borderGlow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+    .canvas-bg-grid {
+        position: absolute; inset: 0;
+        background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                           linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+        background-size: 30px 30px; border-radius: 24px;
+    }
+
+    #welcomeCanvas { display: block; max-width: 100%; max-height: 100%; }
+
+    .lang-toggle { display: flex; gap: 8px; }
+    .lang-btn {
+        padding: 10px 18px; border-radius: 60px; border: 1px solid var(--border);
+        background: var(--bg-card); color: var(--text-secondary); font-size: 13px; font-weight: 600;
+        cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 8px;
+    }
+    .lang-btn:hover { border-color: var(--accent); color: var(--text-primary); }
+
+    .controls-panel { display: flex; flex-direction: column; gap: 20px; }
+    .control-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 24px; transition: border-color 0.2s, box-shadow 0.2s; }
+    .control-card:hover { border-color: var(--border-active); box-shadow: 0 0 20px rgba(255,183,3,0.1); }
+
+    .card-title { font-size: 13px; font-weight: 700; color: var(--text-secondary); letter-spacing: 1px;
+        text-transform: uppercase; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+    .card-title-icon { width: 24px; height: 24px; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+
+    .form-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+    .form-row:last-child { margin-bottom: 0; }
+    .form-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); display: flex;
+        justify-content: space-between; align-items: center; }
+    .form-label .value-badge { background: rgba(255,183,3,0.15); color: var(--accent); padding: 2px 10px;
+        border-radius: 20px; font-size: 12px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+
+    input[type="text"], input[type="number"] {
+        width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: var(--radius-sm);
+        padding: 12px 16px; color: var(--text-primary); font-size: 14px; font-family: inherit;
+        transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+    }
+    input[type="text"]:focus, input[type="number"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255,183,3,0.15); }
+
+    input[type="range"] { width: 100%; height: 6px; -webkit-appearance: none; appearance: none;
+        background: rgba(255,255,255,0.08); border-radius: 10px; outline: none; cursor: pointer; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: 0 0 10px rgba(255,183,3,0.5);
+        cursor: pointer; transition: transform 0.15s; }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+    input[type="color"] { width: 48px; height: 36px; border: 1px solid var(--border); border-radius: 8px;
+        background: none; cursor: pointer; padding: 2px; }
+
+    .color-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .color-row:last-child { margin-bottom: 0; }
+    .color-label { font-size: 13px; color: var(--text-secondary); flex: 1; }
+
+    .time-presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .preset-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: transparent;
+        color: var(--text-secondary); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+    .preset-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(255,183,3,0.1); }
+    .preset-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(255,183,3,0.15); }
+
+    .direction-toggle { display: flex; gap: 8px; }
+    .dir-btn { flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: transparent;
+        color: var(--text-secondary); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit;
+        display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .dir-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .dir-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(255,183,3,0.12); }
+
+    .btn-group { display: flex; gap: 12px; }
+    .btn { flex: 1; padding: 14px 20px; border-radius: var(--radius-sm); border: none; font-size: 14px; font-weight: 700;
+        font-family: inherit; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+        gap: 8px; letter-spacing: 0.3px; }
+    .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #200a17;
+        box-shadow: 0 4px 20px rgba(255,183,3,0.35); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(255,183,3,0.45); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .btn-stop { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #ff8080; }
+    .btn-stop:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(239,68,68,0.4); }
+    .btn-stop:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .btn-ghost { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text-secondary); }
+    .btn-ghost:hover { border-color: var(--border-active); color: var(--text-primary); background: rgba(255,255,255,0.07); }
+
+    .style-presets { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .style-preset-btn { padding: 10px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: transparent;
+        color: var(--text-secondary); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; text-align: center; }
+    .style-preset-btn:hover { border-color: var(--accent); color: var(--text-primary); background: rgba(255,183,3,0.08); }
+    .style-preset-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(255,183,3,0.15); }
+
+    .sep { height: 1px; background: var(--border); margin: 4px 0; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+    <div class="header-icon">🎉</div>
+    <div class="header-text">
+        <h1>Welcome To [Brand] Intro Animation</h1>
+        <p>নন-রাউন্ড শেভরন ব্যানার — এডিটেবল ব্র্যান্ড নাম + কনফেটি + শাইন — ভিডিও/ফটো এডিটর অ্যাপের জন্য</p>
+    </div>
+</header>
+
+<div class="main-content">
+
+    <div class="canvas-panel">
+        <div class="canvas-wrapper">
+            <div class="canvas-bg-grid"></div>
+            <canvas id="welcomeCanvas" width="460" height="460"></canvas>
+        </div>
+
+        <div class="lang-toggle">
+            <button class="lang-btn" onclick="fillLanguage('bn')">🇧🇩 বাংলা টেক্সট বসান</button>
+            <button class="lang-btn" onclick="fillLanguage('en')">🇬🇧 Fill English Text</button>
+        </div>
+    </div>
+
+    <div class="controls-panel">
+
+        <div class="control-card">
+            <div class="card-title"><div class="card-title-icon">✍️</div>টেক্সট সেটিংস</div>
+
+            <div class="form-row">
+                <label class="form-label">উপরের ছোট ট্যাগ টেক্সট</label>
+                <input type="text" id="topText" value="✨ স্বাগতম" placeholder="উপরের ছোট ট্যাগ">
+            </div>
+            <div class="form-row">
+                <label class="form-label">ব্র্যান্ড নাম (আপনার নিজের নাম বসান)</label>
+                <input type="text" id="brandName" value="আপনার ব্র্যান্ড নাম" placeholder="যেমন: XYZ Store">
+            </div>
+            <div class="form-row">
+                <label class="form-label">ট্যাগলাইন টেক্সট</label>
+                <input type="text" id="taglineText" value="আমাদের সাথে থাকার জন্য ধন্যবাদ" placeholder="ট্যাগলাইন">
+            </div>
+            <div class="form-row">
+                <label class="form-label">নিচের রিবন টেক্সট</label>
+                <input type="text" id="ribbonText" value="আমাদের সাথে থাকুন" placeholder="রিবন টেক্সট">
+            </div>
+        </div>
+
+        <div class="control-card">
+            <div class="card-title"><div class="card-title-icon">✦</div>শেপ সেটিংস (নন-রাউন্ড ব্যানার)</div>
+
+            <div class="form-row">
+                <label class="form-label">ব্যানার প্রস্থ <span class="value-badge" id="bannerWidthBadge">0.86</span></label>
+                <input type="range" id="bannerWidth" min="0.55" max="0.95" step="0.01" value="0.86">
+            </div>
+            <div class="form-row">
+                <label class="form-label">শেভরন খাঁজের গভীরতা <span class="value-badge" id="notchDepthBadge">0.16</span></label>
+                <input type="range" id="notchDepth" min="0.04" max="0.3" step="0.01" value="0.16">
+            </div>
+            <div class="form-row">
+                <label class="form-label">ব্যাকগ্রাউন্ড রশ্মি সংখ্যা <span class="value-badge" id="rayCountBadge">14</span></label>
+                <input type="range" id="rayCount" min="0" max="28" step="1" value="14">
+            </div>
+            <div class="form-row">
+                <label class="form-label">কনফেটি সংখ্যা <span class="value-badge" id="confettiCountBadge">14</span></label>
+                <input type="range" id="confettiCount" min="0" max="24" step="1" value="14">
+            </div>
+            <div class="form-row">
+                <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                    <input type="checkbox" id="ribbonToggle" checked>
+                    নিচে ছোট রিবন দেখান
+                </label>
+            </div>
+        </div>
+
+        <div class="control-card">
+            <div class="card-title"><div class="card-title-icon">🎨</div>কালার স্টাইল</div>
+
+            <div class="style-presets" id="stylePresets">
+                <button class="style-preset-btn active" data-style="goldCelebration" onclick="applyStyle('goldCelebration',this)">🟡 গোল্ড সেলিব্রেশন</button>
+                <button class="style-preset-btn" data-style="neonParty" onclick="applyStyle('neonParty',this)">💗 নিয়ন পার্টি</button>
+                <button class="style-preset-btn" data-style="corporateNavy" onclick="applyStyle('corporateNavy',this)">🔵 কর্পোরেট নেভি</button>
+                <button class="style-preset-btn" data-style="roseGold" onclick="applyStyle('roseGold',this)">🌸 রোজ গোল্ড</button>
+                <button class="style-preset-btn" data-style="oceanBreeze" onclick="applyStyle('oceanBreeze',this)">🟢 ওশেন ব্রিজ</button>
+                <button class="style-preset-btn" data-style="royalPurple" onclick="applyStyle('royalPurple',this)">🟣 রয়্যাল পার্পল</button>
+            </div>
+
+            <div class="sep" style="margin-top:16px;"></div>
+
+            <div style="margin-top:14px;">
+                <div class="color-row">
+                    <span class="color-label">ব্যানার রঙ (বাইরে)</span>
+                    <input type="color" id="bannerColorOuter" value="#ffb703">
+                </div>
+                <div class="color-row">
+                    <span class="color-label">ব্যানার রঙ (ভেতরে)</span>
+                    <input type="color" id="bannerColorInner" value="#7a1f00">
+                </div>
+                <div class="color-row">
+                    <span class="color-label">রশ্মি / কনফেটি রঙ</span>
+                    <input type="color" id="rayColor" value="#ff2e8a">
+                </div>
+                <div class="color-row">
+                    <span class="color-label">ব্র্যান্ড নাম রঙ (শুরু)</span>
+                    <input type="color" id="brandColorA" value="#ffffff">
+                </div>
+                <div class="color-row">
+                    <span class="color-label">ব্র্যান্ড নাম রঙ (শেষ)</span>
+                    <input type="color" id="brandColorB" value="#fff3c4">
+                </div>
+                <div class="color-row">
+                    <span class="color-label">ট্যাগলাইন রঙ</span>
+                    <input type="color" id="taglineColor" value="#ffffff">
+                </div>
+                <div class="color-row">
+                    <span class="color-label">রিবন রঙ</span>
+                    <input type="color" id="ribbonColor" value="#8b5cf6">
+                </div>
+                <div class="color-row">
+                    <span class="color-label">গ্লো রঙ</span>
+                    <input type="color" id="glowColor" value="#ffb703">
+                </div>
+            </div>
+        </div>
+
+        <div class="control-card">
+            <div class="card-title"><div class="card-title-icon">⚡</div>অ্যানিমেশন সেটিংস</div>
+
+            <div class="form-row">
+                <label class="form-label">সময় (সেকেন্ড) <span class="value-badge" id="durationBadge">30s</span></label>
+                <input type="number" id="spinDuration" value="30" min="1" max="3600">
+                <div class="time-presets">
+                    <button class="preset-btn" onclick="setDuration(5,this)">5s</button>
+                    <button class="preset-btn" onclick="setDuration(10,this)">10s</button>
+                    <button class="preset-btn active" onclick="setDuration(30,this)">30s</button>
+                    <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+                    <button class="preset-btn" onclick="setDuration(120,this)">2মিনিট</button>
+                    <button class="preset-btn" onclick="setDuration(300,this)">5মিনিট</button>
+                </div>
+            </div>
+            <div class="form-row">
+                <label class="form-label">পালস তীব্রতা <span class="value-badge" id="pulseBadge">0.45</span></label>
+                <input type="range" id="pulseIntensity" min="0" max="1" step="0.05" value="0.45">
+            </div>
+            <div class="form-row">
+                <label class="form-label">রশ্মি রোটেশন স্পিড <span class="value-badge" id="raySpeedBadge">0.5</span></label>
+                <input type="range" id="raySpeed" min="0" max="3" step="0.1" value="0.5">
+            </div>
+            <div class="form-row">
+                <label class="form-label">কনফেটি ভাসার স্পিড <span class="value-badge" id="confettiSpeedBadge">1.0</span></label>
+                <input type="range" id="confettiSpeed" min="0" max="3" step="0.1" value="1.0">
+            </div>
+            <div class="form-row">
+                <label class="form-label">রশ্মির দিক (Direction)</label>
+                <div class="direction-toggle">
+                    <button class="dir-btn active" id="dirCW" onclick="setDirection('cw')">↻ ঘড়ির দিক</button>
+                    <button class="dir-btn" id="dirCCW" onclick="setDirection('ccw')">↺ উল্টো দিক</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-primary" id="startBtn" onclick="startBurst()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+                অ্যানিমেশন শুরু
+            </button>
+            <button class="btn btn-stop" id="stopBtn" onclick="stopBurst()" disabled>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+                বন্ধ করুন
+            </button>
+        </div>
+
+        <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট করুন</button>
+
+        <div class="control-card" style="margin-top:16px;">
+            <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+            <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.55;">বর্তমান ব্যানার PNG হিসেবে (ট্রান্সপারেন্ট ব্যাকগ্রাউন্ড), অথবা একটি পূর্ণ অ্যানিমেশন সাইকেল GIF/ভিডিও হিসেবে সেভ করুন — সরাসরি আপনার ভিডিও/ফটো এডিটর অ্যাপে ব্যবহার করা যাবে।</p>
+            <div class="btn-group">
+                <button class="btn btn-primary" type="button" onclick="downloadPng()">PNG ডাউনলোড</button>
+                <button class="btn btn-primary" type="button" onclick="downloadGif()">GIF ডাউনলোড</button>
+                <button class="btn btn-primary" type="button" onclick="downloadVideo()">ভিডিও (WebM)</button>
+            </div>
+            <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+/* =====================================================
+   WELCOME TO [BRAND] INTRO ANIMATION ENGINE
+   Shape: non-round chevron/ribbon banner panel (pointed
+   ends) holding an editable brand name with a shimmering
+   gradient, framed by rotating background rays and
+   floating confetti particles, plus an optional small
+   bottom ribbon. Canvas stays transparent background for
+   direct overlay use in video editors.
+===================================================== */
+
+const canvas = document.getElementById('welcomeCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+    const wrapper = canvas.parentElement;
+    const size = Math.min(wrapper.clientWidth - 40, 460);
+    canvas.width = size;
+    canvas.height = size;
+}
+resizeCanvas();
+window.addEventListener('resize', () => { resizeCanvas(); drawFrame(); });
+
+// === STATE ===
+let rayAngle = 0;
+let pulsePhase = 0;
+let confettiPhase = 0;
+let isSpinning = false;
+let animFrame = null;
+let totalDurationMs = 30000;
+let direction = 1;
+let lastTimestamp = null;
+let isExporting = false;
+
+// confetti particle seeds: angle around center, radius factor, shape type, size, rotation speed, color slot
+const CONFETTI_SHAPES = ['square', 'triangle', 'star'];
+function buildConfettiSeeds(count) {
+    return Array.from({length: count}, (_, i) => ({
+        angle: (Math.PI * 2 * i) / count + (i % 2 ? 0.3 : -0.2),
+        rFactor: 1.35 + (i % 4) * 0.14,
+        size: 6 + (i % 5) * 2.4,
+        shape: CONFETTI_SHAPES[i % CONFETTI_SHAPES.length],
+        colorSlot: i % 3,
+        rotSpeed: 0.5 + (i % 3) * 0.4,
+        bobOffset: i * 0.65
+    }));
+}
+let CONFETTI_SEEDS = buildConfettiSeeds(14);
+
+// === LANGUAGE PRESETS ===
+const langPresets = {
+    bn: {
+        topText: '✨ স্বাগতম',
+        brandName: 'আপনার ব্র্যান্ড নাম',
+        taglineText: 'আমাদের সাথে থাকার জন্য ধন্যবাদ',
+        ribbonText: 'আমাদের সাথে থাকুন'
+    },
+    en: {
+        topText: '✨ WELCOME TO',
+        brandName: 'YOUR BRAND NAME',
+        taglineText: 'THANKS FOR BEING HERE',
+        ribbonText: 'STAY WITH US'
+    }
+};
+
+function fillLanguage(lang) {
+    const p = langPresets[lang];
+    if (!p) return;
+    document.getElementById('topText').value = p.topText;
+    document.getElementById('brandName').value = p.brandName;
+    document.getElementById('taglineText').value = p.taglineText;
+    document.getElementById('ribbonText').value = p.ribbonText;
+    if (!isSpinning) drawFrame();
+}
+
+// === STYLE PRESETS ===
+const stylePresets = {
+    goldCelebration: { bannerColorOuter: '#ffb703', bannerColorInner: '#7a1f00', rayColor: '#ff2e8a',
+        brandColorA: '#ffffff', brandColorB: '#fff3c4', taglineColor: '#ffffff', ribbonColor: '#8b5cf6', glowColor: '#ffb703' },
+    neonParty:       { bannerColorOuter: '#ff2e8a', bannerColorInner: '#3a0026', rayColor: '#38bdf8',
+        brandColorA: '#ffffff', brandColorB: '#ffe1f2', taglineColor: '#ffffff', ribbonColor: '#ffd700', glowColor: '#ff2e8a' },
+    corporateNavy:   { bannerColorOuter: '#1e3a8a', bannerColorInner: '#020617', rayColor: '#ffd700',
+        brandColorA: '#ffffff', brandColorB: '#cfe0ff', taglineColor: '#ffffff', ribbonColor: '#dc2626', glowColor: '#1e3a8a' },
+    roseGold:        { bannerColorOuter: '#e6a48f', bannerColorInner: '#4a1f16', rayColor: '#ffd700',
+        brandColorA: '#ffffff', brandColorB: '#ffe6da', taglineColor: '#ffffff', ribbonColor: '#8b5cf6', glowColor: '#e6a48f' },
+    oceanBreeze:     { bannerColorOuter: '#0d9488', bannerColorInner: '#022c26', rayColor: '#ffd700',
+        brandColorA: '#ffffff', brandColorB: '#d7fff5', taglineColor: '#ffffff', ribbonColor: '#f97316', glowColor: '#0d9488' },
+    royalPurple:     { bannerColorOuter: '#7c3aed', bannerColorInner: '#1e0a45', rayColor: '#ffd700',
+        brandColorA: '#ffffff', brandColorB: '#e8d9ff', taglineColor: '#ffffff', ribbonColor: '#14c98a', glowColor: '#7c3aed' },
+};
+
+function applyStyle(styleName, btnEl) {
+    const s = stylePresets[styleName];
+    if (!s) return;
+    document.getElementById('bannerColorOuter').value = s.bannerColorOuter;
+    document.getElementById('bannerColorInner').value = s.bannerColorInner;
+    document.getElementById('rayColor').value         = s.rayColor;
+    document.getElementById('brandColorA').value      = s.brandColorA;
+    document.getElementById('brandColorB').value      = s.brandColorB;
+    document.getElementById('taglineColor').value     = s.taglineColor;
+    document.getElementById('ribbonColor').value      = s.ribbonColor;
+    document.getElementById('glowColor').value        = s.glowColor;
+    document.querySelectorAll('.style-preset-btn').forEach(b => b.classList.remove('active'));
+    btnEl.classList.add('active');
+    drawFrame();
+}
+
+// === READ SETTINGS ===
+function getSettings() {
+    return {
+        topText:            document.getElementById('topText').value || '',
+        brandName:          document.getElementById('brandName').value || '',
+        taglineText:        document.getElementById('taglineText').value || '',
+        ribbonText:         document.getElementById('ribbonText').value || '',
+        bannerColorOuter:   document.getElementById('bannerColorOuter').value,
+        bannerColorInner:   document.getElementById('bannerColorInner').value,
+        rayColor:           document.getElementById('rayColor').value,
+        brandColorA:        document.getElementById('brandColorA').value,
+        brandColorB:        document.getElementById('brandColorB').value,
+        taglineColor:       document.getElementById('taglineColor').value,
+        ribbonColor:        document.getElementById('ribbonColor').value,
+        glowColor:          document.getElementById('glowColor').value,
+        bannerWidth:        parseFloat(document.getElementById('bannerWidth').value) || 0.86,
+        notchDepth:         parseFloat(document.getElementById('notchDepth').value) || 0.16,
+        rayCount:           parseInt(document.getElementById('rayCount').value) || 0,
+        confettiCount:      parseInt(document.getElementById('confettiCount').value) || 0,
+        pulseIntensity:     parseFloat(document.getElementById('pulseIntensity').value) || 0.45,
+        raySpeed:           parseFloat(document.getElementById('raySpeed').value) || 0.5,
+        confettiSpeed:      parseFloat(document.getElementById('confettiSpeed').value) || 1.0,
+        showRibbon:         document.getElementById('ribbonToggle').checked,
+    };
+}
+
+function hexToRgba(hex, alpha) {
+    const h = hex.replace('#', '');
+    const bigint = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16);
+    const r = (bigint >> 16) & 255, g = (bigint >> 8) & 255, b = bigint & 255;
+    return `rgba(${r},${g},${b},${alpha})`;
+}
+
+// === CHEVRON RIBBON BANNER PATH (non-round) ===
+function buildBannerPath(cx, cy, w, h, notch) {
+    const left = cx - w / 2, right = cx + w / 2, top = cy - h / 2, bottom = cy + h / 2;
+    ctx.beginPath();
+    ctx.moveTo(left + notch, top);
+    ctx.lineTo(right - notch, top);
+    ctx.lineTo(right, cy);
+    ctx.lineTo(right - notch, bottom);
+    ctx.lineTo(left + notch, bottom);
+    ctx.lineTo(left, cy);
+    ctx.closePath();
+}
+
+// === CONFETTI SHAPES ===
+function drawConfettiPiece(shape, x, y, size, rotation, color, alpha) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rotation);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = color;
+    if (shape === 'square') {
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+    } else if (shape === 'triangle') {
+        ctx.beginPath();
+        ctx.moveTo(0, -size / 2);
+        ctx.lineTo(size / 2, size / 2);
+        ctx.lineTo(-size / 2, size / 2);
+        ctx.closePath();
+        ctx.fill();
+    } else {
+        ctx.beginPath();
+        for (let i = 0; i < 10; i++) {
+            const r = i % 2 === 0 ? size / 2 : size / 5;
+            const a = -Math.PI / 2 + (Math.PI * i) / 5;
+            const px = r * Math.cos(a), py = r * Math.sin(a);
+            if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fill();
+    }
+    ctx.restore();
+}
+
+// === DRAW ENGINE ===
+function drawFrame() {
+    const w = canvas.width, h = canvas.height;
+    const cx = w / 2, cy = h * 0.5;
+    const baseR = Math.min(w, h) * 0.30;
+    const s = getSettings();
+
+    ctx.clearRect(0, 0, w, h);
+
+    const pulse = 1 + Math.sin(pulsePhase) * 0.035 * s.pulseIntensity;
+    const bannerW = w * s.bannerWidth * pulse;
+    const bannerH = h * 0.185 * pulse;
+    const notch = bannerH * s.notchDepth * 3.2;
+
+    // --- background rotating rays ---
+    if (s.rayCount > 0) {
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(rayAngle);
+        const rayLen = baseR * 2.3;
+        for (let i = 0; i < s.rayCount; i++) {
+            const a = (Math.PI * 2 * i) / s.rayCount;
+            const wedge = (Math.PI * 2 / s.rayCount) * 0.4;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.arc(0, 0, rayLen, a - wedge, a + wedge);
+            ctx.closePath();
+            ctx.fillStyle = hexToRgba(s.rayColor, i % 2 === 0 ? 0.12 : 0.045);
+            ctx.fill();
+        }
+        ctx.restore();
+    }
+
+    // --- floating confetti ---
+    if (s.confettiCount > 0) {
+        if (CONFETTI_SEEDS.length !== s.confettiCount) CONFETTI_SEEDS = buildConfettiSeeds(s.confettiCount);
+        const confettiColors = [s.rayColor, s.ribbonColor, s.brandColorB];
+        CONFETTI_SEEDS.forEach(sp => {
+            const bob = Math.sin(confettiPhase * s.confettiSpeed + sp.bobOffset) * baseR * 0.12;
+            const r = baseR * sp.rFactor;
+            const x = cx + r * Math.cos(sp.angle + rayAngle * 0.3);
+            const y = cy + r * Math.sin(sp.angle + rayAngle * 0.3) + bob;
+            const rot = confettiPhase * sp.rotSpeed;
+            const alpha = 0.55 + 0.35 * Math.sin(confettiPhase * 1.3 + sp.bobOffset);
+            drawConfettiPiece(sp.shape, x, y, sp.size, rot, confettiColors[sp.colorSlot], Math.max(0.15, alpha));
+        });
+    }
+
+    // --- glow behind banner ---
+    ctx.save();
+    ctx.shadowColor = s.glowColor;
+    ctx.shadowBlur = 55;
+    buildBannerPath(cx, cy, bannerW, bannerH, notch);
+    ctx.fillStyle = hexToRgba(s.glowColor, 0.001);
+    ctx.fill();
+    ctx.restore();
+
+    // --- main non-round chevron banner ---
+    buildBannerPath(cx, cy, bannerW, bannerH, notch);
+    const grad = ctx.createLinearGradient(cx, cy - bannerH / 2, cx, cy + bannerH / 2);
+    grad.addColorStop(0, s.bannerColorOuter);
+    grad.addColorStop(1, s.bannerColorInner);
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.lineWidth = Math.max(2, bannerH * 0.03);
+    ctx.strokeStyle = hexToRgba('#ffffff', 0.35);
+    ctx.stroke();
+
+    // --- top small tag pill ---
+    if (s.topText) {
+        ctx.save();
+        const pillY = cy - bannerH / 2 - baseR * 0.28;
+        ctx.font = `700 ${Math.round(baseR * 0.115)}px 'Outfit', 'Noto Sans Bengali', sans-serif`;
+        const textW = ctx.measureText(s.topText).width;
+        const padX = baseR * 0.09;
+        const pillW = textW + padX * 2, pillH = baseR * 0.20;
+        roundRect(cx - pillW / 2, pillY - pillH / 2, pillW, pillH, pillH / 2);
+        ctx.fillStyle = hexToRgba('#ffffff', 0.14);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(s.topText, cx, pillY + baseR * 0.01);
+        ctx.restore();
+    }
+
+    // --- brand name (shimmering gradient text) inside the banner ---
+    if (s.brandName) {
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0,0,0,0.35)';
+        ctx.shadowBlur = 5;
+        drawFitBrandText(s.brandName, cx, cy, bannerW * 0.86, bannerH * 0.56, s.brandColorA, s.brandColorB);
+        ctx.restore();
+    }
+
+    // --- tagline below the banner ---
+    if (s.taglineText) {
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = `600 ${Math.round(baseR * 0.10)}px 'Outfit', 'Noto Sans Bengali', sans-serif`;
+        ctx.fillStyle = s.taglineColor;
+        ctx.fillText(s.taglineText, cx, cy + bannerH / 2 + baseR * 0.26);
+        ctx.restore();
+    }
+
+    // --- bottom small ribbon ---
+    if (s.showRibbon && s.ribbonText) {
+        drawRibbon(cx, cy + bannerH / 2 + baseR * 0.62, baseR * 1.5, baseR * 0.27, s.ribbonText, s.ribbonColor);
+    }
+}
+
+// text auto-shrinks to fit maxWidth/maxHeight, filled with a horizontal gradient for a shimmer look
+function drawFitBrandText(text, cx, cy, maxWidth, maxHeight, colorA, colorB) {
+    let fontPx = maxHeight;
+    ctx.font = `900 ${Math.round(fontPx)}px 'Outfit', 'Noto Sans Bengali', sans-serif`;
+    let tw = ctx.measureText(text).width;
+    while (tw > maxWidth && fontPx > maxHeight * 0.3) {
+        fontPx -= 1;
+        ctx.font = `900 ${Math.round(fontPx)}px 'Outfit', 'Noto Sans Bengali', sans-serif`;
+        tw = ctx.measureText(text).width;
+    }
+    const grad = ctx.createLinearGradient(cx - tw / 2, 0, cx + tw / 2, 0);
+    grad.addColorStop(0, colorA);
+    grad.addColorStop(1, colorB);
+    ctx.fillStyle = grad;
+    ctx.fillText(text, cx, cy);
+}
+
+function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+}
+
+function drawRibbon(cx, cy, width, height, text, color) {
+    ctx.save();
+    const notch = height * 0.5;
+    const left = cx - width / 2, right = cx + width / 2;
+    const top = cy - height / 2, bottom = cy + height / 2;
+
+    [-1, 1].forEach(side => {
+        const tailX = side === -1 ? left : right;
+        const tipX = side === -1 ? left - notch * 0.6 : right + notch * 0.6;
+        ctx.beginPath();
+        ctx.moveTo(tailX, top);
+        ctx.lineTo(tipX, cy);
+        ctx.lineTo(tailX, bottom);
+        ctx.closePath();
+        ctx.fillStyle = hexToRgba(color, 0.65);
+        ctx.fill();
+    });
+
+    ctx.beginPath();
+    ctx.rect(left, top, width, height);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.strokeStyle = hexToRgba('#ffffff', 0.3);
+    ctx.lineWidth = Math.max(1.5, height * 0.04);
+    ctx.stroke();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `800 ${Math.round(height * 0.42)}px 'Outfit', 'Noto Sans Bengali', sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, cx, cy + height * 0.03);
+    ctx.restore();
+}
+
+// === ANIMATION LOOP ===
+function animate(timestamp) {
+    if (!lastTimestamp) lastTimestamp = timestamp;
+    const dt = (timestamp - lastTimestamp) / 1000;
+    lastTimestamp = timestamp;
+
+    const s = getSettings();
+    rayAngle += direction * -1 * (s.raySpeed / 60) * Math.PI * 2 * dt * 6;
+    pulsePhase += dt * 1.8;
+    confettiPhase += dt;
+
+    drawFrame();
+
+    if (isSpinning) {
+        animFrame = requestAnimationFrame(animate);
+    }
+}
+
+// === START / STOP ===
+function startBurst() {
+    if (isSpinning) return;
+    isSpinning = true;
+    lastTimestamp = null;
+    document.getElementById('startBtn').disabled = true;
+    document.getElementById('stopBtn').disabled = false;
+    animFrame = requestAnimationFrame(animate);
+}
+
+function stopBurst() {
+    isSpinning = false;
+    if (animFrame) cancelAnimationFrame(animFrame);
+    lastTimestamp = null;
+    document.getElementById('startBtn').disabled = false;
+    document.getElementById('stopBtn').disabled = true;
+    drawFrame();
+}
+
+function resetAll() {
+    stopBurst();
+    rayAngle = 0;
+    pulsePhase = 0;
+    confettiPhase = 0;
+    drawFrame();
+}
+
+// === DIRECTION / DURATION ===
+function setDirection(dir) {
+    direction = dir === 'cw' ? 1 : -1;
+    document.getElementById('dirCW').classList.toggle('active', dir === 'cw');
+    document.getElementById('dirCCW').classList.toggle('active', dir === 'ccw');
+}
+
+function setDuration(sec, btnEl) {
+    document.getElementById('spinDuration').value = sec;
+    document.getElementById('durationBadge').textContent = sec >= 60 ? `${sec / 60}মিনিট` : `${sec}s`;
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    btnEl.classList.add('active');
+    totalDurationMs = sec * 1000;
+}
+
+// === EXPORT HELPERS ===
+function setExportStatus(message) { document.getElementById('exportStatus').textContent = message; }
+
+function saveBlob(blob, filename) {
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+function downloadPng() {
+    canvas.toBlob((blob) => {
+        if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+        saveBlob(blob, 'welcome-brand-intro.png');
+        setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+    }, 'image/png');
+}
+
+function getExportCanvas(size = 720) {
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = exportCanvas.height = size;
+    const oldWidth = canvas.width, oldHeight = canvas.height;
+    canvas.width = canvas.height = size;
+    drawFrame();
+    exportCanvas.getContext('2d').drawImage(canvas, 0, 0);
+    canvas.width = oldWidth; canvas.height = oldHeight;
+    drawFrame();
+    return exportCanvas;
+}
+
+async function downloadGif() {
+    if (!window.GIF) {
+        setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ দিয়ে আবার চেষ্টা করুন।');
+        return;
+    }
+    if (isExporting) return;
+    isExporting = true;
+  const _gifWantTransparent = true;
+    const oldRay = rayAngle, oldPulse = pulsePhase, oldConfetti = confettiPhase;
+    const gif = new GIF({ transparent: (_gifWantTransparent ? window.GIF_CHROMA_INT : null),
+        workers: 2, quality: 10, width: 720, height: 720,
+        workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'
+    });
+    const frames = 48;
+    const frameDelay = 50;
+    setExportStatus('GIF তৈরি হচ্ছে… 0%');
+    const s = getSettings();
+    const rayPerFrame = -1 * (s.raySpeed / 60) * Math.PI * 2 * (frameDelay / 1000) * 6;
+    for (let frame = 0; frame < frames; frame++) {
+        rayAngle = oldRay + direction * rayPerFrame * frame;
+        pulsePhase = oldPulse + (frameDelay / 1000) * 1.8 * frame;
+        confettiPhase = oldConfetti + (frameDelay / 1000) * frame;
+        gif.addFrame(_gifWantTransparent ? window.gifFlattenFrame(getExportCanvas(720)) : (getExportCanvas(720)), { copy: true, delay: frameDelay });
+        setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((frame + 1) / frames * 100)}%`);
+        await new Promise(requestAnimationFrame);
+    }
+    rayAngle = oldRay; pulsePhase = oldPulse; confettiPhase = oldConfetti; drawFrame();
+    gif.on('finished', (blob) => {
+        saveBlob(blob, 'welcome-brand-intro.gif');
+        setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
+        isExporting = false;
+    });
+    gif.render();
+}
+
+async function downloadVideo() {
+    if (!window.MediaRecorder || !canvas.captureStream) {
+        setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।');
+        return;
+    }
+    if (isExporting) return;
+    isExporting = true;
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = exportCanvas.height = 720;
+    const exportCtx = exportCanvas.getContext('2d');
+    const stream = exportCanvas.captureStream(30);
+    const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+    const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 5000000 });
+    const chunks = [];
+    const oldRay = rayAngle, oldPulse = pulsePhase, oldConfetti = confettiPhase;
+    recorder.ondataavailable = (event) => event.data.size && chunks.push(event.data);
+    recorder.onstop = () => {
+        saveBlob(new Blob(chunks, { type: mimeType }), 'welcome-brand-intro.webm');
+        rayAngle = oldRay; pulsePhase = oldPulse; confettiPhase = oldConfetti;
+        drawFrame(); isExporting = false;
+        setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+    };
+    recorder.start();
+    const start = performance.now();
+    const duration = 2400;
+    const s = getSettings();
+    setExportStatus('ভিডিও তৈরি হচ্ছে…');
+    const render = (now) => {
+        const progress = Math.min(1, (now - start) / duration);
+        const elapsedSec = (duration / 1000) * progress;
+        rayAngle = oldRay + direction * -1 * (s.raySpeed / 60) * Math.PI * 2 * elapsedSec * 6;
+        pulsePhase = oldPulse + elapsedSec * 1.8;
+        confettiPhase = oldConfetti + elapsedSec;
+        const frame = getExportCanvas(720);
+        exportCtx.clearRect(0, 0, 720, 720);
+        exportCtx.drawImage(frame, 0, 0);
+        if (progress < 1) requestAnimationFrame(render); else recorder.stop();
+    };
+    requestAnimationFrame(render);
+}
+
+// === LIVE UPDATE ON INPUT CHANGE ===
+document.getElementById('spinDuration').addEventListener('input', function() {
+    const v = parseFloat(this.value) || 30;
+    document.getElementById('durationBadge').textContent = v >= 60 ? `${(v / 60).toFixed(1)}মিনিট` : `${v}s`;
+    totalDurationMs = v * 1000;
+});
+document.getElementById('bannerWidth').addEventListener('input', function() {
+    document.getElementById('bannerWidthBadge').textContent = parseFloat(this.value).toFixed(2);
+    if (!isSpinning) drawFrame();
+});
+document.getElementById('notchDepth').addEventListener('input', function() {
+    document.getElementById('notchDepthBadge').textContent = parseFloat(this.value).toFixed(2);
+    if (!isSpinning) drawFrame();
+});
+document.getElementById('rayCount').addEventListener('input', function() {
+    document.getElementById('rayCountBadge').textContent = this.value;
+    if (!isSpinning) drawFrame();
+});
+document.getElementById('confettiCount').addEventListener('input', function() {
+    document.getElementById('confettiCountBadge').textContent = this.value;
+    if (!isSpinning) drawFrame();
+});
+document.getElementById('pulseIntensity').addEventListener('input', function() {
+    document.getElementById('pulseBadge').textContent = parseFloat(this.value).toFixed(2);
+});
+document.getElementById('raySpeed').addEventListener('input', function() {
+    document.getElementById('raySpeedBadge').textContent = parseFloat(this.value).toFixed(1);
+});
+document.getElementById('confettiSpeed').addEventListener('input', function() {
+    document.getElementById('confettiSpeedBadge').textContent = parseFloat(this.value).toFixed(1);
+});
+
+['topText', 'brandName', 'taglineText', 'ribbonText',
+ 'bannerColorOuter', 'bannerColorInner', 'rayColor', 'brandColorA', 'brandColorB',
+ 'taglineColor', 'ribbonColor', 'glowColor', 'ribbonToggle'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+        el.addEventListener('input', () => { if (!isSpinning) drawFrame(); });
+        el.addEventListener('change', () => { if (!isSpinning) drawFrame(); });
+    }
+});
+
+// === INITIAL DRAW ===
+function initialDraw() { drawFrame(); }
+if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(initialDraw);
+} else {
+    initialDraw();
+}
+initialDraw();
+// The banner acts as a live ad asset preview — it starts animating and
+// keeps looping until the user explicitly presses "বন্ধ করুন".
+setTimeout(startBurst, 150);
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+    <script src="download-utils.js"></script>
+</body>
+</html>

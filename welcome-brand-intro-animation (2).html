@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome Brand Intro Animation — Cinematic Title Card</title>
+<meta name="description" content="Welcome to [Brand] ইন্ট্রো অ্যানিমেশন — cinematic 16:9 title card, শিমার টেক্সট, ভিউফাইন্ডার কর্নার ব্র্যাকেট, ফ্লোটিং পার্টিকেল — PNG/GIF/ভিডিও এক্সপোর্ট">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Noto+Sans+Bengali:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-primary:#050810; --bg-secondary:#0a0e1c; --bg-card:#11162a; --bg-card-hover:#161c34;
+  --border:rgba(255,255,255,0.08); --border-active:rgba(56,189,248,0.55);
+  --accent:#38bdf8; --accent-glow:rgba(56,189,248,0.45);
+  --accent-2:#f59e0b;
+  --text-primary:#f2f6ff; --text-secondary:#9aa4c2; --text-muted:#4c5170;
+  --success:#10b981; --danger:#ef4444;
+  --radius:16px; --radius-sm:10px;
+  --shadow:0 20px 60px rgba(0,0,0,0.55);
+  --shadow-glow:0 0 45px rgba(56,189,248,0.22);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Outfit','Noto Sans Bengali',system-ui,sans-serif;
+  background:var(--bg-primary); color:var(--text-primary);
+  min-height:100vh; overflow-x:hidden; display:flex; flex-direction:column; align-items:center;
+}
+body::before{
+  content:''; position:fixed; inset:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 15% 15%, rgba(56,189,248,0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 85%, rgba(245,158,11,0.12) 0%, transparent 60%);
+  pointer-events:none; z-index:0;
+}
+.app-header{
+  width:100%; padding:22px 32px; display:flex; align-items:center; gap:16px;
+  border-bottom:1px solid var(--border); background:rgba(5,8,16,0.8);
+  backdrop-filter:blur(20px); position:sticky; top:0; z-index:100;
+}
+.header-icon{
+  width:44px; height:44px; background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px;
+  box-shadow:0 0 20px var(--accent-glow); flex-shrink:0;
+}
+.header-text h1{
+  font-size:20px; font-weight:700;
+  background:linear-gradient(135deg,#fff 0%, var(--accent) 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.header-text p{ font-size:13px; color:var(--text-secondary); margin-top:2px; }
+
+.main-content{
+  width:100%; max-width:1280px; padding:36px 24px 80px; display:grid;
+  grid-template-columns:1fr 400px; gap:32px; position:relative; z-index:1;
+}
+@media (max-width:980px){ .main-content{ grid-template-columns:1fr; } }
+
+.canvas-panel{ display:flex; flex-direction:column; align-items:center; gap:22px; }
+.canvas-wrapper{
+  width:100%; aspect-ratio:16/9; background:#000;
+  border:1px solid var(--border); border-radius:20px; display:flex;
+  align-items:center; justify-content:center; position:relative; overflow:hidden;
+  box-shadow:var(--shadow), var(--shadow-glow);
+}
+.canvas-wrapper::before{
+  content:''; position:absolute; inset:-1px; border-radius:21px;
+  background:linear-gradient(135deg, rgba(56,189,248,0.3), rgba(245,158,11,0.14));
+  z-index:-1; animation:borderGlow 4s ease-in-out infinite;
+}
+@keyframes borderGlow{ 0%,100%{opacity:.5;} 50%{opacity:1;} }
+#introCanvas{ display:block; width:100%; height:100%; }
+
+.timer-display{
+  display:flex; align-items:center; gap:16px; padding:16px 28px; background:var(--bg-card);
+  border:1px solid var(--border); border-radius:60px; box-shadow:var(--shadow);
+}
+.timer-ring-wrap{ position:relative; width:56px; height:56px; }
+.timer-ring-wrap svg{ transform:rotate(-90deg); }
+.timer-ring-bg{ fill:none; stroke:rgba(255,255,255,0.07); stroke-width:4; }
+.timer-ring-fill{
+  fill:none; stroke:url(#ringGradient2); stroke-width:4; stroke-linecap:round;
+  transition:stroke-dashoffset 1s linear; stroke-dasharray:157; stroke-dashoffset:0;
+}
+.timer-label-inner{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:700; color:var(--accent);
+}
+.timer-text-group{ display:flex; flex-direction:column; }
+.timer-big{ font-size:32px; font-weight:800; color:var(--text-primary); letter-spacing:-1px; }
+.timer-sub{ font-size:12px; color:var(--text-secondary); font-weight:500; }
+.timer-status{ padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600; letter-spacing:.5px; text-transform:uppercase; }
+.timer-status.idle{ background:rgba(255,255,255,0.06); color:var(--text-muted); }
+.timer-status.spinning{ background:rgba(56,189,248,0.2); color:var(--accent); animation:pulse 2s ease-in-out infinite; }
+.timer-status.done{ background:rgba(16,185,129,0.2); color:var(--success); }
+@keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.6;} }
+
+.controls-panel{ display:flex; flex-direction:column; gap:20px; }
+.control-card{
+  background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:22px; transition:border-color .2s, box-shadow .2s;
+}
+.control-card:hover{ border-color:var(--border-active); box-shadow:0 0 20px rgba(56,189,248,0.1); }
+.card-title{
+  font-size:13px; font-weight:700; color:var(--text-secondary); letter-spacing:1px;
+  text-transform:uppercase; margin-bottom:16px; display:flex; align-items:center; gap:8px;
+}
+.card-title-icon{
+  width:24px; height:24px; background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:13px;
+}
+.form-row{ display:flex; flex-direction:column; gap:8px; margin-bottom:14px; }
+.form-row:last-child{ margin-bottom:0; }
+.form-label{ font-size:13px; font-weight:600; color:var(--text-secondary); display:flex; justify-content:space-between; align-items:center; }
+.form-label .value-badge{
+  background:rgba(56,189,248,0.15); color:var(--accent); padding:2px 10px; border-radius:20px;
+  font-size:12px; font-weight:700; font-family:'JetBrains Mono',monospace;
+}
+input[type="text"],input[type="number"]{
+  width:100%; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:var(--radius-sm);
+  padding:11px 15px; color:var(--text-primary); font-size:14px; font-family:inherit; outline:none;
+  transition:border-color .2s, box-shadow .2s;
+}
+input[type="text"]:focus,input[type="number"]:focus{ border-color:var(--accent); box-shadow:0 0 0 3px rgba(56,189,248,0.15); }
+input[type="range"]{
+  width:100%; height:6px; -webkit-appearance:none; appearance:none; background:rgba(255,255,255,0.08);
+  border-radius:10px; outline:none; cursor:pointer;
+}
+input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2)); box-shadow:0 0 10px rgba(56,189,248,.5);
+  cursor:pointer; transition:transform .15s;
+}
+input[type="range"]::-webkit-slider-thumb:hover{ transform:scale(1.2); }
+input[type="color"]{ width:46px; height:34px; border:1px solid var(--border); border-radius:8px; background:none; cursor:pointer; padding:2px; }
+input[type="file"]{
+  width:100%; font-size:12px; color:var(--text-secondary); background:rgba(255,255,255,0.04);
+  border:1px dashed var(--border); border-radius:var(--radius-sm); padding:10px;
+}
+.color-row{ display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+.color-row:last-child{ margin-bottom:0; }
+.color-label{ font-size:13px; color:var(--text-secondary); flex:1; }
+
+.style-presets{ display:flex; flex-wrap:wrap; gap:8px; }
+.style-preset-btn{
+  padding:7px 13px; border-radius:20px; border:1px solid var(--border); background:transparent;
+  color:var(--text-secondary); font-size:12px; font-weight:600; cursor:pointer; transition:all .2s; font-family:inherit;
+}
+.style-preset-btn:hover{ border-color:var(--accent); color:var(--accent); background:rgba(56,189,248,0.1); }
+.style-preset-btn.active{ border-color:var(--accent); color:var(--accent); background:rgba(56,189,248,0.15); }
+.sep{ height:1px; background:var(--border); width:100%; }
+
+.time-presets{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+.preset-btn{
+  padding:6px 13px; border-radius:20px; border:1px solid var(--border); background:transparent;
+  color:var(--text-secondary); font-size:12px; font-weight:600; cursor:pointer; transition:all .2s; font-family:inherit;
+}
+.preset-btn:hover{ border-color:var(--accent); color:var(--accent); background:rgba(56,189,248,0.1); }
+.preset-btn.active{ border-color:var(--accent); color:var(--accent); background:rgba(56,189,248,0.15); }
+
+.checkbox-row{ display:flex; align-items:center; gap:9px; cursor:pointer; font-size:13px; color:var(--text-secondary); }
+
+.btn-group{ display:flex; gap:12px; }
+.btn{
+  flex:1; padding:13px 18px; border-radius:var(--radius-sm); border:none; font-size:14px; font-weight:700;
+  font-family:inherit; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center;
+  gap:8px; letter-spacing:.3px;
+}
+.btn-primary{ background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#0a1400; box-shadow:0 4px 20px rgba(56,189,248,0.35); }
+.btn-primary:hover{ transform:translateY(-1px); box-shadow:0 8px 30px rgba(56,189,248,0.45); }
+.btn-primary:disabled{ opacity:.4; cursor:not-allowed; transform:none; }
+.btn-stop{ background:rgba(239,68,68,0.15); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); }
+.btn-stop:hover{ background:rgba(239,68,68,0.25); }
+.btn-stop:disabled{ opacity:.4; cursor:not-allowed; }
+.btn-ghost{ background:transparent; color:var(--text-secondary); border:1px solid var(--border); }
+.btn-ghost:hover{ border-color:var(--accent); color:var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-icon">👋</div>
+  <div class="header-text">
+    <h1>Welcome Brand Intro Animation</h1>
+    <p>Cinematic 16:9 টাইটেল কার্ড — শিমার টেক্সট, ফ্লোটিং পার্টিকেল, ভিউফাইন্ডার কর্নার — আগের ব্যাজ ডিজাইন থেকে সম্পূর্ণ ভিন্ন</p>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="canvas-panel">
+    <div class="canvas-wrapper">
+      <canvas id="introCanvas" width="960" height="540"></canvas>
+    </div>
+
+    <div class="timer-display">
+      <div class="timer-ring-wrap">
+        <svg width="56" height="56" viewBox="0 0 56 56">
+          <defs>
+            <linearGradient id="ringGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#38bdf8"/>
+              <stop offset="100%" stop-color="#f59e0b"/>
+            </linearGradient>
+          </defs>
+          <circle class="timer-ring-bg" cx="28" cy="28" r="25"/>
+          <circle class="timer-ring-fill" id="timerRing" cx="28" cy="28" r="25"/>
+        </svg>
+        <div class="timer-label-inner">⏱</div>
+      </div>
+      <div class="timer-text-group">
+        <div class="timer-big" id="timerBig">00:00</div>
+        <div class="timer-sub" id="timerSub">সময় বাকি</div>
+      </div>
+      <div class="timer-status idle" id="timerStatus">প্রস্তুত</div>
+      <div class="timer-text-group" style="margin-left:8px;">
+        <div class="timer-big" style="font-size:20px;" id="timerPercent">—</div>
+        <div class="timer-sub">সম্পন্ন</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls-panel">
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">✏️</div>টেক্সট (বাংলা / English)</div>
+      <div class="form-row">
+        <label class="form-label">কিকার টেক্সট (ছোট, উপরে)</label>
+        <input type="text" id="kickerText" value="WELCOME TO" placeholder="যেমন: WELCOME TO">
+      </div>
+      <div class="form-row">
+        <label class="form-label">ব্র্যান্ড নাম (বড়, মাঝে)</label>
+        <input type="text" id="brandText" value="YOUR BRAND" placeholder="আপনার ব্র্যান্ডের নাম">
+      </div>
+      <div class="form-row">
+        <label class="form-label">ট্যাগলাইন (নিচে)</label>
+        <input type="text" id="taglineText" value="আপনার যাত্রা এখান থেকেই শুরু" placeholder="সাবটাইটেল / স্লোগান">
+      </div>
+      <div class="form-row">
+        <label class="form-label">লোগো আপলোড করুন (ঐচ্ছিক)</label>
+        <input type="file" id="logoUpload" accept="image/*">
+      </div>
+      <div class="form-row">
+        <label class="checkbox-row"><input type="checkbox" id="useLogoToggle" checked> লোগো দেখান (আপলোড করা থাকলে)</label>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎨</div>ভিজ্যুয়াল থিম</div>
+      <div class="style-presets" id="stylePresets">
+        <button class="style-preset-btn active" data-style="midnightNeon" onclick="applyStyle('midnightNeon',this)">🔵 মিডনাইট নিয়ন</button>
+        <button class="style-preset-btn" data-style="goldenHour" onclick="applyStyle('goldenHour',this)">🟡 গোল্ডেন আওয়ার</button>
+        <button class="style-preset-btn" data-style="auroraTeal" onclick="applyStyle('auroraTeal',this)">🟢 অরোরা টিল</button>
+        <button class="style-preset-btn" data-style="crimsonElite" onclick="applyStyle('crimsonElite',this)">🔴 ক্রিমসন এলিট</button>
+        <button class="style-preset-btn" data-style="emeraldPrestige" onclick="applyStyle('emeraldPrestige',this)">🟩 এমেরাল্ড প্রেস্টিজ</button>
+        <button class="style-preset-btn" data-style="arcticMinimal" onclick="applyStyle('arcticMinimal',this)">⚪ আর্কটিক মিনিমাল</button>
+      </div>
+      <div class="sep" style="margin:16px 0;"></div>
+      <div class="color-row"><span class="color-label">ব্যাকগ্রাউন্ড রঙ ১</span><input type="color" id="bgColorA" value="#050810"></div>
+      <div class="color-row"><span class="color-label">ব্যাকগ্রাউন্ড রঙ ২</span><input type="color" id="bgColorB" value="#0a1a2e"></div>
+      <div class="color-row"><span class="color-label">অ্যাকসেন্ট রঙ</span><input type="color" id="accentColor" value="#38bdf8"></div>
+      <div class="color-row"><span class="color-label">ব্র্যান্ড টেক্সট রঙ</span><input type="color" id="brandColor" value="#ffffff"></div>
+      <div class="color-row"><span class="color-label">শিমার রঙ</span><input type="color" id="shimmerColor" value="#ffe9a8"></div>
+      <div class="form-row" style="margin-top:6px;">
+        <label class="checkbox-row"><input type="checkbox" id="transparentBg"> ট্রান্সপারেন্ট ব্যাকগ্রাউন্ড (ওভারলে হিসেবে ব্যবহারের জন্য)</label>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">◆</div>লেআউট এলিমেন্টস</div>
+      <div class="form-row">
+        <label class="checkbox-row"><input type="checkbox" id="cornerToggle" checked> ভিউফাইন্ডার কর্নার ব্র্যাকেট</label>
+      </div>
+      <div class="form-row">
+        <label class="checkbox-row"><input type="checkbox" id="underlineToggle" checked> ব্র্যান্ড নামের নিচে আন্ডারলাইন বার</label>
+      </div>
+      <div class="form-row">
+        <label class="checkbox-row"><input type="checkbox" id="linesToggle" checked> ব্যাকগ্রাউন্ডে ডায়াগোনাল লাইন এক্সেন্ট</label>
+      </div>
+      <div class="form-row">
+        <label class="form-label">ফ্লোটিং পার্টিকেল সংখ্যা <span class="value-badge" id="particleCountBadge">36</span></label>
+        <input type="range" id="particleCount" min="0" max="80" step="2" value="36">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">⚡</div>অ্যানিমেশন সেটিংস</div>
+      <div class="form-row">
+        <label class="form-label">সময় (সেকেন্ড) <span class="value-badge" id="durationBadge">30s</span></label>
+        <input type="number" id="introDuration" value="30" min="1" max="3600">
+        <div class="time-presets">
+          <button class="preset-btn" onclick="setDuration(5,this)">5s</button>
+          <button class="preset-btn" onclick="setDuration(10,this)">10s</button>
+          <button class="preset-btn active" onclick="setDuration(30,this)">30s</button>
+          <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">এন্ট্রান্স স্পিড <span class="value-badge" id="entranceBadge">1.0x</span></label>
+        <input type="range" id="entranceSpeed" min="0.4" max="2.5" step="0.1" value="1.0">
+      </div>
+      <div class="form-row">
+        <label class="form-label">শিমার (চমক) স্পিড <span class="value-badge" id="shimmerBadge">1.0x</span></label>
+        <input type="range" id="shimmerSpeed" min="0.2" max="3" step="0.1" value="1.0">
+      </div>
+      <div class="form-row">
+        <label class="form-label">পার্টিকেল ড্রিফট স্পিড <span class="value-badge" id="driftBadge">1.0x</span></label>
+        <input type="range" id="driftSpeed" min="0.2" max="3" step="0.1" value="1.0">
+      </div>
+      <div class="form-row">
+        <label class="checkbox-row"><input type="checkbox" id="loopIntroToggle" checked> লুপে এন্ট্রান্স বারবার চলবে</label>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" id="startBtn" onclick="startBurst()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+        অ্যানিমেশন শুরু
+      </button>
+      <button class="btn btn-stop" id="stopBtn" onclick="stopBurst()" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+        বন্ধ করুন
+      </button>
+    </div>
+    <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট করুন</button>
+
+    <div class="control-card" style="margin-top:4px;">
+      <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+      <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.55;">বর্তমান ফ্রেম PNG হিসেবে, অথবা পুরো এন্ট্রান্স + ambient loop GIF/ভিডিও হিসেবে সেভ করুন — সরাসরি ভিডিও এডিটরে ইন্ট্রো ক্লিপ হিসেবে বসিয়ে দিন।</p>
+      <div class="btn-group">
+        <button class="btn btn-primary" type="button" onclick="downloadPng()">PNG</button>
+        <button class="btn btn-primary" type="button" onclick="downloadGif()">GIF</button>
+        <button class="btn btn-primary" type="button" onclick="downloadVideo()">ভিডিও</button>
+      </div>
+      <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   WELCOME BRAND INTRO ANIMATION ENGINE
+   Cinematic 16:9 title card — completely different visual
+   language from the badge engine: shimmering brand text,
+   viewfinder corner brackets, drifting particles, diagonal
+   accent lines, animated underline sweep.
+===================================================== */
+
+const canvas = document.getElementById('introCanvas');
+const ctx = canvas.getContext('2d');
+const CW = 960, CH = 540;
+
+// === STATE ===
+let isSpinning = false, animFrame = null;
+let totalDurationMs = 30000, startTime = null, lastTimestamp = null, isExporting = false;
+let entrancePhase = 0;      // 0..1, eased entrance progress (resets each loop cycle)
+let shimmerPhase = 0;       // continuous, loops 0..1
+let driftPhase = 0;         // continuous
+let logoImage = null;
+
+document.getElementById('logoUpload').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const img = new Image();
+    img.onload = function(){ logoImage = img; if (!isSpinning) drawFrame(); };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+// === STYLE PRESETS ===
+const stylePresets = {
+  midnightNeon:    { bgColorA:'#050810', bgColorB:'#0a1a2e', accentColor:'#38bdf8', brandColor:'#ffffff', shimmerColor:'#ffe9a8' },
+  goldenHour:      { bgColorA:'#1a0e02', bgColorB:'#3a1f05', accentColor:'#f59e0b', brandColor:'#fff4e0', shimmerColor:'#ffffff' },
+  auroraTeal:      { bgColorA:'#021a17', bgColorB:'#04302a', accentColor:'#14b8a6', brandColor:'#e6fffb', shimmerColor:'#a7f3d0' },
+  crimsonElite:    { bgColorA:'#1a0305', bgColorB:'#3a070c', accentColor:'#ef4444', brandColor:'#fff0f0', shimmerColor:'#ffd7d7' },
+  emeraldPrestige: { bgColorA:'#02160f', bgColorB:'#053322', accentColor:'#10b981', brandColor:'#eafff5', shimmerColor:'#ffd700' },
+  arcticMinimal:   { bgColorA:'#0b1220', bgColorB:'#1c2740', accentColor:'#a5f3fc', brandColor:'#f8fbff', shimmerColor:'#ffffff' },
+};
+function applyStyle(styleName, btnEl){
+  const s = stylePresets[styleName];
+  if (!s) return;
+  document.getElementById('bgColorA').value = s.bgColorA;
+  document.getElementById('bgColorB').value = s.bgColorB;
+  document.getElementById('accentColor').value = s.accentColor;
+  document.getElementById('brandColor').value = s.brandColor;
+  document.getElementById('shimmerColor').value = s.shimmerColor;
+  document.querySelectorAll('.style-preset-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  if (!isSpinning) drawFrame();
+}
+
+// === PARTICLES ===
+let particles = [];
+function seedParticles(count){
+  particles = [];
+  for (let i=0;i<count;i++){
+    particles.push({
+      x: Math.random()*CW, y: Math.random()*CH,
+      r: 1 + Math.random()*2.4,
+      speed: 0.15 + Math.random()*0.5,
+      drift: (Math.random()-0.5)*0.3,
+      phase: Math.random()*Math.PI*2,
+    });
+  }
+}
+seedParticles(36);
+document.getElementById('particleCount').addEventListener('input', function(){
+  document.getElementById('particleCountBadge').textContent = this.value;
+  seedParticles(parseInt(this.value));
+  if (!isSpinning) drawFrame();
+});
+
+// === SETTINGS ===
+function getSettings(){
+  return {
+    kickerText:  document.getElementById('kickerText').value || '',
+    brandText:   document.getElementById('brandText').value || '',
+    taglineText: document.getElementById('taglineText').value || '',
+    useLogo:     document.getElementById('useLogoToggle').checked,
+    bgColorA:    document.getElementById('bgColorA').value,
+    bgColorB:    document.getElementById('bgColorB').value,
+    accentColor: document.getElementById('accentColor').value,
+    brandColor:  document.getElementById('brandColor').value,
+    shimmerColor:document.getElementById('shimmerColor').value,
+    transparentBg: document.getElementById('transparentBg').checked,
+    showCorners: document.getElementById('cornerToggle').checked,
+    showUnderline: document.getElementById('underlineToggle').checked,
+    showLines:   document.getElementById('linesToggle').checked,
+  };
+}
+
+function easeOutCubic(t){ return 1 - Math.pow(1-t, 3); }
+function clamp01(v){ return Math.max(0, Math.min(1, v)); }
+
+// === DRAW ===
+function drawFrame(){
+  const s = getSettings();
+  ctx.clearRect(0,0,CW,CH);
+
+  // --- BACKGROUND ---
+  if (!s.transparentBg){
+    const grad = ctx.createLinearGradient(0,0,CW,CH);
+    grad.addColorStop(0, s.bgColorA);
+    grad.addColorStop(1, s.bgColorB);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,CW,CH);
+
+    // subtle vignette
+    const vg = ctx.createRadialGradient(CW/2,CH/2, CH*0.2, CW/2,CH/2, CW*0.65);
+    vg.addColorStop(0, 'rgba(0,0,0,0)');
+    vg.addColorStop(1, 'rgba(0,0,0,0.45)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0,0,CW,CH);
+  }
+
+  // --- DIAGONAL ACCENT LINES ---
+  if (s.showLines){
+    ctx.save();
+    ctx.globalAlpha = 0.12;
+    ctx.strokeStyle = s.accentColor;
+    ctx.lineWidth = 1.4;
+    const shift = (driftPhase*40) % 80;
+    for (let x = -CH + shift; x < CW + CH; x += 80){
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x + CH*0.4, CH);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // --- FLOATING PARTICLES ---
+  ctx.save();
+  particles.forEach(p => {
+    const twinkle = 0.4 + 0.6*Math.abs(Math.sin(driftPhase*2 + p.phase));
+    const y = ((p.y - driftPhase*40*p.speed) % (CH+20) + (CH+20)) % (CH+20) - 10;
+    const x = p.x + Math.sin(driftPhase*1.3 + p.phase)*14*p.drift*3;
+    ctx.globalAlpha = twinkle * 0.85;
+    ctx.fillStyle = s.accentColor;
+    ctx.beginPath();
+    ctx.arc(x, y, p.r, 0, Math.PI*2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+  ctx.restore();
+
+  // --- VIEWFINDER CORNER BRACKETS ---
+  if (s.showCorners){
+    const m = 34, len = 46;
+    ctx.save();
+    ctx.strokeStyle = s.accentColor;
+    ctx.lineWidth = 2.5;
+    ctx.globalAlpha = 0.9;
+    const corners = [
+      [m,m, 1,1], [CW-m,m, -1,1], [m,CH-m, 1,-1], [CW-m,CH-m, -1,-1]
+    ];
+    corners.forEach(([x,y,dx,dy]) => {
+      ctx.beginPath();
+      ctx.moveTo(x, y + len*dy);
+      ctx.lineTo(x, y);
+      ctx.lineTo(x + len*dx, y);
+      ctx.stroke();
+    });
+    ctx.restore();
+  }
+
+  const eased = easeOutCubic(clamp01(entrancePhase));
+  const cx = CW/2;
+
+  // --- LOGO ---
+  let logoBottom = CH*0.30;
+  if (s.useLogo && logoImage){
+    const logoSize = 74;
+    const logoOpacity = clamp01((entrancePhase-0.0)/0.35);
+    const logoY = CH*0.22 - (1-easeOutCubic(clamp01(logoOpacity)))*18;
+    ctx.save();
+    ctx.globalAlpha = logoOpacity;
+    ctx.drawImage(logoImage, cx-logoSize/2, logoY-logoSize/2, logoSize, logoSize);
+    ctx.restore();
+    logoBottom = logoY + logoSize/2 + 14;
+  }
+
+  // --- KICKER TEXT ---
+  if (s.kickerText){
+    const kOpacity = clamp01((entrancePhase-0.05)/0.3);
+    const kSlide = (1-easeOutCubic(clamp01(kOpacity))) * 14;
+    ctx.save();
+    ctx.globalAlpha = kOpacity;
+    ctx.font = `600 20px 'Outfit','Noto Sans Bengali',sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = s.accentColor;
+    ctx.shadowColor = s.accentColor;
+    ctx.shadowBlur = 14;
+    const kickerY = (s.useLogo && logoImage) ? logoBottom + 10 : CH*0.30;
+    // letter spacing
+    drawLetterSpaced(ctx, s.kickerText.toUpperCase(), cx, kickerY - kSlide, 6);
+    ctx.restore();
+  }
+
+  // --- BRAND NAME (with shimmer sweep) ---
+  if (s.brandText){
+    const bOpacity = clamp01((entrancePhase-0.15)/0.4);
+    const bScale = 0.85 + easeOutCubic(clamp01(bOpacity))*0.15;
+    const brandY = CH*0.5;
+    ctx.save();
+    ctx.globalAlpha = bOpacity;
+    ctx.translate(cx, brandY);
+    ctx.scale(bScale, bScale);
+
+    let fontSize = 76;
+    ctx.font = `900 ${fontSize}px 'Outfit','Noto Sans Bengali',sans-serif`;
+    let textWidth = ctx.measureText(s.brandText).width;
+    const maxWidth = CW*0.86;
+    while (textWidth > maxWidth && fontSize > 20){
+      fontSize -= 2;
+      ctx.font = `900 ${fontSize}px 'Outfit','Noto Sans Bengali',sans-serif`;
+      textWidth = ctx.measureText(s.brandText).width;
+    }
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    // base fill
+    ctx.shadowColor = s.accentColor;
+    ctx.shadowBlur = 30;
+    ctx.fillStyle = s.brandColor;
+    ctx.fillText(s.brandText, 0, 0);
+    ctx.shadowBlur = 0;
+
+    // shimmer sweep gradient overlay (clipped to text via a second pass using globalCompositeOperation)
+    ctx.save();
+    ctx.globalCompositeOperation = 'source-atop';
+    const sweepX = ((shimmerPhase % 1) * (textWidth + 260)) - 130;
+    const shimmerGrad = ctx.createLinearGradient(sweepX-60, 0, sweepX+60, 0);
+    shimmerGrad.addColorStop(0, 'rgba(255,255,255,0)');
+    shimmerGrad.addColorStop(0.5, s.shimmerColor);
+    shimmerGrad.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = shimmerGrad;
+    ctx.fillRect(-CW/2, -fontSize, CW, fontSize*2);
+    ctx.restore();
+
+    ctx.restore();
+
+    // --- UNDERLINE BAR ---
+    if (s.showUnderline){
+      const lineOpacity = clamp01((entrancePhase-0.35)/0.35);
+      const lineProgress = easeOutCubic(clamp01(lineOpacity));
+      const lineW = Math.min(textWidth*bScale, maxWidth) * lineProgress;
+      ctx.save();
+      ctx.globalAlpha = lineOpacity;
+      const lineY = brandY + fontSize*bScale*0.42 + 18;
+      const lg = ctx.createLinearGradient(cx-lineW/2, 0, cx+lineW/2, 0);
+      lg.addColorStop(0, 'rgba(255,255,255,0)');
+      lg.addColorStop(0.5, s.accentColor);
+      lg.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.strokeStyle = lg;
+      ctx.lineWidth = 3;
+      ctx.shadowColor = s.accentColor;
+      ctx.shadowBlur = 12;
+      ctx.beginPath();
+      ctx.moveTo(cx-lineW/2, lineY);
+      ctx.lineTo(cx+lineW/2, lineY);
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  // --- TAGLINE ---
+  if (s.taglineText){
+    const tOpacity = clamp01((entrancePhase-0.55)/0.35);
+    const tSlide = (1-easeOutCubic(clamp01(tOpacity))) * 12;
+    ctx.save();
+    ctx.globalAlpha = tOpacity * 0.92;
+    ctx.font = `500 22px 'Outfit','Noto Sans Bengali',sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = s.brandColor;
+    ctx.fillText(s.taglineText, cx, CH*0.68 + tSlide);
+    ctx.restore();
+  }
+}
+
+function drawLetterSpaced(ctx, text, cx, y, spacing){
+  const widths = [...text].map(ch => ctx.measureText(ch).width);
+  const total = widths.reduce((a,b)=>a+b,0) + spacing*(text.length-1);
+  let x = cx - total/2;
+  [...text].forEach((ch,i) => {
+    ctx.fillText(ch, x + widths[i]/2, y);
+    x += widths[i] + spacing;
+  });
+}
+
+// === ANIMATION LOOP ===
+function animationLoop(timestamp){
+  if (!isSpinning) return;
+  if (!lastTimestamp) lastTimestamp = timestamp;
+  const delta = timestamp - lastTimestamp;
+  lastTimestamp = timestamp;
+
+  const entranceSpeed = parseFloat(document.getElementById('entranceSpeed').value) || 1;
+  const shimmerSpeed = parseFloat(document.getElementById('shimmerSpeed').value) || 1;
+  const driftSpeed = parseFloat(document.getElementById('driftSpeed').value) || 1;
+
+  entrancePhase += (delta / 1800) * entranceSpeed;
+  shimmerPhase += (delta / 2600) * shimmerSpeed;
+  driftPhase += (delta / 6000) * driftSpeed;
+
+  const elapsed = timestamp - startTime;
+  const remaining = Math.max(0, totalDurationMs - elapsed);
+  updateTimerUI(elapsed, remaining);
+
+  drawFrame();
+
+  const loop = document.getElementById('loopIntroToggle').checked;
+  if (remaining <= 0){
+    if (loop){ startTime = timestamp; entrancePhase = 0; }
+    else { finishBurst(); return; }
+  }
+
+  animFrame = requestAnimationFrame(animationLoop);
+}
+
+// === TIMER UI ===
+function updateTimerUI(elapsed, remaining){
+  const totalSec = Math.ceil(remaining/1000);
+  const minutes = Math.floor(totalSec/60).toString().padStart(2,'0');
+  const seconds = (totalSec%60).toString().padStart(2,'0');
+  document.getElementById('timerBig').textContent = `${minutes}:${seconds}`;
+  const pct = Math.max(0, Math.min(100, ((totalDurationMs - remaining)/totalDurationMs)*100));
+  document.getElementById('timerPercent').textContent = Math.round(pct) + '%';
+  const circumference = 157;
+  const offset = circumference - (pct/100)*circumference;
+  document.getElementById('timerRing').style.strokeDashoffset = offset;
+}
+function resetTimerUI(){
+  document.getElementById('timerBig').textContent = '00:00';
+  document.getElementById('timerPercent').textContent = '—';
+  document.getElementById('timerRing').style.strokeDashoffset = 157;
+  document.getElementById('timerStatus').className = 'timer-status idle';
+  document.getElementById('timerStatus').textContent = 'প্রস্তুত';
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+}
+
+// === START / STOP ===
+function startBurst(){
+  if (isSpinning) return;
+  const durationSec = parseFloat(document.getElementById('introDuration').value) || 30;
+  totalDurationMs = durationSec * 1000;
+
+  isSpinning = true;
+  startTime = null;
+  lastTimestamp = null;
+  entrancePhase = 0;
+
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+
+  const statusEl = document.getElementById('timerStatus');
+  statusEl.className = 'timer-status spinning';
+  statusEl.textContent = '⚡ চলছে';
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+
+  animFrame = requestAnimationFrame((ts) => {
+    startTime = ts; lastTimestamp = ts; animationLoop(ts);
+  });
+}
+
+function stopBurst(){
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  const statusEl = document.getElementById('timerStatus');
+  statusEl.className = 'timer-status idle';
+  statusEl.textContent = '⏸ থামানো হয়েছে';
+  drawFrame();
+}
+
+function finishBurst(){
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  document.getElementById('timerBig').textContent = '00:00';
+  document.getElementById('timerPercent').textContent = '100%';
+  document.getElementById('timerRing').style.strokeDashoffset = 0;
+  const statusEl = document.getElementById('timerStatus');
+  statusEl.className = 'timer-status done';
+  statusEl.textContent = '✅ সম্পন্ন!';
+  document.getElementById('timerSub').textContent = 'অ্যানিমেশন শেষ';
+  entrancePhase = 1;
+  drawFrame();
+}
+
+function resetAll(){
+  stopBurst();
+  entrancePhase = 0; shimmerPhase = 0; driftPhase = 0;
+  resetTimerUI();
+  drawFrame();
+}
+
+function setExportStatus(message){ document.getElementById('exportStatus').textContent = message; }
+
+function saveBlob(blob, filename){
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+function downloadPng(){
+  canvas.toBlob((blob) => {
+    if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+    saveBlob(blob, 'welcome-brand-intro.png');
+    setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+  }, 'image/png');
+}
+
+async function downloadGif(){
+  if (!window.GIF){
+    setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ দিয়ে আবার চেষ্টা করুন।');
+    return;
+  }
+  if (isExporting) return;
+  isExporting = true;
+  const _gifWantTransparent = document.getElementById('transparentBg').checked;
+  const oldEntrance = entrancePhase, oldShimmer = shimmerPhase, oldDrift = driftPhase;
+  const gif = new GIF({ transparent: (_gifWantTransparent ? window.GIF_CHROMA_INT : null),
+    workers: 2, quality: 10, width: CW, height: CH,
+    workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'
+  });
+  const frames = 60, frameDelay = 45;
+  setExportStatus('GIF তৈরি হচ্ছে… 0%');
+  for (let frame=0; frame<frames; frame++){
+    const t = frame/frames;
+    entrancePhase = Math.min(1, t*3.2);
+    shimmerPhase = oldShimmer + t*1.6;
+    driftPhase = oldDrift + t*0.9;
+    drawFrame();
+    gif.addFrame(_gifWantTransparent ? window.gifFlattenFrame(canvas) : (canvas), { copy: true, delay: frameDelay });
+    setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((frame+1)/frames*100)}%`);
+    await new Promise(requestAnimationFrame);
+  }
+  entrancePhase = oldEntrance; shimmerPhase = oldShimmer; driftPhase = oldDrift; drawFrame();
+  gif.on('finished', (blob) => {
+    saveBlob(blob, 'welcome-brand-intro.gif');
+    setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
+    isExporting = false;
+  });
+  gif.render();
+}
+
+async function downloadVideo(){
+  if (!window.MediaRecorder || !canvas.captureStream){
+    setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।');
+    return;
+  }
+  if (isExporting) return;
+  isExporting = true;
+  const stream = canvas.captureStream(30);
+  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 6000000 });
+  const chunks = [];
+  const oldEntrance = entrancePhase, oldShimmer = shimmerPhase, oldDrift = driftPhase;
+  recorder.ondataavailable = (event) => event.data.size && chunks.push(event.data);
+  recorder.onstop = () => {
+    saveBlob(new Blob(chunks, { type: mimeType }), 'welcome-brand-intro.webm');
+    entrancePhase = oldEntrance; shimmerPhase = oldShimmer; driftPhase = oldDrift; drawFrame(); isExporting = false;
+    setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+  };
+  recorder.start();
+  const start = performance.now();
+  const duration = 3200;
+  entrancePhase = 0; shimmerPhase = 0; driftPhase = 0;
+  setExportStatus('ভিডিও তৈরি হচ্ছে…');
+  const render = (now) => {
+    const t = Math.min(1, (now - start)/duration);
+    entrancePhase = Math.min(1, t*3.2);
+    shimmerPhase = t*1.9;
+    driftPhase = t*1.1;
+    drawFrame();
+    if (t < 1) requestAnimationFrame(render); else recorder.stop();
+  };
+  requestAnimationFrame(render);
+}
+
+// === TIME PRESET ===
+function setDuration(sec, btnEl){
+  document.getElementById('introDuration').value = sec;
+  document.getElementById('durationBadge').textContent = sec >= 60 ? `${sec/60}মিনিট` : `${sec}s`;
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+}
+
+// === EVENT LISTENERS ===
+document.getElementById('introDuration').addEventListener('input', function(){
+  const v = parseFloat(this.value) || 30;
+  document.getElementById('durationBadge').textContent = v >= 60 ? `${(v/60).toFixed(1)}মিনিট` : `${v}s`;
+});
+document.getElementById('entranceSpeed').addEventListener('input', function(){
+  document.getElementById('entranceBadge').textContent = parseFloat(this.value).toFixed(1) + 'x';
+});
+document.getElementById('shimmerSpeed').addEventListener('input', function(){
+  document.getElementById('shimmerBadge').textContent = parseFloat(this.value).toFixed(1) + 'x';
+});
+document.getElementById('driftSpeed').addEventListener('input', function(){
+  document.getElementById('driftBadge').textContent = parseFloat(this.value).toFixed(1) + 'x';
+});
+
+['kickerText','brandText','taglineText','useLogoToggle',
+ 'bgColorA','bgColorB','accentColor','brandColor','shimmerColor','transparentBg',
+ 'cornerToggle','underlineToggle','linesToggle'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el){
+    el.addEventListener('input', () => { if (!isSpinning) drawFrame(); });
+    el.addEventListener('change', () => { if (!isSpinning) drawFrame(); });
+  }
+});
+
+// === INITIAL DRAW ===
+entrancePhase = 1;
+drawFrame();
+setTimeout(startBurst, 150);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+    <script src="download-utils.js"></script>
+</body>
+</html>

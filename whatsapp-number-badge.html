@@ -1280,7 +1280,8 @@
         isExporting = true;
         const oldBounce = bouncePhase, oldRing = ringPhase, oldShine = shinePhase, oldDots = dotsPhase;
         const EXPORT_W = 1280, EXPORT_H = 720;
-        const gif = new GIF({
+  const _gifWantTransparent = true;
+        const gif = new GIF({ transparent: (_gifWantTransparent ? window.GIF_CHROMA_INT : null),
             workers: 2, quality: 10, width: EXPORT_W, height: EXPORT_H,
             workerScript: 'gif.worker.js'
         });
@@ -1295,7 +1296,7 @@
             ringPhase = oldRing + t;
             shinePhase = oldShine + t * shineSpeed;
             dotsPhase = oldDots + t * Math.PI * 4;
-            gif.addFrame(getExportCanvas(EXPORT_W, EXPORT_H), { copy: true, delay: frameDelay });
+            gif.addFrame(_gifWantTransparent ? window.gifFlattenFrame(getExportCanvas(EXPORT_W, EXPORT_H)) : (getExportCanvas(EXPORT_W, EXPORT_H)), { copy: true, delay: frameDelay });
             setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((frame + 1) / frames * 100)}%`);
             await new Promise(requestAnimationFrame);
         }

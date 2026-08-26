@@ -436,7 +436,7 @@
             </div>
         </div>
         <div class="header-actions">
-            <button class="btn preview-toggle-btn" id="livePreviewBtn" onclick="toggleLivePreview()" title="কার্ডের ভেতরে সরাসরি লাইভ অ্যানিমেশন প্রিভিউ দেখান">🎥 লাইভ প্রিভিউ: চালু</button>
+            <button class="btn preview-toggle-btn off" id="livePreviewBtn" onclick="toggleLivePreview()" title="কার্ডের ভেতরে সরাসরি লাইভ অ্যানিমেশন প্রিভিউ দেখান (কার্ড স্ক্রিনে আসলেই লোড হবে, তাই স্লো হবে না)">🎥 লাইভ প্রিভিউ: বন্ধ</button>
             <a class="btn" href="http://localhost:4000" target="_blank" title="ভিডিও এডিটর খুলুন" style="text-decoration:none;">🎬 ভিডিও এডিটর</a>
             <button class="btn" onclick="syncAllSeeds()" title="সব নতুন অ্যানিমেশন লোড করুন">🔄 রিসেট/সিঙ্ক</button>
             <button class="btn" onclick="triggerImport()">⬆️ ইমপোর্ট</button>
@@ -1451,7 +1451,414 @@
                 "color": "#00e5c8",
                 "desc": "ফিউচারিস্টিক হলোগ্রাফিক HUD ওয়েলকাম স্ক্রিন — ককপিট ও রাডার ভিজ্যুয়ালস",
                 "thumb": ""
-        }
+        },
+        {
+        "id": "s84",
+        "title": "৩D এয়ার টিকেট CTA",
+        "file": "air-ticket-3d-cta.html",
+        "category": "ট্রাভেল ও ভিসা",
+        "icon": "✈️",
+        "shape": "৩ডি বোর্ডিং পাস CTA বাটন",
+        "color": "#0ea5e9",
+        "desc": "এয়ার টিকেট থিমড ৩ডি কল-টু-অ্যাকশন অ্যানিমেশন",
+        "thumb": ""
+},
+        {
+        "id": "s85",
+        "title": "এয়ার টিকেট ব্যাজ অ্যানিমেশন",
+        "file": "air-ticket-badge-animation.html",
+        "category": "ট্রাভেল ও ভিসা",
+        "icon": "🎫",
+        "shape": "৩ডি এয়ার টিকেট ব্যাজ",
+        "color": "#0ea5e9",
+        "desc": "এয়ার টিকেট থিমড ঘুরন্ত ব্যাজ অ্যানিমেশন",
+        "thumb": ""
+},
+        {
+        "id": "s86",
+        "title": "এয়ার টিকেট ভিসা স্ট্যাম্প",
+        "file": "air-ticket-visa-stamp-animation.html",
+        "category": "ট্রাভেল ও ভিসা",
+        "icon": "🛂",
+        "shape": "৩ডি ভিসা স্ট্যাম্প ইমপ্যাক্ট",
+        "color": "#2563eb",
+        "desc": "পাসপোর্টে ভিসা স্ট্যাম্প পড়ার মতো ইমপ্যাক্ট অ্যানিমেশন",
+        "thumb": ""
+},
+        {
+        "id": "s87",
+        "title": "এয়ার টিকেটিং রিজার্ভেশন ৩D",
+        "file": "air-ticketing-reservation-3d.html",
+        "category": "ট্রাভেল ও ভিসা",
+        "icon": "🧳",
+        "shape": "৩ডি রিজার্ভেশন কার্ড",
+        "color": "#0ea5e9",
+        "desc": "এয়ার টিকেট রিজার্ভেশন থিমড ৩ডি অ্যানিমেশন",
+        "thumb": ""
+},
+        {
+        "id": "s88",
+        "title": "এয়ার টিকেটিং ভিসা প্রসেসিং ব্যাজ",
+        "file": "air-ticketing-visa-processing-badge (1).html",
+        "category": "ট্রাভেল ও ভিসা",
+        "icon": "🛂",
+        "shape": "৩ডি ভিসা প্রসেসিং ব্যাজ",
+        "color": "#2563eb",
+        "desc": "এয়ার টিকেটিং ও ভিসা প্রসেসিং সার্ভিস ব্যাজ অ্যানিমেশন",
+        "thumb": ""
+},
+        {
+        "id": "s89",
+        "title": "এয়ার টিকেটিং ভিসা প্রসেসিং",
+        "file": "air-ticketing-visa-processing.html",
+        "category": "ট্রাভেল ও ভিসা",
+        "icon": "🛂",
+        "shape": "৩ডি ভিসা প্রসেসিং",
+        "color": "#2563eb",
+        "desc": "এয়ার টিকেটিং ও ভিসা প্রসেসিং সার্ভিস অ্যানিমেশন",
+        "thumb": ""
+},
+        {
+        "id": "s90",
+        "title": "এয়ার টিকেটিং স্প্লিটফ্ল্যাপ বোর্ড",
+        "file": "air-ticketing-visa-splitflap-board.html",
+        "category": "ট্রাভেল ও ভিসা",
+        "icon": "🛫",
+        "shape": "এয়ারপোর্ট স্প্লিট-ফ্ল্যাপ ডিসপ্লে বোর্ড",
+        "color": "#0ea5e9",
+        "desc": "এয়ারপোর্ট স্টাইল স্প্লিট-ফ্ল্যাপ ফ্লাইট ইনফো বোর্ড অ্যানিমেশন",
+        "thumb": ""
+},
+        {
+        "id": "s91",
+        "title": "কনগ্র্যাচুলেশন কার্ড অ্যানিমেশন",
+        "file": "congrats-card-animation.html",
+        "category": "কনগ্র্যাচুলেশন কার্ড",
+        "icon": "🎉",
+        "shape": "৩ডি অভিনন্দন কার্ড",
+        "color": "#f59e0b",
+        "desc": "অভিনন্দন জানানোর জন্য ৩ডি কার্ড অ্যানিমেশন",
+        "thumb": ""
+},
+        {
+        "id": "s92",
+        "title": "কনগ্র্যাচুলেশন কার্ড জেনারেটর",
+        "file": "congrats-card-generator.html",
+        "category": "কনগ্র্যাচুলেশন কার্ড",
+        "icon": "🎉",
+        "shape": "কাস্টমাইজযোগ্য অভিনন্দন কার্ড",
+        "color": "#f59e0b",
+        "desc": "নাম/টেক্সট কাস্টমাইজ করা যায় এমন অভিনন্দন কার্ড জেনারেটর",
+        "thumb": ""
+},
+        {
+        "id": "s93",
+        "title": "কনগ্র্যাচুলেশন কার্ড",
+        "file": "congratulations-card (1).html",
+        "category": "কনগ্র্যাচুলেশন কার্ড",
+        "icon": "🎉",
+        "shape": "৩ডি অভিনন্দন কার্ড",
+        "color": "#f59e0b",
+        "desc": "অভিনন্দন জানানোর জন্য ৩ডি কার্ড অ্যানিমেশন (ভ্যারিয়েন্ট)",
+        "thumb": ""
+},
+        {
+        "id": "s94",
+        "title": "কনগ্র্যাচুলেশন কার্ড অ্যানিমেশন",
+        "file": "congratulations-card-animation.html",
+        "category": "কনগ্র্যাচুলেশন কার্ড",
+        "icon": "🎉",
+        "shape": "৩ডি অভিনন্দন কার্ড",
+        "color": "#f59e0b",
+        "desc": "অভিনন্দন জানানোর জন্য ৩ডি কার্ড অ্যানিমেশন",
+        "thumb": ""
+},
+        {
+        "id": "s95",
+        "title": "কনগ্র্যাচুলেশন কার্ড জেনারেটর",
+        "file": "congratulations-card-generator (1).html",
+        "category": "কনগ্র্যাচুলেশন কার্ড",
+        "icon": "🎉",
+        "shape": "কাস্টমাইজযোগ্য অভিনন্দন কার্ড",
+        "color": "#f59e0b",
+        "desc": "নাম/টেক্সট কাস্টমাইজ করা যায় এমন অভিনন্দন কার্ড জেনারেটর (ভ্যারিয়েন্ট ১)",
+        "thumb": ""
+},
+        {
+        "id": "s96",
+        "title": "কনগ্র্যাচুলেশন কার্ড জেনারেটর",
+        "file": "congratulations-card-generator (2).html",
+        "category": "কনগ্র্যাচুলেশন কার্ড",
+        "icon": "🎉",
+        "shape": "কাস্টমাইজযোগ্য অভিনন্দন কার্ড",
+        "color": "#f59e0b",
+        "desc": "নাম/টেক্সট কাস্টমাইজ করা যায় এমন অভিনন্দন কার্ড জেনারেটর (ভ্যারিয়েন্ট ২)",
+        "thumb": ""
+},
+        {
+        "id": "s97",
+        "title": "কনগ্র্যাচুলেশন কার্ড জেনারেটর",
+        "file": "congratulations-card-generator (3).html",
+        "category": "কনগ্র্যাচুলেশন কার্ড",
+        "icon": "🎉",
+        "shape": "কাস্টমাইজযোগ্য অভিনন্দন কার্ড",
+        "color": "#f59e0b",
+        "desc": "নাম/টেক্সট কাস্টমাইজ করা যায় এমন অভিনন্দন কার্ড জেনারেটর (ভ্যারিয়েন্ট ৩)",
+        "thumb": ""
+},
+        {
+        "id": "s98",
+        "title": "কনগ্র্যাচুলেশন কার্ড জেনারেটর",
+        "file": "congratulations-card-generator.html",
+        "category": "কনগ্র্যাচুলেশন কার্ড",
+        "icon": "🎉",
+        "shape": "কাস্টমাইজযোগ্য অভিনন্দন কার্ড",
+        "color": "#f59e0b",
+        "desc": "নাম/টেক্সট কাস্টমাইজ করা যায় এমন অভিনন্দন কার্ড জেনারেটর",
+        "thumb": ""
+},
+        {
+        "id": "s99",
+        "title": "কনগ্র্যাচুলেশন কার্ড",
+        "file": "congratulations-card.html",
+        "category": "কনগ্র্যাচুলেশন কার্ড",
+        "icon": "🎉",
+        "shape": "৩ডি অভিনন্দন কার্ড",
+        "color": "#f59e0b",
+        "desc": "অভিনন্দন জানানোর জন্য ৩ডি কার্ড অ্যানিমেশন",
+        "thumb": ""
+},
+        {
+        "id": "s100",
+        "title": "কনগ্র্যাচুলেশন সিল কার্ড জেনারেটর",
+        "file": "congratulations-seal-card-generator.html",
+        "category": "কনগ্র্যাচুলেশন কার্ড",
+        "icon": "🏅",
+        "shape": "সিল/স্ট্যাম্প সহ অভিনন্দন কার্ড",
+        "color": "#f59e0b",
+        "desc": "অফিসিয়াল সিল/স্ট্যাম্প ইফেক্ট সহ অভিনন্দন কার্ড জেনারেটর",
+        "thumb": ""
+},
+        {
+        "id": "s101",
+        "title": "ভিসা প্রসেসিং ৩D CTA",
+        "file": "visa-processing-3d-cta.html",
+        "category": "ট্রাভেল ও ভিসা",
+        "icon": "🛂",
+        "shape": "৩ডি ভিসা প্রসেসিং CTA বাটন",
+        "color": "#2563eb",
+        "desc": "ভিসা প্রসেসিং সার্ভিস থিমড ৩ডি কল-টু-অ্যাকশন",
+        "thumb": ""
+},
+        {
+        "id": "s102",
+        "title": "ভিসা প্রসেসিং ৩D",
+        "file": "visa-processing-3d.html",
+        "category": "ট্রাভেল ও ভিসা",
+        "icon": "🛂",
+        "shape": "৩ডি ভিসা প্রসেসিং",
+        "color": "#2563eb",
+        "desc": "ভিসা প্রসেসিং সার্ভিস থিমড ৩ডি অ্যানিমেশন",
+        "thumb": ""
+},
+        {
+        "id": "s103",
+        "title": "ভিসা প্রসেসিং ব্যাজ অ্যানিমেশন",
+        "file": "visa-processing-badge-animation.html",
+        "category": "ট্রাভেল ও ভিসা",
+        "icon": "🛂",
+        "shape": "৩ডি ভিসা প্রসেসিং ব্যাজ",
+        "color": "#2563eb",
+        "desc": "ভিসা প্রসেসিং সার্ভিস ব্যাজ অ্যানিমেশন",
+        "thumb": ""
+},
+        {
+        "id": "s104",
+        "title": "ওয়ারিশা ফ্যাশন ওয়েলকাম ব্যানার",
+        "file": "warisha-fashion-welcome-banner (1).html",
+        "category": "ব্র্যান্ড ওয়েলকাম",
+        "icon": "👗",
+        "shape": "ফ্যাশন ব্র্যান্ড ওয়েলকাম ব্যানার",
+        "color": "#ec4899",
+        "desc": "ওয়ারিশা ফ্যাশন ব্র্যান্ডের জন্য ওয়েলকাম ব্যানার অ্যানিমেশন",
+        "thumb": ""
+},
+        {
+        "id": "s105",
+        "title": "ওয়ারিশা ফ্যাশন ওয়েলকাম ব্যানার",
+        "file": "warisha-fashion-welcome-banner.html",
+        "category": "ব্র্যান্ড ওয়েলকাম",
+        "icon": "👗",
+        "shape": "ফ্যাশন ব্র্যান্ড ওয়েলকাম ব্যানার",
+        "color": "#ec4899",
+        "desc": "ওয়ারিশা ফ্যাশন ব্র্যান্ডের জন্য ওয়েলকাম ব্যানার অ্যানিমেশন (ভ্যারিয়েন্ট)",
+        "thumb": ""
+},
+        {
+        "id": "s106",
+        "title": "ওয়ারিশা ফ্যাশন ওয়েলকাম",
+        "file": "warisha-fashion-welcome.html",
+        "category": "ব্র্যান্ড ওয়েলকাম",
+        "icon": "👗",
+        "shape": "ফ্যাশন ব্র্যান্ড ওয়েলকাম স্ক্রিন",
+        "color": "#ec4899",
+        "desc": "ওয়ারিশা ফ্যাশন ব্র্যান্ডের জন্য ওয়েলকাম অ্যানিমেশন",
+        "thumb": ""
+},
+        {
+        "id": "s107",
+        "title": "৩D স্টারবার্স্ট ওয়েলকাম ব্যাজ",
+        "file": "welcome-3d-starburst-badge.html",
+        "category": "ব্র্যান্ড ওয়েলকাম",
+        "icon": "✨",
+        "shape": "৩ডি স্টারবার্স্ট ব্যাজ",
+        "color": "#7c8cff",
+        "desc": "স্টারবার্স্ট ইফেক্ট সহ ৩ডি ওয়েলকাম ব্যাজ",
+        "thumb": ""
+},
+        {
+        "id": "s108",
+        "title": "ব্র্যান্ড ওয়েলকাম ৩D",
+        "file": "welcome-brand-3d (1).html",
+        "category": "ব্র্যান্ড ওয়েলকাম",
+        "icon": "🏷️",
+        "shape": "৩ডি ব্র্যান্ড ওয়েলকাম",
+        "color": "#7c8cff",
+        "desc": "ব্র্যান্ডের জন্য ৩ডি ওয়েলকাম অ্যানিমেশন (ভ্যারিয়েন্ট)",
+        "thumb": ""
+},
+        {
+        "id": "s109",
+        "title": "ব্র্যান্ড ওয়েলকাম ৩D",
+        "file": "welcome-brand-3d.html",
+        "category": "ব্র্যান্ড ওয়েলকাম",
+        "icon": "🏷️",
+        "shape": "৩ডি ব্র্যান্ড ওয়েলকাম",
+        "color": "#7c8cff",
+        "desc": "ব্র্যান্ডের জন্য ৩ডি ওয়েলকাম অ্যানিমেশন",
+        "thumb": ""
+},
+        {
+        "id": "s110",
+        "title": "ব্র্যান্ড ওয়েলকাম ব্যাজ",
+        "file": "welcome-brand-badge-animation.html",
+        "category": "ব্র্যান্ড ওয়েলকাম",
+        "icon": "🏷️",
+        "shape": "৩ডি ব্র্যান্ড ওয়েলকাম ব্যাজ",
+        "color": "#7c8cff",
+        "desc": "ব্র্যান্ডের জন্য ওয়েলকাম ব্যাজ অ্যানিমেশন",
+        "thumb": ""
+},
+        {
+        "id": "s111",
+        "title": "ব্র্যান্ড হলোগ্রাফিক ওয়েলকাম ব্যাজ",
+        "file": "welcome-brand-holo-badge.html",
+        "category": "ব্র্যান্ড ওয়েলকাম",
+        "icon": "🏷️",
+        "shape": "হলোগ্রাফিক ব্র্যান্ড ব্যাজ",
+        "color": "#00e5c8",
+        "desc": "হলোগ্রাফিক ইফেক্ট সহ ব্র্যান্ড ওয়েলকাম ব্যাজ",
+        "thumb": ""
+},
+        {
+        "id": "s112",
+        "title": "ব্র্যান্ড ইন্ট্রো অ্যানিমেশন",
+        "file": "welcome-brand-intro-animation (1).html",
+        "category": "ব্র্যান্ড ওয়েলকাম",
+        "icon": "🏷️",
+        "shape": "৩ডি ব্র্যান্ড ইন্ট্রো",
+        "color": "#7c8cff",
+        "desc": "ব্র্যান্ডের জন্য ইন্ট্রো অ্যানিমেশন (ভ্যারিয়েন্ট ১)",
+        "thumb": ""
+},
+        {
+        "id": "s113",
+        "title": "ব্র্যান্ড ইন্ট্রো অ্যানিমেশন",
+        "file": "welcome-brand-intro-animation (2).html",
+        "category": "ব্র্যান্ড ওয়েলকাম",
+        "icon": "🏷️",
+        "shape": "৩ডি ব্র্যান্ড ইন্ট্রো",
+        "color": "#7c8cff",
+        "desc": "ব্র্যান্ডের জন্য ইন্ট্রো অ্যানিমেশন (ভ্যারিয়েন্ট ২)",
+        "thumb": ""
+},
+        {
+        "id": "s114",
+        "title": "ব্র্যান্ড ইন্ট্রো অ্যানিমেশন",
+        "file": "welcome-brand-intro-animation.html",
+        "category": "ব্র্যান্ড ওয়েলকাম",
+        "icon": "🏷️",
+        "shape": "৩ডি ব্র্যান্ড ইন্ট্রো",
+        "color": "#7c8cff",
+        "desc": "ব্র্যান্ডের জন্য ইন্ট্রো অ্যানিমেশন",
+        "thumb": ""
+},
+        {
+        "id": "s115",
+        "title": "ব্র্যান্ড নিয়ন অক্টাগন ওয়েলকাম",
+        "file": "welcome-brand-neon-octagon.html",
+        "category": "ব্র্যান্ড ওয়েলকাম",
+        "icon": "🏷️",
+        "shape": "নিয়ন অক্টাগন শেপ",
+        "color": "#00e5c8",
+        "desc": "নিয়ন অক্টাগন শেপ সহ ব্র্যান্ড ওয়েলকাম অ্যানিমেশন",
+        "thumb": ""
+},
+        {
+        "id": "s116",
+        "title": "ওয়েলকাম টু ব্র্যান্ড ইন্ট্রো",
+        "file": "welcome-to-brand-intro.html",
+        "category": "ব্র্যান্ড ওয়েলকাম",
+        "icon": "🏷️",
+        "shape": "৩ডি ব্র্যান্ড ইন্ট্রো",
+        "color": "#7c8cff",
+        "desc": "ব্র্যান্ডে স্বাগতম জানানোর ইন্ট্রো অ্যানিমেশন",
+        "thumb": ""
+},
+        {
+        "id": "s117",
+        "title": "ওয়েলকাম টু ইওর ব্র্যান্ড",
+        "file": "welcome-to-your-brand.html",
+        "category": "ব্র্যান্ড ওয়েলকাম",
+        "icon": "🏷️",
+        "shape": "৩ডি ব্র্যান্ড ওয়েলকাম",
+        "color": "#7c8cff",
+        "desc": "কাস্টম ব্র্যান্ডের জন্য ওয়েলকাম অ্যানিমেশন",
+        "thumb": ""
+},
+        {
+        "id": "s118",
+        "title": "ওয়েলকাম ওয়ারিশা ফ্যাশন",
+        "file": "welcome-warisha-fashion-animation.html",
+        "category": "ব্র্যান্ড ওয়েলকাম",
+        "icon": "👗",
+        "shape": "ফ্যাশন ব্র্যান্ড ওয়েলকাম",
+        "color": "#ec4899",
+        "desc": "ওয়ারিশা ফ্যাশনের জন্য ওয়েলকাম অ্যানিমেশন",
+        "thumb": ""
+},
+        {
+        "id": "s119",
+        "title": "Wings Fly — কালারফুল ট্রাভেল পোস্টার",
+        "file": "wings-fly-colorful-travel-poster.html",
+        "category": "উইংস ফ্লাই একাডেমি",
+        "icon": "🛩️",
+        "shape": "রঙিন ট্রাভেল পোস্টার",
+        "color": "#00e5c8",
+        "desc": "উইংস ফ্লাই একাডেমির জন্য রঙিন ট্রাভেল পোস্টার অ্যানিমেশন",
+        "thumb": ""
+},
+        {
+        "id": "s120",
+        "title": "Wings Fly — টিকেটিং ভিসা ব্যানার",
+        "file": "wings-fly-ticketing-visa-banner.html",
+        "category": "উইংস ফ্লাই একাডেমি",
+        "icon": "🛩️",
+        "shape": "টিকেটিং ও ভিসা ব্যানার",
+        "color": "#00e5c8",
+        "desc": "উইংস ফ্লাই একাডেমির টিকেটিং ও ভিসা সার্ভিস ব্যানার অ্যানিমেশন",
+        "thumb": ""
+}
 ];
 
     // === LOAD / SAVE ===
@@ -1557,13 +1964,21 @@
         document.getElementById('entryCountLabel').textContent = `মোট ${entries.length}টি অ্যানিমেশন সেভ করা আছে${activeCategory !== 'সব' || search ? ` · ${filtered.length}টি দেখানো হচ্ছে` : ''}`;
 
         grid.innerHTML = filtered.map(e => cardHtml(e)).join('');
+        setupCardObserver();
     }
 
     
-    let livePreviewEnabled = true;
+    // Live preview defaults OFF: with 100+ tools, eagerly running 100+ full
+    // animated pages at once (each with its own rAF loop / canvas / GIF worker)
+    // is what caused the slowdown. Previews now load on-demand (see the
+    // IntersectionObserver below) and get unloaded again once scrolled away,
+    // so at most a handful of iframes are ever alive at the same time.
+    let livePreviewEnabled = localStorage.getItem('livePreviewEnabled') === 'true';
+    let cardObserver = null;
 
     function toggleLivePreview() {
         livePreviewEnabled = !livePreviewEnabled;
+        localStorage.setItem('livePreviewEnabled', livePreviewEnabled ? 'true' : 'false');
         const btn = document.getElementById('livePreviewBtn');
         if (btn) {
             btn.textContent = livePreviewEnabled ? '🎥 লাইভ প্রিভিউ: চালু' : '🎥 লাইভ প্রিভিউ: বন্ধ';
@@ -1572,18 +1987,50 @@
         renderGrid();
     }
 
+    // One shared observer for the whole grid. Only cards actually scrolled
+    // into (near) view get an iframe with a real `src`; cards that scroll
+    // back out have their iframe removed, which stops its JS/animation from
+    // running in the background and frees the memory.
+    function setupCardObserver() {
+        if (cardObserver) cardObserver.disconnect();
+        if (!('IntersectionObserver' in window)) return;
+        cardObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const slot = entry.target;
+                const src = slot.getAttribute('data-src');
+                if (!src) return;
+                if (entry.isIntersecting) {
+                    if (!slot.querySelector('iframe')) {
+                        const iframe = document.createElement('iframe');
+                        iframe.src = src;
+                        iframe.title = slot.getAttribute('data-title') || '';
+                        iframe.scrolling = 'no';
+                        iframe.tabIndex = -1;
+                        slot.appendChild(iframe);
+                    }
+                } else {
+                    const existing = slot.querySelector('iframe');
+                    if (existing) existing.remove();
+                }
+            });
+        }, { root: null, rootMargin: '200px 0px', threshold: 0 });
+
+        document.querySelectorAll('.card-thumb[data-src]').forEach(slot => cardObserver.observe(slot));
+    }
+
     function cardHtml(e) {
         const color = e.color || '#7c8cff';
         const shapeText = e.shape || e.title;
         const iconChar = e.icon || '🎬';
 
         let thumbContent = '';
+        let thumbDataSrc = '';
         if (e.thumb) {
             thumbContent = `<img src="${escapeAttr(e.thumb)}" alt="${escapeAttr(e.title)}" onerror="this.style.display='none'">`;
         } else if (livePreviewEnabled) {
-            thumbContent = `
-                <iframe src="${escapeAttr(e.file)}" loading="lazy" title="${escapeAttr(e.title)}" scrolling="no" tabindex="-1"></iframe>
-            `;
+            // No iframe here yet on purpose — the observer above adds it
+            // only once this card is actually visible on screen.
+            thumbDataSrc = `data-src="${escapeAttr(e.file)}" data-title="${escapeAttr(e.title)}"`;
         } else {
             thumbContent = `
                 <div class="icon-fallback-large">
@@ -1595,7 +2042,7 @@
 
         return `
         <div class="card">
-            <div class="card-thumb" style="background: radial-gradient(circle at center, ${color}25 0%, #080912 85%);">
+            <div class="card-thumb" ${thumbDataSrc} style="background: radial-gradient(circle at center, ${color}25 0%, #080912 85%);">
                 <div class="shape-badge-pill" style="border-color:${color}66;">
                     <span>${escapeHtml(iconChar)}</span>
                     <span>${escapeHtml(shapeText)}</span>
@@ -1776,6 +2223,13 @@
     // === INIT ===
     loadLibrary();
     renderChips();
+    (function syncLivePreviewButton() {
+        const btn = document.getElementById('livePreviewBtn');
+        if (btn) {
+            btn.textContent = livePreviewEnabled ? '🎥 লাইভ প্রিভিউ: চালু' : '🎥 লাইভ প্রিভিউ: বন্ধ';
+            btn.className = 'btn ' + (livePreviewEnabled ? 'preview-toggle-btn' : 'preview-toggle-btn off');
+        }
+    })();
     renderGrid();
 
     </script>

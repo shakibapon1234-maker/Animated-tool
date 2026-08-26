@@ -670,8 +670,9 @@ async function downloadGif(){
   }
   if(isExporting) return;
   isExporting = true;
+  const _gifWantTransparent = true;
   const oldAngle = spinAngle, oldTime = timeMs;
-  const gif = new GIF({ workers:2, quality:10, width:720, height:720, workerScript:'gif.worker.js' });
+  const gif = new GIF({ transparent: (_gifWantTransparent ? window.GIF_CHROMA_INT : null), workers:2, quality:10, width:720, height:720, workerScript:'gif.worker.js' });
   const frames = 48;
   const frameDelay = 50;
   setExportStatus('GIF তৈরি হচ্ছে… 0%');
@@ -679,7 +680,7 @@ async function downloadGif(){
     const progress = frame/frames;
     spinAngle = oldAngle + direction * Math.PI*2*progress;
     timeMs = oldTime + progress * SHINE_PERIOD;
-    gif.addFrame(getExportCanvas(720), {copy:true, delay:frameDelay});
+    gif.addFrame(_gifWantTransparent ? window.gifFlattenFrame(getExportCanvas(720)) : (getExportCanvas(720)), {copy:true, delay:frameDelay});
     setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((frame+1)/frames*100)}%`);
     await new Promise(requestAnimationFrame);
   }

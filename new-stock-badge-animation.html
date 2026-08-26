@@ -1153,8 +1153,9 @@
         }
         if (isExporting) return;
         isExporting = true;
+  const _gifWantTransparent = true;
         const oldAngle = spinAngle, oldPhase = pulsePhase, oldSparkle = sparklePhase;
-        const gif = new GIF({
+        const gif = new GIF({ transparent: (_gifWantTransparent ? window.GIF_CHROMA_INT : null),
             workers: 2, quality: 10, width: 720, height: 720,
             workerScript: 'gif.worker.js'
         });
@@ -1166,7 +1167,7 @@
             spinAngle = oldAngle + direction * (Math.PI * 2 * t);
             pulsePhase = oldPhase + (Math.PI * 2 * 2 * t);
             sparklePhase = oldSparkle + t * 2;
-            gif.addFrame(getExportCanvas(720), { copy: true, delay: frameDelay });
+            gif.addFrame(_gifWantTransparent ? window.gifFlattenFrame(getExportCanvas(720)) : (getExportCanvas(720)), { copy: true, delay: frameDelay });
             setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((frame + 1) / frames * 100)}%`);
             await new Promise(requestAnimationFrame);
         }

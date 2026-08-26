@@ -773,8 +773,9 @@ function getExportCanvas(size){
 async function downloadGif(){
   if(!window.GIF){ setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ দিয়ে আবার চেষ্টা করুন।'); return; }
   if(isExporting) return; isExporting=true;
+  const _gifWantTransparent = true;
   const oldAngle=spinAngle, oldPulse=pulsePhase, oldRing=ringPhase, oldSpark=sparklePhase, oldShine=shinePhase;
-  const gif = new GIF({ workers:2, quality:10, width:720, height:720,
+  const gif = new GIF({ transparent: (_gifWantTransparent ? window.GIF_CHROMA_INT : null), workers:2, quality:10, width:720, height:720,
     workerScript:'gif.worker.js' });
   const frames=48, frameDelay=50;
   setExportStatus('GIF তৈরি হচ্ছে… 0%');
@@ -785,7 +786,7 @@ async function downloadGif(){
     ringPhase = oldRing + t*2;
     sparklePhase = oldSpark + t*4;
     shinePhase = oldShine + t*1.4;
-    gif.addFrame(getExportCanvas(720), { copy:true, delay:frameDelay });
+    gif.addFrame(_gifWantTransparent ? window.gifFlattenFrame(getExportCanvas(720)) : (getExportCanvas(720)), { copy:true, delay:frameDelay });
     setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((f+1)/frames*100)}%`);
     await new Promise(requestAnimationFrame);
   }

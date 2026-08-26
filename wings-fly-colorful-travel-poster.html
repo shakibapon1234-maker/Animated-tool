@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wings Fly — Colorful Travel Poster Banner</title>
+<meta name="description" content="ভাইব্রেন্ট রেট্রো ট্রাভেল পোস্টার স্টাইল ব্যানার — Air Ticketing Reservation & Professional Visa Processing — সানবার্স্ট, লেয়ার্ড মাউন্টেন, কনফেটি, বাউন্সিং ভিসা স্ট্যাম্প ব্যাজ — PNG/GIF/WebM এক্সপোর্ট">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Outfit:wght@400;600;700;800&family=Noto+Sans+Bengali:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-primary:#0a0512; --bg-secondary:#0f0a1a; --bg-card:#150e24; --bg-card-hover:#1c1430;
+    --border:rgba(255,255,255,0.08); --accent:#ff5f6d; --accent-glow:rgba(255,95,109,0.4);
+    --accent-2:#ffc93c; --accent-3:#17c98e; --text-primary:#faf6ff; --text-secondary:#a89bc4;
+    --text-muted:#584c74; --radius:16px; --shadow:0 20px 60px rgba(0,0,0,0.6);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Outfit','Noto Sans Bengali',sans-serif;background:var(--bg-primary);color:var(--text-primary);
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 80% 50% at 20% 15%,rgba(255,95,109,0.14) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 85%,rgba(255,201,60,0.10) 0%,transparent 60%);}
+  .app-header{width:100%;padding:22px 32px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);
+    background:rgba(10,5,18,0.85);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+  .header-icon{width:44px;height:44px;background:linear-gradient(135deg,#ff5f6d,#ffc93c);
+    clip-path:polygon(50% 0,100% 38%,82% 100%,18% 100%,0 38%);display:flex;align-items:center;justify-content:center;
+    font-size:19px;box-shadow:0 0 20px var(--accent-glow);flex-shrink:0;}
+  .header-text h1{font-size:19px;font-weight:700;background:linear-gradient(135deg,#ff5f6d 0%,#ffc93c 50%,#2fd6c9 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .header-text p{font-size:12.5px;color:var(--text-secondary);margin-top:2px;}
+  .main-content{width:100%;max-width:1260px;padding:36px 24px 80px;display:grid;grid-template-columns:1fr 380px;gap:28px;position:relative;z-index:1;}
+  @media (max-width:960px){.main-content{grid-template-columns:1fr;}}
+  .canvas-panel{display:flex;flex-direction:column;align-items:center;gap:20px;}
+  .canvas-wrapper{width:100%;aspect-ratio:16/9;background:
+    linear-gradient(45deg,#1c1430 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,#1c1430 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(45deg,transparent 75%,#1c1430 75%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,transparent 75%,#1c1430 75%) -0px -0px/24px 24px,
+    var(--bg-card);
+    border:1px solid var(--border);border-radius:20px;display:flex;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;box-shadow:var(--shadow);}
+  #posterCanvas{display:block;max-width:100%;max-height:100%;}
+  .timer-display{display:flex;align-items:center;gap:14px;padding:14px 24px;background:var(--bg-card);
+    border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);}
+  .timer-ring-wrap{position:relative;width:50px;height:50px;}
+  .timer-ring-wrap svg{transform:rotate(-90deg);}
+  .timer-ring-bg{fill:none;stroke:rgba(255,255,255,0.07);stroke-width:4;}
+  .timer-ring-fill{fill:none;stroke:url(#ringGradient6);stroke-width:4;stroke-linecap:round;
+    transition:stroke-dashoffset 1s linear;stroke-dasharray:141;stroke-dashoffset:0;}
+  .timer-label-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:700;color:var(--accent-2);}
+  .timer-text-group{display:flex;flex-direction:column;}
+  .timer-big{font-size:26px;font-weight:800;letter-spacing:-1px;}
+  .timer-sub{font-size:11.5px;color:var(--text-secondary);font-weight:500;}
+  .timer-status{padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;}
+  .timer-status.idle{background:rgba(255,255,255,0.06);color:var(--text-muted);}
+  .timer-status.spinning{background:rgba(255,95,109,0.15);color:var(--accent);}
+  .timer-status.done{background:rgba(23,201,142,0.15);color:var(--accent-3);}
+  .sidebar{display:flex;flex-direction:column;gap:14px;}
+  .control-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+  .card-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-secondary);
+    display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+  .card-title-icon{width:22px;height:22px;background:rgba(255,95,109,0.16);border-radius:6px;display:flex;
+    align-items:center;justify-content:center;font-size:12px;}
+  .form-row{margin-bottom:14px;}
+  .form-row:last-child{margin-bottom:0;}
+  .form-label{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;color:var(--text-secondary);margin-bottom:7px;}
+  .value-badge{background:rgba(255,95,109,0.18);color:var(--accent);padding:1px 8px;border-radius:6px;font-size:11px;font-weight:700;}
+  input[type=text]{width:100%;padding:10px 12px;background:var(--bg-secondary);border:1px solid var(--border);
+    border-radius:9px;color:var(--text-primary);font-size:13.5px;font-family:inherit;}
+  input[type=text]:focus{outline:none;border-color:var(--accent);}
+  input[type=range]{width:100%;accent-color:var(--accent);}
+  input[type=color]{width:100%;height:34px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;}
+  .color-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .lang-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  .lang-btn{padding:9px 6px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;}
+  .lang-btn.active{background:var(--accent);border-color:var(--accent);color:#1a0509;}
+  .toggle-row{display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer;color:var(--text-secondary);margin-bottom:10px;}
+  .toggle-row:last-child{margin-bottom:0;}
+  .preset-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .preset-btn{padding:7px 12px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;}
+  .preset-btn.active{background:var(--accent);border-color:var(--accent);color:#1a0509;}
+  .style-swatch{width:34px;height:34px;border-radius:9px;border:2px solid transparent;cursor:pointer;flex-shrink:0;}
+  .style-swatch.active{border-color:#fff;}
+  .btn-group{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{flex:1;min-width:120px;padding:12px 16px;border:none;border-radius:11px;font-size:13.5px;font-weight:700;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;transition:.15s;}
+  .btn-primary{background:linear-gradient(135deg,#ff5f6d,#ffc93c);color:#1a0509;box-shadow:0 8px 20px rgba(255,95,109,0.3);}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-stop{background:rgba(239,68,68,0.15);color:#ef4444;}
+  .btn-stop:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-ghost{background:var(--bg-secondary);color:var(--text-secondary);border:1px solid var(--border);}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-icon">🌈</div>
+  <div class="header-text">
+    <h1>Wings Fly — Colorful Travel Poster Banner</h1>
+    <p>ভাইব্রেন্ট রেট্রো ট্রাভেল পোস্টার স্টাইল — সানবার্স্ট, মাউন্টেন লেয়ার, কনফেটি, ভিসা স্ট্যাম্প ব্যাজ</p>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="canvas-panel">
+    <div class="canvas-wrapper">
+      <canvas id="posterCanvas" width="1600" height="900"></canvas>
+    </div>
+
+    <div class="timer-display">
+      <div class="timer-ring-wrap">
+        <svg width="50" height="50" viewBox="0 0 50 50">
+          <defs>
+            <linearGradient id="ringGradient6" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#ff5f6d"/><stop offset="50%" stop-color="#ffc93c"/><stop offset="100%" stop-color="#2fd6c9"/>
+            </linearGradient>
+          </defs>
+          <circle class="timer-ring-bg" cx="25" cy="25" r="22.5"></circle>
+          <circle class="timer-ring-fill" id="timerRing" cx="25" cy="25" r="22.5"></circle>
+        </svg>
+        <div class="timer-label-inner" id="timerPercent">—</div>
+      </div>
+      <div class="timer-text-group">
+        <div class="timer-big" id="timerBig">00:00</div>
+        <div class="timer-sub" id="timerSub">সময় বাকি</div>
+      </div>
+      <div class="timer-status idle" id="timerStatus" style="margin-left:auto;">প্রস্তুত</div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🌐</div>ভাষা প্রিসেট</div>
+      <div class="lang-row">
+        <button class="lang-btn" onclick="applyLanguage('bn',this)">বাংলা</button>
+        <button class="lang-btn active" onclick="applyLanguage('en',this)">English</button>
+        <button class="lang-btn" onclick="applyLanguage('both',this)">উভয়</button>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">✏️</div>টেক্সট</div>
+      <div class="form-row">
+        <label class="form-label">সাব-লাইন (উপরে)</label>
+        <input type="text" id="subText" value="WINGS FLY PRESENTS">
+      </div>
+      <div class="form-row">
+        <label class="form-label">মূল লাইন ১</label>
+        <input type="text" id="mainText1" value="AIR TICKETING">
+      </div>
+      <div class="form-row">
+        <label class="form-label">মূল লাইন ২</label>
+        <input type="text" id="mainText2" value="& VISA PROCESSING">
+      </div>
+      <div class="form-row">
+        <label class="form-label">ট্যাগলাইন</label>
+        <input type="text" id="tagText" value="Book Smart · Travel Easy · Fly Confident">
+      </div>
+      <div class="form-row">
+        <label class="form-label">ব্যাজ ১ / ২ / ৩ / ৪</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <input type="text" id="badge1" value="TICKET">
+          <input type="text" id="badge2" value="VISA">
+          <input type="text" id="badge3" value="APPROVED">
+          <input type="text" id="badge4" value="WORLDWIDE">
+        </div>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎨</div>রং প্রিসেট</div>
+      <div class="preset-row" id="stylePresets">
+        <div class="style-swatch active" style="background:linear-gradient(135deg,#ff5f6d,#ffc93c,#2fd6c9)" onclick="applyStyle('sunset',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#00c9a7,#92fe9d,#00b4d8)" onclick="applyStyle('tropical',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#ff6fd8,#a06cff,#3ad0ff)" onclick="applyStyle('candy',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#5cffe1,#6a5cff,#ff5cf0)" onclick="applyStyle('aurora',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#ffd93c,#ff9a3c,#ff5c5c)" onclick="applyStyle('citrus',this)"></div>
+      </div>
+      <p style="font-size:11.5px;color:var(--text-muted);margin-top:10px;line-height:1.5;">
+        প্রতিটা প্রিসেট পুরো পোস্টারের স্কাই, মাউন্টেন লেয়ার, প্লাক কার্ড ও ব্যাজ কালার একসাথে বদলে দেয়।
+      </p>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🔺</div>শেপ</div>
+      <div class="form-row">
+        <label class="form-label">প্লাক কার্ড প্রস্থ <span class="value-badge" id="widthBadge">70%</span></label>
+        <input type="range" id="plaqueWidth" min="45" max="88" step="1" value="70">
+      </div>
+      <div class="form-row">
+        <label class="form-label">সানবার্স্ট রশ্মি সংখ্যা <span class="value-badge" id="rayBadge">16</span></label>
+        <input type="range" id="rayCount" min="8" max="28" step="1" value="16">
+      </div>
+      <div class="form-row">
+        <label class="form-label">মাউন্টেন উচ্চতা <span class="value-badge" id="mtnBadge">30</span></label>
+        <input type="range" id="mtnHeight" min="10" max="50" step="1" value="30">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎬</div>অ্যানিমেশন</div>
+      <div class="toggle-row"><input type="checkbox" id="sunToggle" checked>সানবার্স্ট ঘূর্ণন</div>
+      <div class="toggle-row"><input type="checkbox" id="parallaxToggle" checked>মাউন্টেন প্যারালাক্স</div>
+      <div class="toggle-row"><input type="checkbox" id="confettiToggle" checked>কনফেটি পার্টিকেল</div>
+      <div class="toggle-row"><input type="checkbox" id="badgeToggle" checked>ব্যাজ বাউন্স</div>
+      <div class="toggle-row"><input type="checkbox" id="planeToggle" checked>ফ্লাইং প্লেন + কনট্রেইল</div>
+      <div class="form-row">
+        <label class="form-label">অ্যানিমেশন স্পিড <span class="value-badge" id="speedBadge">1.2</span></label>
+        <input type="range" id="animSpeed" min="0" max="4" step="0.1" value="1.2">
+      </div>
+      <div class="form-row">
+        <label class="form-label">সময়কাল</label>
+        <div class="preset-row">
+          <button class="preset-btn" onclick="setDuration(5,this)">5s</button>
+          <button class="preset-btn" onclick="setDuration(10,this)">10s</button>
+          <button class="preset-btn active" onclick="setDuration(30,this)">30s</button>
+          <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:10px;">
+        <label class="toggle-row" style="margin:0;"><input type="checkbox" id="loopToggle" checked>সবসময় লুপ চলবে</label>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" id="startBtn" onclick="startAnim()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg> শুরু
+      </button>
+      <button class="btn btn-stop" id="stopBtn" onclick="stopAnim()" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg> বন্ধ
+      </button>
+    </div>
+    <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট</button>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+      <p style="font-size:11.5px;color:var(--text-muted);margin:2px 0 12px;line-height:1.55;">
+        এই পোস্টার ডিজাইনে পুরো স্কাই ব্যাকগ্রাউন্ড ভিজ্যুয়ালের মূল অংশ, তাই সবসময় সলিড রঙে এক্সপোর্ট হয় (PNG সহ) — ভিডিও এডিটরে ফুল-ফ্রেম ব্যাকগ্রাউন্ড হিসেবে বসাতে পারবেন।
+      </p>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="downloadPng()">PNG</button>
+        <button class="btn btn-primary" onclick="downloadGif()">GIF</button>
+        <button class="btn btn-primary" onclick="downloadVideo()">ভিডিও (WebM)</button>
+      </div>
+      <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   WINGS FLY — COLORFUL RETRO TRAVEL POSTER ENGINE
+   Vibrant gradient sky, triangular sunburst rays, layered
+   angular mountain silhouettes with parallax, a central
+   parallelogram plaque with offset-print color effect,
+   bouncing hexagonal "visa stamp" badges, rainbow confetti
+   triangles and a flying paper plane with a contrail.
+   Every shape is built from straight-edge polygons.
+===================================================== */
+
+const canvas = document.getElementById('posterCanvas');
+const ctx = canvas.getContext('2d');
+const CW = canvas.width, CH = canvas.height;
+
+// === STATE ===
+let sunAngle = 0, parallaxPhase = 0, badgePhase = 0, planePhase = 0, globalTime = 0;
+let confetti = [];
+let isSpinning = false, animFrame = null, lastTimestamp = null;
+let totalDurationMs = 30000, startTime = null, isExporting = false;
+
+function initConfetti() {
+  confetti = [];
+  for (let i = 0; i < 46; i++) {
+    confetti.push({
+      x: Math.random(), y: Math.random(),
+      size: 6 + Math.random() * 10,
+      speed: 0.02 + Math.random() * 0.05,
+      drift: (Math.random() - 0.5) * 0.02,
+      rot: Math.random() * Math.PI * 2,
+      rotSpeed: (Math.random() - 0.5) * 0.06,
+      colorIdx: Math.floor(Math.random() * 5),
+    });
+  }
+}
+initConfetti();
+
+// === LANGUAGE PRESETS ===
+const languagePresets = {
+  bn: { subText: 'উইংস ফ্লাই উপস্থাপন করছে', mainText1: 'এয়ার টিকেটিং', mainText2: 'ও ভিসা প্রসেসিং', tagText: 'বুক করুন স্মার্টলি · ভ্রমণ করুন সহজে · উড়ুন আত্মবিশ্বাসে',
+       badge1:'টিকেট', badge2:'ভিসা', badge3:'অনুমোদিত', badge4:'বিশ্বব্যাপী' },
+  en: { subText: 'WINGS FLY PRESENTS', mainText1: 'AIR TICKETING', mainText2: '& VISA PROCESSING', tagText: 'Book Smart · Travel Easy · Fly Confident',
+       badge1:'TICKET', badge2:'VISA', badge3:'APPROVED', badge4:'WORLDWIDE' },
+  both: { subText: 'WINGS FLY উপস্থাপন করছে', mainText1: 'AIR TICKETING', mainText2: 'ও VISA PROCESSING', tagText: 'Book Smart · ভ্রমণ করুন সহজে · Fly Confident',
+       badge1:'TICKET', badge2:'ভিসা', badge3:'APPROVED', badge4:'বিশ্বব্যাপী' },
+};
+function applyLanguage(lang, btnEl) {
+  const p = languagePresets[lang]; if (!p) return;
+  document.getElementById('subText').value = p.subText;
+  document.getElementById('mainText1').value = p.mainText1;
+  document.getElementById('mainText2').value = p.mainText2;
+  document.getElementById('tagText').value = p.tagText;
+  document.getElementById('badge1').value = p.badge1;
+  document.getElementById('badge2').value = p.badge2;
+  document.getElementById('badge3').value = p.badge3;
+  document.getElementById('badge4').value = p.badge4;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  if (!isSpinning) drawFrame();
+}
+
+// === STYLE PRESETS (sky top/bottom, mountain layers x3, plaque, badges x4) ===
+const stylePresets = {
+  sunset:   { sky:['#3a1c5e','#c23e6b','#ff8a4c','#ffc93c'], mtn:['#2a1245','#611e4e','#a63a5f'], plaque:['#ff5f6d','#ffc93c'], badges:['#2fd6c9','#ff5f6d','#ffc93c','#a06cff'] },
+  tropical: { sky:['#003049','#0077b6','#00b4d8','#92fe9d'], mtn:['#012a3a','#014f5e','#037a72'], plaque:['#00c9a7','#92fe9d'], badges:['#ffc93c','#ff5f6d','#00c9a7','#3ad0ff'] },
+  candy:    { sky:['#2d1b4e','#7b3fa0','#ff6fd8','#ffd6f5'], mtn:['#1c1038','#4a1f66','#8a3fa0'], plaque:['#ff6fd8','#a06cff'], badges:['#3ad0ff','#ffc93c','#ff6fd8','#5cffe1'] },
+  aurora:   { sky:['#04121e','#0a3d62','#2fd6c9','#5cffe1'], mtn:['#020d16','#0a2a40','#146a5e'], plaque:['#5cffe1','#6a5cff'], badges:['#ff5cf0','#ffc93c','#5cffe1','#6a5cff'] },
+  citrus:   { sky:['#3a1206','#a3260a','#ff9a3c','#ffd93c'], mtn:['#280d04','#6e1f0a','#b8410f'], plaque:['#ffd93c','#ff5c5c'], badges:['#2fd6c9','#ff5c5c','#ffd93c','#ff9a3c'] },
+};
+let currentPreset = 'sunset';
+function applyStyle(name, el) {
+  if (!stylePresets[name]) return;
+  currentPreset = name;
+  document.querySelectorAll('.style-swatch').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  drawFrame();
+}
+
+// === SETTINGS ===
+function getSettings() {
+  return {
+    subText: document.getElementById('subText').value || '',
+    mainText1: document.getElementById('mainText1').value || '',
+    mainText2: document.getElementById('mainText2').value || '',
+    tagText: document.getElementById('tagText').value || '',
+    badges: [document.getElementById('badge1').value, document.getElementById('badge2').value,
+             document.getElementById('badge3').value, document.getElementById('badge4').value],
+    plaqueWidthPct: parseInt(document.getElementById('plaqueWidth').value) || 70,
+    rayCount: parseInt(document.getElementById('rayCount').value) || 16,
+    mtnHeightPct: parseInt(document.getElementById('mtnHeight').value) || 30,
+    showSun: document.getElementById('sunToggle').checked,
+    showParallax: document.getElementById('parallaxToggle').checked,
+    showConfetti: document.getElementById('confettiToggle').checked,
+    showBadge: document.getElementById('badgeToggle').checked,
+    showPlane: document.getElementById('planeToggle').checked,
+  };
+}
+
+function hexToRgb(hex) { hex = hex.replace('#', ''); return { r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16) }; }
+function hexToRgba(hex, a) { const {r,g,b} = hexToRgb(hex); return `rgba(${r},${g},${b},${a})`; }
+function lighten(hex, amt) { const {r,g,b} = hexToRgb(hex); return `rgb(${Math.min(255,r+amt)},${Math.min(255,g+amt)},${Math.min(255,b+amt)})`; }
+
+// === MOUNTAIN LAYER (jagged polygon, straight lines) ===
+function drawMountainLayer(ctx, w, baseY, height, color, seed, offsetX) {
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(-w, baseY + height);
+  const peaks = 7;
+  for (let i = 0; i <= peaks; i++) {
+    const x = -w + offsetX + (i / peaks) * (w * 2);
+    const n = Math.sin(seed + i * 1.7) * 0.5 + Math.sin(seed * 1.3 + i * 0.6) * 0.5;
+    const y = baseY - Math.abs(n) * height;
+    ctx.lineTo(x, y);
+  }
+  ctx.lineTo(w, baseY + height);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+// === HEX BADGE (visa stamp) ===
+function drawHexBadge(ctx, size, color, label, textColor) {
+  ctx.save();
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * Math.PI * 2 - Math.PI / 2;
+    const x = Math.cos(a) * size, y = Math.sin(a) * size;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.shadowColor = 'rgba(0,0,0,0.35)';
+  ctx.shadowBlur = size * 0.3;
+  ctx.shadowOffsetY = size * 0.08;
+  ctx.fill();
+  ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+  ctx.strokeStyle = hexToRgba('#ffffff', 0.6);
+  ctx.lineWidth = size * 0.06;
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * Math.PI * 2 - Math.PI / 2;
+    const x = Math.cos(a) * size * 0.82, y = Math.sin(a) * size * 0.82;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.stroke();
+  ctx.font = `800 ${size*0.28}px 'Outfit',sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = textColor;
+  ctx.fillText(label, 0, size*0.04, size*1.5);
+  ctx.restore();
+}
+
+// === PAPER PLANE ===
+function drawPlane(ctx, size, color) {
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(size*0.9, 0);
+  ctx.lineTo(-size*0.5, -size*0.32);
+  ctx.lineTo(-size*0.2, -size*0.06);
+  ctx.lineTo(-size*0.9, -size*0.42);
+  ctx.lineTo(-size*0.75, -size*0.06);
+  ctx.lineTo(-size*0.2, 0);
+  ctx.lineTo(-size*0.75, size*0.06);
+  ctx.lineTo(-size*0.9, size*0.42);
+  ctx.lineTo(-size*0.2, size*0.06);
+  ctx.lineTo(-size*0.5, size*0.32);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+// === PLAQUE PATH (angled parallelogram banner) ===
+function buildPlaquePath(ctx, w, h, skew) {
+  ctx.beginPath();
+  ctx.moveTo(-w/2 + skew, -h/2);
+  ctx.lineTo(w/2, -h/2);
+  ctx.lineTo(w/2 - skew, h/2);
+  ctx.lineTo(-w/2, h/2);
+  ctx.closePath();
+}
+
+// === DRAW ENGINE ===
+function drawFrame(opts) {
+  opts = opts || {};
+  const w = canvas.width, h = canvas.height;
+  const s = getSettings();
+  const cx = w / 2, cy = h / 2;
+  const P = stylePresets[currentPreset];
+
+  ctx.clearRect(0, 0, w, h);
+
+  // === SKY GRADIENT ===
+  const sky = ctx.createLinearGradient(0, 0, 0, h);
+  P.sky.forEach((c, i) => sky.addColorStop(i / (P.sky.length - 1), c));
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, w, h);
+
+  // === SUNBURST RAYS ===
+  if (s.showSun) {
+    ctx.save();
+    ctx.translate(cx, h * 0.34);
+    ctx.rotate(sunAngle);
+    const rays = s.rayCount;
+    const R = h * 0.62;
+    for (let i = 0; i < rays; i++) {
+      const a0 = (i / rays) * Math.PI * 2;
+      const a1 = ((i + 0.55) / rays) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(Math.cos(a0) * R, Math.sin(a0) * R);
+      ctx.lineTo(Math.cos(a1) * R, Math.sin(a1) * R);
+      ctx.closePath();
+      ctx.fillStyle = hexToRgba('#ffffff', i % 2 === 0 ? 0.06 : 0.02);
+      ctx.fill();
+    }
+    // small angular core (diamond, not circle)
+    ctx.beginPath();
+    ctx.moveTo(0, -h*0.05); ctx.lineTo(h*0.05, 0); ctx.lineTo(0, h*0.05); ctx.lineTo(-h*0.05, 0);
+    ctx.closePath();
+    ctx.fillStyle = hexToRgba('#ffffff', 0.85);
+    ctx.shadowColor = '#ffffff'; ctx.shadowBlur = h * 0.06;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // === MOUNTAIN LAYERS (parallax) ===
+  const px1 = s.showParallax ? Math.sin(parallaxPhase * 0.6) * w * 0.02 : 0;
+  const px2 = s.showParallax ? Math.sin(parallaxPhase * 0.9 + 1) * w * 0.035 : 0;
+  const px3 = s.showParallax ? Math.sin(parallaxPhase * 1.3 + 2) * w * 0.05 : 0;
+  const mh = h * (s.mtnHeightPct / 100);
+  drawMountainLayer(ctx, w * 1.2, h * 0.72, mh * 1.3, P.mtn[0], 1.1, px1);
+  drawMountainLayer(ctx, w * 1.2, h * 0.82, mh * 1.1, P.mtn[1], 2.4, px2);
+  drawMountainLayer(ctx, w * 1.2, h * 0.92, mh * 0.9, P.mtn[2], 3.7, px3);
+
+  // === FLYING PLANE + CONTRAIL ===
+  if (s.showPlane) {
+    const t = ((planePhase % 1) + 1) % 1;
+    const ppx = w * 0.06 + t * (w * 0.88);
+    const ppy = h * 0.2 + Math.sin(t * Math.PI * 2) * h * 0.04;
+    // contrail
+    ctx.save();
+    ctx.strokeStyle = hexToRgba('#ffffff', 0.35);
+    ctx.lineWidth = h * 0.006;
+    ctx.setLineDash([h*0.012, h*0.01]);
+    ctx.beginPath();
+    ctx.moveTo(w*0.04, h*0.2);
+    ctx.lineTo(ppx - h*0.03, ppy);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+
+    ctx.save();
+    ctx.translate(ppx, ppy);
+    ctx.rotate(-0.08 + Math.sin(t*Math.PI*2)*0.05);
+    drawPlane(ctx, h*0.028, '#ffffff');
+    ctx.restore();
+  }
+
+  // === CONFETTI ===
+  if (s.showConfetti) {
+    confetti.forEach(p => {
+      const x = p.x * w + Math.sin(globalTime * 0.001 + p.x*10) * w * 0.01;
+      const y = ((p.y - globalTime * 0.00002 * p.speed * 40) % 1 + 1) % 1 * h;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(p.rot + globalTime * 0.0006 * p.rotSpeed * 40);
+      ctx.fillStyle = P.badges[p.colorIdx % P.badges.length];
+      ctx.globalAlpha = 0.85;
+      ctx.beginPath();
+      ctx.moveTo(0, -p.size/2); ctx.lineTo(p.size/2, p.size/2); ctx.lineTo(-p.size/2, p.size/2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    });
+  }
+
+  // === CENTRAL PLAQUE ===
+  const pw = w * (s.plaqueWidthPct / 100);
+  const ph = h * 0.42;
+  const skew = pw * 0.045;
+
+  ctx.save();
+  ctx.translate(cx, cy + h*0.02);
+
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.45)';
+  ctx.shadowBlur = ph * 0.16;
+  ctx.shadowOffsetY = ph * 0.05;
+  buildPlaquePath(ctx, pw, ph, skew);
+  const pgrad = ctx.createLinearGradient(-pw/2, 0, pw/2, 0);
+  pgrad.addColorStop(0, P.plaque[0]);
+  pgrad.addColorStop(1, P.plaque[1]);
+  ctx.fillStyle = pgrad;
+  ctx.fill();
+  ctx.restore();
+
+  buildPlaquePath(ctx, pw, ph, skew);
+  ctx.strokeStyle = hexToRgba('#ffffff', 0.55);
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  buildPlaquePath(ctx, pw - 18, ph - 18, skew * 0.85);
+  ctx.strokeStyle = hexToRgba('#ffffff', 0.3);
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // === PLAQUE TEXT with offset-print retro color effect ===
+  ctx.save();
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+
+  const subSize = Math.max(14, h * 0.03);
+  ctx.font = `700 ${subSize}px 'Outfit','Noto Sans Bengali',sans-serif`;
+  ctx.fillStyle = hexToRgba('#ffffff', 0.9);
+  ctx.fillText(s.subText, 0, -ph*0.24, pw*0.8);
+
+  let m1Size = h * 0.09;
+  ctx.font = `900 ${m1Size}px 'Anton','Noto Sans Bengali',sans-serif`;
+  while (ctx.measureText(s.mainText1).width > pw*0.86 && m1Size > 14) { m1Size -= 2; ctx.font = `900 ${m1Size}px 'Anton','Noto Sans Bengali',sans-serif`; }
+  const off = h * 0.0035;
+  ctx.fillStyle = 'rgba(45,255,230,0.55)';
+  ctx.fillText(s.mainText1, -off, -ph*0.02 - off, pw*0.9);
+  ctx.fillStyle = 'rgba(255,60,110,0.55)';
+  ctx.fillText(s.mainText1, off, -ph*0.02 + off, pw*0.9);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText(s.mainText1, 0, -ph*0.02, pw*0.9);
+
+  let m2Size = h * 0.06;
+  ctx.font = `900 ${m2Size}px 'Anton','Noto Sans Bengali',sans-serif`;
+  while (ctx.measureText(s.mainText2).width > pw*0.86 && m2Size > 12) { m2Size -= 2; ctx.font = `900 ${m2Size}px 'Anton','Noto Sans Bengali',sans-serif`; }
+  ctx.fillStyle = 'rgba(255,255,255,0.95)';
+  ctx.fillText(s.mainText2, 0, ph*0.18, pw*0.88);
+
+  const tagSize = Math.max(11, h * 0.021);
+  ctx.font = `600 ${tagSize}px 'Outfit','Noto Sans Bengali',sans-serif`;
+  ctx.fillStyle = hexToRgba('#ffffff', 0.85);
+  ctx.fillText(s.tagText, 0, ph*0.36, pw*0.82);
+  ctx.restore();
+
+  ctx.restore(); // end plaque translate
+
+  // === BOUNCING VISA STAMP BADGES around plaque corners ===
+  if (s.showBadge) {
+    const bSize = h * 0.052;
+    const positions = [
+      { x: cx - pw/2 - bSize*0.3, y: cy - ph/2 - h*0.02 },
+      { x: cx + pw/2 + bSize*0.3, y: cy - ph/2 - h*0.02 },
+      { x: cx - pw/2 - bSize*0.3, y: cy + ph/2 + h*0.03 },
+      { x: cx + pw/2 + bSize*0.3, y: cy + ph/2 + h*0.03 },
+    ];
+    positions.forEach((pos, i) => {
+      const stagger = i * 0.22;
+      const bounce = Math.max(0, Math.sin((badgePhase + stagger) % (Math.PI*2)));
+      const scale = 0.85 + Math.pow(bounce, 3) * 0.35;
+      ctx.save();
+      ctx.translate(pos.x, pos.y);
+      ctx.rotate((i % 2 === 0 ? -1 : 1) * 0.08);
+      ctx.scale(scale, scale);
+      drawHexBadge(ctx, bSize, P.badges[i % P.badges.length], s.badges[i] || '', '#141018');
+      ctx.restore();
+    });
+  }
+
+  // vignette for poster depth
+  const vgrad = ctx.createLinearGradient(0, 0, 0, h);
+  vgrad.addColorStop(0, 'rgba(0,0,0,0.12)');
+  vgrad.addColorStop(0.5, 'rgba(0,0,0,0)');
+  vgrad.addColorStop(1, 'rgba(0,0,0,0.22)');
+  ctx.fillStyle = vgrad;
+  ctx.fillRect(0, 0, w, h);
+}
+
+// === ANIMATION LOOP ===
+function animationLoop(timestamp) {
+  if (!isSpinning) return;
+  if (!lastTimestamp) lastTimestamp = timestamp;
+  const delta = timestamp - lastTimestamp;
+  lastTimestamp = timestamp;
+  globalTime += delta;
+
+  const speed = parseFloat(document.getElementById('animSpeed').value) || 0;
+  sunAngle += delta * 0.00006 * (0.4 + speed);
+  parallaxPhase += delta * 0.0004;
+  badgePhase += delta * 0.0022 * (0.5 + speed);
+  planePhase += delta * 0.00014;
+
+  const elapsed = timestamp - startTime;
+  const remaining = Math.max(0, totalDurationMs - elapsed);
+  updateTimerUI(elapsed, remaining);
+
+  drawFrame();
+
+  if (remaining <= 0 && !document.getElementById('loopToggle').checked) { finishAnim(); return; }
+  if (remaining <= 0) startTime = timestamp;
+
+  animFrame = requestAnimationFrame(animationLoop);
+}
+
+function updateTimerUI(elapsed, remaining) {
+  const totalSec = Math.ceil(remaining / 1000);
+  const m = Math.floor(totalSec / 60).toString().padStart(2, '0');
+  const sec = (totalSec % 60).toString().padStart(2, '0');
+  document.getElementById('timerBig').textContent = `${m}:${sec}`;
+  const pct = Math.max(0, Math.min(100, ((totalDurationMs - remaining) / totalDurationMs) * 100));
+  document.getElementById('timerPercent').textContent = Math.round(pct) + '%';
+  const circumference = 141;
+  document.getElementById('timerRing').style.strokeDashoffset = circumference - (pct/100)*circumference;
+}
+function resetTimerUI() {
+  document.getElementById('timerBig').textContent = '00:00';
+  document.getElementById('timerPercent').textContent = '—';
+  document.getElementById('timerRing').style.strokeDashoffset = 141;
+  document.getElementById('timerStatus').className = 'timer-status idle';
+  document.getElementById('timerStatus').textContent = 'প্রস্তুত';
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+}
+
+let currentDuration = 30;
+function setDuration(sec, btnEl) {
+  currentDuration = sec;
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+}
+
+function startAnim() {
+  if (isSpinning) return;
+  totalDurationMs = currentDuration * 1000;
+  isSpinning = true; startTime = null; lastTimestamp = null;
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status spinning'; st.textContent = '⚡ চলছে';
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+  animFrame = requestAnimationFrame(ts => { startTime = ts; lastTimestamp = ts; animationLoop(ts); });
+}
+function stopAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status idle'; st.textContent = '⏸ থামানো হয়েছে';
+  drawFrame();
+}
+function finishAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  document.getElementById('timerBig').textContent = '00:00';
+  document.getElementById('timerPercent').textContent = '100%';
+  document.getElementById('timerRing').style.strokeDashoffset = 0;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status done'; st.textContent = '✅ সম্পন্ন';
+  document.getElementById('timerSub').textContent = 'অ্যানিমেশন শেষ';
+  drawFrame();
+}
+function resetAll() {
+  stopAnim();
+  sunAngle = 0; parallaxPhase = 0; badgePhase = 0; planePhase = 0; globalTime = 0;
+  initConfetti();
+  resetTimerUI();
+  drawFrame();
+}
+
+// === EXPORT (always solid background — the sky IS the design) ===
+function setExportStatus(msg) { document.getElementById('exportStatus').textContent = msg; }
+function saveBlob(blob, filename) {
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+function downloadPng() {
+  drawFrame();
+  canvas.toBlob(blob => {
+    if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+    saveBlob(blob, 'wings-fly-colorful-travel-poster.png');
+    setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+  }, 'image/png');
+}
+
+async function downloadGif() {
+  if (!window.GIF) { setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন।'); return; }
+  if (isExporting) return;
+  isExporting = true;
+  const oldSun = sunAngle, oldPar = parallaxPhase, oldBadge = badgePhase, oldPlane = planePhase, oldTime = globalTime;
+  const gif = new GIF({ workers: 2, quality: 10, width: CW, height: CH,
+    workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
+  const frames = 55, frameDelay = 55;
+  const speed = parseFloat(document.getElementById('animSpeed').value) || 0;
+  setExportStatus('GIF তৈরি হচ্ছে… 0%');
+  for (let i = 0; i < frames; i++) {
+    const t = i / frames;
+    const dt = t * frames * frameDelay;
+    sunAngle = oldSun + dt * 0.00006 * (0.4 + speed);
+    parallaxPhase = oldPar + dt * 0.0004;
+    badgePhase = oldBadge + dt * 0.0022 * (0.5 + speed);
+    planePhase = oldPlane + t;
+    globalTime = oldTime + dt;
+    drawFrame();
+    gif.addFrame(canvas, { copy: true, delay: frameDelay });
+    setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((i+1)/frames*100)}%`);
+    await new Promise(requestAnimationFrame);
+  }
+  sunAngle = oldSun; parallaxPhase = oldPar; badgePhase = oldBadge; planePhase = oldPlane; globalTime = oldTime;
+  drawFrame();
+  gif.on('finished', blob => {
+    saveBlob(blob, 'wings-fly-colorful-travel-poster.gif');
+    setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
+    isExporting = false;
+  });
+  gif.render();
+}
+
+async function downloadVideo() {
+  if (!window.MediaRecorder || !canvas.captureStream) {
+    setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।'); return;
+  }
+  if (isExporting) return;
+  isExporting = true;
+  const stream = canvas.captureStream(30);
+  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 6000000 });
+  const chunks = [];
+  const oldSun = sunAngle, oldPar = parallaxPhase, oldBadge = badgePhase, oldPlane = planePhase, oldTime = globalTime;
+  recorder.ondataavailable = e => e.data.size && chunks.push(e.data);
+  recorder.onstop = () => {
+    saveBlob(new Blob(chunks, { type: mimeType }), 'wings-fly-colorful-travel-poster.webm');
+    sunAngle = oldSun; parallaxPhase = oldPar; badgePhase = oldBadge; planePhase = oldPlane; globalTime = oldTime;
+    drawFrame();
+    isExporting = false;
+    setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+  };
+  recorder.start();
+  const start = performance.now();
+  const duration = 6000;
+  const speed = parseFloat(document.getElementById('animSpeed').value) || 0;
+  setExportStatus('ভিডিও তৈরি হচ্ছে…');
+  const render = (now) => {
+    const elapsedMs = now - start;
+    const progress = Math.min(1, elapsedMs / duration);
+    sunAngle = oldSun + elapsedMs * 0.00006 * (0.4 + speed);
+    parallaxPhase = oldPar + elapsedMs * 0.0004;
+    badgePhase = oldBadge + elapsedMs * 0.0022 * (0.5 + speed);
+    planePhase = oldPlane + progress;
+    globalTime = oldTime + elapsedMs;
+    drawFrame();
+    if (progress < 1) requestAnimationFrame(render); else recorder.stop();
+  };
+  requestAnimationFrame(render);
+}
+
+// === UI EVENTS ===
+['plaqueWidth','rayCount','mtnHeight','animSpeed'].forEach(id => {
+  document.getElementById(id).addEventListener('input', function() {
+    const badges = { plaqueWidth:'widthBadge', rayCount:'rayBadge', mtnHeight:'mtnBadge', animSpeed:'speedBadge' };
+    const el = document.getElementById(badges[id]);
+    if (id === 'plaqueWidth' || id === 'mtnHeight') el.textContent = this.value + '%';
+    else el.textContent = this.value;
+    if (!isSpinning) drawFrame();
+  });
+});
+['subText','mainText1','mainText2','tagText','badge1','badge2','badge3','badge4',
+ 'sunToggle','parallaxToggle','confettiToggle','badgeToggle','planeToggle'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => { if (!isSpinning) drawFrame(); });
+  el.addEventListener('change', () => { if (!isSpinning) drawFrame(); });
+});
+
+// === INITIAL DRAW ===
+drawFrame();
+setTimeout(startAnim, 150);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+</body>
+</html>

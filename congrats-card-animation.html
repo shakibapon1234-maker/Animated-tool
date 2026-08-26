@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Congratulations Card Animation — কংগ্রাচুলেশন কার্ড</title>
+<meta name="description" content="জব বা বিজনেস শুরু করা শিক্ষার্থীদের জন্য অটোমেটিক কংগ্রাচুলেশন কার্ড — ছবি, নাম ও প্রতিষ্ঠান তথ্য দিলেই তৈরি — PNG, GIF, ভিডিও এক্সপোর্ট">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Playfair+Display:wght@600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-primary:#080a14; --bg-secondary:#0d1020; --bg-card:#12162a; --bg-card-hover:#171c34;
+    --border:rgba(255,255,255,0.08); --border-active:rgba(212,175,55,0.55);
+    --accent:#d4af37; --accent-glow:rgba(212,175,55,0.4);
+    --accent-2:#f0b429; --accent-3:#1a3a6b;
+    --text-primary:#f4f6ff; --text-secondary:#9aa0c2; --text-muted:#4c5170;
+    --radius:16px; --radius-sm:10px;
+    --shadow:0 20px 60px rgba(0,0,0,0.55); --shadow-glow:0 0 45px rgba(212,175,55,0.18);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Outfit','Noto Sans Bengali',system-ui,sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;overflow-x:hidden;display:flex;flex-direction:column;align-items:center;}
+  body::before{content:'';position:fixed;inset:0;background:
+    radial-gradient(ellipse 80% 50% at 15% 15%, rgba(212,175,55,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 85%, rgba(26,58,107,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 50% 50%, rgba(67,97,238,0.05) 0%, transparent 70%);
+    pointer-events:none; z-index:0;}
+  .app-header{width:100%;padding:22px 32px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);background:rgba(8,10,20,0.8);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+  .header-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),#8a6d1e);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 20px var(--accent-glow);flex-shrink:0;}
+  .header-text h1{font-size:19px;font-weight:700;background:linear-gradient(135deg,#fff 0%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .header-text p{font-size:12.5px;color:var(--text-secondary);margin-top:2px;}
+  .main-content{width:100%;max-width:1260px;padding:36px 22px 80px;display:grid;grid-template-columns:1fr 380px;gap:28px;position:relative;z-index:1;}
+  @media (max-width:900px){.main-content{grid-template-columns:1fr;}}
+  .canvas-panel{display:flex;flex-direction:column;align-items:center;gap:20px;}
+  .canvas-wrapper{width:100%;aspect-ratio:4/5;max-width:460px;background:var(--bg-card);border:1px solid var(--border);border-radius:24px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;box-shadow:var(--shadow),var(--shadow-glow);}
+  .canvas-wrapper::before{content:'';position:absolute;inset:-1px;border-radius:25px;background:linear-gradient(135deg,rgba(212,175,55,0.3),rgba(26,58,107,0.2),rgba(240,180,41,0.12));z-index:-1;animation:borderGlow 4s ease-in-out infinite;}
+  @keyframes borderGlow{0%,100%{opacity:.5;}50%{opacity:1;}}
+  .canvas-bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:30px 30px;border-radius:24px;}
+  #cardCanvas{display:block;max-width:100%;max-height:100%;}
+  .controls-panel{display:flex;flex-direction:column;gap:16px;}
+  .control-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+  .card-title{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-secondary);margin-bottom:14px;}
+  .card-title-icon{width:22px;height:22px;border-radius:6px;background:rgba(212,175,55,0.14);display:flex;align-items:center;justify-content:center;font-size:12px;}
+  .form-row{margin-bottom:12px;}
+  .form-row:last-child{margin-bottom:0;}
+  .form-label{display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px;font-weight:500;}
+  .form-input,.form-select{width:100%;padding:10px 12px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-family:inherit;font-size:13.5px;outline:none;transition:.2s;}
+  .form-input:focus,.form-select:focus{border-color:var(--border-active);}
+  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .color-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+  .color-row:last-child{margin-bottom:0;}
+  .color-row label{font-size:12.5px;color:var(--text-secondary);}
+  .color-row input[type=color]{width:38px;height:30px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;padding:0;}
+  .preset-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .preset-grid.two{grid-template-columns:1fr 1fr;}
+  .style-preset-btn{padding:9px 4px;border-radius:10px;border:1px solid var(--border);cursor:pointer;font-family:inherit;font-size:11px;font-weight:600;color:var(--text-primary);transition:.2s;background:var(--bg-secondary);}
+  .style-preset-btn.active{border-color:var(--border-active);box-shadow:0 0 0 1px var(--border-active);}
+  .slider-row{margin-bottom:14px;}
+  .slider-row:last-child{margin-bottom:0;}
+  .slider-label-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:6px;}
+  .slider-badge{color:var(--accent);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--accent);}
+  .toggle-row{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--text-secondary);cursor:pointer;margin-bottom:10px;}
+  .toggle-row:last-child{margin-bottom:0;}
+  .btn-group{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{flex:1;min-width:110px;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border-radius:12px;border:none;font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;transition:.2s;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),#a9812a);color:#241900;box-shadow:0 8px 22px rgba(212,175,55,0.25);}
+  .btn-primary:hover{transform:translateY(-1px);}
+  .btn-stop{background:var(--bg-secondary);color:var(--text-secondary);border:1px solid var(--border);}
+  .btn-stop:disabled,.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text-secondary);}
+  #exportStatus{font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;}
+  .file-upload-wrapper{position:relative;overflow:hidden;display:block;width:100%;}
+  .file-upload-wrapper input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:100px;}
+  .btn-upload{display:flex;align-items:center;justify-content:center;gap:9px;background:rgba(212,175,55,0.1);color:var(--accent);padding:12px;border-radius:10px;font-weight:700;border:2px dashed rgba(212,175,55,0.4);font-size:13px;transition:.2s;}
+  .file-upload-wrapper:hover .btn-upload{background:rgba(212,175,55,0.18);border-color:var(--accent);}
+  .photo-controls{margin-top:12px;display:none;flex-direction:column;gap:10px;}
+  .photo-controls.visible{display:flex;}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-icon">🎓</div>
+  <div class="header-text">
+    <h1>Congratulations Card Animation</h1>
+    <p>ছবি ও তথ্য দিন, কার্ড অটো তৈরি হবে — PNG · GIF · ভিডিও এক্সপোর্ট</p>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="canvas-panel">
+    <div class="canvas-wrapper">
+      <div class="canvas-bg-grid"></div>
+      <canvas id="cardCanvas" width="864" height="1080"></canvas>
+    </div>
+  </div>
+
+  <div class="controls-panel">
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🖼</div>ছবি আপলোড করুন</div>
+      <label class="file-upload-wrapper">
+        <input type="file" id="photoInput" accept="image/*">
+        <span class="btn-upload">📷 শিক্ষার্থীর ছবি বাছাই করুন</span>
+      </label>
+      <div class="photo-controls" id="photoControls">
+        <div class="slider-row" style="margin-bottom:0;">
+          <div class="slider-label-row"><span>বামে/ডানে</span><span class="slider-badge" id="photoXBadge">0</span></div>
+          <input type="range" id="photoX" min="-100" max="100" step="1" value="0">
+        </div>
+        <div class="slider-row" style="margin-bottom:0;">
+          <div class="slider-label-row"><span>উপরে/নিচে</span><span class="slider-badge" id="photoYBadge">0</span></div>
+          <input type="range" id="photoY" min="-100" max="100" step="1" value="0">
+        </div>
+        <div class="slider-row" style="margin-bottom:0;">
+          <div class="slider-label-row"><span>জুম</span><span class="slider-badge" id="photoZoomBadge">100%</span></div>
+          <input type="range" id="photoZoom" min="80" max="220" step="1" value="100">
+        </div>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🏆</div>ধরন</div>
+      <div class="preset-grid two" id="typeGrid">
+        <button class="style-preset-btn active" data-type="job" onclick="applyType('job',this)">💼 নতুন জব</button>
+        <button class="style-preset-btn" data-type="business" onclick="applyType('business',this)">🏪 নতুন বিজনেস</button>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">✎</div>প্রতিষ্ঠানের তথ্য</div>
+      <div class="form-row">
+        <label class="form-label">প্রতিষ্ঠানের নাম</label>
+        <input class="form-input" id="instituteName" value="YOUR ACADEMY NAME">
+      </div>
+      <div class="form-row">
+        <label class="form-label">উপরের ছোট লাইন</label>
+        <input class="form-input" id="taglineText" value="Another Success Story from">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">👤</div>শিক্ষার্থীর তথ্য</div>
+      <div class="form-row">
+        <label class="form-label">শিক্ষার্থীর নাম</label>
+        <input class="form-input" id="personName" value="Mahmudul Hasan Emon">
+      </div>
+      <div class="form-row">
+        <label class="form-label" id="orgLabel">কোম্পানির নাম</label>
+        <input class="form-input" id="orgName" value="RSM Aviation">
+      </div>
+      <div class="form-row">
+        <label class="form-label" id="roleLabel">পদবি / পজিশন</label>
+        <input class="form-input" id="roleName" value="Visa Consulting Officer">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎨</div>স্টাইল প্রিসেট</div>
+      <div class="preset-grid">
+        <button class="style-preset-btn active" onclick="applyStyle('navyGold',this)">Navy Gold</button>
+        <button class="style-preset-btn" onclick="applyStyle('emeraldGold',this)">Emerald</button>
+        <button class="style-preset-btn" onclick="applyStyle('royalPurple',this)">Royal</button>
+        <button class="style-preset-btn" onclick="applyStyle('maroonGold',this)">Maroon</button>
+        <button class="style-preset-btn" onclick="applyStyle('midnightTeal',this)">Midnight</button>
+        <button class="style-preset-btn" onclick="applyStyle('cream',this)">Cream</button>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">✨</div>এলিমেন্ট</div>
+      <div class="toggle-row"><input type="checkbox" id="sparkleToggle" checked> ভাসমান স্পার্কল কণা</div>
+      <div class="toggle-row"><input type="checkbox" id="shimmerToggle" checked> গোল্ড শিমার সুইপ</div>
+      <div class="toggle-row"><input type="checkbox" id="ribbonToggle" checked> রিবন লাইন (কোণায়)</div>
+      <div class="toggle-row"><input type="checkbox" id="meshToggle" checked> জ্যামিতিক মেশ প্যাটার্ন</div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">⚙</div>অ্যানিমেশন</div>
+      <div class="slider-row">
+        <div class="slider-label-row"><span>স্পার্কল গতি</span><span class="slider-badge" id="sparkleSpeedBadge">1.0</span></div>
+        <input type="range" id="sparkleSpeed" min="0.2" max="3" step="0.1" value="1.0">
+      </div>
+      <div class="slider-row">
+        <div class="slider-label-row"><span>শিমার গতি</span><span class="slider-badge" id="shimmerSpeedBadge">1.0</span></div>
+        <input type="range" id="shimmerSpeed" min="0.3" max="3" step="0.1" value="1.0">
+      </div>
+      <div class="form-row">
+        <label class="form-label">সময়কাল (সেকেন্ড)</label>
+        <input type="range" id="animDuration" min="3" max="30" step="1" value="8">
+      </div>
+      <div class="toggle-row"><input type="checkbox" id="loopToggle" checked> সবসময় চলতে থাকবে (Loop)</div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" id="startBtn" onclick="startAnim()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+        অ্যানিমেশন শুরু
+      </button>
+      <button class="btn btn-stop" id="stopBtn" onclick="stopAnim()" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+        বন্ধ করুন
+      </button>
+    </div>
+    <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট করুন</button>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">⬇</div>ডাউনলোড</div>
+      <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.55;">PNG, GIF অথবা ভিডিও হিসেবে ডাউনলোড করুন এবং সরাসরি ফেসবুক/ইনস্টাগ্রামে পোস্ট করুন।</p>
+      <div class="btn-group">
+        <button class="btn btn-primary" type="button" onclick="downloadPng()">PNG</button>
+        <button class="btn btn-primary" type="button" onclick="downloadGif()">GIF</button>
+        <button class="btn btn-primary" type="button" onclick="downloadVideo()">ভিডিও</button>
+      </div>
+      <div id="exportStatus"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   CONGRATULATIONS CARD ANIMATION ENGINE
+   Premium navy/gold "success story" card: uploaded photo
+   (position/zoom adjustable), auto-templated job/business
+   line, animated gold shimmer sweep, drifting sparkles,
+   corner ribbon lines and a subtle geometric mesh.
+   Canvas: 864x1080 (4:5) — export PNG/GIF/WebM.
+===================================================== */
+const canvas = document.getElementById('cardCanvas');
+const ctx = canvas.getContext('2d');
+const EXPORT_W = 864, EXPORT_H = 1080;
+
+function resizeCanvas(){
+  canvas.width = EXPORT_W; canvas.height = EXPORT_H;
+}
+resizeCanvas();
+window.addEventListener('resize', () => drawFrame());
+
+// === STATE ===
+let isSpinning=false, animFrame=null, totalDurationMs=8000, startTime=null, lastTimestamp=null, isExporting=false;
+let sparklePhase=0, shimmerPhase=0;
+let currentType='job';
+let currentStyle='navyGold';
+let photoImg = null;
+let photoOffsetX=0, photoOffsetY=0, photoZoom=100;
+
+const sparkles = Array.from({length:34}, (_,i)=>({
+  x: Math.random(), y: Math.random(),
+  speed: 0.15+Math.random()*0.35, size: 0.5+Math.random()*1.1,
+  twinkleOffset: Math.random()*10, twinkleSpeed: 0.5+Math.random()*0.8
+}));
+
+// === TYPE (JOB / BUSINESS) TEMPLATES ===
+function applyType(type, btnEl){
+  currentType = type;
+  document.querySelectorAll('#typeGrid .style-preset-btn').forEach(b=>b.classList.remove('active'));
+  btnEl.classList.add('active');
+  const orgLabel = document.getElementById('orgLabel');
+  const roleLabel = document.getElementById('roleLabel');
+  const orgInput = document.getElementById('orgName');
+  const roleInput = document.getElementById('roleName');
+  if(type === 'business'){
+    orgLabel.textContent = 'বিজনেসের নাম';
+    roleLabel.textContent = 'পদবি (যেমন: Founder)';
+    if(orgInput.value==='RSM Aviation') orgInput.value='Emon Trade House';
+    if(roleInput.value==='Visa Consulting Officer') roleInput.value='Founder';
+  } else {
+    orgLabel.textContent = 'কোম্পানির নাম';
+    roleLabel.textContent = 'পদবি / পজিশন';
+    if(orgInput.value==='Emon Trade House') orgInput.value='RSM Aviation';
+    if(roleInput.value==='Founder') roleInput.value='Visa Consulting Officer';
+  }
+  if(!isSpinning) drawFrame();
+}
+
+function buildRoleLine(){
+  const org = document.getElementById('orgName').value.trim() || 'their new workplace';
+  const role = document.getElementById('roleName').value.trim() || 'a valued member';
+  if(currentType === 'business'){
+    return `Started ${org} as ${role}`;
+  }
+  return `Join at ${org} as a ${role}`;
+}
+
+// === STYLE PRESETS ===
+const stylePresets = {
+  navyGold:     { bgTop:'#0d1b33', bgBottom:'#0a1226', gold:'#d4af37', headline:'#12294f', text:'#3c4a63', name:'#0d1b33' },
+  emeraldGold:  { bgTop:'#0e2e22', bgBottom:'#081b15', gold:'#d9b64e', headline:'#0f3a2a', text:'#3d5449', name:'#0e2e22' },
+  royalPurple:  { bgTop:'#241a3d', bgBottom:'#160f28', gold:'#c9a4ec', headline:'#2e1f4d', text:'#5a4c73', name:'#241a3d' },
+  maroonGold:   { bgTop:'#3a0f16', bgBottom:'#20070c', gold:'#e0b13a', headline:'#4a141c', text:'#6b4348', name:'#3a0f16' },
+  midnightTeal: { bgTop:'#082a30', bgBottom:'#05181c', gold:'#5fd8c4', headline:'#0b3941', text:'#3d5c60', name:'#082a30' },
+  cream:        { bgTop:'#f3ead0', bgBottom:'#e8dbb0', gold:'#a9812a', headline:'#3a2a10', text:'#6b5a3a', name:'#3a2a10' },
+};
+
+function applyStyle(name, btnEl){
+  currentStyle = name;
+  document.querySelectorAll('.control-card:nth-of-type(5) .style-preset-btn').forEach(b=>b.classList.remove('active'));
+  if(btnEl) btnEl.classList.add('active');
+  if(!isSpinning) drawFrame();
+}
+
+// === PHOTO UPLOAD ===
+document.getElementById('photoInput').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const img = new Image();
+    img.onload = function(){
+      photoImg = img;
+      photoOffsetX = 0; photoOffsetY = 0; photoZoom = 100;
+      document.getElementById('photoX').value = 0;
+      document.getElementById('photoY').value = 0;
+      document.getElementById('photoZoom').value = 100;
+      document.getElementById('photoXBadge').textContent = '0';
+      document.getElementById('photoYBadge').textContent = '0';
+      document.getElementById('photoZoomBadge').textContent = '100%';
+      document.getElementById('photoControls').classList.add('visible');
+      if(!isSpinning) drawFrame();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+['photoX','photoY','photoZoom'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', function(){
+    photoOffsetX = parseFloat(document.getElementById('photoX').value);
+    photoOffsetY = parseFloat(document.getElementById('photoY').value);
+    photoZoom = parseFloat(document.getElementById('photoZoom').value);
+    document.getElementById('photoXBadge').textContent = photoOffsetX;
+    document.getElementById('photoYBadge').textContent = photoOffsetY;
+    document.getElementById('photoZoomBadge').textContent = photoZoom+'%';
+    if(!isSpinning) drawFrame();
+  });
+});
+
+// === COLOR HELPERS ===
+function hexToRgb(hex){ return { r:parseInt(hex.slice(1,3),16), g:parseInt(hex.slice(3,5),16), b:parseInt(hex.slice(5,7),16) }; }
+function hexToRgba(hex,alpha){ const {r,g,b}=hexToRgb(hex); return `rgba(${r},${g},${b},${alpha})`; }
+function lightenColor(hex,amt){ const {r,g,b}=hexToRgb(hex); return `rgb(${Math.min(255,r+amt)},${Math.min(255,g+amt)},${Math.min(255,b+amt)})`; }
+
+function roundRectPath(ctx, x, y, w, h, rTL, rTR, rBR, rBL){
+  ctx.beginPath();
+  ctx.moveTo(x+rTL, y);
+  ctx.lineTo(x+w-rTR, y);
+  ctx.arcTo(x+w, y, x+w, y+rTR, rTR);
+  ctx.lineTo(x+w, y+h-rBR);
+  ctx.arcTo(x+w, y+h, x+w-rBR, y+h, rBR);
+  ctx.lineTo(x+rBL, y+h);
+  ctx.arcTo(x, y+h, x, y+h-rBL, rBL);
+  ctx.lineTo(x, y+rTL);
+  ctx.arcTo(x, y, x+rTL, y, rTL);
+  ctx.closePath();
+}
+
+function fitFontSize(ctx, text, fontSpecFn, startPx, minPx, maxWidth){
+  let size = startPx;
+  ctx.font = fontSpecFn(size);
+  let width = ctx.measureText(text).width;
+  if(width > maxWidth && width > 0){
+    size = Math.max(minPx, Math.floor(startPx * (maxWidth/width)));
+    ctx.font = fontSpecFn(size);
+  }
+  return size;
+}
+
+// === DECORATIVE: CORNER RIBBON LINES ===
+function drawRibbons(ctx, w, h, gold){
+  ctx.save();
+  ctx.lineCap = 'round';
+  // top-left ribbon
+  ctx.strokeStyle = hexToRgba(gold, 0.55);
+  ctx.lineWidth = w*0.012;
+  ctx.beginPath();
+  ctx.moveTo(-w*0.05, h*0.28);
+  ctx.bezierCurveTo(w*0.18, h*0.02, w*0.32, h*0.20, w*0.55, h*0.05);
+  ctx.stroke();
+  ctx.strokeStyle = hexToRgba(gold, 0.3);
+  ctx.lineWidth = w*0.006;
+  ctx.beginPath();
+  ctx.moveTo(-w*0.05, h*0.34);
+  ctx.bezierCurveTo(w*0.15, h*0.10, w*0.30, h*0.26, w*0.5, h*0.10);
+  ctx.stroke();
+  // bottom-right ribbon
+  ctx.strokeStyle = hexToRgba(gold, 0.5);
+  ctx.lineWidth = w*0.012;
+  ctx.beginPath();
+  ctx.moveTo(w*1.05, h*0.72);
+  ctx.bezierCurveTo(w*0.82, h*0.98, w*0.68, h*0.8, w*0.45, h*0.95);
+  ctx.stroke();
+  ctx.restore();
+}
+
+// === DECORATIVE: GEOMETRIC MESH PATTERN ===
+function drawMesh(ctx, w, h, gold){
+  ctx.save();
+  ctx.strokeStyle = hexToRgba(gold, 0.14);
+  ctx.lineWidth = 1;
+  const cell = w*0.045;
+  // bottom-left triangular mesh
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, h*0.62, w*0.4, h*0.38);
+  ctx.clip();
+  for(let gx=-cell; gx<w*0.5; gx+=cell){
+    for(let gy=h*0.6; gy<h; gy+=cell){
+      ctx.beginPath();
+      ctx.moveTo(gx, gy+cell); ctx.lineTo(gx+cell/2, gy); ctx.lineTo(gx+cell, gy+cell);
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+  // top-right triangular mesh
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(w*0.62, 0, w*0.4, h*0.28);
+  ctx.clip();
+  for(let gx=w*0.55; gx<w+cell; gx+=cell){
+    for(let gy=-cell; gy<h*0.3; gy+=cell){
+      ctx.beginPath();
+      ctx.moveTo(gx, gy+cell); ctx.lineTo(gx+cell/2, gy); ctx.lineTo(gx+cell, gy+cell);
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+  ctx.restore();
+}
+
+// === DECORATIVE: SPARKLE PARTICLES ===
+function drawSparkleParticle(ctx,x,y,size,color,alpha){
+  ctx.save(); ctx.translate(x,y); ctx.globalAlpha=alpha;
+  ctx.beginPath();
+  ctx.moveTo(0,-size); ctx.lineTo(size*0.26,-size*0.26); ctx.lineTo(size,0);
+  ctx.lineTo(size*0.26,size*0.26); ctx.lineTo(0,size); ctx.lineTo(-size*0.26,size*0.26);
+  ctx.lineTo(-size,0); ctx.lineTo(-size*0.26,-size*0.26); ctx.closePath();
+  ctx.fillStyle=color; ctx.shadowColor=color; ctx.shadowBlur=size*2.2; ctx.fill();
+  ctx.restore();
+}
+
+function drawSparkles(ctx, w, h, gold, phase, speedMul){
+  sparkles.forEach(sp=>{
+    const travel = (phase*sp.speed*speedMul) % 1.3;
+    const y = h*(sp.y - travel*0.6 + 1.2) % h;
+    const x = w*sp.x + Math.sin(phase*1.3 + sp.twinkleOffset)*w*0.01;
+    const twinkle = 0.35+0.65*Math.abs(Math.sin(phase*sp.twinkleSpeed + sp.twinkleOffset));
+    drawSparkleParticle(ctx, x, y, w*0.005*sp.size*(1+twinkle*0.4), gold, twinkle*0.85);
+  });
+}
+
+// === DECORATIVE: SHIMMER SWEEP ===
+function drawShimmer(ctx, w, h, gold, phase){
+  const t = phase % 1;
+  const bandW = w*0.55;
+  const travelDist = w*1.9;
+  const cx = -bandW + t*travelDist;
+  ctx.save();
+  ctx.translate(cx, 0);
+  ctx.rotate(-0.35);
+  const grad = ctx.createLinearGradient(-bandW/2,0,bandW/2,0);
+  grad.addColorStop(0, hexToRgba(gold,0));
+  grad.addColorStop(0.5, hexToRgba(gold,0.16));
+  grad.addColorStop(1, hexToRgba(gold,0));
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.fillStyle = grad;
+  ctx.fillRect(-bandW/2, -h*0.6, bandW, h*2.2);
+  ctx.restore();
+}
+
+// === PHOTO DRAWING (cover-fit with user offset/zoom, blended into bg) ===
+function drawPhoto(ctx, frameX, frameY, frameW, frameH, bgTop, bgBottom){
+  const radius = frameW*0.5;
+  roundRectPath(ctx, frameX, frameY, frameW, frameH, radius, radius, 0, 0);
+  ctx.save();
+  ctx.clip();
+
+  if(photoImg){
+    const iw = photoImg.naturalWidth, ih = photoImg.naturalHeight;
+    const coverScale = Math.max(frameW/iw, frameH/ih) * (photoZoom/100);
+    const dw = iw*coverScale, dh = ih*coverScale;
+    const maxOffX = Math.max(0,(dw-frameW)/2), maxOffY = Math.max(0,(dh-frameH)/2);
+    const dx = frameX + (frameW-dw)/2 + (photoOffsetX/100)*maxOffX;
+    const dy = frameY + (frameH-dh)/2 + (photoOffsetY/100)*maxOffY;
+    ctx.drawImage(photoImg, dx, dy, dw, dh);
+  } else {
+    // placeholder silhouette
+    ctx.fillStyle = '#26324a';
+    ctx.fillRect(frameX,frameY,frameW,frameH);
+    ctx.fillStyle = 'rgba(255,255,255,0.18)';
+    ctx.beginPath(); ctx.arc(frameX+frameW/2, frameY+frameH*0.38, frameW*0.19, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath();
+    ctx.arc(frameX+frameW/2, frameY+frameH*0.98, frameW*0.34, Math.PI, 0);
+    ctx.fill();
+  }
+
+  // bottom fade — blend photo seamlessly into the card background
+  const fadeH = frameH*0.42;
+  const fadeGrad = ctx.createLinearGradient(0, frameY+frameH-fadeH, 0, frameY+frameH);
+  fadeGrad.addColorStop(0, hexToRgba(bgBottom,0));
+  fadeGrad.addColorStop(1, hexToRgba(bgBottom,1));
+  ctx.fillStyle = fadeGrad;
+  ctx.fillRect(frameX, frameY+frameH-fadeH, frameW, fadeH);
+
+  // subtle vignette on sides
+  const sideGrad = ctx.createLinearGradient(frameX,0,frameX+frameW,0);
+  sideGrad.addColorStop(0, hexToRgba('#000000',0.28));
+  sideGrad.addColorStop(0.12, hexToRgba('#000000',0));
+  sideGrad.addColorStop(0.88, hexToRgba('#000000',0));
+  sideGrad.addColorStop(1, hexToRgba('#000000',0.28));
+  ctx.fillStyle = sideGrad;
+  ctx.fillRect(frameX, frameY, frameW, frameH);
+
+  ctx.restore();
+}
+
+// === MAIN DRAW ===
+function drawFrame(){
+  const w = canvas.width, h = canvas.height;
+  const st = stylePresets[currentStyle];
+  const showSparkle = document.getElementById('sparkleToggle').checked;
+  const showShimmer = document.getElementById('shimmerToggle').checked;
+  const showRibbon = document.getElementById('ribbonToggle').checked;
+  const showMesh = document.getElementById('meshToggle').checked;
+
+  ctx.clearRect(0,0,w,h);
+
+  // --- BACKGROUND ---
+  const bgGrad = ctx.createLinearGradient(0,0,0,h);
+  bgGrad.addColorStop(0, lightenColor(st.bgTop,18));
+  bgGrad.addColorStop(0.45, st.bgTop);
+  bgGrad.addColorStop(1, st.bgBottom);
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0,0,w,h);
+
+  // soft warm glow behind headline
+  const glow = ctx.createRadialGradient(w/2,h*0.18,10,w/2,h*0.18,w*0.55);
+  glow.addColorStop(0, hexToRgba(st.gold,0.16));
+  glow.addColorStop(1, hexToRgba(st.gold,0));
+  ctx.fillStyle = glow;
+  ctx.fillRect(0,0,w,h);
+
+  if(showMesh) drawMesh(ctx, w, h, st.gold);
+  if(showRibbon) drawRibbons(ctx, w, h, st.gold);
+  if(showShimmer) drawShimmer(ctx, w, h, st.gold, shimmerPhase);
+
+  // --- HEADLINE BLOCK ---
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  const headlineFontFn = (px)=>`800 ${px}px 'Playfair Display','Noto Sans Bengali',serif`;
+  fitFontSize(ctx, 'CONGRATULATIONS', headlineFontFn, Math.round(w*0.078), Math.round(w*0.045), w*0.88);
+  ctx.fillStyle = st.headline;
+  ctx.shadowColor = hexToRgba(st.gold,0.35); ctx.shadowBlur = w*0.01;
+  ctx.fillText('CONGRATULATIONS', w/2, h*0.098);
+  ctx.shadowBlur = 0;
+
+  const tagline = document.getElementById('taglineText').value || 'Another Success Story from';
+  const institute = document.getElementById('instituteName').value || 'YOUR ACADEMY NAME';
+  const subFontFn = (px)=>`600 ${px}px 'Outfit','Noto Sans Bengali',sans-serif`;
+  fitFontSize(ctx, tagline, subFontFn, Math.round(w*0.03), Math.round(w*0.02), w*0.82);
+  ctx.fillStyle = st.text;
+  ctx.fillText(tagline, w/2, h*0.135);
+  fitFontSize(ctx, institute, subFontFn, Math.round(w*0.03), Math.round(w*0.02), w*0.82);
+  ctx.fillText(institute, w/2, h*0.162);
+
+  // gold divider
+  ctx.strokeStyle = hexToRgba(st.gold,0.8); ctx.lineWidth = w*0.006;
+  ctx.beginPath(); ctx.moveTo(w/2-w*0.045, h*0.179); ctx.lineTo(w/2+w*0.045, h*0.179); ctx.stroke();
+
+  // --- NAME ---
+  const personName = document.getElementById('personName').value || 'Student Name';
+  const nameFontFn = (px)=>`700 ${px}px 'Outfit','Noto Sans Bengali',sans-serif`;
+  fitFontSize(ctx, personName, nameFontFn, Math.round(w*0.05), Math.round(w*0.028), w*0.86);
+  ctx.fillStyle = st.name;
+  ctx.fillText(personName, w/2, h*0.214);
+
+  // --- ROLE LINE ---
+  const roleLine = buildRoleLine();
+  const roleFontFn = (px)=>`500 ${px}px 'Outfit','Noto Sans Bengali',sans-serif`;
+  fitFontSize(ctx, roleLine, roleFontFn, Math.round(w*0.027), Math.round(w*0.017), w*0.84);
+  ctx.fillStyle = st.text;
+  ctx.fillText(roleLine, w/2, h*0.243);
+
+  // --- PHOTO ---
+  const frameW = w*0.72, frameH = h*0.585;
+  const frameX = (w-frameW)/2, frameY = h*0.285;
+  drawPhoto(ctx, frameX, frameY, frameW, frameH, st.bgTop, st.bgBottom);
+
+  if(showSparkle) drawSparkles(ctx, w, h, st.gold, sparklePhase, parseFloat(document.getElementById('sparkleSpeed').value)||1);
+
+  // --- FOOTER ---
+  ctx.fillStyle = hexToRgba(st.text, 0.7);
+  const footFontFn = (px)=>`600 ${px}px 'Outfit','Noto Sans Bengali',sans-serif`;
+  ctx.font = footFontFn(Math.round(w*0.022));
+  ctx.fillText(institute.toUpperCase(), w/2, h*0.965);
+}
+
+// === ANIMATION LOOP ===
+function animationLoop(timestamp){
+  if(!isSpinning) return;
+  if(!lastTimestamp) lastTimestamp = timestamp;
+  const delta = timestamp - lastTimestamp; lastTimestamp = timestamp;
+
+  const sparkleSpeed = parseFloat(document.getElementById('sparkleSpeed').value)||1;
+  const shimmerSpeed = parseFloat(document.getElementById('shimmerSpeed').value)||1;
+  sparklePhase += delta*0.0006*sparkleSpeed;
+  shimmerPhase += delta*0.00022*shimmerSpeed;
+
+  const elapsed = timestamp - startTime;
+  const remaining = Math.max(0, totalDurationMs - elapsed);
+
+  drawFrame();
+
+  if(remaining<=0 && !document.getElementById('loopToggle').checked){ finishAnim(); return; }
+  if(remaining<=0) startTime = timestamp;
+  animFrame = requestAnimationFrame(animationLoop);
+}
+
+function startAnim(){
+  if(isSpinning) return;
+  const durationSec = parseFloat(document.getElementById('animDuration').value)||8;
+  totalDurationMs = durationSec*1000;
+  isSpinning = true; startTime=null; lastTimestamp=null;
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+  animFrame = requestAnimationFrame((ts)=>{ startTime=ts; lastTimestamp=ts; animationLoop(ts); });
+}
+function stopAnim(){
+  isSpinning=false; if(animFrame) cancelAnimationFrame(animFrame); lastTimestamp=null;
+  document.getElementById('startBtn').disabled=false;
+  document.getElementById('stopBtn').disabled=true;
+  drawFrame();
+}
+function finishAnim(){
+  isSpinning=false; if(animFrame) cancelAnimationFrame(animFrame); lastTimestamp=null;
+  document.getElementById('startBtn').disabled=false;
+  document.getElementById('stopBtn').disabled=true;
+  drawFrame();
+}
+function resetAll(){
+  stopAnim(); sparklePhase=0; shimmerPhase=0; drawFrame();
+}
+
+function setExportStatus(msg){ document.getElementById('exportStatus').textContent = msg; }
+function saveBlob(blob, filename){
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob); link.download = filename; link.click();
+  setTimeout(()=>URL.revokeObjectURL(link.href), 1000);
+}
+
+function downloadPng(){
+  drawFrame();
+  canvas.toBlob((blob)=>{
+    if(!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+    const name = (document.getElementById('personName').value||'congrats').trim().replace(/[^a-z0-9]/gi,'_').toLowerCase();
+    saveBlob(blob, `congrats-card-${name||'card'}.png`);
+    setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+  }, 'image/png');
+}
+
+async function downloadGif(){
+  if(!window.GIF){ setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ দিয়ে আবার চেষ্টা করুন।'); return; }
+  if(isExporting) return; isExporting=true;
+  const oldSparkle=sparklePhase, oldShimmer=shimmerPhase;
+  const gif = new GIF({ workers:2, quality:10, width:EXPORT_W, height:EXPORT_H,
+    workerScript:'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
+  const frames=40, frameDelay=60;
+  setExportStatus('GIF তৈরি হচ্ছে… 0%');
+  for(let f=0; f<frames; f++){
+    const t=f/frames;
+    sparklePhase = oldSparkle + t*3;
+    shimmerPhase = oldShimmer + t*1.2;
+    drawFrame();
+    gif.addFrame(canvas, { copy:true, delay:frameDelay });
+    setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((f+1)/frames*100)}%`);
+    await new Promise(requestAnimationFrame);
+  }
+  sparklePhase=oldSparkle; shimmerPhase=oldShimmer; drawFrame();
+  gif.on('finished',(blob)=>{
+    const name = (document.getElementById('personName').value||'congrats').trim().replace(/[^a-z0-9]/gi,'_').toLowerCase();
+    saveBlob(blob,`congrats-card-${name||'card'}.gif`);
+    setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।'); isExporting=false;
+  });
+  gif.render();
+}
+
+async function downloadVideo(){
+  if(!window.MediaRecorder || !canvas.captureStream){ setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।'); return; }
+  if(isExporting) return; isExporting=true;
+  const stream = canvas.captureStream(30);
+  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond:6000000 });
+  const chunks=[];
+  const oldSparkle=sparklePhase, oldShimmer=shimmerPhase;
+  recorder.ondataavailable = (e)=> e.data.size && chunks.push(e.data);
+  recorder.onstop = ()=>{
+    const name = (document.getElementById('personName').value||'congrats').trim().replace(/[^a-z0-9]/gi,'_').toLowerCase();
+    saveBlob(new Blob(chunks,{type:mimeType}), `congrats-card-${name||'card'}.webm`);
+    sparklePhase=oldSparkle; shimmerPhase=oldShimmer; drawFrame();
+    isExporting=false; setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+  };
+  recorder.start();
+  const start = performance.now(); const duration = 4500;
+  setExportStatus('ভিডিও তৈরি হচ্ছে…');
+  const render = (now)=>{
+    const progress = Math.min(1,(now-start)/duration);
+    sparklePhase = oldSparkle + progress*3.5;
+    shimmerPhase = oldShimmer + progress*1.4;
+    drawFrame();
+    if(progress<1) requestAnimationFrame(render); else recorder.stop();
+  };
+  requestAnimationFrame(render);
+}
+
+// === EVENT LISTENERS ===
+document.getElementById('sparkleSpeed').addEventListener('input', function(){
+  document.getElementById('sparkleSpeedBadge').textContent = parseFloat(this.value).toFixed(1);
+});
+document.getElementById('shimmerSpeed').addEventListener('input', function(){
+  document.getElementById('shimmerSpeedBadge').textContent = parseFloat(this.value).toFixed(1);
+});
+
+['instituteName','taglineText','personName','orgName','roleName',
+ 'sparkleToggle','shimmerToggle','ribbonToggle','meshToggle'].forEach(id=>{
+  const el = document.getElementById(id);
+  if(el){
+    el.addEventListener('input', ()=>{ if(!isSpinning) drawFrame(); });
+    el.addEventListener('change', ()=>{ if(!isSpinning) drawFrame(); });
+  }
+});
+
+// === INITIAL DRAW ===
+drawFrame();
+setTimeout(startAnim, 150);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+</body>
+</html>

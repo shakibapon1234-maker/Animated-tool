@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome To [Brand] — Holographic Hex Badge Generator</title>
+<meta name="description" content="যেকোনো ব্র্যান্ডের জন্য ৩ডি হেক্সাগন হলোগ্রাফিক ওয়েলকাম ব্যাজ — সার্কিট-ট্রেস, গ্লিচ টেক্সট রিভিল, শাইন সুইপ — PNG/GIF/WebM এক্সপোর্ট">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Orbitron:wght@600;800&family=Poppins:wght@400;600;700&family=Noto+Sans+Bengali:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-primary:#040509; --bg-secondary:#0a0c14; --bg-card:#0e1119; --bg-card-hover:#161a26;
+    --border:rgba(255,255,255,0.08); --accent:#00f0ff; --accent-glow:rgba(0,240,255,0.45);
+    --accent-2:#ff2fd6; --accent-3:#8b5cf6; --text-primary:#f2f5ff; --text-secondary:#9aa8c2;
+    --text-muted:#4c5670; --radius:16px; --shadow:0 20px 60px rgba(0,0,0,0.6);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Poppins','Noto Sans Bengali',sans-serif;background:var(--bg-primary);color:var(--text-primary);
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 80% 50% at 15% 10%,rgba(0,240,255,0.10) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 90% 90%,rgba(255,47,214,0.10) 0%,transparent 60%);}
+  .app-header{width:100%;padding:22px 32px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);
+    background:rgba(4,5,9,0.85);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+  .header-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);display:flex;align-items:center;justify-content:center;
+    font-size:19px;box-shadow:0 0 20px var(--accent-glow);flex-shrink:0;}
+  .header-text h1{font-size:19px;font-weight:700;background:linear-gradient(135deg,#fff 0%,var(--accent) 60%,var(--accent-2) 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .header-text p{font-size:12.5px;color:var(--text-secondary);margin-top:2px;}
+  .main-content{width:100%;max-width:1260px;padding:36px 24px 80px;display:grid;grid-template-columns:1fr 380px;gap:28px;position:relative;z-index:1;}
+  @media (max-width:960px){.main-content{grid-template-columns:1fr;}}
+  .canvas-panel{display:flex;flex-direction:column;align-items:center;gap:20px;}
+  .canvas-wrapper{width:100%;aspect-ratio:16/9;background:
+    linear-gradient(45deg,#0c0f18 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,#0c0f18 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(45deg,transparent 75%,#0c0f18 75%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,transparent 75%,#0c0f18 75%) -0px -0px/24px 24px,
+    var(--bg-card);
+    border:1px solid var(--border);border-radius:20px;display:flex;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;box-shadow:var(--shadow);}
+  #badgeCanvas{display:block;max-width:100%;max-height:100%;}
+  .progress-display{display:flex;align-items:center;gap:14px;padding:14px 20px;background:var(--bg-card);
+    border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);width:100%;}
+  .progress-track{flex:1;height:10px;background:rgba(255,255,255,0.06);position:relative;
+    clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%);}
+  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .1s linear;}
+  .timer-text-group{display:flex;flex-direction:column;min-width:64px;}
+  .timer-big{font-family:'Space Grotesk',monospace;font-size:22px;font-weight:700;letter-spacing:-0.5px;}
+  .timer-sub{font-size:11px;color:var(--text-secondary);font-weight:500;}
+  .timer-status{padding:5px 12px;font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;
+    clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%);}
+  .timer-status.idle{background:rgba(255,255,255,0.06);color:var(--text-muted);}
+  .timer-status.spinning{background:rgba(0,240,255,0.15);color:var(--accent);}
+  .timer-status.done{background:rgba(255,47,214,0.15);color:var(--accent-2);}
+  .sidebar{display:flex;flex-direction:column;gap:14px;}
+  .control-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+  .card-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-secondary);
+    display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+  .card-title-icon{width:22px;height:22px;background:rgba(0,240,255,0.12);border-radius:6px;display:flex;
+    align-items:center;justify-content:center;font-size:12px;}
+  .form-row{margin-bottom:14px;}
+  .form-row:last-child{margin-bottom:0;}
+  .form-label{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;color:var(--text-secondary);margin-bottom:7px;}
+  .value-badge{background:rgba(0,240,255,0.14);color:var(--accent);padding:1px 8px;border-radius:6px;font-size:11px;font-weight:700;}
+  input[type=text]{width:100%;padding:10px 12px;background:var(--bg-secondary);border:1px solid var(--border);
+    border-radius:9px;color:var(--text-primary);font-size:13.5px;font-family:inherit;}
+  input[type=text]:focus{outline:none;border-color:var(--accent);}
+  input[type=range]{width:100%;accent-color:var(--accent);}
+  input[type=color]{width:100%;height:34px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;}
+  input[type=file]{width:100%;font-size:12px;color:var(--text-secondary);}
+  .color-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .lang-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .lang-btn{padding:9px 6px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;}
+  .lang-btn.active{background:var(--accent);border-color:var(--accent);color:#001824;}
+  .toggle-row{display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer;color:var(--text-secondary);margin-bottom:10px;}
+  .toggle-row:last-child{margin-bottom:0;}
+  .preset-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .preset-btn{padding:7px 12px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;}
+  .preset-btn.active{background:var(--accent);border-color:var(--accent);color:#001824;}
+  .style-swatch{width:34px;height:34px;border-radius:9px;border:2px solid transparent;cursor:pointer;flex-shrink:0;}
+  .style-swatch.active{border-color:#fff;}
+  .btn-group{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{flex:1;min-width:120px;padding:12px 16px;border:none;border-radius:11px;font-size:13.5px;font-weight:700;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;transition:.15s;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),#0a6a9e);color:#001824;box-shadow:0 8px 20px var(--accent-glow);}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-stop{background:rgba(239,68,68,0.15);color:#ef4444;}
+  .btn-stop:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-ghost{background:var(--bg-secondary);color:var(--text-secondary);border:1px solid var(--border);}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-icon">⬡</div>
+  <div class="header-text">
+    <h1>Welcome To [Brand] — Holographic Hex Badge</h1>
+    <p>হেক্সাগন গ্লাস প্যানেল, সার্কিট-ট্রেস, গ্লিচ টেক্সট রিভিল — যেকোনো ব্র্যান্ডের জন্য</p>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="canvas-panel">
+    <div class="canvas-wrapper">
+      <canvas id="badgeCanvas" width="1600" height="900"></canvas>
+    </div>
+
+    <div class="progress-display">
+      <div class="timer-text-group">
+        <div class="timer-big" id="timerBig">00:00</div>
+        <div class="timer-sub" id="timerSub">সময় বাকি</div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="timer-status idle" id="timerStatus">প্রস্তুত</div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🌐</div>ভাষা প্রিসেট</div>
+      <div class="lang-row">
+        <button class="lang-btn" onclick="applyLanguage('bn',this)">বাংলা</button>
+        <button class="lang-btn active" onclick="applyLanguage('en',this)">English</button>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">✏️</div>টেক্সট</div>
+      <div class="form-row">
+        <label class="form-label">কিকার (উপরে)</label>
+        <input type="text" id="subText" value="WELCOME TO">
+      </div>
+      <div class="form-row">
+        <label class="form-label">ব্র্যান্ড নাম</label>
+        <input type="text" id="mainText" value="YOUR BRAND">
+      </div>
+      <div class="form-row">
+        <label class="form-label">ট্যাগলাইন (নিচে, ঐচ্ছিক)</label>
+        <input type="text" id="tagText" value="EST. 2026 · PREMIUM QUALITY">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🖼️</div>লোগো</div>
+      <div class="form-row">
+        <label class="form-label">লোগো আপলোড (ঐচ্ছিক)</label>
+        <input type="file" id="logoUpload" accept="image/*">
+      </div>
+      <div class="toggle-row"><input type="checkbox" id="logoToggle" checked>উপরে লোগো চিপ দেখান</div>
+      <button class="btn btn-ghost" style="width:100%" onclick="clearLogo()">🗑️ লোগো সরান (ডিফল্ট স্পার্ক আইকন)</button>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎨</div>রং</div>
+      <div class="color-grid">
+        <div class="form-row"><label class="form-label">ব্যাকগ্রাউন্ড</label><input type="color" id="bgColor" value="#05060c"></div>
+        <div class="form-row"><label class="form-label">প্যানেল</label><input type="color" id="panelColor" value="#10131f"></div>
+        <div class="form-row"><label class="form-label">হলো রং ১</label><input type="color" id="holoA" value="#00f0ff"></div>
+        <div class="form-row"><label class="form-label">হলো রং ২</label><input type="color" id="holoB" value="#ff2fd6"></div>
+      </div>
+      <div class="preset-row" style="margin-top:4px;" id="stylePresets">
+        <div class="style-swatch active" style="background:linear-gradient(135deg,#00f0ff,#ff2fd6)" onclick="applyStyle('holo',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#ffd76a,#b8860b)" onclick="applyStyle('gold',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#3dffb0,#0a8a5c)" onclick="applyStyle('emerald',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#ff5d5d,#8a0a2a)" onclick="applyStyle('ruby',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#8ecbff,#2a4d8a)" onclick="applyStyle('ice',this)"></div>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🔷</div>শেপ (হেক্সাগন)</div>
+      <div class="form-row">
+        <label class="form-label">হেক্স প্রস্থ <span class="value-badge" id="widthBadge">84%</span></label>
+        <input type="range" id="badgeWidth" min="55" max="96" step="1" value="84">
+      </div>
+      <div class="form-row">
+        <label class="form-label">পয়েন্ট শার্পনেস <span class="value-badge" id="pointBadge">30</span></label>
+        <input type="range" id="pointCut" min="10" max="45" step="1" value="30">
+      </div>
+      <div class="form-row">
+        <label class="form-label">৩ডি এক্সট্রুশন গভীরতা <span class="value-badge" id="depthBadge">14</span></label>
+        <input type="range" id="depth3d" min="4" max="30" step="1" value="14">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎬</div>অ্যানিমেশন</div>
+      <div class="toggle-row"><input type="checkbox" id="shineToggle" checked>গ্লাস শাইন সুইপ</div>
+      <div class="toggle-row"><input type="checkbox" id="glitchToggle" checked>গ্লিচ টেক্সট রিভিল</div>
+      <div class="toggle-row"><input type="checkbox" id="circuitToggle" checked>সার্কিট-ট্রেস পালস</div>
+      <div class="form-row">
+        <label class="form-label">গতি <span class="value-badge" id="speedBadge">1.3</span></label>
+        <input type="range" id="animSpeed" min="0" max="4" step="0.1" value="1.3">
+      </div>
+      <div class="form-row">
+        <label class="form-label">সময়কাল</label>
+        <div class="preset-row">
+          <button class="preset-btn" onclick="setDuration(5,this)">5s</button>
+          <button class="preset-btn" onclick="setDuration(10,this)">10s</button>
+          <button class="preset-btn active" onclick="setDuration(30,this)">30s</button>
+          <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:10px;">
+        <label class="toggle-row" style="margin:0;"><input type="checkbox" id="loopToggle" checked>সবসময় লুপ চলবে</label>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" id="startBtn" onclick="startAnim()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg> শুরু
+      </button>
+      <button class="btn btn-stop" id="stopBtn" onclick="stopAnim()" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg> বন্ধ
+      </button>
+    </div>
+    <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট</button>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+      <div class="toggle-row"><input type="checkbox" id="transparentToggle">PNG ট্রান্সপারেন্ট ব্যাকগ্রাউন্ড</div>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="downloadPng()">PNG</button>
+        <button class="btn btn-primary" onclick="downloadGif()">GIF</button>
+        <button class="btn btn-primary" onclick="downloadVideo()">ভিডিও (WebM)</button>
+      </div>
+      <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   WELCOME TO [BRAND] — HOLOGRAPHIC HEX BADGE ENGINE
+   Distinct from the luggage-tag badge: pointed hexagon
+   silhouette (not a chamfered rectangle), animated
+   holographic iridescent gradient, circuit-trace pulses
+   radiating outward, glass shine sweep, and an RGB-split
+   glitch reveal on the brand text instead of a swing/pop.
+===================================================== */
+
+const canvas = document.getElementById('badgeCanvas');
+const ctx = canvas.getContext('2d');
+
+let chaseOffset = 0, glitchPhase = 0, shinePhase = 0;
+let isSpinning = false, animFrame = null, lastTimestamp = null;
+let totalDurationMs = 30000, startTime = null;
+let logoImg = null;
+
+const languagePresets = {
+  bn: { subText: 'স্বাগতম', mainText: 'আপনার ব্র্যান্ড', tagText: 'প্রতিষ্ঠিত ২০২৬ · প্রিমিয়াম মান' },
+  en: { subText: 'WELCOME TO', mainText: 'YOUR BRAND', tagText: 'EST. 2026 · PREMIUM QUALITY' },
+};
+function applyLanguage(lang, btnEl) {
+  const p = languagePresets[lang]; if (!p) return;
+  document.getElementById('subText').value = p.subText;
+  document.getElementById('mainText').value = p.mainText;
+  document.getElementById('tagText').value = p.tagText;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  if (!isSpinning) drawFrame();
+}
+
+const stylePresets = {
+  holo:    { bgColor:'#05060c', panelColor:'#10131f', holoA:'#00f0ff', holoB:'#ff2fd6' },
+  gold:    { bgColor:'#0c0904', panelColor:'#1f180a', holoA:'#ffd76a', holoB:'#b8860b' },
+  emerald: { bgColor:'#040c09', panelColor:'#0a1f16', holoA:'#3dffb0', holoB:'#0a8a5c' },
+  ruby:    { bgColor:'#0c0405', panelColor:'#1f0a0e', holoA:'#ff5d5d', holoB:'#8a0a2a' },
+  ice:     { bgColor:'#04070c', panelColor:'#0a1526', holoA:'#8ecbff', holoB:'#2a4d8a' },
+};
+function applyStyle(name, el) {
+  const s = stylePresets[name]; if (!s) return;
+  document.getElementById('bgColor').value = s.bgColor;
+  document.getElementById('panelColor').value = s.panelColor;
+  document.getElementById('holoA').value = s.holoA;
+  document.getElementById('holoB').value = s.holoB;
+  document.querySelectorAll('.style-swatch').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  drawFrame();
+}
+
+document.getElementById('logoUpload').addEventListener('change', function(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const img = new Image();
+    img.onload = function() { logoImg = img; if (!isSpinning) drawFrame(); };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+function clearLogo() {
+  logoImg = null;
+  document.getElementById('logoUpload').value = '';
+  if (!isSpinning) drawFrame();
+}
+
+function getSettings() {
+  return {
+    subText: document.getElementById('subText').value || '',
+    mainText: document.getElementById('mainText').value || '',
+    tagText: document.getElementById('tagText').value || '',
+    bgColor: document.getElementById('bgColor').value,
+    panelColor: document.getElementById('panelColor').value,
+    holoA: document.getElementById('holoA').value,
+    holoB: document.getElementById('holoB').value,
+    badgeWidthPct: parseInt(document.getElementById('badgeWidth').value) || 84,
+    pointCut: parseInt(document.getElementById('pointCut').value) || 30,
+    depth3d: parseInt(document.getElementById('depth3d').value) || 14,
+    showLogo: document.getElementById('logoToggle').checked,
+    showShine: document.getElementById('shineToggle').checked,
+    showGlitch: document.getElementById('glitchToggle').checked,
+    showCircuit: document.getElementById('circuitToggle').checked,
+  };
+}
+
+function hexToRgb(hex) {
+  hex = hex.replace('#', '');
+  if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+  return { r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16) };
+}
+function hexToRgba(hex, a) { const {r,g,b} = hexToRgb(hex); return `rgba(${r},${g},${b},${a})`; }
+function lerpHex(hexA, hexB, t) {
+  const a = hexToRgb(hexA), b = hexToRgb(hexB);
+  const r = Math.round(a.r + (b.r - a.r) * t);
+  const g = Math.round(a.g + (b.g - a.g) * t);
+  const bl = Math.round(a.b + (b.b - a.b) * t);
+  return `rgb(${r},${g},${bl})`;
+}
+function shadeHex(hex, factor) {
+  const { r, g, b } = hexToRgb(hex);
+  const f = c => Math.max(0, Math.min(255, Math.round(c * factor)));
+  return `rgb(${f(r)},${f(g)},${f(b)})`;
+}
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+// === POINTED HEXAGON PATH (flat top/bottom, pointed left/right) ===
+function hexPoints(w, h, cut) {
+  cut = Math.min(cut, w / 2 - 1);
+  const left = -w/2, right = w/2, top = -h/2, bottom = h/2;
+  return [
+    [left + cut, top], [right - cut, top], [right, 0],
+    [right - cut, bottom], [left + cut, bottom], [left, 0],
+  ];
+}
+function pathFromPoints(ctx, pts) {
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+  ctx.closePath();
+}
+function drawExtrudedPolygon(ctx, pts, depth, sideFrom, sideTo, topFillStyle, strokeStyle) {
+  const steps = Math.max(1, Math.round(depth));
+  for (let i = steps; i >= 1; i--) {
+    ctx.save();
+    ctx.translate(i * 0.6, i);
+    pathFromPoints(ctx, pts);
+    ctx.fillStyle = lerpHex(sideFrom, sideTo, i / steps);
+    ctx.fill();
+    ctx.restore();
+  }
+  pathFromPoints(ctx, pts);
+  ctx.fillStyle = topFillStyle;
+  ctx.fill();
+  if (strokeStyle) { ctx.lineWidth = 2; ctx.strokeStyle = strokeStyle; ctx.stroke(); }
+}
+
+// === HOLOGRAPHIC ANIMATED GRADIENT (rotating iridescent stops) ===
+function holoGradient(ctx, x0, y0, x1, y1, colorA, colorB, phase) {
+  const grad = ctx.createLinearGradient(x0, y0, x1, y1);
+  const stops = 5;
+  for (let i = 0; i <= stops; i++) {
+    const t = i / stops;
+    const wobble = 0.5 + 0.5 * Math.sin(phase * Math.PI * 2 + t * Math.PI * 2.4);
+    grad.addColorStop(t, lerpHex(colorA, colorB, wobble));
+  }
+  return grad;
+}
+
+// === CIRCUIT TRACE LINES (angular polylines radiating from hex edge midpoints) ===
+function drawCircuitTraces(ctx, w, h, color, t, speed) {
+  const midpoints = [
+    { x: 0, y: -h/2, dir: [0, -1] },
+    { x: 0, y: h/2, dir: [0, 1] },
+    { x: -w*0.28, y: -h/2, dir: [-0.6, -1] },
+    { x: w*0.28, y: -h/2, dir: [0.6, -1] },
+    { x: -w*0.28, y: h/2, dir: [-0.6, 1] },
+    { x: w*0.28, y: h/2, dir: [0.6, 1] },
+  ];
+  midpoints.forEach((m, i) => {
+    const len = Math.min(w, h) * 0.34;
+    const bendLen = len * 0.5;
+    const nx = m.dir[0], ny = m.dir[1];
+    const p1x = m.x + nx * bendLen, p1y = m.y + ny * bendLen;
+    const sidewaysX = (i % 2 === 0 ? 1 : -1) * len * 0.4;
+    const p2x = p1x + sidewaysX, p2y = p1y + ny * bendLen * 0.7;
+    ctx.save();
+    ctx.strokeStyle = hexToRgba(color, 0.35);
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(m.x, m.y);
+    ctx.lineTo(p1x, p1y);
+    ctx.lineTo(p2x, p2y);
+    ctx.stroke();
+    // node dots
+    [[m.x, m.y], [p1x, p1y], [p2x, p2y]].forEach(([nx2, ny2]) => {
+      ctx.beginPath();
+      ctx.arc(nx2, ny2, 2, 0, Math.PI * 2);
+      ctx.fillStyle = hexToRgba(color, 0.5);
+      ctx.fill();
+    });
+    // traveling pulse dot
+    const pathLen1 = Math.hypot(p1x - m.x, p1y - m.y);
+    const pathLen2 = Math.hypot(p2x - p1x, p2y - p1y);
+    const total = pathLen1 + pathLen2;
+    const pulseT = ((t * speed * 0.25) + i * 0.3) % 1;
+    const d = pulseT * total;
+    let px, py;
+    if (d <= pathLen1) {
+      const tt = pathLen1 === 0 ? 0 : d / pathLen1;
+      px = m.x + (p1x - m.x) * tt; py = m.y + (p1y - m.y) * tt;
+    } else {
+      const tt = pathLen2 === 0 ? 0 : (d - pathLen1) / pathLen2;
+      px = p1x + (p2x - p1x) * tt; py = p1y + (p2y - p1y) * tt;
+    }
+    ctx.beginPath();
+    ctx.arc(px, py, 3, 0, Math.PI * 2);
+    ctx.shadowColor = color; ctx.shadowBlur = 12;
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.restore();
+  });
+}
+
+// === TEXT WITH RGB-SPLIT GLITCH REVEAL ===
+function drawGlitchText(text, x, y, font, holoA, holoB, phase, glitchWindow, align, glitchEnabled) {
+  if (!text) return;
+  ctx.save();
+  ctx.font = font;
+  ctx.textAlign = align || 'center';
+  ctx.textBaseline = 'alphabetic';
+
+  const localPhase = (phase % 1);
+  const glitchAmt = glitchEnabled ? clamp(1 - localPhase / glitchWindow, 0, 1) : 0;
+
+  if (glitchAmt > 0.02) {
+    const jitter = glitchAmt * 10;
+    ctx.save();
+    ctx.globalAlpha = 0.55 * glitchAmt;
+    ctx.fillStyle = 'rgba(255,40,90,0.8)';
+    ctx.fillText(text, x - jitter, y);
+    ctx.fillStyle = 'rgba(40,220,255,0.8)';
+    ctx.fillText(text, x + jitter, y);
+    ctx.restore();
+    // sliced offset bands
+    const sliceCount = 4;
+    for (let s = 0; s < sliceCount; s++) {
+      if (Math.sin(phase * 40 + s * 7) < 0.3) continue;
+      ctx.save();
+      const sliceY = y - 34 + s * (34 / sliceCount) * 2;
+      ctx.beginPath();
+      ctx.rect(x - 400, sliceY - 6, 800, 8);
+      ctx.clip();
+      ctx.globalAlpha = 0.6 * glitchAmt;
+      ctx.fillStyle = holoA;
+      ctx.fillText(text, x + (Math.random() - 0.5) * jitter * 1.5, y);
+      ctx.restore();
+    }
+  }
+
+  const metrics = ctx.measureText(text);
+  const grad = holoGradient(ctx, x - metrics.width/2, y - 40, x + metrics.width/2, y + 6, holoA, holoB, shinePhaseGlobal);
+  ctx.globalAlpha = glitchEnabled ? clamp(0.35 + localPhase / glitchWindow, 0.35, 1) : 1;
+  ctx.fillStyle = grad;
+  ctx.fillText(text, x, y);
+  ctx.restore();
+}
+let shinePhaseGlobal = 0;
+
+// === DRAW ENGINE ===
+function drawFrame(opts) {
+  opts = opts || {};
+  const w = canvas.width, h = canvas.height;
+  const s = getSettings();
+  const cx = w / 2, cy = h / 2;
+  shinePhaseGlobal = shinePhase;
+
+  ctx.clearRect(0, 0, w, h);
+
+  if (!opts.transparent) {
+    const bg = ctx.createRadialGradient(cx, cy * 0.6, w * 0.1, cx, cy, w * 0.8);
+    bg.addColorStop(0, shadeHex(opts.bgColor || s.bgColor, 1.5));
+    bg.addColorStop(1, opts.bgColor || s.bgColor);
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, w, h);
+
+    // faint background grid
+    ctx.save();
+    ctx.strokeStyle = hexToRgba(s.holoA, 0.05);
+    ctx.lineWidth = 1;
+    const gStep = w * 0.05;
+    for (let gx = 0; gx < w; gx += gStep) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, h); ctx.stroke(); }
+    for (let gy = 0; gy < h; gy += gStep) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(w, gy); ctx.stroke(); }
+    ctx.restore();
+  }
+
+  const badgeW = w * (s.badgeWidthPct / 100);
+  const badgeH = badgeW * 0.40;
+
+  ctx.save();
+  ctx.translate(cx, cy);
+
+  if (s.showCircuit) {
+    drawCircuitTraces(ctx, badgeW, badgeH, s.holoA, chaseOffset, parseFloat(document.getElementById('animSpeed').value) || 1);
+  }
+
+  const hexPts = hexPoints(badgeW, badgeH, badgeH * (s.pointCut / 100));
+  const panelTop = holoGradient(ctx, -badgeW/2, -badgeH/2, badgeW/2, badgeH/2, s.holoA, s.holoB, shinePhase * 0.4);
+  drawExtrudedPolygon(ctx, hexPts, s.depth3d, shadeHex(s.panelColor, 0.3), shadeHex(s.panelColor, 0.6), s.panelColor, hexToRgba(s.holoA, 0.5));
+
+  // holographic sheen overlay on panel (clipped to hex)
+  ctx.save();
+  pathFromPoints(ctx, hexPts);
+  ctx.clip();
+  ctx.globalAlpha = 0.22;
+  ctx.fillStyle = panelTop;
+  ctx.fill();
+  ctx.restore();
+
+  // glass shine sweep (clipped diagonal band)
+  if (s.showShine) {
+    ctx.save();
+    pathFromPoints(ctx, hexPts);
+    ctx.clip();
+    const sweepX = ((shinePhase % 1) * (badgeW * 2.2)) - badgeW * 1.1;
+    ctx.save();
+    ctx.translate(sweepX, 0);
+    ctx.rotate(-0.35);
+    const sheen = ctx.createLinearGradient(-badgeW * 0.12, -badgeH, badgeW * 0.12, badgeH);
+    sheen.addColorStop(0, 'rgba(255,255,255,0)');
+    sheen.addColorStop(0.5, 'rgba(255,255,255,0.35)');
+    sheen.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = sheen;
+    ctx.fillRect(-badgeW * 0.12, -badgeH * 1.5, badgeW * 0.24, badgeH * 3);
+    ctx.restore();
+    ctx.restore();
+  }
+
+  // hex outline glow
+  ctx.save();
+  pathFromPoints(ctx, hexPts);
+  ctx.lineWidth = 2.5;
+  ctx.strokeStyle = hexToRgba(s.holoA, 0.7);
+  ctx.shadowColor = s.holoA;
+  ctx.shadowBlur = 14;
+  ctx.stroke();
+  ctx.restore();
+
+  // corner pin accents at the two points
+  [[-badgeW/2, 0], [badgeW/2, 0]].forEach(([px, py], i) => {
+    const dir = i === 0 ? -1 : 1;
+    ctx.save();
+    ctx.strokeStyle = hexToRgba(s.holoB, 0.8);
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(px, py);
+    ctx.lineTo(px + dir * badgeW * 0.04, py);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(px + dir * badgeW * 0.045, py, 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = s.holoB;
+    ctx.fill();
+    ctx.restore();
+  });
+
+  // logo chip (top center, small hex)
+  if (s.showLogo) {
+    const chipSize = badgeH * 0.30;
+    const chipY = -badgeH/2 - chipSize * 0.55;
+    ctx.save();
+    ctx.translate(0, chipY);
+    const chipPts = hexPoints(chipSize * 1.3, chipSize, chipSize * 0.32);
+    drawExtrudedPolygon(ctx, chipPts, s.depth3d * 0.5, shadeHex(s.panelColor, 0.3), shadeHex(s.panelColor, 0.6), s.panelColor, hexToRgba(s.holoA, 0.6));
+    ctx.save();
+    pathFromPoints(ctx, chipPts);
+    ctx.clip();
+    if (logoImg) {
+      const boxW = chipSize * 1.1, boxH = chipSize * 0.85;
+      const scale = Math.min(boxW / logoImg.width, boxH / logoImg.height);
+      const iw = logoImg.width * scale, ih = logoImg.height * scale;
+      ctx.drawImage(logoImg, -iw/2, -ih/2, iw, ih);
+    } else {
+      // default spark icon (angular)
+      const spin = shinePhase * 2;
+      ctx.save();
+      ctx.rotate(spin * 0.15);
+      ctx.beginPath();
+      const r1 = chipSize * 0.32, r2 = chipSize * 0.10;
+      for (let k = 0; k < 8; k++) {
+        const ang = (Math.PI / 4) * k;
+        const rr = (k % 2 === 0) ? r1 : r2;
+        const px2 = Math.cos(ang) * rr, py2 = Math.sin(ang) * rr;
+        if (k === 0) ctx.moveTo(px2, py2); else ctx.lineTo(px2, py2);
+      }
+      ctx.closePath();
+      ctx.fillStyle = holoGradient(ctx, -r1, -r1, r1, r1, s.holoA, s.holoB, shinePhase);
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.restore();
+    ctx.restore();
+  }
+
+  // text
+  const subFont = `600 ${Math.round(badgeH * 0.10)}px 'Space Grotesk','Noto Sans Bengali',sans-serif`;
+  const mainFont = `800 ${Math.round(badgeH * 0.24)}px 'Orbitron','Poppins','Noto Sans Bengali',sans-serif`;
+  const tagFont = `600 ${Math.round(badgeH * 0.075)}px 'Space Grotesk','Noto Sans Bengali',sans-serif`;
+
+  const zoneMaxW = badgeW * 0.72;
+  const subSize = fitSimpleFont(s.subText, 600, badgeH * 0.10, "'Space Grotesk','Noto Sans Bengali',sans-serif", zoneMaxW);
+  const mainSize = fitSimpleFont(s.mainText, 800, badgeH * 0.24, "'Orbitron','Poppins','Noto Sans Bengali',sans-serif", zoneMaxW);
+  const tagSize = fitSimpleFont(s.tagText, 600, badgeH * 0.075, "'Space Grotesk','Noto Sans Bengali',sans-serif", zoneMaxW);
+
+  ctx.save();
+  ctx.font = `600 ${Math.round(subSize)}px 'Space Grotesk','Noto Sans Bengali',sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.fillStyle = hexToRgba(s.holoA, 0.85);
+  ctx.fillText(s.subText, 0, -badgeH * 0.10);
+  ctx.restore();
+
+  drawGlitchText(s.mainText, 0, badgeH * 0.14, `800 ${Math.round(mainSize)}px 'Orbitron','Poppins','Noto Sans Bengali',sans-serif`,
+    s.holoA, s.holoB, glitchPhase, 0.35, 'center', s.showGlitch);
+
+  ctx.save();
+  ctx.font = `600 ${Math.round(tagSize)}px 'Space Grotesk','Noto Sans Bengali',sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.fillStyle = hexToRgba(s.holoB, 0.75);
+  ctx.fillText(s.tagText, 0, badgeH * 0.32);
+  ctx.restore();
+
+  ctx.restore();
+}
+
+function fitSimpleFont(text, weight, baseSizePx, family, maxWidth) {
+  if (!text) return baseSizePx;
+  ctx.save();
+  ctx.font = `${weight} ${baseSizePx}px ${family}`;
+  const width = ctx.measureText(text).width;
+  ctx.restore();
+  if (width <= maxWidth || width === 0) return baseSizePx;
+  return baseSizePx * (maxWidth / width) * 0.97;
+}
+
+// === ANIMATION LOOP ===
+function tick(now) {
+  if (!isSpinning) return;
+  if (lastTimestamp == null) lastTimestamp = now;
+  const dt = now - lastTimestamp;
+  lastTimestamp = now;
+  const speed = parseFloat(document.getElementById('animSpeed').value) || 0;
+
+  chaseOffset += dt * 0.001 * speed;
+  shinePhase += dt * 0.00028 * (0.6 + speed * 0.3);
+  glitchPhase = (glitchPhase + dt * 0.00042 * (0.6 + speed * 0.3)) % 1;
+
+  const elapsed = now - startTime;
+  const remaining = Math.max(0, totalDurationMs - elapsed);
+  updateTimerUI(remaining, totalDurationMs);
+
+  drawFrame({ transparent: false, bgColor: document.getElementById('bgColor').value });
+
+  if (remaining <= 0) {
+    if (document.getElementById('loopToggle').checked) { startTime = now; }
+    else { finishAnim(); return; }
+  }
+  animFrame = requestAnimationFrame(tick);
+}
+
+function updateTimerUI(remainingMs, totalMs) {
+  const totalSec = Math.ceil(remainingMs / 1000);
+  const mm = String(Math.floor(totalSec / 60)).padStart(2, '0');
+  const ss = String(totalSec % 60).padStart(2, '0');
+  document.getElementById('timerBig').textContent = `${mm}:${ss}`;
+  const pct = totalMs > 0 ? clamp(100 - (remainingMs / totalMs) * 100, 0, 100) : 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+function resetTimerUI() {
+  document.getElementById('timerBig').textContent = formatDuration(totalDurationMs);
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+  document.getElementById('progressFill').style.width = '0%';
+}
+function formatDuration(ms) {
+  const totalSec = Math.ceil(ms / 1000);
+  const mm = String(Math.floor(totalSec / 60)).padStart(2, '0');
+  const ss = String(totalSec % 60).padStart(2, '0');
+  return `${mm}:${ss}`;
+}
+function setDuration(sec, btnEl) {
+  totalDurationMs = sec * 1000;
+  const group = btnEl.parentElement;
+  group.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  if (!isSpinning) resetTimerUI();
+}
+
+function startAnim() {
+  if (isSpinning) return;
+  isSpinning = true;
+  lastTimestamp = null;
+  startTime = performance.now();
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status spinning';
+  st.textContent = '▶ চলছে';
+  animFrame = requestAnimationFrame(tick);
+}
+function stopAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status idle';
+  st.textContent = '⏸ থামানো হয়েছে';
+  drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor: document.getElementById('bgColor').value });
+}
+function finishAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  document.getElementById('timerBig').textContent = '00:00';
+  document.getElementById('progressFill').style.width = '100%';
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status done';
+  st.textContent = '✅ সম্পন্ন';
+  document.getElementById('timerSub').textContent = 'অ্যানিমেশন শেষ';
+  drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor: document.getElementById('bgColor').value });
+}
+function resetAll() {
+  stopAnim();
+  chaseOffset = 0; shinePhase = 0; glitchPhase = 0;
+  resetTimerUI();
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status idle';
+  st.textContent = 'প্রস্তুত';
+  drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor: document.getElementById('bgColor').value });
+}
+
+// === EXPORT ===
+function setExportStatus(msg) { document.getElementById('exportStatus').textContent = msg; }
+function saveBlob(blob, filename) {
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+function downloadPng() {
+  const transparent = document.getElementById('transparentToggle').checked;
+  const bgColor = document.getElementById('bgColor').value;
+  drawFrame({ transparent, bgColor });
+  canvas.toBlob(blob => {
+    drawFrame({ transparent: false, bgColor });
+    if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+    saveBlob(blob, 'welcome-brand-holo-badge.png');
+    setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+  }, 'image/png');
+}
+
+async function downloadGif() {
+  if (!window.GIF) { setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন।'); return; }
+  const bgColor = document.getElementById('bgColor').value;
+  const oldChase = chaseOffset, oldShine = shinePhase, oldGlitch = glitchPhase;
+  const _gifWantTransparent = document.getElementById('transparentToggle').checked;
+  const gif = new GIF({ transparent: (_gifWantTransparent ? window.GIF_CHROMA_INT : null), workers: 2, quality: 10, width: canvas.width, height: canvas.height,
+    workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
+  const frames = 72, frameDelay = 45;
+  const speed = parseFloat(document.getElementById('animSpeed').value) || 0;
+  setExportStatus('GIF তৈরি হচ্ছে… 0%');
+  for (let i = 0; i < frames; i++) {
+    const t = i / frames;
+    chaseOffset = oldChase + speed * 0.9 * t * frames * 0.02;
+    shinePhase = oldShine + t;
+    glitchPhase = t;
+    drawFrame({ transparent: _gifWantTransparent, bgColor });
+    gif.addFrame(_gifWantTransparent ? window.gifFlattenFrame(canvas) : (canvas), { copy: true, delay: frameDelay });
+    setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((i + 1) / frames * 100)}%`);
+    await new Promise(requestAnimationFrame);
+  }
+  chaseOffset = oldChase; shinePhase = oldShine; glitchPhase = oldGlitch;
+  drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor });
+  gif.on('finished', blob => {
+    saveBlob(blob, 'welcome-brand-holo-badge.gif');
+    setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
+  });
+  gif.render();
+}
+
+async function downloadVideo() {
+  if (!window.MediaRecorder || !canvas.captureStream) {
+    setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।'); return;
+  }
+  const bgColor = document.getElementById('bgColor').value;
+  const stream = canvas.captureStream(30);
+  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 6000000 });
+  const chunks = [];
+  const oldChase = chaseOffset, oldShine = shinePhase, oldGlitch = glitchPhase;
+  recorder.ondataavailable = e => e.data.size && chunks.push(e.data);
+  recorder.onstop = () => {
+    saveBlob(new Blob(chunks, { type: mimeType }), 'welcome-brand-holo-badge.webm');
+    chaseOffset = oldChase; shinePhase = oldShine; glitchPhase = oldGlitch;
+    drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor });
+    setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+  };
+  recorder.start();
+  const start = performance.now();
+  const duration = 6000;
+  const speed = parseFloat(document.getElementById('animSpeed').value) || 0;
+  setExportStatus('ভিডিও তৈরি হচ্ছে…');
+  const render = (now) => {
+    const elapsedMs = now - start;
+    const progress = Math.min(1, elapsedMs / duration);
+    chaseOffset = oldChase + speed * 0.9 * elapsedMs * 0.001;
+    shinePhase = oldShine + progress * 2;
+    glitchPhase = progress;
+    drawFrame({ transparent: false, bgColor });
+    if (progress < 1) requestAnimationFrame(render); else recorder.stop();
+  };
+  requestAnimationFrame(render);
+}
+
+// === UI EVENTS ===
+['badgeWidth', 'pointCut', 'depth3d', 'animSpeed'].forEach(id => {
+  document.getElementById(id).addEventListener('input', function() {
+    const badges = { badgeWidth: 'widthBadge', pointCut: 'pointBadge', depth3d: 'depthBadge', animSpeed: 'speedBadge' };
+    const el = document.getElementById(badges[id]);
+    if (id === 'badgeWidth') el.textContent = this.value + '%';
+    else el.textContent = this.value;
+    if (!isSpinning) drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor: document.getElementById('bgColor').value });
+  });
+});
+['subText', 'mainText', 'tagText', 'bgColor', 'panelColor', 'holoA', 'holoB',
+ 'logoToggle', 'shineToggle', 'glitchToggle', 'circuitToggle', 'transparentToggle'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => { if (!isSpinning) drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor: document.getElementById('bgColor').value }); });
+  el.addEventListener('change', () => { if (!isSpinning) drawFrame({ transparent: document.getElementById('transparentToggle').checked, bgColor: document.getElementById('bgColor').value }); });
+});
+
+// === INITIAL DRAW ===
+resetTimerUI();
+drawFrame({ transparent: false, bgColor: document.getElementById('bgColor').value });
+setTimeout(startAnim, 150);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+    <script src="download-utils.js"></script>
+</body>
+</html>

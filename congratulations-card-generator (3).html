@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Congratulations Card Generator — কংগ্রাচুলেশন কার্ড জেনারেটর</title>
+<meta name="description" content="নতুন চাকরি বা নতুন ব্যবসা শুরু করার জন্য অটোমেটিক কংগ্রাচুলেশন সিল-কার্ড তৈরি করুন — PNG, GIF ও ভিডিও ডাউনলোড সহ">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-primary:#0c0805; --bg-secondary:#120d08; --bg-card:#19130b; --bg-card-hover:#221a0f;
+    --border:rgba(255,255,255,0.08); --border-active:rgba(76,201,240,0.55);
+    --accent:#4cc9f0; --accent-glow:rgba(76,201,240,0.4);
+    --accent-2:#0b3d91; --accent-3:#f0b429;
+    --text-primary:#f2f8ff; --text-secondary:#a7b6cf; --text-muted:#586378;
+    --radius:16px; --radius-sm:10px;
+    --shadow:0 20px 60px rgba(0,0,0,0.6); --shadow-glow:0 0 45px rgba(76,201,240,0.18);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Outfit','Noto Sans Bengali',system-ui,sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;overflow-x:hidden;display:flex;flex-direction:column;align-items:center;}
+  body::before{content:'';position:fixed;inset:0;background:
+    radial-gradient(ellipse 80% 50% at 15% 15%, rgba(76,201,240,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 85%, rgba(11,61,145,0.16) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 50% 50%, rgba(240,180,41,0.05) 0%, transparent 70%);
+    pointer-events:none; z-index:0;}
+  .app-header{width:100%;padding:22px 32px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);background:rgba(7,12,10,0.8);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+  .header-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),var(--accent-2));border-radius:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px var(--accent-glow);flex-shrink:0;}
+  .header-icon svg{width:24px;height:24px;}
+  .header-text h1{font-size:19px;font-weight:700;background:linear-gradient(135deg,#fff 0%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .header-text p{font-size:12.5px;color:var(--text-secondary);margin-top:2px;}
+  .main-content{width:100%;max-width:1240px;padding:36px 22px 80px;display:grid;grid-template-columns:1fr 400px;gap:28px;position:relative;z-index:1;}
+  @media (max-width:920px){.main-content{grid-template-columns:1fr;}}
+  .canvas-panel{display:flex;flex-direction:column;align-items:center;gap:16px;}
+  .canvas-wrapper{width:100%;max-width:520px;background:var(--bg-card);border:1px solid var(--border);border-radius:24px;padding:16px;position:relative;box-shadow:var(--shadow),var(--shadow-glow);}
+  .canvas-wrapper::before{content:'';position:absolute;inset:-1px;border-radius:25px;background:linear-gradient(135deg,rgba(76,201,240,0.3),rgba(11,61,145,0.18),rgba(240,180,41,0.12));z-index:-1;animation:borderGlow 4s ease-in-out infinite;}
+  @keyframes borderGlow{0%,100%{opacity:.5;}50%{opacity:1;}}
+  #cardCanvas{width:100%;height:auto;display:block;border-radius:14px;}
+  .controls-panel{display:flex;flex-direction:column;gap:16px;}
+  .control-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+  .card-title{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-secondary);margin-bottom:14px;}
+  .card-title-icon{width:22px;height:22px;border-radius:6px;background:rgba(76,201,240,0.14);display:flex;align-items:center;justify-content:center;font-size:12px;}
+  .hint{font-size:11.5px;color:var(--text-muted);margin:-6px 0 12px;line-height:1.5;}
+  .form-row{margin-bottom:12px;}
+  .form-row:last-child{margin-bottom:0;}
+  .form-label{display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px;font-weight:500;}
+  .form-input{width:100%;padding:10px 12px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-family:inherit;font-size:13.5px;outline:none;transition:.2s;}
+  .form-input:focus{border-color:var(--border-active);}
+  .form-input[type="file"]{padding:8px;font-size:12.5px;}
+  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+  .dir-btn{padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;}
+  .dir-btn.active{border-color:var(--border-active);color:var(--accent);background:rgba(76,201,240,0.1);}
+  .slider-row{margin-bottom:14px;}
+  .slider-row:last-child{margin-bottom:0;}
+  .slider-label-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:6px;}
+  .slider-badge{color:var(--accent);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--accent);}
+  .preset-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .style-preset-btn{padding:9px 4px;border-radius:10px;border:1px solid var(--border);cursor:pointer;font-family:inherit;font-size:11px;font-weight:600;color:var(--text-primary);background:var(--bg-secondary);transition:.2s;}
+  .style-preset-btn.active{border-color:var(--border-active);box-shadow:0 0 0 1px var(--border-active);}
+  .toggle-row{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--text-secondary);cursor:pointer;margin-bottom:10px;}
+  .toggle-row:last-child{margin-bottom:0;}
+  .btn-group{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{flex:1;min-width:100px;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border-radius:12px;border:none;font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;transition:.2s;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#04101f;box-shadow:0 8px 22px rgba(76,201,240,0.25);}
+  .btn-primary:hover{transform:translateY(-1px);}
+  #exportStatus{font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-icon">
+    <svg viewBox="0 0 24 24" fill="#04101f" stroke="none">
+      <path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2z"/>
+      <path d="M19 14l.7 2.3L22 17l-2.3.7L19 20l-.7-2.3L16 17l2.3-.7L19 14z" opacity="0.75"/>
+    </svg>
+  </div>
+  <div class="header-text">
+    <h1>Congratulations Card Generator</h1>
+    <p>ছবি ও তথ্য দিন — অটোমেটিক সিল-স্টাইল কংগ্রাচুলেশন কার্ড তৈরি হবে — PNG · GIF · ভিডিও</p>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="canvas-panel">
+    <div class="canvas-wrapper">
+      <canvas id="cardCanvas" width="1080" height="1080"></canvas>
+    </div>
+  </div>
+
+  <div class="controls-panel">
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🖼</div>ছবি</div>
+      <div class="form-row">
+        <label class="form-label">ছবি আপলোড করুন</label>
+        <input type="file" accept="image/*" id="photoUpload" class="form-input">
+      </div>
+      <div class="slider-row">
+        <div class="slider-label-row"><span>বামে / ডানে</span><span class="slider-badge" id="photoXBadge">0</span></div>
+        <input type="range" id="photoX" min="-100" max="100" step="1" value="0">
+      </div>
+      <div class="slider-row">
+        <div class="slider-label-row"><span>উপরে / নিচে</span><span class="slider-badge" id="photoYBadge">0</span></div>
+        <input type="range" id="photoY" min="-100" max="100" step="1" value="0">
+      </div>
+      <div class="slider-row">
+        <div class="slider-label-row"><span>জুম</span><span class="slider-badge" id="photoZoomBadge">100%</span></div>
+        <input type="range" id="photoZoom" min="80" max="220" step="1" value="100">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎯</div>অর্জনের ধরন</div>
+      <div class="row-2">
+        <button class="dir-btn active" id="typeJob" onclick="setAchievementType('job')">নতুন চাকরি</button>
+        <button class="dir-btn" id="typeBusiness" onclick="setAchievementType('business')">নতুন ব্যবসা</button>
+      </div>
+
+      <div id="jobFields">
+        <div class="form-row">
+          <label class="form-label">জব টাইটেল</label>
+          <input class="form-input" id="inpJobTitle" value="Cabin Crew">
+        </div>
+        <div class="form-row">
+          <label class="form-label">কোম্পানির নাম</label>
+          <input class="form-input" id="inpCompany" value="Biman Bangladesh Airlines">
+        </div>
+      </div>
+      <div id="businessFields" style="display:none;">
+        <div class="form-row">
+          <label class="form-label">ব্যবসার নাম</label>
+          <input class="form-input" id="inpBusiness" value="Rahim's Travel Agency">
+        </div>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">✎</div>তথ্য</div>
+      <div class="form-row">
+        <label class="form-label">নাম</label>
+        <input class="form-input" id="inpName" value="Rahim Ahmed">
+      </div>
+      <div class="form-row">
+        <label class="form-label">প্রতিষ্ঠান / একাডেমির নাম</label>
+        <input class="form-input" id="inpInstitute" value="Wings Fly Aviation Academy">
+      </div>
+      <div class="form-row">
+        <label class="form-label">রেফারেন্স / ব্যাচ কোড (ঐচ্ছিক)</label>
+        <input class="form-input" id="inpRef" value="" placeholder="যেমন: STP-DHA-002261">
+      </div>
+      <div class="form-row">
+        <label class="form-label">তারিখ (ঐচ্ছিক)</label>
+        <input class="form-input" id="inpDate" value="" placeholder="যেমন: August 2026">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎨</div>থিম</div>
+      <div class="preset-grid">
+        <button class="style-preset-btn active" onclick="applyTheme('skyBlue',this)">Sky Blue</button>
+        <button class="style-preset-btn" onclick="applyTheme('goldCelebration',this)">Gold</button>
+        <button class="style-preset-btn" onclick="applyTheme('emeraldSuccess',this)">Emerald</button>
+        <button class="style-preset-btn" onclick="applyTheme('crimsonAchievement',this)">Crimson</button>
+        <button class="style-preset-btn" onclick="applyTheme('royalPurple',this)">Royal</button>
+        <button class="style-preset-btn" onclick="applyTheme('sunsetOrange',this)">Sunset</button>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">✨</div>এলিমেন্ট</div>
+      <div class="toggle-row"><input type="checkbox" id="confettiToggle" checked> কনফেটি অ্যানিমেশন</div>
+      <div class="toggle-row"><input type="checkbox" id="glowToggle" checked> সিলের গ্লো ইফেক্ট</div>
+      <div class="toggle-row"><input type="checkbox" id="shadowToggle" checked> নিচে শ্যাডো</div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">⬇</div>ডাউনলোড</div>
+      <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.55;">PNG (স্থির ছবি), GIF অথবা ভিডিও (কনফেটি অ্যানিমেশনসহ) — যেভাবেই লাগুক, সরাসরি ডাউনলোড করুন।</p>
+      <div class="btn-group">
+        <button class="btn btn-primary" type="button" onclick="downloadPng()">PNG</button>
+        <button class="btn btn-primary" type="button" onclick="downloadGif()">GIF</button>
+        <button class="btn btn-primary" type="button" onclick="downloadVideo()">ভিডিও</button>
+      </div>
+      <div id="exportStatus"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   CONGRATULATIONS CARD GENERATOR
+   Draws a seal-style card entirely on <canvas>: themed
+   background, a circular photo "seal" with curved text
+   around its rim (top: CONGRATULATIONS, bottom: ref code
+   or achievement label), name + dynamic achievement line,
+   institute credit line, and a soft falling-confetti loop.
+   The animation runs continuously; PNG grabs one frame,
+   GIF/Video sample the same live canvas over a few seconds.
+===================================================== */
+const canvas = document.getElementById('cardCanvas');
+const ctx = canvas.getContext('2d');
+
+// === STATE ===
+let photoImg = null;
+let currentAchievementType = 'job';
+let currentTheme = 'skyBlue';
+let isExporting = false;
+let confetti = [];
+
+function hexToRgba(hex, alpha){
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+// === THEME PRESETS ===
+const stylePresets = {
+  skyBlue:            { bgTop:'#04101f', bgBottom:'#08203f', glow:'#4cc9f0', ringLight:'#1f6fb8', ringDark:'#0b3d91', photoBg:'#0d3a8a', accentText:'#ff8c42', nameGrad1:'#4cc9f0', nameGrad2:'#ffffff', textLight:'#dce8ff' },
+  goldCelebration:    { bgTop:'#140d02', bgBottom:'#241a05', glow:'#f0b429', ringLight:'#ffe08a', ringDark:'#8a6112', photoBg:'#5c4109', accentText:'#e63946', nameGrad1:'#f0b429', nameGrad2:'#ffffff', textLight:'#ffe9c2' },
+  emeraldSuccess:     { bgTop:'#021410', bgBottom:'#04241c', glow:'#2ec4b6', ringLight:'#7af5cf', ringDark:'#0f6b52', photoBg:'#0a4d3c', accentText:'#f0b429', nameGrad1:'#2ec4b6', nameGrad2:'#ffffff', textLight:'#d7fff1' },
+  crimsonAchievement: { bgTop:'#140204', bgBottom:'#240409', glow:'#e63946', ringLight:'#ff9eb1', ringDark:'#9b1c31', photoBg:'#6b1322', accentText:'#f0b429', nameGrad1:'#e63946', nameGrad2:'#ffffff', textLight:'#ffe0e4' },
+  royalPurple:        { bgTop:'#0a0714', bgBottom:'#150c24', glow:'#c084fc', ringLight:'#e0a8ff', ringDark:'#5b2a86', photoBg:'#3d1a5c', accentText:'#f0b429', nameGrad1:'#c084fc', nameGrad2:'#ffffff', textLight:'#ecd9ff' },
+  sunsetOrange:       { bgTop:'#140902', bgBottom:'#241304', glow:'#ff6b35', ringLight:'#ffb08a', ringDark:'#a4380f', photoBg:'#6b230a', accentText:'#4cc9f0', nameGrad1:'#ff6b35', nameGrad2:'#ffffff', textLight:'#ffe0d2' },
+};
+
+function applyTheme(name, btnEl){
+  currentTheme = name;
+  document.querySelectorAll('.style-preset-btn').forEach(b=>b.classList.remove('active'));
+  btnEl.classList.add('active');
+}
+
+// === ACHIEVEMENT TYPE ===
+function setAchievementType(type){
+  currentAchievementType = type;
+  document.getElementById('typeJob').classList.toggle('active', type==='job');
+  document.getElementById('typeBusiness').classList.toggle('active', type==='business');
+  document.getElementById('jobFields').style.display = type==='job' ? 'block' : 'none';
+  document.getElementById('businessFields').style.display = type==='business' ? 'block' : 'none';
+}
+
+// === PHOTO UPLOAD ===
+document.getElementById('photoUpload').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const img = new Image();
+    img.onload = ()=>{ photoImg = img; };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+// === SLIDER BADGES (rendering itself reads live values every frame) ===
+document.getElementById('photoX').addEventListener('input', function(){ document.getElementById('photoXBadge').textContent = this.value; });
+document.getElementById('photoY').addEventListener('input', function(){ document.getElementById('photoYBadge').textContent = this.value; });
+document.getElementById('photoZoom').addEventListener('input', function(){ document.getElementById('photoZoomBadge').textContent = this.value+'%'; });
+
+// === SETTINGS ===
+function getSettings(){
+  const name = document.getElementById('inpName').value || 'Your Name';
+  const instituteName = document.getElementById('inpInstitute').value || 'Your Academy';
+  const refCode = document.getElementById('inpRef').value.trim();
+  const dateText = document.getElementById('inpDate').value.trim();
+  let achievementLine, bottomArcText;
+  if(currentAchievementType === 'job'){
+    const jobTitle = document.getElementById('inpJobTitle').value || 'New Position';
+    const companyName = document.getElementById('inpCompany').value || 'A Great Company';
+    achievementLine = `Has joined ${companyName} as ${jobTitle}`;
+    bottomArcText = refCode || 'NEW JOB ANNOUNCEMENT';
+  } else {
+    const businessName = document.getElementById('inpBusiness').value || 'A New Business';
+    achievementLine = `Has successfully launched ${businessName}`;
+    bottomArcText = refCode || 'NEW BUSINESS LAUNCH';
+  }
+  return {
+    theme: stylePresets[currentTheme],
+    name, instituteName, dateText, achievementLine,
+    topArcText: 'CONGRATULATIONS',
+    bottomArcText,
+    photoX: parseFloat(document.getElementById('photoX').value),
+    photoY: parseFloat(document.getElementById('photoY').value),
+    photoZoom: parseFloat(document.getElementById('photoZoom').value),
+    showConfetti: document.getElementById('confettiToggle').checked,
+    showGlow: document.getElementById('glowToggle').checked,
+    showShadow: document.getElementById('shadowToggle').checked,
+  };
+}
+
+// === CONFETTI ===
+const confettiColors = ['#f0b429','#4cc9f0','#ff6b35','#2ec4b6','#e63946','#c084fc','#ffffff'];
+function initConfetti(count){
+  const w = canvas.width, h = canvas.height;
+  confetti = Array.from({length:count}, ()=>({
+    x: Math.random()*w,
+    y: Math.random()*h - h,
+    vy: 40 + Math.random()*70,
+    vx: (Math.random()-0.5)*30,
+    size: 8 + Math.random()*14,
+    color: confettiColors[Math.floor(Math.random()*confettiColors.length)],
+    rot: Math.random()*Math.PI*2,
+    vr: (Math.random()-0.5)*3,
+    shape: Math.random() > 0.5 ? 'rect' : 'tri',
+  }));
+}
+initConfetti(46);
+
+function updateConfetti(dtMs){
+  const w = canvas.width, h = canvas.height;
+  const dt = dtMs/1000;
+  confetti.forEach(p=>{
+    p.y += p.vy*dt;
+    p.x += p.vx*dt;
+    p.rot += p.vr*dt;
+    if(p.y > h+30){ p.y = -30; p.x = Math.random()*w; }
+    if(p.x < -30) p.x = w+30;
+    if(p.x > w+30) p.x = -30;
+  });
+}
+
+function drawConfetti(ctx){
+  confetti.forEach(p=>{
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot);
+    ctx.fillStyle = p.color;
+    ctx.globalAlpha = 0.85;
+    if(p.shape === 'rect'){
+      ctx.fillRect(-p.size/2, -p.size*0.28, p.size, p.size*0.56);
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(0,-p.size*0.5);
+      ctx.lineTo(p.size*0.45, p.size*0.4);
+      ctx.lineTo(-p.size*0.45, p.size*0.4);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+  });
+}
+
+// === ARC TEXT ===
+function drawArcText(ctx, text, cx, cy, radius, startDeg, endDeg, tangentOffsetDeg, color, fontPx, weight, letterSpacing){
+  if(!text) return;
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.font = `${weight} ${fontPx}px 'Outfit','Noto Sans Bengali',sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const chars = [...text];
+  const widths = chars.map(c => ctx.measureText(c).width + letterSpacing);
+  const totalW = widths.reduce((a,b)=>a+b,0);
+  const totalAngle = totalW/radius;
+  const stepDir = (endDeg >= startDeg) ? 1 : -1;
+  const midDeg = (startDeg+endDeg)/2;
+  let angle = (midDeg*Math.PI/180) - stepDir*(totalAngle/2);
+  for(let i=0;i<chars.length;i++){
+    const w = widths[i];
+    const charAngle = w/radius;
+    const mid = angle + stepDir*(charAngle/2);
+    const x = cx + radius*Math.cos(mid);
+    const y = cy + radius*Math.sin(mid);
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(mid + (tangentOffsetDeg*Math.PI/180));
+    ctx.fillText(chars[i], 0, 0);
+    ctx.restore();
+    angle += stepDir*charAngle;
+  }
+  ctx.restore();
+}
+
+// === COVER-FIT IMAGE DRAW ===
+function drawCoverImage(ctx, img, cx, cy, boxSize, panX, panY, zoom){
+  const iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+  const baseScale = Math.max(boxSize/iw, boxSize/ih);
+  const scale = baseScale * (zoom/100);
+  const dw = iw*scale, dh = ih*scale;
+  const offX = (panX/100) * boxSize*0.5;
+  const offY = (panY/100) * boxSize*0.5;
+  const dx = cx - dw/2 + offX;
+  const dy = cy - dh/2 + offY;
+  ctx.drawImage(img, dx, dy, dw, dh);
+}
+
+function wrapCenterText(ctx, text, cx, y, maxWidth, lineHeight){
+  const words = text.split(' ');
+  let lines = [], current = '';
+  words.forEach(word=>{
+    const test = current ? current+' '+word : word;
+    if(ctx.measureText(test).width > maxWidth && current){ lines.push(current); current = word; }
+    else current = test;
+  });
+  lines.push(current);
+  const totalH = (lines.length-1)*lineHeight;
+  lines.forEach((line,i)=> ctx.fillText(line, cx, y - totalH/2 + i*lineHeight));
+}
+
+// === SEAL ===
+function drawSeal(ctx, cx, cy, R, theme, s, t){
+  if(s.showShadow){
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(cx, cy+R*0.95, R*0.85, R*0.16, 0, 0, Math.PI*2);
+    const shg = ctx.createRadialGradient(cx,cy+R*0.95,0,cx,cy+R*0.95,R*0.85);
+    shg.addColorStop(0,'rgba(0,0,0,0.4)'); shg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle = shg; ctx.fill();
+    ctx.restore();
+  }
+
+  // outer ring band
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2);
+  const ringGrad = ctx.createLinearGradient(cx-R,cy-R,cx+R,cy+R);
+  ringGrad.addColorStop(0, theme.ringLight);
+  ringGrad.addColorStop(1, theme.ringDark);
+  ctx.fillStyle = ringGrad;
+  if(s.showGlow){ ctx.shadowColor = theme.glow; ctx.shadowBlur = R*0.16; }
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.lineWidth = Math.max(2, R*0.012);
+  ctx.strokeStyle = hexToRgba('#ffffff', 0.25);
+  ctx.stroke();
+
+  const innerR = R*0.72;
+
+  // photo (clipped to inner circle)
+  ctx.save();
+  ctx.beginPath(); ctx.arc(cx,cy,innerR-R*0.015,0,Math.PI*2); ctx.clip();
+  if(photoImg){
+    ctx.fillStyle = theme.photoBg;
+    ctx.fillRect(cx-innerR,cy-innerR,innerR*2,innerR*2);
+    drawCoverImage(ctx, photoImg, cx, cy, (innerR-R*0.015)*2, s.photoX, s.photoY, s.photoZoom);
+  } else {
+    ctx.fillStyle = theme.photoBg;
+    ctx.fillRect(cx-innerR,cy-innerR,innerR*2,innerR*2);
+    ctx.fillStyle = hexToRgba('#ffffff',0.55);
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.font = `500 ${Math.round(innerR*0.11)}px 'Noto Sans Bengali','Outfit',sans-serif`;
+    ctx.fillText('ছবি আপলোড করুন', cx, cy);
+  }
+  ctx.restore();
+
+  // ring between photo and outer band
+  ctx.beginPath(); ctx.arc(cx,cy,innerR,0,Math.PI*2);
+  ctx.lineWidth = Math.max(2, R*0.022);
+  ctx.strokeStyle = theme.ringDark;
+  ctx.stroke();
+
+  // shimmer sweep across the ring band only
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx,cy,R,0,Math.PI*2);
+  ctx.arc(cx,cy,innerR,0,Math.PI*2);
+  ctx.clip('evenodd');
+  const sweepAngle = (t*0.0007) % (Math.PI*2);
+  const sx = cx + Math.cos(sweepAngle)*R*0.9, sy = cy + Math.sin(sweepAngle)*R*0.9;
+  const shineGrad = ctx.createRadialGradient(sx,sy,0,sx,sy,R*0.9);
+  shineGrad.addColorStop(0,'rgba(255,255,255,0.4)');
+  shineGrad.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle = shineGrad;
+  ctx.fillRect(cx-R,cy-R,R*2,R*2);
+  ctx.restore();
+
+  // curved texts
+  drawArcText(ctx, s.topArcText, cx, cy, R*0.865, -160, -20, 90, '#ffffff', Math.round(R*0.074), 800, R*0.012);
+  drawArcText(ctx, s.bottomArcText, cx, cy, R*0.865, 160, 20, -90, theme.accentText, Math.round(R*0.062), 800, R*0.010);
+}
+
+// === MAIN DRAW ===
+function drawFrame(t){
+  const w = canvas.width, h = canvas.height, cx = w/2;
+  const s = getSettings();
+  const theme = s.theme;
+
+  const bgGrad = ctx.createLinearGradient(0,0,0,h);
+  bgGrad.addColorStop(0, theme.bgTop);
+  bgGrad.addColorStop(1, theme.bgBottom);
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0,0,w,h);
+
+  const rg = ctx.createRadialGradient(cx, h*0.36, w*0.05, cx, h*0.36, w*0.6);
+  rg.addColorStop(0, hexToRgba(theme.glow, 0.32));
+  rg.addColorStop(1, hexToRgba(theme.glow, 0));
+  ctx.fillStyle = rg;
+  ctx.fillRect(0,0,w,h);
+
+  if(s.showConfetti) drawConfetti(ctx);
+
+  const sealCx = cx, sealCy = h*0.355, sealR = w*0.30;
+  drawSeal(ctx, sealCx, sealCy, sealR, theme, s, t);
+
+  // text block below the seal
+  let y = sealCy + sealR + h*0.09;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+
+  ctx.font = `800 ${Math.round(w*0.052)}px 'Outfit','Noto Sans Bengali',sans-serif`;
+  const nameGrad = ctx.createLinearGradient(cx-w*0.3, y, cx+w*0.3, y);
+  nameGrad.addColorStop(0, theme.nameGrad1);
+  nameGrad.addColorStop(1, theme.nameGrad2);
+  ctx.fillStyle = nameGrad;
+  ctx.fillText(s.name, cx, y);
+
+  y += w*0.075;
+  ctx.font = `600 ${Math.round(w*0.03)}px 'Outfit','Noto Sans Bengali',sans-serif`;
+  ctx.fillStyle = theme.textLight;
+  wrapCenterText(ctx, s.achievementLine, cx, y, w*0.82, w*0.038);
+
+  y += w*0.135;
+  ctx.font = `500 ${Math.round(w*0.022)}px 'Noto Sans Bengali','Outfit',sans-serif`;
+  ctx.fillStyle = hexToRgba(theme.textLight, 0.78);
+  ctx.fillText(`— ${s.instituteName}`, cx, y);
+
+  if(s.dateText){
+    y += w*0.032;
+    ctx.font = `500 ${Math.round(w*0.018)}px 'Outfit',sans-serif`;
+    ctx.fillStyle = hexToRgba(theme.textLight, 0.55);
+    ctx.fillText(s.dateText, cx, y);
+  }
+}
+
+// === CONTINUOUS LOOP (drives both the live preview and the exports) ===
+let lastT = null;
+function loop(t){
+  if(lastT === null) lastT = t;
+  const dt = t - lastT; lastT = t;
+  updateConfetti(dt);
+  drawFrame(t);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+// === EXPORT HELPERS ===
+function setStatus(msg){ document.getElementById('exportStatus').textContent = msg; }
+function saveBlob(blob, filename){
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob); link.download = filename; link.click();
+  setTimeout(()=>URL.revokeObjectURL(link.href), 1000);
+}
+
+function downloadPng(){
+  canvas.toBlob((blob)=>{
+    if(!blob) return setStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+    saveBlob(blob, 'congratulations-card.png');
+    setStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+  }, 'image/png');
+}
+
+async function downloadGif(){
+  if(!window.GIF){ setStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।'); return; }
+  if(isExporting) return; isExporting = true;
+  const gif = new GIF({ workers:2, quality:10, width:canvas.width, height:canvas.height,
+    workerScript:'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
+  const frameCount = 36, frameDelay = 70;
+  setStatus('GIF তৈরি হচ্ছে… 0%');
+  for(let i=0;i<frameCount;i++){
+    await new Promise(r=>requestAnimationFrame(r));
+    gif.addFrame(canvas, { copy:true, delay:frameDelay });
+    setStatus(`GIF তৈরি হচ্ছে… ${Math.round((i+1)/frameCount*100)}%`);
+  }
+  gif.on('finished', (blob)=>{
+    saveBlob(blob, 'congratulations-card.gif');
+    setStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
+    isExporting = false;
+  });
+  gif.render();
+}
+
+async function downloadVideo(){
+  if(!window.MediaRecorder || !canvas.captureStream){ setStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।'); return; }
+  if(isExporting) return; isExporting = true;
+  const stream = canvas.captureStream(30);
+  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond:6000000 });
+  const chunks = [];
+  recorder.ondataavailable = (e)=> e.data.size && chunks.push(e.data);
+  recorder.onstop = ()=>{
+    saveBlob(new Blob(chunks,{type:mimeType}), 'congratulations-card.webm');
+    setStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+    isExporting = false;
+  };
+  setStatus('ভিডিও রেকর্ড হচ্ছে…');
+  recorder.start();
+  setTimeout(()=>recorder.stop(), 3200);
+}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+</body>
+</html>

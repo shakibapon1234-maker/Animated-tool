@@ -739,9 +739,10 @@ async function downloadGif() {
   if (!window.GIF) { setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন।'); return; }
   if (isExporting) return;
   isExporting = true;
+  const _gifWantTransparent = document.getElementById('transparentToggle').checked;
   const bgColor = document.getElementById('exportBgColor').value;
   const oldSweep = sweepPhase, oldIdle = idlePhase, oldBuild = buildP;
-  const gif = new GIF({ workers: 2, quality: 10, width: CW, height: CH,
+  const gif = new GIF({ transparent: (_gifWantTransparent ? window.GIF_CHROMA_INT : null), workers: 2, quality: 10, width: CW, height: CH,
     workerScript: 'gif.worker.js' });
   const frames = 60, frameDelay = 60, clipMs = 6000;
   setExportStatus('GIF তৈরি হচ্ছে… 0%');
@@ -751,8 +752,8 @@ async function downloadGif() {
     sweepPhase = oldSweep + elapsedMs * 0.0006;
     idlePhase = oldIdle + elapsedMs * 0.0016;
     buildP = clamp01(elapsedMs / (clipMs * 0.62));
-    drawFrame({ solidBg: true, bgColor });
-    gif.addFrame(canvas, { copy: true, delay: frameDelay });
+    drawFrame({ solidBg: !_gifWantTransparent, bgColor });
+    gif.addFrame(_gifWantTransparent ? window.gifFlattenFrame(canvas) : (canvas), { copy: true, delay: frameDelay });
     setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((i + 1) / frames * 100)}%`);
     await new Promise(requestAnimationFrame);
   }

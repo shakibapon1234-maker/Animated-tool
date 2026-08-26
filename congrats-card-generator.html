@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="bn">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>কংগ্রাচুলেশন কার্ড জেনারেটর</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800;900&family=Playfair+Display:ital,wght@0,600;1,600&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
+
+<style>
+  :root {
+    --primary: #0a192f;
+    --secondary: #1a3a6b;
+    --accent: #00d2ff;
+    --accent-gold: #f59e0b;
+    --text-light: #e2e8f0;
+    --white: #ffffff;
+    --square-w: 420px;
+    --square-h: 580px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Montserrat', 'Hind Siliguri', sans-serif;
+    background: #f1f5f9;
+    display: flex; height: 100vh; overflow: hidden; color: #333;
+  }
+
+  /* ================= CONTROL PANEL ================= */
+  .controls {
+    width: 400px; background: var(--white);
+    padding: 20px 25px; box-shadow: 5px 0 25px rgba(0,0,0,0.07);
+    overflow-y: auto; z-index: 100;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .controls-header { border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; }
+  .controls-header h2 {
+    margin: 0; font-size: 19px; font-weight: 800; color: var(--secondary);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .controls-header p { margin: 6px 0 0; font-size: 12.5px; color: #64748b; }
+
+  .section-title {
+    font-size: 12px; font-weight: 800; color: #94a3b8; text-transform: uppercase;
+    letter-spacing: 1px; margin: 4px 0 -4px; display: flex; align-items: center; gap: 6px;
+  }
+
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label {
+    font-size: 12px; font-weight: 700; color: #475569;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .form-group input, .form-group textarea {
+    padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px;
+    font-family: inherit; font-size: 14px; transition: all 0.3s; background: #f8fafc;
+  }
+  .form-group input:focus, .form-group textarea:focus {
+    outline: none; border-color: var(--accent); background: #fff;
+    box-shadow: 0 0 0 3px rgba(0,210,255,0.15);
+  }
+  .form-group textarea { resize: vertical; height: 74px; }
+  .hint-btn {
+    align-self: flex-start; font-size: 11.5px; font-weight: 700; color: #0284c7;
+    background: #e0f2fe; border: none; padding: 5px 10px; border-radius: 6px;
+    cursor: pointer;
+  }
+  .hint-btn:hover { background: #bae6fd; }
+
+  /* Type toggle */
+  .type-toggle { display: flex; gap: 8px; }
+  .type-btn {
+    flex: 1; padding: 12px 8px; border-radius: 10px; border: 2px solid #e2e8f0;
+    background: #f8fafc; color: #64748b; font-weight: 700; font-size: 13.5px;
+    cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px;
+    font-family: inherit; transition: all 0.2s;
+  }
+  .type-btn i { font-size: 18px; }
+  .type-btn.active { background: var(--secondary); border-color: var(--secondary); color: #fff; }
+
+  .file-upload-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
+  .file-upload-wrapper input[type="file"] {
+    font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer;
+  }
+  .btn-upload {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    background: #e0f2fe; color: #0284c7; padding: 11px; border-radius: 8px;
+    font-weight: 600; border: 2px dashed #7dd3fc; cursor: pointer; transition: all 0.2s;
+    width: 100%; font-family: inherit; font-size: 13.5px;
+  }
+  .file-upload-wrapper:hover .btn-upload { background: #bae6fd; border-color: #38bdf8; }
+
+  .photo-position-control {
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px;
+    display: none; flex-direction: column; gap: 8px;
+  }
+  .photo-position-control.visible { display: flex; }
+  .photo-position-control label {
+    font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 0;
+  }
+  .position-slider-row, .zoom-slider-row { display: flex; align-items: center; gap: 10px; }
+  .position-slider-row i, .zoom-slider-row i { color: #94a3b8; font-size: 16px; width: 18px; text-align: center; }
+  .position-slider-row input[type="range"] {
+    flex: 1; -webkit-appearance: none; height: 6px; border-radius: 3px;
+    background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--fill), #e2e8f0 var(--fill), #e2e8f0 100%);
+    outline: none; cursor: pointer;
+  }
+  .position-slider-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+    background: var(--accent); border: 2px solid #fff; box-shadow: 0 2px 8px rgba(0,210,255,0.4); cursor: pointer;
+  }
+  .zoom-slider-row input[type="range"] {
+    flex: 1; -webkit-appearance: none; height: 6px; border-radius: 3px;
+    background: linear-gradient(to right, #a78bfa 0%, #a78bfa var(--fill), #e2e8f0 var(--fill), #e2e8f0 100%);
+    outline: none; cursor: pointer;
+  }
+  .zoom-slider-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+    background: #a78bfa; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(167,139,250,0.4); cursor: pointer;
+  }
+  .val-display {
+    font-size: 11px; font-weight: 700; color: var(--accent); background: rgba(0,210,255,0.1);
+    padding: 2px 8px; border-radius: 4px; min-width: 36px; text-align: center;
+  }
+
+  .shape-row { display: flex; gap: 8px; }
+  .shape-btn {
+    flex: 1; padding: 9px; border-radius: 8px; border: 1px solid #cbd5e1; background: #f1f5f9;
+    color: #475569; font-weight: 600; cursor: pointer; font-family: inherit; font-size: 13px;
+  }
+
+  .theme-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .theme-btn {
+    height: 44px; border-radius: 9px; border: 2px solid transparent; cursor: pointer; position: relative;
+  }
+  .theme-btn.active { border-color: var(--secondary); box-shadow: 0 0 0 2px #fff inset; }
+  .theme-btn.active::after {
+    content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: #fff;
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  }
+  #theme-label-display { font-size: 12px; color: #64748b; text-align: center; margin-top: -2px; }
+
+  .btn-download {
+    padding: 13px; color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: all 0.3s; font-family: inherit;
+  }
+  .btn-download:hover { transform: translateY(-2px); }
+  .btn-download:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+  #btn-png { background: linear-gradient(135deg, var(--secondary), var(--primary)); box-shadow: 0 8px 20px rgba(26,58,107,0.25); }
+  #btn-gif { background: linear-gradient(135deg, #a855f7, #6d28d9); box-shadow: 0 8px 20px rgba(109,40,217,0.25); }
+  #btn-video { background: linear-gradient(135deg, #ec4899, #be185d); box-shadow: 0 8px 20px rgba(190,24,101,0.25); }
+  .download-note { font-size: 11.5px; color: #94a3b8; line-height: 1.5; margin-top: -4px; }
+
+  /* ================= PREVIEW AREA ================= */
+  .preview-area {
+    flex: 1; background: #e2e8f0; display: flex; align-items: center; justify-content: center;
+    overflow: auto; padding: 40px;
+    background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 20px 20px;
+  }
+
+  .card-container {
+    --theme-bg: #0a192f;
+    --theme-radial: radial-gradient(circle at 80% 20%, #1e3a63 0%, var(--theme-bg) 70%);
+    --theme-grid: rgba(255,255,255,0.03);
+    --theme-glow1: rgba(0,210,255,0.15);
+    --theme-glow2: rgba(26,58,107,0.4);
+    --theme-plane: rgba(255,255,255,0.025);
+    --theme-greeting: linear-gradient(45deg, #f59e0b, #ec4899, #8b5cf6);
+    --theme-name: linear-gradient(to right, #00d2ff, #3a7bd5);
+    --theme-text-light: #e2e8f0;
+    --theme-border-msg: #ec4899;
+    --theme-msg-bg: linear-gradient(90deg, rgba(236,72,153,0.05), transparent);
+    --theme-badge-text: #94a3b8;
+    --theme-badge-val: #fff;
+    --theme-photo-bg: var(--secondary);
+    --theme-photo-border: #fff;
+    --theme-logo-bg: rgba(255,255,255,0.95);
+    --theme-logo-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    --border-glow-color: rgba(0,210,255,0.8);
+    --border-glow-color2: rgba(58,123,213,0.65);
+    --theme-badge-bg: linear-gradient(135deg, #f59e0b, #fbbf24);
+    --theme-badge-txt: #fff;
+    --confetti-a: #f59e0b; --confetti-b: #ec4899; --confetti-c: #00d2ff;
+
+    width: 1080px; height: 1080px; background: var(--theme-bg); position: relative;
+    overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+    transform-origin: center center; flex-shrink: 0; transition: background 0.5s ease;
+  }
+
+  /* ── GOLDEN (default success theme = root fallback golden) ── */
+  .card-container[data-theme="golden"] {
+    --theme-bg: #16100a; --theme-radial: radial-gradient(circle at 75% 15%, #4a2800 0%, #16100a 65%);
+    --theme-glow1: rgba(245,158,11,0.25); --theme-glow2: rgba(220,38,38,0.12); --theme-plane: rgba(255,255,255,0.02);
+    --theme-greeting: linear-gradient(45deg, #fbbf24, #f97316, #ef4444);
+    --theme-name: linear-gradient(to right, #fbbf24, #fcd34d); --theme-text-light: #fde68a;
+    --theme-border-msg: #f59e0b; --theme-msg-bg: linear-gradient(90deg, rgba(245,158,11,0.1), transparent);
+    --theme-badge-text: #fcd34d; --theme-badge-val: #fffbeb; --theme-photo-bg: #4a2800; --theme-photo-border: #f59e0b;
+    --theme-logo-bg: rgba(255,255,255,0.94); --theme-logo-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    --border-glow-color: rgba(245,158,11,0.85); --border-glow-color2: rgba(249,115,22,0.6);
+    --theme-badge-bg: linear-gradient(135deg, #f59e0b, #d97706); --theme-badge-txt: #fff;
+    --confetti-a:#fbbf24; --confetti-b:#f97316; --confetti-c:#fff7ed;
+  }
+  /* ── EMERALD (success green) ── */
+  .card-container[data-theme="emerald"] {
+    --theme-bg: #051c10; --theme-radial: radial-gradient(circle at 75% 15%, #0f3d24 0%, #051c10 65%);
+    --theme-glow1: rgba(16,185,129,0.25); --theme-glow2: rgba(5,150,105,0.15); --theme-plane: rgba(255,255,255,0.02);
+    --theme-greeting: linear-gradient(45deg, #6ee7b7, #34d399, #10b981);
+    --theme-name: linear-gradient(to right, #34d399, #6ee7b7); --theme-text-light: #a7f3d0;
+    --theme-border-msg: #10b981; --theme-msg-bg: linear-gradient(90deg, rgba(16,185,129,0.1), transparent);
+    --theme-badge-text: #6ee7b7; --theme-badge-val: #ecfdf5; --theme-photo-bg: #064e3b; --theme-photo-border: #10b981;
+    --theme-logo-bg: rgba(255,255,255,0.94); --theme-logo-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    --border-glow-color: rgba(16,185,129,0.85); --border-glow-color2: rgba(52,211,153,0.55);
+    --theme-badge-bg: linear-gradient(135deg, #10b981, #059669); --theme-badge-txt: #fff;
+    --confetti-a:#34d399; --confetti-b:#fbbf24; --confetti-c:#a7f3d0;
+  }
+  /* ── OCEAN (corporate blue) ── */
+  .card-container[data-theme="ocean"] {
+    --theme-bg: #020b18; --theme-radial: radial-gradient(circle at 75% 15%, #083f6f 0%, #020b18 65%);
+    --theme-glow1: rgba(14,165,233,0.25); --theme-glow2: rgba(20,184,166,0.15); --theme-plane: rgba(255,255,255,0.018);
+    --theme-greeting: linear-gradient(45deg, #fbbf24, #38bdf8, #06b6d4);
+    --theme-name: linear-gradient(to right, #38bdf8, #67e8f9); --theme-text-light: #bae6fd;
+    --theme-border-msg: #0ea5e9; --theme-msg-bg: linear-gradient(90deg, rgba(14,165,233,0.12), transparent);
+    --theme-badge-text: #7dd3fc; --theme-badge-val: #f0f9ff; --theme-photo-bg: #083f6f; --theme-photo-border: #38bdf8;
+    --theme-logo-bg: rgba(255,255,255,0.94); --theme-logo-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    --border-glow-color: rgba(56,189,248,0.8); --border-glow-color2: rgba(6,182,212,0.6);
+    --theme-badge-bg: linear-gradient(135deg, #0ea5e9, #06b6d4); --theme-badge-txt: #fff;
+    --confetti-a:#38bdf8; --confetti-b:#fbbf24; --confetti-c:#67e8f9;
+  }
+  /* ── ROSEGOLD (elegant) ── */
+  .card-container[data-theme="rosegold"] {
+    --theme-bg: #1a0c12; --theme-radial: radial-gradient(circle at 75% 15%, #4a1d2e 0%, #1a0c12 65%);
+    --theme-glow1: rgba(244,114,182,0.25); --theme-glow2: rgba(251,191,36,0.15); --theme-plane: rgba(255,255,255,0.018);
+    --theme-greeting: linear-gradient(45deg, #fbcfe8, #f9a8d4, #fbbf24);
+    --theme-name: linear-gradient(to right, #f472b6, #fbbf24); --theme-text-light: #fce7f3;
+    --theme-border-msg: #f472b6; --theme-msg-bg: linear-gradient(90deg, rgba(244,114,182,0.1), transparent);
+    --theme-badge-text: #f9a8d4; --theme-badge-val: #fdf2f8; --theme-photo-bg: #4a1d2e; --theme-photo-border: #f472b6;
+    --theme-logo-bg: rgba(255,255,255,0.95); --theme-logo-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    --border-glow-color: rgba(244,114,182,0.85); --border-glow-color2: rgba(251,191,36,0.55);
+    --theme-badge-bg: linear-gradient(135deg, #f472b6, #fbbf24); --theme-badge-txt: #fff;
+    --confetti-a:#f472b6; --confetti-b:#fbbf24; --confetti-c:#fce7f3;
+  }
+  /* ── COSMIC (modern violet) ── */
+  .card-container[data-theme="cosmic"] {
+    --theme-bg: #05051a; --theme-radial: radial-gradient(circle at 75% 15%, #1e1b4b 0%, #05051a 70%);
+    --theme-glow1: rgba(99,102,241,0.25); --theme-glow2: rgba(168,85,247,0.15); --theme-plane: rgba(255,255,255,0.018);
+    --theme-greeting: linear-gradient(45deg, #818cf8, #c084fc, #fb7185);
+    --theme-name: linear-gradient(to right, #6366f1, #a855f7); --theme-text-light: #c7d2fe;
+    --theme-border-msg: #818cf8; --theme-msg-bg: linear-gradient(90deg, rgba(129,140,248,0.12), transparent);
+    --theme-badge-text: #a5b4fc; --theme-badge-val: #eef2ff; --theme-photo-bg: #1e1b4b; --theme-photo-border: #818cf8;
+    --theme-logo-bg: rgba(255,255,255,0.94); --theme-logo-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    --border-glow-color: rgba(129,140,248,0.85); --border-glow-color2: rgba(192,132,252,0.55);
+    --theme-badge-bg: linear-gradient(135deg, #6366f1, #a855f7); --theme-badge-txt: #fff;
+    --confetti-a:#a855f7; --confetti-b:#fb7185; --confetti-c:#c7d2fe;
+  }
+  /* ── WFA SIGNATURE (brand cyan/violet) ── */
+  .card-container[data-theme="wfa"] {
+    --theme-bg: #070b14;
+    --theme-radial: radial-gradient(circle at 20% 30%, rgba(0,242,254,0.15) 0%, transparent 40%),
+                     radial-gradient(circle at 80% 70%, rgba(157,80,187,0.15) 0%, transparent 40%),
+                     radial-gradient(circle at 50% 50%, rgba(0,210,255,0.05) 0%, transparent 60%);
+    --theme-glow1: rgba(0,242,254,0.2); --theme-glow2: rgba(157,80,187,0.2);
+    --theme-greeting: linear-gradient(45deg, #00f2fe, #4facfe);
+    --theme-name: linear-gradient(to right, #ffffff, #00f2fe); --theme-text-light: #94a3b8;
+    --theme-border-msg: #00f2fe; --theme-msg-bg: linear-gradient(90deg, rgba(0,242,254,0.08), transparent);
+    --theme-badge-text: #64748b; --theme-badge-val: #f1f5f9; --theme-photo-bg: #0f172a; --theme-photo-border: #00f2fe;
+    --theme-logo-bg: #ffffff; --theme-logo-shadow: 0 15px 40px rgba(0,0,0,0.4);
+    --border-glow-color: #00f2fe; --border-glow-color2: #9d50bb;
+    --theme-badge-bg: linear-gradient(135deg, #00f2fe, #4facfe); --theme-badge-txt: #fff;
+    --confetti-a:#00f2fe; --confetti-b:#9d50bb; --confetti-c:#4facfe;
+  }
+
+  .card-container.is-capturing { box-shadow: none !important; }
+
+  .bg-layer { position: absolute; inset: 0; background: var(--theme-radial); z-index: 1; transition: background .5s; }
+  .bg-grid {
+    position: absolute; inset: 0; z-index: 2;
+    background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .bg-glow-1 { position: absolute; top: -200px; right: -200px; width: 800px; height: 800px; background: radial-gradient(circle, var(--theme-glow1) 0%, transparent 60%); border-radius: 50%; z-index: 2; }
+  .bg-glow-2 { position: absolute; bottom: -300px; left: -100px; width: 900px; height: 900px; background: radial-gradient(circle, var(--theme-glow2) 0%, transparent 60%); border-radius: 50%; z-index: 2; }
+  .watermark-icon { position: absolute; bottom: 40px; right: 40px; font-size: 460px; color: var(--theme-plane); z-index: 2; transform: rotate(-12deg); }
+
+  /* Confetti — the signature celebratory accent */
+  .confetti-dot { position: absolute; border-radius: 3px; z-index: 6; opacity: .85; }
+  .confetti-dot.round { border-radius: 50%; }
+  @keyframes confettiFloat { 0%,100% { transform: translateY(0) rotate(0deg); opacity:.55; } 50% { transform: translateY(-22px) rotate(180deg); opacity:1; } }
+  .c1{top:9%;left:8%;width:14px;height:14px;background:var(--confetti-a);animation:confettiFloat 3.6s ease-in-out infinite;}
+  .c2{top:15%;left:16%;width:9px;height:9px;background:var(--confetti-b);animation:confettiFloat 4.2s ease-in-out infinite .4s;}
+  .c3{top:7%;left:24%;width:11px;height:11px;background:var(--confetti-c);animation:confettiFloat 3.1s ease-in-out infinite .9s;}
+  .c4{top:20%;left:5%;width:8px;height:8px;background:var(--confetti-c);animation:confettiFloat 3.9s ease-in-out infinite 1.3s;}
+  .c5{top:12%;left:34%;width:10px;height:10px;background:var(--confetti-a);animation:confettiFloat 3.4s ease-in-out infinite .6s;}
+
+  /* Animated glow border (used for GIF / video capture + optional live preview) */
+  .video-border { position: absolute; inset: 0; z-index: 3; pointer-events: none; display: none; }
+  .video-border.active { display: block; }
+  .video-border::before {
+    content: ''; position: absolute; inset: 0; border: 5px solid transparent;
+    background: linear-gradient(var(--theme-bg,#0a192f), var(--theme-bg,#0a192f)) padding-box,
+                conic-gradient(from var(--angle,0deg), var(--border-glow-color,rgba(0,210,255,.8)), var(--border-glow-color2,rgba(26,58,107,.5)), var(--border-glow-color,rgba(0,210,255,.8))) border-box;
+    animation: rotateBorder 4s linear infinite; z-index: 0;
+  }
+  .video-border::after {
+    content: ''; position: absolute; inset: -3px;
+    box-shadow: 0 0 18px 4px var(--border-glow-color,rgba(0,210,255,.55));
+    animation: glowPulse 2.5s ease-in-out infinite alternate; z-index: -1;
+  }
+  @keyframes glowPulse { from { opacity:.55; } to { opacity:1; } }
+  @property --angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+  @keyframes rotateBorder { to { --angle: 360deg; } }
+
+  /* CARD CONTENT */
+  .card-content { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; padding: 55px 70px 45px; }
+  .card-header { display: flex; justify-content: space-between; align-items: center; }
+  .logo-box {
+    background: var(--theme-logo-bg); padding: 10px 24px; border-radius: 14px; box-shadow: var(--theme-logo-shadow);
+    display: flex; align-items: center; gap: 10px; min-height: 58px;
+  }
+  .logo-box img { height: 52px; object-fit: contain; display: none; }
+  .logo-box .logo-fallback { font-size: 26px; color: var(--secondary); }
+  .logo-box .logo-fallback-text { font-weight: 800; font-size: 16px; color: var(--secondary); letter-spacing: .5px; }
+
+  .badge-congrats {
+    background: var(--theme-badge-bg); color: var(--theme-badge-txt); padding: 12px 30px; border-radius: 50px;
+    font-size: 20px; font-weight: 800; letter-spacing: .5px; box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    border: 2px solid rgba(255,255,255,0.2); max-width: 620px; text-align: center;
+  }
+
+  .card-body { flex: 1; display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+  .text-section { flex: 1; padding-right: 35px; }
+  .greeting {
+    font-family: 'Playfair Display', serif; font-style: italic; font-size: 52px; margin: 0 0 2px; line-height: 1.05;
+    background: var(--theme-greeting); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .name-display {
+    font-size: 44px; font-weight: 900; margin: 0 0 14px; text-transform: uppercase; line-height: 1.1;
+    background: var(--theme-name); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    font-family: 'Hind Siliguri', 'Montserrat', sans-serif;
+  }
+  .message-display {
+    font-size: 20px; color: var(--theme-text-light); line-height: 1.5; font-weight: 400; margin-bottom: 22px;
+    border-left: 4px solid var(--theme-border-msg); padding: 10px 20px; background: var(--theme-msg-bg);
+    border-radius: 0 10px 10px 0; font-family: 'Hind Siliguri', 'Montserrat', sans-serif;
+  }
+  .info-badges { display: flex; gap: 15px; flex-wrap: wrap; }
+  .info-badge { display: flex; align-items: center; gap: 15px; padding: 12px 20px; border-radius: 14px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); background: rgba(255,255,255,0.06); }
+  .info-badge .icon { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 21px; background: rgba(255,255,255,0.12); color: var(--theme-badge-val); }
+  .info-badge .details { display: flex; flex-direction: column; }
+  .info-badge .label { font-size: 12.5px; color: var(--theme-badge-text); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+  .info-badge .val { font-size: 17px; color: var(--theme-badge-val); font-weight: 700; font-family: 'Hind Siliguri','Montserrat',sans-serif; }
+
+  .photo-section { position: relative; width: 440px; height: 580px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-left: 15px; }
+  .photo-ring-1 { position: absolute; width: 400px; height: 400px; border-radius: 50%; border: 3px dashed rgba(255,255,255,0.35); animation: spin 30s linear infinite; }
+  .photo-ring-2 { position: absolute; width: 440px; height: 440px; border-radius: 50%; border: 3px dashed var(--border-glow-color, rgba(0,210,255,.3)); animation: spinRev 40s linear infinite; opacity:.5; }
+  .photo-frame {
+    width: 330px; height: 330px; border-radius: 50%; overflow: hidden; background: var(--theme-photo-bg);
+    border: 10px solid var(--theme-photo-border); box-shadow: 0 25px 60px rgba(0,0,0,0.6); position: relative; z-index: 5;
+  }
+  .photo-frame.square { width: var(--square-w); height: var(--square-h); border-radius: 20px; }
+  .card-container.has-square .photo-ring-1, .card-container.has-square .photo-ring-2 { opacity: 0; }
+  .photo-frame img { width: 100%; height: 100%; object-fit: cover; position: absolute; top:0; left:0; transform-origin: center center; }
+  .photo-frame .placeholder { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:90px; color: rgba(255,255,255,0.35); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes spinRev { to { transform: rotate(-360deg); } }
+
+  .footer-strip { display:flex; justify-content: space-between; align-items:center; margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.12); }
+  .footer-strip .inst-name { font-size: 16px; font-weight: 800; color: var(--theme-badge-val); font-family:'Hind Siliguri','Montserrat',sans-serif; }
+  .footer-strip .inst-tagline { font-size: 13px; color: var(--theme-badge-text); }
+  .footer-strip.empty { display: none; }
+</style>
+</head>
+
+<body>
+  <!-- ================= CONTROLS ================= -->
+  <div class="controls">
+    <div class="controls-header">
+      <h2><i class="fa-solid fa-award"></i> কংগ্রাচুলেশন কার্ড</h2>
+      <p>ছবি ও তথ্য দিন, কার্ড নিজে থেকেই তৈরি হয়ে যাবে।</p>
+    </div>
+
+    <div class="section-title"><i class="fa-solid fa-circle-check"></i> ধরন</div>
+    <div class="type-toggle">
+      <button type="button" class="type-btn active" id="type-job-btn" onclick="setType('job')"><i class="fa-solid fa-briefcase"></i> নতুন চাকরি</button>
+      <button type="button" class="type-btn" id="type-business-btn" onclick="setType('business')"><i class="fa-solid fa-rocket"></i> নতুন ব্যবসা</button>
+    </div>
+
+    <div class="section-title"><i class="fa-solid fa-user"></i> ব্যক্তির তথ্য</div>
+    <div class="form-group">
+      <label>নাম</label>
+      <input type="text" id="inp-name" placeholder="যেমনঃ রাকিব হাসান" oninput="updateCard()">
+    </div>
+    <div class="form-group">
+      <label>ছবি</label>
+      <div class="file-upload-wrapper">
+        <button type="button" class="btn-upload"><i class="fa-solid fa-camera"></i> ছবি আপলোড করুন</button>
+        <input type="file" accept="image/*" onchange="handlePhotoUpload(event)">
+      </div>
+    </div>
+    <div class="photo-position-control" id="photo-pos-ctrl">
+      <label>ছবির পজিশন ও জুম</label>
+      <div class="position-slider-row"><i class="fa-solid fa-arrows-left-right"></i><input type="range" id="photo-x" min="-100" max="100" value="0" oninput="updatePhotoTransform()"></div>
+      <div class="position-slider-row"><i class="fa-solid fa-arrows-up-down"></i><input type="range" id="photo-y" min="-100" max="100" value="0" oninput="updatePhotoTransform()"></div>
+      <div class="zoom-slider-row"><i class="fa-solid fa-magnifying-glass"></i><input type="range" id="photo-zoom" min="80" max="200" value="116" oninput="updatePhotoTransform()"><span class="val-display" id="zoom-val">116%</span></div>
+      <div class="shape-row">
+        <button type="button" class="shape-btn" id="shape-circle" onclick="setShape('circle')"><i class="fa-regular fa-circle"></i> গোল</button>
+        <button type="button" class="shape-btn" id="shape-square" onclick="setShape('square')"><i class="fa-regular fa-square"></i> চারকোণা</button>
+      </div>
+    </div>
+
+    <div id="job-fields">
+      <div class="form-group"><label>পদবি / Position</label><input type="text" id="inp-position" placeholder="যেমনঃ Cabin Crew" oninput="updateCard()"></div>
+      <div class="form-group"><label>প্রতিষ্ঠান / Company</label><input type="text" id="inp-company" placeholder="যেমনঃ Biman Bangladesh" oninput="updateCard()"></div>
+    </div>
+    <div id="business-fields" style="display:none;">
+      <div class="form-group"><label>ব্যবসার নাম</label><input type="text" id="inp-bizname" placeholder="যেমনঃ Sky Travels BD" oninput="updateCard()"></div>
+      <div class="form-group"><label>ব্যবসার ধরন</label><input type="text" id="inp-biztype" placeholder="যেমনঃ ট্রাভেল এজেন্সি" oninput="updateCard()"></div>
+    </div>
+
+    <div class="section-title"><i class="fa-solid fa-pen"></i> কার্ডের লেখা</div>
+    <div class="form-group"><label>উপরের ব্যাজ টেক্সট</label><input type="text" id="inp-badge" placeholder="🎉 কংগ্রাচুলেশনস" oninput="updateCard()"></div>
+    <div class="form-group"><label>গ্রিটিং</label><input type="text" id="inp-greeting" placeholder="অভিনন্দন!" oninput="updateCard()"></div>
+    <div class="form-group">
+      <label>বার্তা</label>
+      <textarea id="inp-message" placeholder="এখানে অভিনন্দন বার্তা লিখুন..." oninput="updateCard()"></textarea>
+      <button type="button" class="hint-btn" onclick="suggestMessage()"><i class="fa-solid fa-wand-magic-sparkles"></i> নমুনা বার্তা বসান</button>
+    </div>
+
+    <div class="section-title"><i class="fa-solid fa-building-columns"></i> প্রতিষ্ঠানের তথ্য (ঐচ্ছিক)</div>
+    <div class="form-group"><label>লোগো</label>
+      <div class="file-upload-wrapper">
+        <button type="button" class="btn-upload"><i class="fa-solid fa-image"></i> লোগো আপলোড করুন</button>
+        <input type="file" accept="image/*" onchange="handleLogoUpload(event)">
+      </div>
+    </div>
+    <div class="form-group"><label>প্রতিষ্ঠানের নাম</label><input type="text" id="inp-institute" placeholder="যেমনঃ Wings Fly Aviation Academy" oninput="updateCard()"></div>
+    <div class="form-group"><label>ট্যাগলাইন</label><input type="text" id="inp-tagline" placeholder="যেমনঃ www.wingsflyaviation.com" oninput="updateCard()"></div>
+
+    <div class="section-title"><i class="fa-solid fa-palette"></i> থিম</div>
+    <div class="theme-grid" id="theme-grid">
+      <button type="button" class="theme-btn" data-theme="golden" style="background:linear-gradient(135deg,#f59e0b,#16100a);" onclick="setTheme('golden')"></button>
+      <button type="button" class="theme-btn" data-theme="emerald" style="background:linear-gradient(135deg,#10b981,#051c10);" onclick="setTheme('emerald')"></button>
+      <button type="button" class="theme-btn" data-theme="ocean" style="background:linear-gradient(135deg,#0ea5e9,#020b18);" onclick="setTheme('ocean')"></button>
+      <button type="button" class="theme-btn" data-theme="rosegold" style="background:linear-gradient(135deg,#f472b6,#1a0c12);" onclick="setTheme('rosegold')"></button>
+      <button type="button" class="theme-btn" data-theme="cosmic" style="background:linear-gradient(135deg,#a855f7,#05051a);" onclick="setTheme('cosmic')"></button>
+      <button type="button" class="theme-btn" data-theme="wfa" style="background:linear-gradient(135deg,#00f2fe,#070b14);" onclick="setTheme('wfa')"></button>
+    </div>
+    <div id="theme-label-display">Golden Success</div>
+
+    <div class="section-title"><i class="fa-solid fa-download"></i> ডাউনলোড</div>
+    <button class="btn-download" id="btn-png" onclick="downloadPNG()"><i class="fa-solid fa-image"></i> PNG ডাউনলোড</button>
+    <button class="btn-download" id="btn-gif" onclick="downloadGIF()"><i class="fa-solid fa-file-video"></i> GIF (অ্যানিমেটেড) ডাউনলোড</button>
+    <button class="btn-download" id="btn-video" onclick="downloadVideo()"><i class="fa-solid fa-video"></i> ভিডিও (WebM) ডাউনলোড</button>
+    <div class="download-note">GIF ও ভিডিও তৈরি হতে কিছুক্ষণ সময় লাগবে (ব্রাউজারেই তৈরি হয়, কোনো আপলোড হয় না)। ভিডিও ফাইল .webm ফরম্যাটে আসবে, যা ফেসবুক/হোয়াটসঅ্যাপে সরাসরি শেয়ার করা যায়।</div>
+  </div>
+
+  <!-- ================= PREVIEW ================= -->
+  <div class="preview-area" id="preview-wrapper">
+    <div class="card-container" id="capture-card" data-theme="golden">
+      <div class="bg-layer"></div>
+      <div class="bg-grid"></div>
+      <div class="bg-glow-1"></div>
+      <div class="bg-glow-2"></div>
+      <i class="fa-solid fa-briefcase watermark-icon" id="watermark-icon"></i>
+
+      <div class="confetti-dot c1 round"></div>
+      <div class="confetti-dot c2"></div>
+      <div class="confetti-dot c3 round"></div>
+      <div class="confetti-dot c4"></div>
+      <div class="confetti-dot c5 round"></div>
+
+      <div class="video-border" id="video-border">
+        <div></div>
+      </div>
+
+      <div class="card-content">
+        <div class="card-header">
+          <div class="logo-box" id="logo-box">
+            <img id="out-logo" src="" alt="logo">
+            <i class="fa-solid fa-graduation-cap logo-fallback" id="logo-fallback-icon"></i>
+            <span class="logo-fallback-text" id="logo-fallback-text">LOGO</span>
+          </div>
+          <div class="badge-congrats" id="out-badge">🎉 কংগ্রাচুলেশনস</div>
+        </div>
+
+        <div class="card-body">
+          <div class="text-section">
+            <p class="greeting" id="out-greeting">অভিনন্দন!</p>
+            <h1 class="name-display" id="out-name">আপনার নাম</h1>
+            <p class="message-display" id="out-message">এখানে অভিনন্দন বার্তা দেখা যাবে।</p>
+            <div class="info-badges">
+              <div class="info-badge"><div class="icon"><i class="fa-solid fa-briefcase" id="badge1-icon"></i></div><div class="details"><span class="label" id="badge1-label">পদবি</span><span class="val" id="badge1-val">Position</span></div></div>
+              <div class="info-badge"><div class="icon"><i class="fa-solid fa-building" id="badge2-icon"></i></div><div class="details"><span class="label" id="badge2-label">প্রতিষ্ঠান</span><span class="val" id="badge2-val">Company</span></div></div>
+            </div>
+          </div>
+          <div class="photo-section">
+            <div class="photo-ring-1"></div>
+            <div class="photo-ring-2"></div>
+            <div class="photo-frame" id="photo-frame-el">
+              <i class="fa-solid fa-user placeholder" id="photo-placeholder"></i>
+              <img id="out-photo" src="" alt="photo" style="display:none;">
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-strip empty" id="footer-strip">
+          <span class="inst-name" id="out-institute"></span>
+          <span class="inst-tagline" id="out-tagline"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+let currentType = 'job';
+let currentShape = 'circle';
+let videoBorderOn = false;
+
+const bgColors = { golden:'#16100a', emerald:'#051c10', ocean:'#020b18', rosegold:'#1a0c12', cosmic:'#05051a', wfa:'#070b14' };
+const themeNames = { golden:'Golden Success', emerald:'Emerald Achievement', ocean:'Ocean Corporate', rosegold:'Rose Gold Elegance', cosmic:'Cosmic Modern', wfa:'WFA Signature' };
+
+const jobMsg = 'আপনার নতুন কর্মজীবনের জন্য আন্তরিক অভিনন্দন! আপনার এই সাফল্য আমাদের জন্য গর্বের বিষয়। ভবিষ্যতের পথচলা শুভ হোক।';
+const bizMsg = 'আপনার নতুন ব্যবসায়িক যাত্রার জন্য আন্তরিক অভিনন্দন! আপনার এই উদ্যোগ সাফল্যমণ্ডিত হোক, এই কামনা করি।';
+
+function val(id){ return document.getElementById(id).value.trim(); }
+
+function setType(type){
+  currentType = type;
+  document.getElementById('type-job-btn').classList.toggle('active', type==='job');
+  document.getElementById('type-business-btn').classList.toggle('active', type==='business');
+  document.getElementById('job-fields').style.display = type==='job' ? '' : 'none';
+  document.getElementById('business-fields').style.display = type==='business' ? '' : 'none';
+  updateCard();
+}
+
+function suggestMessage(){
+  document.getElementById('inp-message').value = currentType==='job' ? jobMsg : bizMsg;
+  updateCard();
+}
+
+function updateCard(){
+  document.getElementById('out-name').textContent = val('inp-name') || 'আপনার নাম';
+  document.getElementById('out-greeting').textContent = val('inp-greeting') || 'অভিনন্দন!';
+  document.getElementById('out-badge').textContent = val('inp-badge') || (currentType==='job' ? '🎉 নতুন চাকরির কংগ্রাচুলেশনস' : '🎉 নতুন ব্যবসার কংগ্রাচুলেশনস');
+  document.getElementById('out-message').textContent = val('inp-message') || (currentType==='job' ? jobMsg : bizMsg);
+
+  const b1l = document.getElementById('badge1-label'), b1v = document.getElementById('badge1-val'), b1i = document.getElementById('badge1-icon');
+  const b2l = document.getElementById('badge2-label'), b2v = document.getElementById('badge2-val'), b2i = document.getElementById('badge2-icon');
+  const wm = document.getElementById('watermark-icon');
+
+  if(currentType === 'job'){
+    b1l.textContent = 'পদবি'; b1v.textContent = val('inp-position') || 'Position';
+    b2l.textContent = 'প্রতিষ্ঠান'; b2v.textContent = val('inp-company') || 'Company';
+    b1i.className = 'fa-solid fa-briefcase'; b2i.className = 'fa-solid fa-building';
+    wm.className = 'fa-solid fa-briefcase watermark-icon';
+  } else {
+    b1l.textContent = 'ব্যবসা'; b1v.textContent = val('inp-bizname') || 'Business Name';
+    b2l.textContent = 'ধরন'; b2v.textContent = val('inp-biztype') || 'Industry';
+    b1i.className = 'fa-solid fa-rocket'; b2i.className = 'fa-solid fa-chart-line';
+    wm.className = 'fa-solid fa-rocket watermark-icon';
+  }
+
+  const inst = val('inp-institute'), tag = val('inp-tagline');
+  document.getElementById('out-institute').textContent = inst;
+  document.getElementById('out-tagline').textContent = tag;
+  document.getElementById('footer-strip').classList.toggle('empty', !inst && !tag);
+}
+
+function handlePhotoUpload(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('out-photo');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    document.getElementById('photo-placeholder').style.display = 'none';
+    document.getElementById('photo-pos-ctrl').classList.add('visible');
+    updatePhotoTransform();
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleLogoUpload(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('out-logo');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    document.getElementById('logo-fallback-icon').style.display = 'none';
+    document.getElementById('logo-fallback-text').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function updatePhotoTransform(){
+  const xVal = document.getElementById('photo-x').value;
+  const yVal = document.getElementById('photo-y').value;
+  const zoomVal = document.getElementById('photo-zoom').value;
+  document.getElementById('zoom-val').textContent = zoomVal + '%';
+  const img = document.getElementById('out-photo');
+  img.style.transform = `translate(${xVal}%, ${yVal}%) scale(${zoomVal/100})`;
+  document.getElementById('photo-x').style.setProperty('--fill', ((+xVal+100)/2)+'%');
+  document.getElementById('photo-y').style.setProperty('--fill', ((+yVal+100)/2)+'%');
+  document.getElementById('photo-zoom').style.setProperty('--fill', (((+zoomVal-80)/120)*100)+'%');
+}
+
+function setShape(shape){
+  currentShape = shape;
+  const frame = document.getElementById('photo-frame-el');
+  const card = document.getElementById('capture-card');
+  const btnCircle = document.getElementById('shape-circle');
+  const btnSquare = document.getElementById('shape-square');
+  if(shape === 'square'){
+    frame.classList.add('square'); card.classList.add('has-square');
+    btnSquare.style.background = 'var(--accent)'; btnSquare.style.color = '#fff'; btnSquare.style.borderColor='var(--accent)';
+    btnCircle.style.background = '#f1f5f9'; btnCircle.style.color = '#475569'; btnCircle.style.borderColor='#cbd5e1';
+  } else {
+    frame.classList.remove('square'); card.classList.remove('has-square');
+    btnCircle.style.background = 'var(--accent)'; btnCircle.style.color = '#fff'; btnCircle.style.borderColor='var(--accent)';
+    btnSquare.style.background = '#f1f5f9'; btnSquare.style.color = '#475569'; btnSquare.style.borderColor='#cbd5e1';
+  }
+}
+
+function setTheme(themeName){
+  document.getElementById('capture-card').setAttribute('data-theme', themeName);
+  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+  const active = document.querySelector(`.theme-btn[data-theme="${themeName}"]`);
+  if(active) active.classList.add('active');
+  document.getElementById('theme-label-display').textContent = themeNames[themeName] || themeName;
+}
+
+function scalePreview(){
+  const wrapper = document.getElementById('preview-wrapper');
+  const card = document.getElementById('capture-card');
+  const availW = wrapper.clientWidth - 80;
+  const availH = wrapper.clientHeight - 80;
+  const scale = Math.min(availW/1080, availH/1080, 1);
+  card.style.transform = `scale(${scale})`;
+}
+
+function nameSlug(){
+  const s = (val('inp-name')||'').replace(/[^a-zA-Z0-9]+/g,'_').toLowerCase();
+  return s || 'card';
+}
+
+/* ---------- PNG ---------- */
+function downloadPNG(){
+  const card = document.getElementById('capture-card');
+  const btn = document.getElementById('btn-png');
+  const border = document.getElementById('video-border');
+  const orig = btn.innerHTML;
+  btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> তৈরি হচ্ছে...';
+
+  const originalTransform = card.style.transform;
+  const wasActive = videoBorderOn;
+  border.classList.remove('active');
+  card.style.transform = 'scale(1)';
+  card.classList.add('is-capturing');
+  const theme = card.getAttribute('data-theme') || 'golden';
+
+  setTimeout(() => {
+    html2canvas(card, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: bgColors[theme] || '#16100a', logging: false, imageTimeout: 10000 })
+    .then(canvas => {
+      card.style.transform = originalTransform; card.classList.remove('is-capturing');
+      if(wasActive) border.classList.add('active');
+      btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check"></i> ডাউনলোড হয়েছে!';
+      setTimeout(() => { btn.innerHTML = orig; }, 2200);
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `Congratulations_${nameSlug()}.png`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+      }, 'image/png', 1.0);
+    }).catch(err => {
+      console.error(err);
+      card.style.transform = originalTransform; card.classList.remove('is-capturing');
+      if(wasActive) border.classList.add('active');
+      btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> সমস্যা হয়েছে';
+      setTimeout(() => { btn.innerHTML = orig; }, 3000);
+    });
+  }, 150);
+}
+
+/* ---------- Shared frame capture (used by GIF & Video) ---------- */
+async function captureFrameSet(durationSec, fps, targetPx, onProgress){
+  const card = document.getElementById('capture-card');
+  const border = document.getElementById('video-border');
+  border.classList.remove('active');
+  void border.offsetWidth; // restart animation
+  border.classList.add('active');
+
+  const originalTransform = card.style.transform;
+  card.style.transform = 'scale(1)';
+  card.classList.add('is-capturing');
+  const theme = card.getAttribute('data-theme') || 'golden';
+  const scale = targetPx / 1080;
+  const frameCount = Math.round(durationSec * fps);
+  const interval = 1000 / fps;
+  const frames = [];
+
+  for(let i=0; i<frameCount; i++){
+    const canvas = await html2canvas(card, { scale, useCORS:true, allowTaint:true, backgroundColor: bgColors[theme]||'#16100a', logging:false, imageTimeout:8000 });
+    frames.push(canvas);
+    if(onProgress) onProgress((i+1)/frameCount);
+    await new Promise(r => setTimeout(r, interval));
+  }
+
+  card.style.transform = originalTransform;
+  card.classList.remove('is-capturing');
+  if(!videoBorderOn) border.classList.remove('active');
+  return frames;
+}
+
+/* ---------- GIF ---------- */
+async function downloadGIF(){
+  const btn = document.getElementById('btn-gif');
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  try{
+    const targetPx = 480, fps = 10, duration = 3;
+    const frames = await captureFrameSet(duration, fps, targetPx, p => {
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ফ্রেম তৈরি হচ্ছে... ${Math.round(p*55)}%`;
+    });
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> GIF এনকোড হচ্ছে...';
+    const gif = new GIF({ workers: 2, quality: 10, width: targetPx, height: targetPx, workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
+    frames.forEach(c => gif.addFrame(c, { delay: Math.round(1000/fps) }));
+    gif.on('progress', p => { btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> GIF এনকোড হচ্ছে... ${Math.round(55+p*45)}%`; });
+    gif.on('finished', blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `Congratulations_${nameSlug()}.gif`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 6000);
+      btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check"></i> ডাউনলোড হয়েছে!';
+      setTimeout(() => { btn.innerHTML = orig; }, 2200);
+    });
+    gif.render();
+  } catch(err){
+    console.error(err);
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> সমস্যা হয়েছে';
+    setTimeout(() => { btn.innerHTML = orig; }, 3000);
+  }
+}
+
+/* ---------- Video (WebM) ---------- */
+async function downloadVideo(){
+  const btn = document.getElementById('btn-video');
+  const orig = btn.innerHTML;
+  if(!window.MediaRecorder){
+    alert('আপনার ব্রাউজার ভিডিও রেকর্ডিং সাপোর্ট করে না। অনুগ্রহ করে Chrome ব্যবহার করুন, অথবা PNG / GIF ডাউনলোড করুন।');
+    return;
+  }
+  btn.disabled = true;
+  try{
+    const targetPx = 720, fps = 15, duration = 4;
+    const frames = await captureFrameSet(duration, fps, targetPx, p => {
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ফ্রেম তৈরি হচ্ছে... ${Math.round(p*65)}%`;
+    });
+
+    const canvas = document.createElement('canvas');
+    canvas.width = targetPx; canvas.height = targetPx;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(frames[0], 0, 0, targetPx, targetPx);
+
+    const stream = canvas.captureStream(fps);
+    let mimeType = 'video/webm;codecs=vp9';
+    if(!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm;codecs=vp8';
+    if(!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
+    const recorder = new MediaRecorder(stream, { mimeType });
+    const chunks = [];
+    recorder.ondataavailable = e => { if(e.data.size > 0) chunks.push(e.data); };
+    const stopped = new Promise(resolve => { recorder.onstop = resolve; });
+
+    recorder.start();
+    const frameInterval = 1000 / fps;
+    for(let i=0; i<frames.length; i++){
+      ctx.clearRect(0,0,targetPx,targetPx);
+      ctx.drawImage(frames[i], 0, 0, targetPx, targetPx);
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ভিডিও রেকর্ড হচ্ছে... ${Math.round(65+(i/frames.length)*30)}%`;
+      await new Promise(r => setTimeout(r, frameInterval));
+    }
+    await new Promise(r => setTimeout(r, 250));
+    recorder.stop();
+    await stopped;
+
+    const blob = new Blob(chunks, { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `Congratulations_${nameSlug()}.webm`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 8000);
+
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check"></i> ডাউনলোড হয়েছে!';
+    setTimeout(() => { btn.innerHTML = orig; }, 2200);
+  } catch(err){
+    console.error(err);
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> সমস্যা হয়েছে';
+    setTimeout(() => { btn.innerHTML = orig; }, 3000);
+  }
+}
+
+window.addEventListener('resize', scalePreview);
+window.onload = () => {
+  scalePreview();
+  setType('job');
+  setShape('circle');
+  setTheme('golden');
+  updateCard();
+  updatePhotoTransform();
+};
+</script>
+</body>
+</html>

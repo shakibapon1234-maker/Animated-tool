@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wings Fly — Air Ticketing &amp; Visa Processing Banner</title>
+<meta name="description" content="প্রফেশনাল বোর্ডিং-পাস স্টাইল ব্যানার — Air Ticketing Reservation & Professional Visa Processing — ভেরিফায়েড স্ট্যাম্প সিল + স্ক্যানিং বারকোড অ্যানিমেশন — PNG/GIF/WebM এক্সপোর্ট">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;600;700;800;900&family=Outfit:wght@400;600;700;800&family=Noto+Sans+Bengali:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-primary:#050a12; --bg-secondary:#0a121c; --bg-card:#0f1826; --bg-card-hover:#152030;
+    --border:rgba(255,255,255,0.08); --accent:#d4af5a; --accent-glow:rgba(212,175,90,0.4);
+    --accent-2:#1f6fd6; --accent-3:#17c98e; --text-primary:#f2f5fa; --text-secondary:#93a2ba;
+    --text-muted:#4a5670; --radius:16px; --shadow:0 20px 60px rgba(0,0,0,0.6);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Outfit','Noto Sans Bengali',sans-serif;background:var(--bg-primary);color:var(--text-primary);
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 80% 50% at 20% 15%,rgba(212,175,90,0.10) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 85%,rgba(31,111,214,0.10) 0%,transparent 60%);}
+  .app-header{width:100%;padding:22px 32px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);
+    background:rgba(5,10,18,0.85);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+  .header-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),#8a6a1f);
+    clip-path:polygon(0 15%,85% 0,100% 85%,15% 100%);display:flex;align-items:center;justify-content:center;
+    font-size:19px;box-shadow:0 0 20px var(--accent-glow);flex-shrink:0;}
+  .header-text h1{font-size:19px;font-weight:700;background:linear-gradient(135deg,#fff 0%,var(--accent) 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .header-text p{font-size:12.5px;color:var(--text-secondary);margin-top:2px;}
+  .main-content{width:100%;max-width:1260px;padding:36px 24px 80px;display:grid;grid-template-columns:1fr 380px;gap:28px;position:relative;z-index:1;}
+  @media (max-width:960px){.main-content{grid-template-columns:1fr;}}
+  .canvas-panel{display:flex;flex-direction:column;align-items:center;gap:20px;}
+  .canvas-wrapper{width:100%;aspect-ratio:16/9;background:
+    linear-gradient(45deg,#131e2e 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,#131e2e 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(45deg,transparent 75%,#131e2e 75%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,transparent 75%,#131e2e 75%) -0px -0px/24px 24px,
+    var(--bg-card);
+    border:1px solid var(--border);border-radius:20px;display:flex;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;box-shadow:var(--shadow);}
+  #ticketCanvas{display:block;max-width:100%;max-height:100%;}
+  .timer-display{display:flex;align-items:center;gap:14px;padding:14px 24px;background:var(--bg-card);
+    border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);}
+  .timer-ring-wrap{position:relative;width:50px;height:50px;}
+  .timer-ring-wrap svg{transform:rotate(-90deg);}
+  .timer-ring-bg{fill:none;stroke:rgba(255,255,255,0.07);stroke-width:4;}
+  .timer-ring-fill{fill:none;stroke:url(#ringGradient5);stroke-width:4;stroke-linecap:round;
+    transition:stroke-dashoffset 1s linear;stroke-dasharray:141;stroke-dashoffset:0;}
+  .timer-label-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:700;color:var(--accent);}
+  .timer-text-group{display:flex;flex-direction:column;}
+  .timer-big{font-size:26px;font-weight:800;letter-spacing:-1px;}
+  .timer-sub{font-size:11.5px;color:var(--text-secondary);font-weight:500;}
+  .timer-status{padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;}
+  .timer-status.idle{background:rgba(255,255,255,0.06);color:var(--text-muted);}
+  .timer-status.spinning{background:rgba(212,175,90,0.15);color:var(--accent);}
+  .timer-status.done{background:rgba(23,201,142,0.15);color:var(--accent-3);}
+  .sidebar{display:flex;flex-direction:column;gap:14px;}
+  .control-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+  .card-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-secondary);
+    display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+  .card-title-icon{width:22px;height:22px;background:rgba(212,175,90,0.14);border-radius:6px;display:flex;
+    align-items:center;justify-content:center;font-size:12px;}
+  .form-row{margin-bottom:14px;}
+  .form-row:last-child{margin-bottom:0;}
+  .form-label{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;color:var(--text-secondary);margin-bottom:7px;}
+  .value-badge{background:rgba(212,175,90,0.16);color:var(--accent);padding:1px 8px;border-radius:6px;font-size:11px;font-weight:700;}
+  input[type=text]{width:100%;padding:10px 12px;background:var(--bg-secondary);border:1px solid var(--border);
+    border-radius:9px;color:var(--text-primary);font-size:13.5px;font-family:inherit;}
+  input[type=text]:focus{outline:none;border-color:var(--accent);}
+  input[type=range]{width:100%;accent-color:var(--accent);}
+  input[type=color]{width:100%;height:34px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;}
+  .color-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .lang-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  .lang-btn{padding:9px 6px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;}
+  .lang-btn.active{background:var(--accent);border-color:var(--accent);color:#1c1503;}
+  .toggle-row{display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer;color:var(--text-secondary);margin-bottom:10px;}
+  .toggle-row:last-child{margin-bottom:0;}
+  .preset-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .preset-btn{padding:7px 12px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;}
+  .preset-btn.active{background:var(--accent);border-color:var(--accent);color:#1c1503;}
+  .style-swatch{width:34px;height:34px;border-radius:9px;border:2px solid transparent;cursor:pointer;flex-shrink:0;}
+  .style-swatch.active{border-color:#fff;}
+  .btn-group{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{flex:1;min-width:120px;padding:12px 16px;border:none;border-radius:11px;font-size:13.5px;font-weight:700;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;transition:.15s;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),#a5822f);color:#1c1503;box-shadow:0 8px 20px rgba(212,175,90,0.3);}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-stop{background:rgba(239,68,68,0.15);color:#ef4444;}
+  .btn-stop:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-ghost{background:var(--bg-secondary);color:var(--text-secondary);border:1px solid var(--border);}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-icon">🛂</div>
+  <div class="header-text">
+    <h1>Wings Fly — Air Ticketing &amp; Visa Processing</h1>
+    <p>প্রফেশনাল বোর্ডিং-পাস স্টাইল ব্যানার — ভেরিফায়েড স্ট্যাম্প সিল + স্ক্যানিং বারকোড অ্যানিমেশন</p>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="canvas-panel">
+    <div class="canvas-wrapper">
+      <canvas id="ticketCanvas" width="1600" height="900"></canvas>
+    </div>
+
+    <div class="timer-display">
+      <div class="timer-ring-wrap">
+        <svg width="50" height="50" viewBox="0 0 50 50">
+          <defs>
+            <linearGradient id="ringGradient5" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#d4af5a"/><stop offset="100%" stop-color="#1f6fd6"/>
+            </linearGradient>
+          </defs>
+          <circle class="timer-ring-bg" cx="25" cy="25" r="22.5"></circle>
+          <circle class="timer-ring-fill" id="timerRing" cx="25" cy="25" r="22.5"></circle>
+        </svg>
+        <div class="timer-label-inner" id="timerPercent">—</div>
+      </div>
+      <div class="timer-text-group">
+        <div class="timer-big" id="timerBig">00:00</div>
+        <div class="timer-sub" id="timerSub">সময় বাকি</div>
+      </div>
+      <div class="timer-status idle" id="timerStatus" style="margin-left:auto;">প্রস্তুত</div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🌐</div>ভাষা প্রিসেট</div>
+      <div class="lang-row">
+        <button class="lang-btn" onclick="applyLanguage('bn',this)">বাংলা</button>
+        <button class="lang-btn active" onclick="applyLanguage('en',this)">English</button>
+        <button class="lang-btn" onclick="applyLanguage('both',this)">উভয়</button>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">✏️</div>টেক্সট</div>
+      <div class="form-row">
+        <label class="form-label">এয়ারলাইন হেডার (উপরে ছোট)</label>
+        <input type="text" id="airlineText" value="WINGS FLY TRAVEL &amp; VISA SERVICES">
+      </div>
+      <div class="form-row">
+        <label class="form-label">মূল লাইন ১</label>
+        <input type="text" id="mainText1" value="Air Ticketing Reservation">
+      </div>
+      <div class="form-row">
+        <label class="form-label">মূল লাইন ২</label>
+        <input type="text" id="mainText2" value="&amp; Professional Visa Processing">
+      </div>
+      <div class="form-row">
+        <label class="form-label">ট্যাগলাইন</label>
+        <input type="text" id="tagText" value="Your Trusted Travel &amp; Visa Partner">
+      </div>
+      <div class="form-row">
+        <label class="form-label">স্টাব লেবেল (ডান পাশে উল্লম্ব)</label>
+        <input type="text" id="stubText" value="VERIFIED · TRUSTED · PROFESSIONAL">
+      </div>
+      <div class="form-row">
+        <label class="form-label">স্ট্যাম্প সিল টেক্সট</label>
+        <input type="text" id="stampText" value="APPROVED">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎨</div>রং</div>
+      <div class="color-grid">
+        <div class="form-row"><label class="form-label">কার্ড ব্যাকগ্রাউন্ড</label><input type="color" id="cardColor" value="#0e1a2b"></div>
+        <div class="form-row"><label class="form-label">স্টাব প্যানেল রং</label><input type="color" id="stubColor" value="#0a1420"></div>
+        <div class="form-row"><label class="form-label">অ্যাক্সেন্ট / গোল্ড</label><input type="color" id="accentColor" value="#d4af5a"></div>
+        <div class="form-row"><label class="form-label">টেক্সট রং</label><input type="color" id="textColor" value="#f2f5fa"></div>
+      </div>
+      <div class="preset-row" style="margin-top:4px;" id="stylePresets">
+        <div class="style-swatch active" style="background:linear-gradient(135deg,#0e1a2b,#d4af5a)" onclick="applyStyle('navygold',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#0d1f16,#c9a227)" onclick="applyStyle('emerald',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#22101a,#d4af5a)" onclick="applyStyle('maroon',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#0a1b22,#7fd4c9)" onclick="applyStyle('teal',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#101418,#9fb0c4)" onclick="applyStyle('silver',this)"></div>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎫</div>শেপ</div>
+      <div class="form-row">
+        <label class="form-label">কর্নার কাট <span class="value-badge" id="cutBadge">22</span></label>
+        <input type="range" id="cornerCut" min="0" max="60" step="2" value="22">
+      </div>
+      <div class="form-row">
+        <label class="form-label">টিকিট প্রস্থ <span class="value-badge" id="widthBadge">82%</span></label>
+        <input type="range" id="ticketWidth" min="55" max="94" step="1" value="82">
+      </div>
+      <div class="form-row">
+        <label class="form-label">স্টাব প্যানেল প্রস্থ <span class="value-badge" id="stubBadge">24</span></label>
+        <input type="range" id="stubWidth" min="14" max="34" step="1" value="24">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎬</div>অ্যানিমেশন</div>
+      <div class="toggle-row"><input type="checkbox" id="stampToggle" checked>ভেরিফায়েড স্ট্যাম্প পালস</div>
+      <div class="toggle-row"><input type="checkbox" id="scanToggle" checked>বারকোড স্ক্যান লাইন</div>
+      <div class="toggle-row"><input type="checkbox" id="planeToggle" checked>ফ্লাইং প্লেন আইকন</div>
+      <div class="toggle-row"><input type="checkbox" id="shineToggle" checked>শাইন সুইপ</div>
+      <div class="form-row">
+        <label class="form-label">অ্যানিমেশন স্পিড <span class="value-badge" id="speedBadge">1.2</span></label>
+        <input type="range" id="animSpeed" min="0" max="4" step="0.1" value="1.2">
+      </div>
+      <div class="form-row">
+        <label class="form-label">সময়কাল</label>
+        <div class="preset-row">
+          <button class="preset-btn" onclick="setDuration(5,this)">5s</button>
+          <button class="preset-btn" onclick="setDuration(10,this)">10s</button>
+          <button class="preset-btn active" onclick="setDuration(30,this)">30s</button>
+          <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:10px;">
+        <label class="toggle-row" style="margin:0;"><input type="checkbox" id="loopToggle" checked>সবসময় লুপ চলবে</label>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" id="startBtn" onclick="startAnim()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg> শুরু
+      </button>
+      <button class="btn btn-stop" id="stopBtn" onclick="stopAnim()" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg> বন্ধ
+      </button>
+    </div>
+    <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট</button>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+      <div class="toggle-row"><input type="checkbox" id="transparentToggle" checked>PNG ট্রান্সপারেন্ট ব্যাকগ্রাউন্ড</div>
+      <div class="form-row" id="exportBgRow" style="display:none;">
+        <label class="form-label">GIF/ভিডিও ব্যাকগ্রাউন্ড রং</label>
+        <input type="color" id="exportBgColor" value="#050a12">
+      </div>
+      <p style="font-size:11.5px;color:var(--text-muted);margin:2px 0 12px;line-height:1.55;">
+        PNG ট্রান্সপারেন্ট থাকে (ভিডিও এডিটরে সরাসরি ওভারলে করা যাবে)। GIF ও ভিডিও একটি ব্যাকগ্রাউন্ড রং সহ এক্সপোর্ট হয়।
+      </p>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="downloadPng()">PNG</button>
+        <button class="btn btn-primary" onclick="downloadGif()">GIF</button>
+        <button class="btn btn-primary" onclick="downloadVideo()">ভিডিও (WebM)</button>
+      </div>
+      <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   WINGS FLY — AIR TICKETING & VISA PROCESSING ENGINE
+   Shape: professional boarding-pass style card — chamfered
+   (angle-cut) corners, split into a main info panel and a
+   stub panel by a straight dashed perforation line with
+   angular tear notches (no circles anywhere). Includes a
+   pulsing hexagonal "verified" stamp seal and a scanning
+   barcode, built for a trustworthy travel-agency feel.
+===================================================== */
+
+const canvas = document.getElementById('ticketCanvas');
+const ctx = canvas.getContext('2d');
+const CW = canvas.width, CH = canvas.height;
+
+// === STATE ===
+let stampPhase = 0, scanPhase = 0, shinePhase = 0, planePhase = 0;
+let isSpinning = false, animFrame = null, lastTimestamp = null;
+let totalDurationMs = 30000, startTime = null, isExporting = false;
+
+// === LANGUAGE PRESETS ===
+const languagePresets = {
+  bn: {
+    airlineText: 'উইংস ফ্লাই ট্রাভেল ও ভিসা সার্ভিসেস',
+    mainText1: 'এয়ার টিকেটিং রিজার্ভেশন',
+    mainText2: 'ও প্রফেশনাল ভিসা প্রসেসিং',
+    tagText: 'আপনার বিশ্বস্ত ট্রাভেল ও ভিসা পার্টনার',
+    stubText: 'ভেরিফায়েড · বিশ্বস্ত · প্রফেশনাল',
+    stampText: 'অনুমোদিত',
+  },
+  en: {
+    airlineText: 'WINGS FLY TRAVEL & VISA SERVICES',
+    mainText1: 'Air Ticketing Reservation',
+    mainText2: '& Professional Visa Processing',
+    tagText: 'Your Trusted Travel & Visa Partner',
+    stubText: 'VERIFIED · TRUSTED · PROFESSIONAL',
+    stampText: 'APPROVED',
+  },
+  both: {
+    airlineText: 'WINGS FLY TRAVEL & VISA SERVICES',
+    mainText1: 'Air Ticketing Reservation',
+    mainText2: 'ও প্রফেশনাল ভিসা প্রসেসিং',
+    tagText: 'আপনার বিশ্বস্ত Travel & Visa পার্টনার',
+    stubText: 'VERIFIED · বিশ্বস্ত · PROFESSIONAL',
+    stampText: 'APPROVED',
+  },
+};
+function applyLanguage(lang, btnEl) {
+  const p = languagePresets[lang]; if (!p) return;
+  document.getElementById('airlineText').value = p.airlineText;
+  document.getElementById('mainText1').value = p.mainText1;
+  document.getElementById('mainText2').value = p.mainText2;
+  document.getElementById('tagText').value = p.tagText;
+  document.getElementById('stubText').value = p.stubText;
+  document.getElementById('stampText').value = p.stampText;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  if (!isSpinning) drawFrame();
+}
+
+// === STYLE PRESETS ===
+const stylePresets = {
+  navygold: { cardColor:'#0e1a2b', stubColor:'#0a1420', accentColor:'#d4af5a', textColor:'#f2f5fa' },
+  emerald:  { cardColor:'#0d1f16', stubColor:'#08160f', accentColor:'#c9a227', textColor:'#f0f7f2' },
+  maroon:   { cardColor:'#22101a', stubColor:'#180b13', accentColor:'#d4af5a', textColor:'#f7eef2' },
+  teal:     { cardColor:'#0a1b22', stubColor:'#071319', accentColor:'#7fd4c9', textColor:'#eafcfa' },
+  silver:   { cardColor:'#101418', stubColor:'#0a0d10', accentColor:'#9fb0c4', textColor:'#f2f4f7' },
+};
+function applyStyle(name, el) {
+  const s = stylePresets[name]; if (!s) return;
+  document.getElementById('cardColor').value = s.cardColor;
+  document.getElementById('stubColor').value = s.stubColor;
+  document.getElementById('accentColor').value = s.accentColor;
+  document.getElementById('textColor').value = s.textColor;
+  document.querySelectorAll('.style-swatch').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  drawFrame();
+}
+
+// === SETTINGS ===
+function getSettings() {
+  return {
+    airlineText: document.getElementById('airlineText').value || '',
+    mainText1: document.getElementById('mainText1').value || '',
+    mainText2: document.getElementById('mainText2').value || '',
+    tagText: document.getElementById('tagText').value || '',
+    stubText: document.getElementById('stubText').value || '',
+    stampText: document.getElementById('stampText').value || '',
+    cardColor: document.getElementById('cardColor').value,
+    stubColor: document.getElementById('stubColor').value,
+    accentColor: document.getElementById('accentColor').value,
+    textColor: document.getElementById('textColor').value,
+    cornerCut: parseInt(document.getElementById('cornerCut').value) || 22,
+    ticketWidthPct: parseInt(document.getElementById('ticketWidth').value) || 82,
+    stubWidthPct: parseInt(document.getElementById('stubWidth').value) || 24,
+    showStamp: document.getElementById('stampToggle').checked,
+    showScan: document.getElementById('scanToggle').checked,
+    showPlane: document.getElementById('planeToggle').checked,
+    showShine: document.getElementById('shineToggle').checked,
+  };
+}
+
+function hexToRgb(hex) {
+  hex = hex.replace('#', '');
+  return { r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16) };
+}
+function hexToRgba(hex, a) { const {r,g,b} = hexToRgb(hex); return `rgba(${r},${g},${b},${a})`; }
+function lighten(hex, amt) { const {r,g,b} = hexToRgb(hex); return `rgb(${Math.min(255,r+amt)},${Math.min(255,g+amt)},${Math.min(255,b+amt)})`; }
+function darken(hex, amt) { const {r,g,b} = hexToRgb(hex); return `rgb(${Math.max(0,r-amt)},${Math.max(0,g-amt)},${Math.max(0,b-amt)})`; }
+
+// === CHAMFERED TICKET CARD PATH ===
+function buildTicketPath(ctx, w, h, c) {
+  c = Math.min(c, Math.min(w, h) / 2 - 2);
+  const left = -w/2, right = w/2, top = -h/2, bottom = h/2;
+  ctx.beginPath();
+  ctx.moveTo(left + c, top);
+  ctx.lineTo(right - c, top);
+  ctx.lineTo(right, top + c);
+  ctx.lineTo(right, bottom - c);
+  ctx.lineTo(right - c, bottom);
+  ctx.lineTo(left + c, bottom);
+  ctx.lineTo(left, bottom - c);
+  ctx.lineTo(left, top + c);
+  ctx.closePath();
+}
+
+// === SIMPLE PLANE ICON (straight facets) ===
+function drawPlane(ctx, size, color) {
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(size*0.9, 0);
+  ctx.lineTo(-size*0.5, -size*0.32);
+  ctx.lineTo(-size*0.2, -size*0.06);
+  ctx.lineTo(-size*0.9, -size*0.42);
+  ctx.lineTo(-size*0.75, -size*0.06);
+  ctx.lineTo(-size*0.2, 0);
+  ctx.lineTo(-size*0.75, size*0.06);
+  ctx.lineTo(-size*0.9, size*0.42);
+  ctx.lineTo(-size*0.2, size*0.06);
+  ctx.lineTo(-size*0.5, size*0.32);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+// === HEXAGONAL "VERIFIED" STAMP SEAL (rosette, straight edges) ===
+function drawStampSeal(ctx, size, color, textColor, label, scale, rotation) {
+  ctx.save();
+  ctx.rotate(rotation);
+  ctx.scale(scale, scale);
+  // outer rosette (12-point notched polygon, all straight segments)
+  const points = 14;
+  ctx.beginPath();
+  for (let i = 0; i < points * 2; i++) {
+    const r = i % 2 === 0 ? size : size * 0.86;
+    const a = (i / (points * 2)) * Math.PI * 2;
+    const x = Math.cos(a) * r, y = Math.sin(a) * r;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+  // inner hexagon ring
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * Math.PI * 2 - Math.PI / 2;
+    const x = Math.cos(a) * size * 0.66, y = Math.sin(a) * size * 0.66;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.lineWidth = size * 0.05;
+  ctx.strokeStyle = textColor;
+  ctx.stroke();
+  // checkmark (straight lines)
+  ctx.strokeStyle = textColor;
+  ctx.lineWidth = size * 0.11;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  ctx.moveTo(-size*0.28, -size*0.02);
+  ctx.lineTo(-size*0.06, size*0.22);
+  ctx.lineTo(size*0.32, -size*0.24);
+  ctx.stroke();
+  ctx.restore();
+
+  // curved label text along an arc under the seal — kept minimal: single line label instead (avoids extra shapes)
+  ctx.save();
+  ctx.scale(scale, scale);
+  ctx.font = `800 ${size*0.24}px 'Libre Franklin',sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.fillStyle = textColor;
+  ctx.fillText(label, 0, size * 1.34);
+  ctx.restore();
+}
+
+// === BARCODE with scan line ===
+function drawBarcode(ctx, w, h, color, scanT) {
+  ctx.save();
+  const bars = 28;
+  const bw2 = w / bars;
+  let seedX = 0;
+  // deterministic pseudo-random bar widths from a fixed seed pattern
+  const pattern = [2,1,3,1,1,2,3,1,2,1,1,3,2,1,3,2,1,1,2,3,1,2,1,3,1,2,1,1];
+  let x = -w/2;
+  for (let i = 0; i < bars; i++) {
+    const wgt = pattern[i % pattern.length];
+    const barW = bw2 * (wgt / 2) * 0.7;
+    if (i % 2 === 0) {
+      ctx.fillStyle = color;
+      ctx.fillRect(x, -h/2, barW, h);
+    }
+    x += bw2 * (wgt / 2);
+  }
+  // scan line
+  const sx = -w/2 + (((scanT % 1) + 1) % 1) * w;
+  const sgrad = ctx.createLinearGradient(sx - w*0.03, 0, sx + w*0.03, 0);
+  sgrad.addColorStop(0, hexToRgba('#2fffb0', 0));
+  sgrad.addColorStop(0.5, hexToRgba('#2fffb0', 0.85));
+  sgrad.addColorStop(1, hexToRgba('#2fffb0', 0));
+  ctx.fillStyle = sgrad;
+  ctx.fillRect(sx - w*0.03, -h/2, w*0.06, h);
+  ctx.restore();
+}
+
+// === DRAW ENGINE ===
+function drawFrame(opts) {
+  opts = opts || {};
+  const w = canvas.width, h = canvas.height;
+  const s = getSettings();
+  const cx = w / 2, cy = h / 2;
+
+  ctx.clearRect(0, 0, w, h);
+  if (opts.solidBg) { ctx.fillStyle = opts.bgColor || '#050a12'; ctx.fillRect(0, 0, w, h); }
+
+  const tw = w * (s.ticketWidthPct / 100);
+  const th = h * 0.6;
+  const stubW = tw * (s.stubWidthPct / 100);
+  const mainW = tw - stubW;
+  const left = cx - tw/2, top = cy - th/2;
+  const dividerX = left + mainW;
+
+  // === CARD BASE (main + stub as one chamfered outline) ===
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+  ctx.shadowBlur = th * 0.15;
+  ctx.shadowOffsetY = th * 0.03;
+  buildTicketPath(ctx, tw, th, s.cornerCut);
+  ctx.fillStyle = s.cardColor;
+  ctx.fill();
+  ctx.restore();
+
+  // === STUB PANEL fill (right zone), respecting outer chamfer ===
+  ctx.save();
+  buildTicketPath(ctx, tw, th, s.cornerCut);
+  ctx.clip();
+  ctx.fillStyle = s.stubColor;
+  ctx.fillRect(dividerX, top, stubW, th);
+  ctx.restore();
+
+  // top gold header strip on main panel
+  ctx.save();
+  buildTicketPath(ctx, tw, th, s.cornerCut);
+  ctx.clip();
+  const headerH = th * 0.16;
+  ctx.fillStyle = hexToRgba(s.accentColor, 0.14);
+  ctx.fillRect(left, top, mainW, headerH);
+  ctx.strokeStyle = hexToRgba(s.accentColor, 0.5);
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(left, top + headerH); ctx.lineTo(dividerX, top + headerH); ctx.stroke();
+
+  // shine sweep across main panel
+  if (s.showShine) {
+    const sx = (((shinePhase % 1) + 1) % 1) * (mainW * 1.6) - mainW * 0.8 + left;
+    const sgrad = ctx.createLinearGradient(sx - mainW*0.1, top, sx + mainW*0.1, top + th);
+    sgrad.addColorStop(0, 'rgba(255,255,255,0)');
+    sgrad.addColorStop(0.5, 'rgba(255,255,255,0.10)');
+    sgrad.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = sgrad;
+    ctx.fillRect(left, top, mainW, th);
+  }
+  ctx.restore();
+
+  // outer border
+  ctx.save();
+  ctx.translate(cx, cy);
+  buildTicketPath(ctx, tw, th, s.cornerCut);
+  ctx.strokeStyle = hexToRgba(s.accentColor, 0.6);
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.restore();
+
+  // === PERFORATION LINE (dashed) with angular tear notches ===
+  ctx.save();
+  const notch = th * 0.045;
+  ctx.beginPath();
+  ctx.moveTo(dividerX - notch, top);
+  ctx.lineTo(dividerX + notch, top + notch);
+  ctx.lineTo(dividerX - notch, top + notch*2);
+  ctx.lineTo(dividerX, top);
+  ctx.closePath();
+  // simple angular notch triangles at top/bottom instead of circular cutouts
+  ctx.fillStyle = opts.solidBg ? (opts.bgColor || '#050a12') : '#000';
+  ctx.globalCompositeOperation = 'destination-out';
+  ctx.beginPath();
+  ctx.moveTo(dividerX - notch, top - 1);
+  ctx.lineTo(dividerX + notch, top - 1);
+  ctx.lineTo(dividerX, top + notch*1.3);
+  ctx.closePath();
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(dividerX - notch, top + th + 1);
+  ctx.lineTo(dividerX + notch, top + th + 1);
+  ctx.lineTo(dividerX, top + th - notch*1.3);
+  ctx.closePath();
+  ctx.fill();
+  ctx.globalCompositeOperation = 'source-over';
+
+  ctx.setLineDash([8, 8]);
+  ctx.strokeStyle = hexToRgba(s.accentColor, 0.55);
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(dividerX, top + notch*1.6);
+  ctx.lineTo(dividerX, top + th - notch*1.6);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+
+  // === MAIN PANEL TEXT ===
+  ctx.save();
+  ctx.translate(left + mainW/2, top);
+  ctx.textAlign = 'center';
+
+  ctx.font = `700 ${h*0.024}px 'Libre Franklin','Noto Sans Bengali',sans-serif`;
+  ctx.fillStyle = hexToRgba(s.accentColor, 0.95);
+  ctx.textBaseline = 'middle';
+  ctx.fillText(s.airlineText, 0, headerH/2, mainW*0.86);
+
+  let m1Size = h * 0.062;
+  ctx.font = `800 ${m1Size}px 'Libre Franklin','Noto Sans Bengali',sans-serif`;
+  while (ctx.measureText(s.mainText1).width > mainW*0.88 && m1Size > 12) {
+    m1Size -= 2; ctx.font = `800 ${m1Size}px 'Libre Franklin','Noto Sans Bengali',sans-serif`;
+  }
+  ctx.fillStyle = s.textColor;
+  ctx.fillText(s.mainText1, 0, th*0.44, mainW*0.9);
+
+  let m2Size = h * 0.052;
+  ctx.font = `700 ${m2Size}px 'Libre Franklin','Noto Sans Bengali',sans-serif`;
+  while (ctx.measureText(s.mainText2).width > mainW*0.88 && m2Size > 12) {
+    m2Size -= 2; ctx.font = `700 ${m2Size}px 'Libre Franklin','Noto Sans Bengali',sans-serif`;
+  }
+  ctx.fillStyle = hexToRgba(s.accentColor, 0.95);
+  ctx.fillText(s.mainText2, 0, th*0.44 + m1Size*0.95, mainW*0.9);
+
+  const tagSize = Math.max(11, h * 0.022);
+  ctx.font = `500 ${tagSize}px 'Outfit','Noto Sans Bengali',sans-serif`;
+  ctx.fillStyle = hexToRgba(s.textColor, 0.72);
+  ctx.fillText(s.tagText, 0, th*0.76, mainW*0.8);
+  ctx.restore();
+
+  // small plane icon top-right of main panel header
+  if (s.showPlane) {
+    ctx.save();
+    const t = ((planePhase % 1) + 1) % 1;
+    const px = left + mainW * 0.08 + t * (mainW * 0.84);
+    ctx.translate(px, top + headerH*0.5);
+    drawPlane(ctx, h*0.02, s.accentColor);
+    ctx.restore();
+  }
+
+  // === STUB PANEL CONTENT ===
+  ctx.save();
+  ctx.translate(dividerX + stubW/2, top + th/2);
+
+  // vertical rotated label
+  ctx.save();
+  ctx.rotate(-Math.PI/2);
+  ctx.font = `700 ${h*0.02}px 'Libre Franklin','Noto Sans Bengali',sans-serif`;
+  ctx.fillStyle = hexToRgba(s.textColor, 0.7);
+  ctx.textAlign = 'center';
+  ctx.fillText(s.stubText, 0, -th*0.32, th*0.7);
+  ctx.restore();
+
+  // verified stamp seal (pulsing)
+  if (s.showStamp) {
+    const pulse = 1 + Math.sin(stampPhase) * 0.06;
+    ctx.save();
+    ctx.translate(0, -th*0.06);
+    ctx.shadowColor = s.accentColor;
+    ctx.shadowBlur = h * 0.02 * (0.6 + Math.sin(stampPhase)*0.4);
+    drawStampSeal(ctx, h*0.075, hexToRgba(s.accentColor,0.92), s.stubColor, s.stampText, pulse, Math.sin(stampPhase*0.3)*0.05);
+    ctx.restore();
+  }
+
+  // barcode with scan line near bottom of stub
+  ctx.save();
+  ctx.translate(0, th*0.34);
+  drawBarcode(ctx, stubW*0.72, th*0.12, hexToRgba(s.textColor, 0.9), s.showScan ? scanPhase : -1);
+  ctx.restore();
+
+  ctx.restore();
+}
+
+// === ANIMATION LOOP ===
+function animationLoop(timestamp) {
+  if (!isSpinning) return;
+  if (!lastTimestamp) lastTimestamp = timestamp;
+  const delta = timestamp - lastTimestamp;
+  lastTimestamp = timestamp;
+
+  const speed = parseFloat(document.getElementById('animSpeed').value) || 0;
+  stampPhase += delta * 0.0026 * (0.5 + speed);
+  scanPhase += delta * 0.00055 * (0.5 + speed);
+  shinePhase += delta * 0.00032;
+  planePhase += delta * 0.00016;
+
+  const elapsed = timestamp - startTime;
+  const remaining = Math.max(0, totalDurationMs - elapsed);
+  updateTimerUI(elapsed, remaining);
+
+  drawFrame();
+
+  if (remaining <= 0 && !document.getElementById('loopToggle').checked) { finishAnim(); return; }
+  if (remaining <= 0) startTime = timestamp;
+
+  animFrame = requestAnimationFrame(animationLoop);
+}
+
+function updateTimerUI(elapsed, remaining) {
+  const totalSec = Math.ceil(remaining / 1000);
+  const m = Math.floor(totalSec / 60).toString().padStart(2, '0');
+  const sec = (totalSec % 60).toString().padStart(2, '0');
+  document.getElementById('timerBig').textContent = `${m}:${sec}`;
+  const pct = Math.max(0, Math.min(100, ((totalDurationMs - remaining) / totalDurationMs) * 100));
+  document.getElementById('timerPercent').textContent = Math.round(pct) + '%';
+  const circumference = 141;
+  document.getElementById('timerRing').style.strokeDashoffset = circumference - (pct/100)*circumference;
+}
+function resetTimerUI() {
+  document.getElementById('timerBig').textContent = '00:00';
+  document.getElementById('timerPercent').textContent = '—';
+  document.getElementById('timerRing').style.strokeDashoffset = 141;
+  document.getElementById('timerStatus').className = 'timer-status idle';
+  document.getElementById('timerStatus').textContent = 'প্রস্তুত';
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+}
+
+let currentDuration = 30;
+function setDuration(sec, btnEl) {
+  currentDuration = sec;
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+}
+
+function startAnim() {
+  if (isSpinning) return;
+  totalDurationMs = currentDuration * 1000;
+  isSpinning = true; startTime = null; lastTimestamp = null;
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status spinning'; st.textContent = '⚡ চলছে';
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+  animFrame = requestAnimationFrame(ts => { startTime = ts; lastTimestamp = ts; animationLoop(ts); });
+}
+function stopAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status idle'; st.textContent = '⏸ থামানো হয়েছে';
+  drawFrame();
+}
+function finishAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  document.getElementById('timerBig').textContent = '00:00';
+  document.getElementById('timerPercent').textContent = '100%';
+  document.getElementById('timerRing').style.strokeDashoffset = 0;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status done'; st.textContent = '✅ সম্পন্ন';
+  document.getElementById('timerSub').textContent = 'অ্যানিমেশন শেষ';
+  drawFrame();
+}
+function resetAll() {
+  stopAnim();
+  stampPhase = 0; scanPhase = 0; shinePhase = 0; planePhase = 0;
+  resetTimerUI();
+  drawFrame();
+}
+
+// === EXPORT ===
+function setExportStatus(msg) { document.getElementById('exportStatus').textContent = msg; }
+function saveBlob(blob, filename) {
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+function downloadPng() {
+  const transparent = document.getElementById('transparentToggle').checked;
+  const bgColor = document.getElementById('exportBgColor').value;
+  drawFrame({ solidBg: !transparent, bgColor });
+  canvas.toBlob(blob => {
+    drawFrame({ solidBg: false });
+    if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+    saveBlob(blob, 'wings-fly-ticketing-visa-banner.png');
+    setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+  }, 'image/png');
+}
+
+async function downloadGif() {
+  if (!window.GIF) { setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন।'); return; }
+  if (isExporting) return;
+  isExporting = true;
+  const _gifWantTransparent = document.getElementById('transparentToggle').checked;
+  const bgColor = document.getElementById('exportBgColor').value;
+  const oldStamp = stampPhase, oldScan = scanPhase, oldShine = shinePhase, oldPlane = planePhase;
+  const gif = new GIF({ transparent: (_gifWantTransparent ? window.GIF_CHROMA_INT : null), workers: 2, quality: 10, width: CW, height: CH,
+    workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
+  const frames = 55, frameDelay = 55;
+  const speed = parseFloat(document.getElementById('animSpeed').value) || 0;
+  setExportStatus('GIF তৈরি হচ্ছে… 0%');
+  for (let i = 0; i < frames; i++) {
+    const t = i / frames;
+    stampPhase = oldStamp + t * Math.PI * 2 * 1.4 * (0.5 + speed);
+    scanPhase = oldScan + t * 1.6;
+    shinePhase = oldShine + t * 1.2;
+    planePhase = oldPlane + t;
+    drawFrame({ solidBg: !_gifWantTransparent, bgColor });
+    gif.addFrame(_gifWantTransparent ? window.gifFlattenFrame(canvas) : (canvas), { copy: true, delay: frameDelay });
+    setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((i+1)/frames*100)}%`);
+    await new Promise(requestAnimationFrame);
+  }
+  stampPhase = oldStamp; scanPhase = oldScan; shinePhase = oldShine; planePhase = oldPlane;
+  drawFrame({ solidBg: false });
+  gif.on('finished', blob => {
+    saveBlob(blob, 'wings-fly-ticketing-visa-banner.gif');
+    setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
+    isExporting = false;
+  });
+  gif.render();
+}
+
+async function downloadVideo() {
+  if (!window.MediaRecorder || !canvas.captureStream) {
+    setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।'); return;
+  }
+  if (isExporting) return;
+  isExporting = true;
+  const bgColor = document.getElementById('exportBgColor').value;
+  const stream = canvas.captureStream(30);
+  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 6000000 });
+  const chunks = [];
+  const oldStamp = stampPhase, oldScan = scanPhase, oldShine = shinePhase, oldPlane = planePhase;
+  recorder.ondataavailable = e => e.data.size && chunks.push(e.data);
+  recorder.onstop = () => {
+    saveBlob(new Blob(chunks, { type: mimeType }), 'wings-fly-ticketing-visa-banner.webm');
+    stampPhase = oldStamp; scanPhase = oldScan; shinePhase = oldShine; planePhase = oldPlane;
+    drawFrame({ solidBg: false });
+    isExporting = false;
+    setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+  };
+  recorder.start();
+  const start = performance.now();
+  const duration = 5500;
+  const speed = parseFloat(document.getElementById('animSpeed').value) || 0;
+  setExportStatus('ভিডিও তৈরি হচ্ছে…');
+  const render = (now) => {
+    const elapsedMs = now - start;
+    const progress = Math.min(1, elapsedMs / duration);
+    stampPhase = oldStamp + elapsedMs * 0.0026 * (0.5 + speed);
+    scanPhase = oldScan + elapsedMs * 0.00055 * (0.5 + speed);
+    shinePhase = oldShine + elapsedMs * 0.00032;
+    planePhase = oldPlane + progress;
+    drawFrame({ solidBg: true, bgColor });
+    if (progress < 1) requestAnimationFrame(render); else recorder.stop();
+  };
+  requestAnimationFrame(render);
+}
+
+// === UI EVENTS ===
+['cornerCut','ticketWidth','stubWidth','animSpeed'].forEach(id => {
+  document.getElementById(id).addEventListener('input', function() {
+    const badges = { cornerCut:'cutBadge', ticketWidth:'widthBadge', stubWidth:'stubBadge', animSpeed:'speedBadge' };
+    const el = document.getElementById(badges[id]);
+    if (id === 'ticketWidth' || id === 'stubWidth') el.textContent = this.value + '%';
+    else el.textContent = this.value;
+    if (!isSpinning) drawFrame();
+  });
+});
+['airlineText','mainText1','mainText2','tagText','stubText','stampText',
+ 'cardColor','stubColor','accentColor','textColor',
+ 'stampToggle','scanToggle','planeToggle','shineToggle'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => { if (!isSpinning) drawFrame(); });
+  el.addEventListener('change', () => { if (!isSpinning) drawFrame(); });
+});
+document.getElementById('transparentToggle').addEventListener('change', function() {
+  document.getElementById('exportBgRow').style.display = this.checked ? 'none' : 'block';
+});
+
+// === INITIAL DRAW ===
+drawFrame();
+setTimeout(startAnim, 150);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+    <script src="download-utils.js"></script>
+</body>
+</html>

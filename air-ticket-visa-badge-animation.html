@@ -782,12 +782,13 @@ function getExportCanvas(size){
 async function downloadGif(){
   if(!window.GIF){ setExportStatus('GIF লাইব্রেরি লোড হয়নি। পেজটি রিফ্রেশ করে আবার চেষ্টা করুন।'); return; }
   if(isExporting) return; isExporting=true;
+  const _gifWantTransparent = true;
   try {
     const oldAngle=spinAngle, oldPulse=pulsePhase, oldRing=ringPhase, oldSpark=sparklePhase, oldShine=shinePhase, oldRoute=routePhase;
     const workerScript = window.GIF_WORKER_URL || 'gif.worker.js';
     const numWorkers = Math.min(4, Math.max(2, (navigator.hardwareConcurrency || 2)));
     const exportSize = 600;
-    const gif = new GIF({ workers: numWorkers, quality: 10, width: exportSize, height: exportSize, workerScript: workerScript });
+    const gif = new GIF({ transparent: (_gifWantTransparent ? window.GIF_CHROMA_INT : null), workers: numWorkers, quality: 10, width: exportSize, height: exportSize, workerScript: workerScript });
     const frames = 30, frameDelay = 60;
     setExportStatus('ফ্রেম ক্যাপচার হচ্ছে… 0%');
     for(let f=0; f<frames; f++){
@@ -799,7 +800,7 @@ async function downloadGif(){
       shinePhase = oldShine + t*1.4;
       routePhase = oldRoute + t*3;
       const cvs = getExportCanvas(exportSize);
-      gif.addFrame(cvs.getContext('2d'), { copy:true, delay:frameDelay });
+      gif.addFrame(_gifWantTransparent ? window.gifFlattenFrame(cvs.getContext('2d')) : (cvs.getContext('2d')), { copy:true, delay:frameDelay });
       setExportStatus(`ফ্রেম ক্যাপচার হচ্ছে… ${Math.round((f+1)/frames*100)}%`);
       await new Promise(requestAnimationFrame);
     }

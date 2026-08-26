@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Ticketing & Visa Processing — Split-Flap Departure Board</title>
+    <meta name="description" content="Air Ticketing Reservation ও Professional Visa Processing — airport-style split-flap (Solari) departure board animation">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #05070b;
+            --bg-card: #10151f;
+            --border: rgba(255,255,255,0.08);
+            --border-active: rgba(247,183,51,0.55);
+            --accent: #f7b733;
+            --accent-glow: rgba(247,183,51,0.35);
+            --accent-2: #38bdf8;
+            --accent-3: #1e3a5f;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #4b5670;
+            --success: #10b981;
+            --danger: #ef4444;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 20px 60px rgba(0,0,0,0.6);
+            --shadow-glow: 0 0 50px rgba(247,183,51,0.14);
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Outfit', 'Hind Siliguri', 'Inter', system-ui, sans-serif;
+            background: var(--bg-primary); color: var(--text-primary);
+            min-height: 100vh; overflow-x: hidden; display: flex; flex-direction: column; align-items: center;
+        }
+        body::before {
+            content: ''; position: fixed; inset: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 15%, rgba(247,183,51,0.10) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 85% 80%, rgba(56,189,248,0.08) 0%, transparent 60%);
+            pointer-events: none; z-index: 0;
+        }
+        .app-header {
+            width: 100%; padding: 22px 32px; display: flex; align-items: center; gap: 16px;
+            border-bottom: 1px solid var(--border); background: rgba(5,7,11,0.85);
+            backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 100;
+        }
+        .header-icon {
+            width: 44px; height: 44px; background: linear-gradient(135deg, var(--accent), var(--accent-3));
+            border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 19px;
+            box-shadow: 0 0 20px var(--accent-glow); flex-shrink: 0;
+        }
+        .header-text h1 {
+            font-size: 18px; font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .header-text p { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+        .main-content {
+            width: 100%; max-width: 1240px; padding: 40px 24px 80px;
+            display: grid; grid-template-columns: 1fr 380px; gap: 32px;
+            position: relative; z-index: 1;
+        }
+        @media (max-width: 900px) { .main-content { grid-template-columns: 1fr; } }
+
+        .canvas-panel { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+        .canvas-wrapper {
+            width: 100%; aspect-ratio: 16 / 9; max-width: 700px;
+            background:
+                linear-gradient(45deg, #1a2236 25%, transparent 25%) -20px 0/40px 40px,
+                linear-gradient(-45deg, #1a2236 25%, transparent 25%) -20px 0/40px 40px,
+                linear-gradient(45deg, transparent 75%, #1a2236 75%) -20px 0/40px 40px,
+                linear-gradient(-45deg, transparent 75%, #1a2236 75%) -20px 0/40px 40px,
+                var(--bg-card);
+            border: 1px solid var(--border); border-radius: 24px;
+            display: flex; align-items: center; justify-content: center;
+            position: relative; overflow: hidden; box-shadow: var(--shadow), var(--shadow-glow);
+        }
+        .canvas-wrapper::before {
+            content: ''; position: absolute; inset: -1px; border-radius: 25px;
+            background: linear-gradient(135deg, rgba(247,183,51,0.3), rgba(56,189,248,0.12), rgba(30,58,95,0.2));
+            z-index: -1; animation: borderGlow 4s ease-in-out infinite;
+        }
+        @keyframes borderGlow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+        .checker-note {
+            position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+            font-size: 10px; color: rgba(255,255,255,0.55); background: rgba(0,0,0,0.4);
+            padding: 3px 10px; border-radius: 20px; letter-spacing: 0.3px;
+        }
+        #badgeCanvas { display: block; max-width: 100%; max-height: 100%; }
+
+        .timer-display {
+            display: flex; align-items: center; gap: 16px; padding: 16px 28px;
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 60px; box-shadow: var(--shadow);
+        }
+        .timer-ring-wrap { position: relative; width: 56px; height: 56px; }
+        .timer-ring-wrap svg { transform: rotate(-90deg); }
+        .timer-ring-bg { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 4; }
+        .timer-ring-fill {
+            fill: none; stroke: url(#ringGradient); stroke-width: 4; stroke-linecap: round;
+            transition: stroke-dashoffset 1s linear; stroke-dasharray: 157; stroke-dashoffset: 0;
+        }
+        .timer-label-inner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--accent); }
+        .timer-text-group { display: flex; flex-direction: column; }
+        .timer-big { font-size: 32px; font-weight: 800; color: var(--text-primary); letter-spacing: -1px; }
+        .timer-sub { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+        .timer-status { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+        .timer-status.idle { background: rgba(255,255,255,0.06); color: var(--text-muted); }
+        .timer-status.spinning { background: rgba(247,183,51,0.2); color: var(--accent); animation: pulse 2s ease-in-out infinite; }
+        .timer-status.done { background: rgba(16,185,129,0.2); color: var(--success); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        .controls-panel { display: flex; flex-direction: column; gap: 20px; }
+        .control-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: border-color 0.2s, box-shadow 0.2s; }
+        .control-card:hover { border-color: var(--border-active); box-shadow: 0 0 20px rgba(247,183,51,0.1); }
+        .card-title { font-size: 13px; font-weight: 700; color: var(--text-secondary); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+        .card-title-icon { width: 24px; height: 24px; background: linear-gradient(135deg, var(--accent), var(--accent-3)); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+        .form-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+        .form-row:last-child { margin-bottom: 0; }
+        .form-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center; }
+        .form-label .value-badge { background: rgba(247,183,51,0.15); color: var(--accent); padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+        input[type="text"], input[type="number"] {
+            width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); padding: 12px 16px; color: var(--text-primary);
+            font-size: 14px; font-family: inherit; transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+        }
+        input[type="text"]:focus, input[type="number"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(247,183,51,0.15); }
+        input[type="range"] { width: 100%; height: 6px; -webkit-appearance: none; appearance: none; background: rgba(255,255,255,0.08); border-radius: 10px; outline: none; cursor: pointer; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: 0 0 10px rgba(247,183,51,0.5); cursor: pointer; transition: transform 0.15s; }
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+        .time-presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+        .preset-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .preset-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(247,183,51,0.1); }
+        .preset-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(247,183,51,0.15); }
+        .lang-toggle { display: flex; gap: 8px; }
+        .lang-btn { flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: transparent; color: var(--text-secondary); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .lang-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .lang-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(247,183,51,0.12); }
+        .btn-group { display: flex; gap: 12px; }
+        .btn { flex: 1; padding: 14px 20px; border-radius: var(--radius-sm); border: none; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; letter-spacing: 0.3px; }
+        .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-3)); color: white; box-shadow: 0 4px 20px rgba(247,183,51,0.3); }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(247,183,51,0.4); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-stop { background: linear-gradient(135deg, var(--danger), #b91c1c); color: white; box-shadow: 0 4px 20px rgba(239,68,68,0.3); }
+        .btn-stop:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(239,68,68,0.4); }
+        .btn-stop:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-ghost { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text-secondary); }
+        .btn-ghost:hover { border-color: var(--border-active); color: var(--text-primary); background: rgba(255,255,255,0.07); }
+        .style-presets { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .style-preset-btn { padding: 10px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: transparent; color: var(--text-secondary); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; text-align: center; }
+        .style-preset-btn:hover { border-color: var(--accent); color: var(--text-primary); background: rgba(247,183,51,0.08); }
+        .style-preset-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(247,183,51,0.15); }
+        .checkbox-row { display: flex; align-items: center; gap: 9px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+        .sep { height: 1px; background: var(--border); margin: 4px 0; }
+        .hint-text { font-size: 12px; color: var(--text-muted); margin: 0 0 12px; line-height: 1.55; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="header-icon">🛫</div>
+        <div class="header-text">
+            <h1>Air Ticketing & Visa Processing — Split-Flap Board</h1>
+            <p>Airport-style mechanical flip departure board — একদম ইউনিক ও ভিন্ন ডিজাইন</p>
+        </div>
+    </header>
+
+    <div class="main-content">
+
+        <div class="canvas-panel">
+            <div class="canvas-wrapper">
+                <canvas id="badgeCanvas" width="640" height="360"></canvas>
+                <div class="checker-note">চেকার শুধু প্রিভিউ — বোর্ড নিজেই dark, তাই সবসময় opaque থাকে</div>
+            </div>
+
+            <div class="timer-display" id="timerDisplay">
+                <div class="timer-ring-wrap">
+                    <svg width="56" height="56" viewBox="0 0 56 56">
+                        <defs>
+                            <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#f7b733"/>
+                                <stop offset="100%" stop-color="#38bdf8"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="timer-ring-bg" cx="28" cy="28" r="25"/>
+                        <circle class="timer-ring-fill" id="timerRing" cx="28" cy="28" r="25"/>
+                    </svg>
+                    <div class="timer-label-inner" id="timerPercent">—</div>
+                </div>
+                <div class="timer-text-group">
+                    <div class="timer-big" id="timerBig">00:00</div>
+                    <div class="timer-sub" id="timerSub">সময় বাকি</div>
+                </div>
+                <div class="timer-status idle" id="timerStatus">প্রস্তুত</div>
+            </div>
+        </div>
+
+        <div class="controls-panel">
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">🌐</div>কন্টেন্ট ভাষা</div>
+                <div class="lang-toggle">
+                    <button class="lang-btn active" id="langEN" onclick="setLanguage('en')">English</button>
+                    <button class="lang-btn" id="langBN" onclick="setLanguage('bn')">বাংলা</button>
+                </div>
+            </div>
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">✍️</div>বোর্ডের টেক্সট (৩ লাইন)</div>
+                <div class="form-row">
+                    <label class="form-label">লাইন ১</label>
+                    <input type="text" id="rowText1" value="AIR TICKETING RESERVATION" maxlength="30">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">লাইন ২</label>
+                    <input type="text" id="rowText2" value="PROFESSIONAL VISA PROCESSING" maxlength="30">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">লাইন ৩ (ট্যাগলাইন)</label>
+                    <input type="text" id="rowText3" value="FAST - RELIABLE - TRUSTED" maxlength="30">
+                </div>
+                <p class="hint-text" style="margin:10px 0 0;">প্রতি লাইনে সর্বোচ্চ ৩০ ক্যারেক্টার — বোর্ডের গ্রিড ফিক্সড।</p>
+            </div>
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">🎨</div>বোর্ড থিম</div>
+                <div class="style-presets" id="stylePresets">
+                    <button class="style-preset-btn active" data-style="amber" onclick="applyStyle('amber',this)">🟡 ক্লাসিক অ্যাম্বার</button>
+                    <button class="style-preset-btn" data-style="navy" onclick="applyStyle('navy',this)">🔵 নেভি গোল্ড</button>
+                    <button class="style-preset-btn" data-style="led" onclick="applyStyle('led',this)">🩵 LED ব্লু</button>
+                    <button class="style-preset-btn" data-style="emerald" onclick="applyStyle('emerald',this)">🟢 এমারেল্ড</button>
+                    <button class="style-preset-btn" data-style="ruby" onclick="applyStyle('ruby',this)">🔴 রুবি অ্যালার্ট</button>
+                    <button class="style-preset-btn" data-style="silver" onclick="applyStyle('silver',this)">⚪ সিলভার মেট্রো</button>
+                </div>
+            </div>
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">✨</div>এফেক্টস</div>
+                <div class="form-row"><label class="checkbox-row"><input type="checkbox" id="showScanlines" checked> CRT স্ক্যানলাইন / ভিনিয়েট</label></div>
+                <div class="form-row"><label class="checkbox-row"><input type="checkbox" id="showHeader" checked> "DEPARTURES" হেডার বার দেখান</label></div>
+            </div>
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">⚡</div>অ্যানিমেশন সেটিংস</div>
+                <div class="form-row">
+                    <label class="form-label">চলার সময় (সেকেন্ড)<span class="value-badge" id="durationBadge">12s</span></label>
+                    <input type="number" id="spinDuration" value="12" min="1" max="3600">
+                    <div class="time-presets">
+                        <button class="preset-btn" onclick="setDuration(6,this)">6s</button>
+                        <button class="preset-btn active" onclick="setDuration(12,this)">12s</button>
+                        <button class="preset-btn" onclick="setDuration(24,this)">24s</button>
+                        <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label class="form-label">এক ফ্লিপ-সাইকেল কত সেকেন্ডে<span class="value-badge" id="speedBadge">5.0s</span></label>
+                    <input type="range" id="loopSeconds" min="3" max="9" step="0.5" value="5">
+                </div>
+                <div class="form-row">
+                    <label class="checkbox-row"><input type="checkbox" id="loopSpinToggle" checked> সবসময় চলতে থাকবে (Loop)</label>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="startBtn" onclick="startSpin()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+                    চালু করুন
+                </button>
+                <button class="btn btn-stop" id="stopBtn" onclick="stopSpin()" disabled>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+                    বন্ধ করুন
+                </button>
+            </div>
+            <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট করুন</button>
+
+            <div class="control-card" style="margin-top:16px;">
+                <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+                <p class="hint-text">বোর্ড ডিজাইন নিজেই একটা dark screen/monitor-এর মতো, তাই সবসময় opaque (পুরো বোর্ড ফ্রেমসহ) এক্সপোর্ট হয় — সরাসরি ভিডিওতে "airport display" হিসেবে বসানো যায়।</p>
+                <div class="btn-group">
+                    <button class="btn btn-primary" type="button" onclick="downloadPng()">PNG</button>
+                    <button class="btn btn-primary" type="button" onclick="downloadGif()">GIF</button>
+                    <button class="btn btn-primary" type="button" onclick="downloadVideo()">Video (WebM)</button>
+                </div>
+                <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+    /* =====================================================
+       AIR TICKETING & VISA PROCESSING — SPLIT-FLAP BOARD
+       Authentic airport Solari-style mechanical flip board
+    ===================================================== */
+
+    const canvas = document.getElementById('badgeCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        const wrapper = canvas.parentElement;
+        const maxW = Math.min(wrapper.clientWidth - 40, 700);
+        canvas.width = maxW;
+        canvas.height = Math.round(maxW * 9 / 16);
+    }
+    resizeCanvas();
+    window.addEventListener('resize', () => { resizeCanvas(); drawFrame(); });
+
+    // === STATE ===
+    let animPhase = 0;
+    let elapsedAnimMs = 0;
+    let isSpinning = false;
+    let animFrame = null;
+    let totalDurationMs = 12000;
+    let startTime = null;
+    let loopSeconds = 5;
+    let lastTimestamp = null;
+    let isExporting = false;
+
+    function mod(n, m) { return ((n % m) + m) % m; }
+
+    // === LANGUAGE PRESETS ===
+    const langPresets = {
+        en: { row1: 'AIR TICKETING RESERVATION', row2: 'PROFESSIONAL VISA PROCESSING', row3: 'FAST - RELIABLE - TRUSTED' },
+        bn: { row1: 'এয়ার টিকেটিং রিজার্ভেশন', row2: 'প্রফেশনাল ভিসা প্রসেসিং', row3: 'দ্রুত - নির্ভরযোগ্য - বিশ্বস্ত' },
+    };
+    function setLanguage(lang) {
+        const p = langPresets[lang];
+        if (!p) return;
+        document.getElementById('rowText1').value = p.row1;
+        document.getElementById('rowText2').value = p.row2;
+        document.getElementById('rowText3').value = p.row3;
+        document.getElementById('langEN').classList.toggle('active', lang === 'en');
+        document.getElementById('langBN').classList.toggle('active', lang === 'bn');
+        drawFrame();
+    }
+
+    // === BOARD STYLE PRESETS ===
+    const stylePresets = {
+        amber:   { board: '#0a0a0a', cell: '#131313', text: '#ffb400', frame: '#f7b733' },
+        navy:    { board: '#0a1730', cell: '#0f2040', text: '#ffd76a', frame: '#f7b733' },
+        led:     { board: '#020617', cell: '#0a1020', text: '#38bdf8', frame: '#38bdf8' },
+        emerald: { board: '#03140d', cell: '#082418', text: '#34d399', frame: '#34d399' },
+        ruby:    { board: '#1a0505', cell: '#280808', text: '#f87171', frame: '#f87171' },
+        silver:  { board: '#111318', cell: '#1c2028', text: '#e5e7eb', frame: '#cbd5e1' },
+    };
+    let currentStyle = 'amber';
+    function applyStyle(name, btnEl) {
+        currentStyle = name;
+        document.querySelectorAll('.style-preset-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+        drawFrame();
+    }
+
+    // === COLOR HELPERS ===
+    function hexToRgb(hex) { const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16); return { r, g, b }; }
+    function lightenColor(hex, amt) { const { r, g, b } = hexToRgb(hex); return `rgb(${Math.min(255, r + amt)},${Math.min(255, g + amt)},${Math.min(255, b + amt)})`; }
+    function darkenColor(hex, amt) { const { r, g, b } = hexToRgb(hex); return `rgb(${Math.max(0, r - amt)},${Math.max(0, g - amt)},${Math.max(0, b - amt)})`; }
+
+    // === SPLIT-FLAP CHARACTER ENGINE ===
+    const CHARSET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -.';
+    function randomCharFor(seedNum) {
+        const x = Math.sin(seedNum * 12.9898) * 43758.5453;
+        const frac = x - Math.floor(x);
+        return CHARSET[Math.floor(frac * CHARSET.length)];
+    }
+    function centerPad(text, n) {
+        text = (text || '').toUpperCase();
+        if (text.length > n) return text.slice(0, n);
+        const padTotal = n - text.length;
+        const padLeft = Math.floor(padTotal / 2);
+        return ' '.repeat(padLeft) + text + ' '.repeat(padTotal - padLeft);
+    }
+    function getCellChar(target, colIndex, cols, phase, rowSeed) {
+        const staggerSpan = 0.15, flipLen = 0.10;
+        const inStart = 0.03 + (colIndex / cols) * staggerSpan;
+        const inEnd = inStart + flipLen;
+        const outStart = 0.88 + (colIndex / cols) * (staggerSpan * 0.6);
+        const outEnd = outStart + flipLen * 0.8;
+
+        if (phase < inStart) return ' ';
+        if (phase < inEnd) {
+            const t = (phase - inStart) / flipLen;
+            const steps = 4;
+            const stepIdx = Math.min(steps - 1, Math.floor(t * steps));
+            return randomCharFor(rowSeed * 1000 + colIndex * 17 + stepIdx);
+        }
+        if (phase < outStart) return target;
+        if (phase < outEnd) {
+            const t = (phase - outStart) / (outEnd - outStart);
+            const steps = 3;
+            const stepIdx = Math.min(steps - 1, Math.floor(t * steps));
+            return randomCharFor(rowSeed * 2000 + colIndex * 13 + stepIdx + 50);
+        }
+        return ' ';
+    }
+
+    function drawFlapCell(ctx, x, y, cw, ch, char, cellColor, textColor) {
+        ctx.save();
+        ctx.translate(x, y);
+        const grad = ctx.createLinearGradient(0, -ch / 2, 0, ch / 2);
+        grad.addColorStop(0, lightenColor(cellColor, 10));
+        grad.addColorStop(0.5, cellColor);
+        grad.addColorStop(1, darkenColor(cellColor, 12));
+        ctx.fillStyle = grad;
+        ctx.fillRect(-cw / 2, -ch / 2, cw, ch);
+        ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(-cw / 2, 0); ctx.lineTo(cw / 2, 0); ctx.stroke();
+        ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+        ctx.strokeRect(-cw / 2 + 0.5, -ch / 2 + 0.5, cw - 1, ch - 1);
+
+        if (char && char !== ' ') {
+            ctx.fillStyle = textColor;
+            ctx.font = `700 ${Math.round(ch * 0.6)}px 'Space Mono', 'Outfit', monospace`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = textColor;
+            ctx.shadowBlur = ch * 0.12;
+            ctx.fillText(char, 0, -ch * 0.02);
+            ctx.shadowBlur = 0;
+        }
+        ctx.restore();
+    }
+
+    function drawFlapRow(ctx, cx, cy, cols, cellW, cellH, gap, text, phase, cellColor, textColor, rowSeed) {
+        const totalW = cols * cellW + (cols - 1) * gap;
+        const startX = cx - totalW / 2 + cellW / 2;
+        const padded = centerPad(text, cols);
+        for (let c = 0; c < cols; c++) {
+            const target = padded[c] || ' ';
+            const ch = getCellChar(target, c, cols, phase, rowSeed);
+            drawFlapCell(ctx, startX + c * (cellW + gap), cy, cellW, cellH, ch, cellColor, textColor);
+        }
+    }
+
+    // === DRAW ENGINE ===
+    function drawFrame() {
+        const w = canvas.width, h = canvas.height;
+        const style = stylePresets[currentStyle];
+        const showScanlines = document.getElementById('showScanlines').checked;
+        const showHeader = document.getElementById('showHeader').checked;
+        const row1 = document.getElementById('rowText1').value;
+        const row2 = document.getElementById('rowText2').value;
+        const row3 = document.getElementById('rowText3').value;
+
+        ctx.clearRect(0, 0, w, h);
+
+        // outer ambient background
+        const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+        bgGrad.addColorStop(0, '#03040a');
+        bgGrad.addColorStop(1, '#0a0e18');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, w, h);
+
+        // board frame
+        const boardX = w * 0.03, boardY = h * 0.05, boardW = w * 0.94, boardH = h * 0.90;
+        ctx.save();
+        ctx.beginPath();
+        const rr = h * 0.02;
+        ctx.moveTo(boardX + rr, boardY);
+        ctx.arcTo(boardX + boardW, boardY, boardX + boardW, boardY + boardH, rr);
+        ctx.arcTo(boardX + boardW, boardY + boardH, boardX, boardY + boardH, rr);
+        ctx.arcTo(boardX, boardY + boardH, boardX, boardY, rr);
+        ctx.arcTo(boardX, boardY, boardX + boardW, boardY, rr);
+        ctx.closePath();
+        const frameGrad = ctx.createLinearGradient(boardX, boardY, boardX, boardY + boardH);
+        frameGrad.addColorStop(0, lightenColor(style.board, 6));
+        frameGrad.addColorStop(1, darkenColor(style.board, 4));
+        ctx.fillStyle = frameGrad;
+        ctx.fill();
+        ctx.strokeStyle = style.frame;
+        ctx.globalAlpha = 0.55;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+        ctx.clip();
+
+        // header
+        let contentTop = boardY + h * 0.03;
+        if (showHeader) {
+            const pulse = 0.5 + 0.5 * Math.abs(Math.sin(animPhase * Math.PI * 2 * 4));
+            ctx.fillStyle = style.frame;
+            ctx.globalAlpha = 0.5 + pulse * 0.5;
+            ctx.beginPath();
+            ctx.arc(boardX + boardW * 0.06, boardY + h * 0.075, h * 0.012, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+
+            ctx.fillStyle = style.text;
+            ctx.font = `700 ${Math.round(h * 0.05)}px 'Outfit', sans-serif`;
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('DEPARTURES', boardX + boardW * 0.09, boardY + h * 0.075);
+
+            ctx.textAlign = 'right';
+            ctx.font = `500 ${Math.round(h * 0.035)}px 'Outfit', sans-serif`;
+            ctx.globalAlpha = 0.75;
+            ctx.fillText('✈ TRAVEL DESK', boardX + boardW * 0.94, boardY + h * 0.075);
+            ctx.globalAlpha = 1;
+
+            ctx.strokeStyle = style.frame;
+            ctx.globalAlpha = 0.35;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(boardX + boardW * 0.05, boardY + h * 0.12);
+            ctx.lineTo(boardX + boardW * 0.95, boardY + h * 0.12);
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+
+            contentTop = boardY + h * 0.16;
+        }
+
+        // flap rows
+        const cols = 30;
+        const gap = Math.max(1.5, w * 0.0022);
+        const availW = boardW * 0.94;
+        const cellW = (availW - (cols - 1) * gap) / cols;
+        const cellH = h * 0.155;
+        const rowGap = h * 0.045;
+        const cx = boardX + boardW / 2;
+
+        const row1Cy = contentTop + cellH * 0.6;
+        const row2Cy = row1Cy + cellH + rowGap;
+        const row3Cy = row2Cy + cellH + rowGap;
+
+        drawFlapRow(ctx, cx, row1Cy, cols, cellW, cellH, gap, row1, animPhase, style.cell, style.text, 0);
+        drawFlapRow(ctx, cx, row2Cy, cols, cellW, cellH, gap, row2, animPhase, style.cell, style.text, 1);
+        drawFlapRow(ctx, cx, row3Cy, Math.min(cols, 26), cellW * (cols / Math.min(cols, 26)), cellH * 0.8, gap, row3, animPhase, style.cell, style.frame, 2);
+
+        // scanlines / vignette
+        if (showScanlines) {
+            ctx.save();
+            ctx.globalAlpha = 0.06;
+            ctx.fillStyle = '#000000';
+            for (let y = 0; y < h; y += 3) ctx.fillRect(0, y, w, 1);
+            ctx.restore();
+
+            const vig = ctx.createRadialGradient(w / 2, h / 2, h * 0.2, w / 2, h / 2, h * 0.75);
+            vig.addColorStop(0, 'rgba(0,0,0,0)');
+            vig.addColorStop(1, 'rgba(0,0,0,0.35)');
+            ctx.fillStyle = vig;
+            ctx.fillRect(0, 0, w, h);
+        }
+
+        ctx.restore(); // end board clip
+
+        // corner rivets
+        ctx.fillStyle = style.frame;
+        ctx.globalAlpha = 0.5;
+        const rivetR = h * 0.008;
+        [[boardX + rivetR * 2, boardY + rivetR * 2], [boardX + boardW - rivetR * 2, boardY + rivetR * 2],
+         [boardX + rivetR * 2, boardY + boardH - rivetR * 2], [boardX + boardW - rivetR * 2, boardY + boardH - rivetR * 2]]
+        .forEach(([rx, ry]) => { ctx.beginPath(); ctx.arc(rx, ry, rivetR, 0, Math.PI * 2); ctx.fill(); });
+        ctx.globalAlpha = 1;
+    }
+
+    // === ANIMATION LOOP ===
+    function animationLoop(timestamp) {
+        if (!isSpinning) return;
+        if (!lastTimestamp) lastTimestamp = timestamp;
+        const delta = timestamp - lastTimestamp;
+        lastTimestamp = timestamp;
+
+        elapsedAnimMs += delta;
+        animPhase = mod((elapsedAnimMs / 1000) / loopSeconds, 1);
+
+        const elapsed = timestamp - startTime;
+        const remaining = Math.max(0, totalDurationMs - elapsed);
+        updateTimerUI(remaining);
+
+        drawFrame();
+
+        if (remaining <= 0 && !document.getElementById('loopSpinToggle').checked) { finishSpin(); return; }
+        if (remaining <= 0) startTime = timestamp;
+
+        animFrame = requestAnimationFrame(animationLoop);
+    }
+
+    function updateTimerUI(remaining) {
+        const totalSec = Math.ceil(remaining / 1000);
+        const minutes = Math.floor(totalSec / 60).toString().padStart(2, '0');
+        const seconds = (totalSec % 60).toString().padStart(2, '0');
+        document.getElementById('timerBig').textContent = `${minutes}:${seconds}`;
+        const pct = Math.max(0, Math.min(100, ((totalDurationMs - remaining) / totalDurationMs) * 100));
+        document.getElementById('timerPercent').textContent = Math.round(pct) + '%';
+        const circumference = 157;
+        document.getElementById('timerRing').style.strokeDashoffset = circumference - (pct / 100) * circumference;
+    }
+
+    function resetTimerUI() {
+        document.getElementById('timerBig').textContent = '00:00';
+        document.getElementById('timerPercent').textContent = '—';
+        document.getElementById('timerRing').style.strokeDashoffset = 157;
+        document.getElementById('timerStatus').className = 'timer-status idle';
+        document.getElementById('timerStatus').textContent = 'প্রস্তুত';
+        document.getElementById('timerSub').textContent = 'সময় বাকি';
+    }
+
+    // === START / STOP ===
+    function startSpin() {
+        if (isSpinning) return;
+        const durationSec = parseFloat(document.getElementById('spinDuration').value) || 12;
+        totalDurationMs = durationSec * 1000;
+        loopSeconds = parseFloat(document.getElementById('loopSeconds').value) || 5;
+
+        isSpinning = true;
+        startTime = null;
+        lastTimestamp = null;
+
+        document.getElementById('startBtn').disabled = true;
+        document.getElementById('stopBtn').disabled = false;
+
+        const statusEl = document.getElementById('timerStatus');
+        statusEl.className = 'timer-status spinning';
+        statusEl.textContent = '🛫 চলছে';
+        document.getElementById('timerSub').textContent = 'সময় বাকি';
+
+        animFrame = requestAnimationFrame((ts) => { startTime = ts; lastTimestamp = ts; animationLoop(ts); });
+    }
+
+    function stopSpin() {
+        isSpinning = false;
+        if (animFrame) cancelAnimationFrame(animFrame);
+        lastTimestamp = null;
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('stopBtn').disabled = true;
+        const statusEl = document.getElementById('timerStatus');
+        statusEl.className = 'timer-status idle';
+        statusEl.textContent = '⏸ থামানো হয়েছে';
+        drawFrame();
+    }
+
+    function finishSpin() {
+        isSpinning = false;
+        if (animFrame) cancelAnimationFrame(animFrame);
+        lastTimestamp = null;
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('stopBtn').disabled = true;
+        document.getElementById('timerBig').textContent = '00:00';
+        document.getElementById('timerPercent').textContent = '100%';
+        document.getElementById('timerRing').style.strokeDashoffset = 0;
+        const statusEl = document.getElementById('timerStatus');
+        statusEl.className = 'timer-status done';
+        statusEl.textContent = '✅ সম্পন্ন!';
+        document.getElementById('timerSub').textContent = 'অ্যানিমেশন শেষ';
+        drawFrame();
+    }
+
+    function resetAll() {
+        stopSpin();
+        animPhase = 0;
+        elapsedAnimMs = 0;
+        resetTimerUI();
+        drawFrame();
+    }
+
+    function setExportStatus(message) { document.getElementById('exportStatus').textContent = message; }
+
+    function saveBlob(blob, filename) {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    }
+
+    function downloadPng() {
+        canvas.toBlob((blob) => {
+            if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+            saveBlob(blob, 'air-ticketing-visa-splitflap-board.png');
+            setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+        }, 'image/png');
+    }
+
+    function getExportCanvas(w = 1280, h = 720) {
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = w; exportCanvas.height = h;
+        const oldW = canvas.width, oldH = canvas.height;
+        canvas.width = w; canvas.height = h;
+        drawFrame();
+        exportCanvas.getContext('2d').drawImage(canvas, 0, 0);
+        canvas.width = oldW; canvas.height = oldH;
+        drawFrame();
+        return exportCanvas;
+    }
+
+    async function downloadGif() {
+        if (!window.GIF) { setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ দিয়ে আবার চেষ্টা করুন।'); return; }
+        if (isExporting) return;
+        isExporting = true;
+        const oldPhase = animPhase;
+        const gif = new GIF({
+            workers: 2, quality: 10, width: 960, height: 540,
+            workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js',
+        });
+        const frames = 60;
+        const frameDelay = Math.round((loopSeconds * 1000) / frames);
+        setExportStatus('GIF তৈরি হচ্ছে… 0%');
+        for (let frame = 0; frame < frames; frame++) {
+            animPhase = frame / frames;
+            gif.addFrame(getExportCanvas(960, 540), { copy: true, delay: frameDelay });
+            setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((frame + 1) / frames * 100)}%`);
+            await new Promise(requestAnimationFrame);
+        }
+        animPhase = oldPhase; drawFrame();
+        gif.on('finished', (blob) => {
+            saveBlob(blob, 'air-ticketing-visa-splitflap-board.gif');
+            setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
+            isExporting = false;
+        });
+        gif.render();
+    }
+
+    async function downloadVideo() {
+        if (!window.MediaRecorder || !canvas.captureStream) {
+            setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।');
+            return;
+        }
+        if (isExporting) return;
+        isExporting = true;
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = 1280; exportCanvas.height = 720;
+        const exportCtx = exportCanvas.getContext('2d');
+        const stream = exportCanvas.captureStream(30);
+        const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+        const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 6000000 });
+        const chunks = [];
+        const oldPhase = animPhase;
+        recorder.ondataavailable = (event) => event.data.size && chunks.push(event.data);
+        recorder.onstop = () => {
+            saveBlob(new Blob(chunks, { type: mimeType }), 'air-ticketing-visa-splitflap-board.webm');
+            animPhase = oldPhase; drawFrame(); isExporting = false;
+            setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+        };
+        recorder.start();
+        const start = performance.now();
+        const duration = loopSeconds * 1000;
+        setExportStatus('ভিডিও তৈরি হচ্ছে…');
+        const render = (now) => {
+            const progress = Math.min(1, (now - start) / duration);
+            animPhase = progress;
+            const frame = getExportCanvas(1280, 720);
+            exportCtx.clearRect(0, 0, 1280, 720);
+            exportCtx.drawImage(frame, 0, 0);
+            if (progress < 1) requestAnimationFrame(render); else recorder.stop();
+        };
+        requestAnimationFrame(render);
+    }
+
+    function setDuration(sec, btnEl) {
+        document.getElementById('spinDuration').value = sec;
+        document.getElementById('durationBadge').textContent = sec >= 60 ? `${sec / 60}মিনিট` : `${sec}s`;
+        document.querySelectorAll('.time-presets .preset-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+    }
+
+    document.getElementById('loopSeconds').addEventListener('input', function () {
+        loopSeconds = parseFloat(this.value);
+        document.getElementById('speedBadge').textContent = loopSeconds.toFixed(1) + 's';
+    });
+    document.getElementById('spinDuration').addEventListener('input', function () {
+        const v = parseFloat(this.value) || 12;
+        document.getElementById('durationBadge').textContent = v >= 60 ? `${(v / 60).toFixed(1)}মিনিট` : `${v}s`;
+    });
+    ['rowText1', 'rowText2', 'rowText3', 'showScanlines', 'showHeader'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', () => { if (!isSpinning) drawFrame(); });
+            el.addEventListener('change', () => { if (!isSpinning) drawFrame(); });
+        }
+    });
+
+    drawFrame();
+    setTimeout(startSpin, 150);
+
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
+</body>
+</html>

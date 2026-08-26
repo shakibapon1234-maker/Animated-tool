@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome To Your Brand — Neon Octagon Intro Builder</title>
+<meta name="description" content="৩ডি নিয়ন অক্টাগন ব্র্যান্ড ওয়েলকাম কার্ড বিল্ড অ্যানিমেশন — লোগো, ব্র্যান্ড নাম, গ্লো টেক্সট — PNG/GIF/WebM এক্সপোর্ট">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-primary:#0a0d0f; --bg-secondary:#0f1316; --bg-card:#151a1d; --bg-card-hover:#1b2124;
+    --border:rgba(255,255,255,0.08); --accent:#e8b34a; --accent-glow:rgba(232,179,74,0.4);
+    --accent-2:#2dd4e0; --accent-3:#4a9d6e; --text-primary:#f3f1ea; --text-secondary:#9ba3a1;
+    --text-muted:#576260; --radius:16px; --shadow:0 20px 60px rgba(0,0,0,0.6);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Outfit','Noto Sans Bengali',sans-serif;background:var(--bg-primary);color:var(--text-primary);
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 80% 50% at 20% 15%,rgba(45,212,224,0.08) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 85%,rgba(232,179,74,0.08) 0%,transparent 60%);}
+  .app-header{width:100%;padding:22px 32px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);
+    background:rgba(10,13,15,0.85);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+  .header-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent-2),#0e5058);
+    clip-path:polygon(50% 0%,90% 20%,100% 60%,75% 100%,25% 100%,0% 60%,10% 20%);display:flex;align-items:center;justify-content:center;
+    font-size:19px;box-shadow:0 0 20px rgba(45,212,224,0.4);flex-shrink:0;}
+  .header-text h1{font-size:19px;font-weight:700;background:linear-gradient(135deg,#fff 0%,var(--accent-2) 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .header-text p{font-size:12.5px;color:var(--text-secondary);margin-top:2px;}
+  .main-content{width:100%;max-width:1220px;padding:36px 24px 80px;display:grid;grid-template-columns:1fr 380px;gap:28px;position:relative;z-index:1;}
+  @media (max-width:960px){.main-content{grid-template-columns:1fr;}}
+  .canvas-panel{display:flex;flex-direction:column;align-items:center;gap:20px;}
+  .canvas-wrapper{width:100%;max-width:560px;aspect-ratio:1/1;background:
+    linear-gradient(45deg,#181d20 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,#181d20 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(45deg,transparent 75%,#181d20 75%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,transparent 75%,#181d20 75%) -0px -0px/24px 24px,
+    var(--bg-card);
+    border:1px solid var(--border);border-radius:20px;display:flex;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;box-shadow:var(--shadow);}
+  #sceneCanvas{display:block;max-width:100%;max-height:100%;}
+  .timer-display{display:flex;align-items:center;gap:14px;padding:14px 24px;background:var(--bg-card);
+    border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);width:100%;max-width:560px;}
+  .timer-ring-wrap{position:relative;width:50px;height:50px;}
+  .timer-ring-wrap svg{transform:rotate(-90deg);}
+  .timer-ring-bg{fill:none;stroke:rgba(255,255,255,0.07);stroke-width:4;}
+  .timer-ring-fill{fill:none;stroke:url(#ringGradient3);stroke-width:4;stroke-linecap:round;
+    transition:stroke-dashoffset 1s linear;stroke-dasharray:141;stroke-dashoffset:0;}
+  .timer-label-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:700;color:var(--accent-2);}
+  .timer-text-group{display:flex;flex-direction:column;}
+  .timer-big{font-size:26px;font-weight:800;letter-spacing:-1px;}
+  .timer-sub{font-size:11.5px;color:var(--text-secondary);font-weight:500;}
+  .timer-status{padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;}
+  .timer-status.idle{background:rgba(255,255,255,0.06);color:var(--text-muted);}
+  .timer-status.spinning{background:rgba(45,212,224,0.15);color:var(--accent-2);}
+  .timer-status.done{background:rgba(74,157,110,0.15);color:var(--accent-3);}
+  .sidebar{display:flex;flex-direction:column;gap:14px;}
+  .control-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+  .card-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-secondary);
+    display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+  .card-title-icon{width:22px;height:22px;background:rgba(45,212,224,0.14);border-radius:6px;display:flex;
+    align-items:center;justify-content:center;font-size:12px;}
+  .form-row{margin-bottom:14px;}
+  .form-row:last-child{margin-bottom:0;}
+  .form-label{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;color:var(--text-secondary);margin-bottom:7px;}
+  .value-badge{background:rgba(45,212,224,0.16);color:var(--accent-2);padding:1px 8px;border-radius:6px;font-size:11px;font-weight:700;}
+  input[type=text]{width:100%;padding:10px 12px;background:var(--bg-secondary);border:1px solid var(--border);
+    border-radius:9px;color:var(--text-primary);font-size:13.5px;font-family:inherit;}
+  input[type=text]:focus{outline:none;border-color:var(--accent-2);}
+  input[type=range]{width:100%;accent-color:var(--accent-2);}
+  input[type=color]{width:100%;height:34px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;}
+  .color-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .lang-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  .lang-btn{padding:9px 6px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;}
+  .lang-btn.active{background:var(--accent-2);border-color:var(--accent-2);color:#04262a;}
+  .toggle-row{display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer;color:var(--text-secondary);margin-bottom:10px;}
+  .toggle-row:last-child{margin-bottom:0;}
+  .preset-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .preset-btn{padding:7px 12px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;}
+  .preset-btn.active{background:var(--accent-2);border-color:var(--accent-2);color:#04262a;}
+  .style-swatch{width:34px;height:34px;border-radius:9px;border:2px solid transparent;cursor:pointer;flex-shrink:0;}
+  .style-swatch.active{border-color:#fff;}
+  .btn-group{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{flex:1;min-width:120px;padding:12px 16px;border:none;border-radius:11px;font-size:13.5px;font-weight:700;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;transition:.15s;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent-2),#0e6068);color:#04262a;box-shadow:0 8px 20px rgba(45,212,224,0.28);}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-stop{background:rgba(239,68,68,0.15);color:#ef4444;}
+  .btn-stop:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-ghost{background:var(--bg-secondary);color:var(--text-secondary);border:1px solid var(--border);}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-icon">✨</div>
+  <div class="header-text">
+    <h1>Welcome To Your Brand — Neon Octagon Intro Builder</h1>
+    <p>লোগো + ব্র্যান্ড নাম + গ্লো টেক্সট নিয়ন অক্টাগন কার্ড বিল্ড অ্যানিমেশন — PNG/GIF/WebM এক্সপোর্ট</p>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="canvas-panel">
+    <div class="canvas-wrapper">
+      <canvas id="sceneCanvas" width="1200" height="1200"></canvas>
+    </div>
+
+    <div class="timer-display">
+      <div class="timer-ring-wrap">
+        <svg width="50" height="50" viewBox="0 0 50 50">
+          <defs>
+            <linearGradient id="ringGradient3" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#2dd4e0"/><stop offset="100%" stop-color="#e8b34a"/>
+            </linearGradient>
+          </defs>
+          <circle class="timer-ring-bg" cx="25" cy="25" r="22.5"></circle>
+          <circle class="timer-ring-fill" id="timerRing" cx="25" cy="25" r="22.5"></circle>
+        </svg>
+        <div class="timer-label-inner" id="timerPercent">—</div>
+      </div>
+      <div class="timer-text-group">
+        <div class="timer-big" id="timerBig">00:00</div>
+        <div class="timer-sub" id="timerSub">সময় বাকি</div>
+      </div>
+      <div class="timer-status idle" id="timerStatus" style="margin-left:auto;">প্রস্তুত</div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🌐</div>ভাষা প্রিসেট</div>
+      <div class="lang-row">
+        <button class="lang-btn" onclick="applyLanguage('bn',this)">বাংলা</button>
+        <button class="lang-btn" onclick="applyLanguage('en',this)">English</button>
+        <button class="lang-btn active" onclick="applyLanguage('both',this)">উভয়</button>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">✏️</div>টেক্সট</div>
+      <div class="form-row">
+        <label class="form-label">উপরের ছোট টেক্সট</label>
+        <input type="text" id="topText" value="WELCOME TO">
+      </div>
+      <div class="form-row">
+        <label class="form-label">ব্র্যান্ড নাম (বড়)</label>
+        <input type="text" id="brandName" value="YOUR BRAND">
+      </div>
+      <div class="form-row">
+        <label class="form-label">নিচের ছোট টেক্সট</label>
+        <input type="text" id="bottomText" value="স্বাগতম">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎨</div>রং</div>
+      <div class="color-grid">
+        <div class="form-row"><label class="form-label">ব্যাকগ্রাউন্ড রং</label><input type="color" id="bgColor" value="#0a0e1a"></div>
+        <div class="form-row"><label class="form-label">ফ্রেম রং</label><input type="color" id="frameColor" value="#2c3a52"></div>
+        <div class="form-row"><label class="form-label">অ্যাক্সেন্ট / গ্লো রং</label><input type="color" id="accentColor" value="#e8b34a"></div>
+        <div class="form-row"><label class="form-label">উপরের টেক্সট রং</label><input type="color" id="topTextColor" value="#2dd4e0"></div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">ব্র্যান্ড নামের রং</label>
+        <input type="color" id="brandColor" value="#f5f1e6">
+      </div>
+      <div class="preset-row" style="margin-top:4px;" id="stylePresets">
+        <div class="style-swatch active" style="background:linear-gradient(135deg,#0a0e1a,#2dd4e0)" onclick="applyStyle('cyan',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#0d0a1a,#b06bff)" onclick="applyStyle('purple',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#0a1a12,#4ade8a)" onclick="applyStyle('emerald',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#0a0e1a,#7fb4ff)" onclick="applyStyle('royal',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#1a0a0a,#e8b34a)" onclick="applyStyle('ruby',this)"></div>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🔺</div>শেপ</div>
+      <div class="form-row">
+        <label class="form-label">অক্টাগনের আকার <span class="value-badge" id="caseSizeBadge">90%</span></label>
+        <input type="range" id="caseSize" min="60" max="120" step="1" value="90">
+      </div>
+      <div class="form-row">
+        <label class="form-label">ফ্রেম পুরুত্ব <span class="value-badge" id="handlePitchBadge">45</span></label>
+        <input type="range" id="handlePitch" min="20" max="70" step="1" value="45">
+      </div>
+      <div class="form-row">
+        <label class="form-label">লোগোর আকার <span class="value-badge" id="depthBadge">22</span></label>
+        <input type="range" id="blockDepth" min="8" max="40" step="1" value="22">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎬</div>অ্যানিমেশন</div>
+      <div class="toggle-row"><input type="checkbox" id="buildToggle" checked>ফ্রেম + টেক্সট বিল্ড অ্যানিমেশন</div>
+      <div class="toggle-row"><input type="checkbox" id="pennantToggle" checked>লোগো আইডল ভাসমান নড়াচড়া</div>
+      <div class="toggle-row"><input type="checkbox" id="flyToggle" checked>স্পার্কল পার্টিকেল</div>
+      <div class="toggle-row"><input type="checkbox" id="sweepToggle" checked>টেক্সট গ্লো পালস</div>
+      <div class="toggle-row"><input type="checkbox" id="idleToggle" checked>নিচে গ্রাউন্ড গ্লো</div>
+      <div class="form-row">
+        <label class="form-label">সময়কাল</label>
+        <div class="preset-row">
+          <button class="preset-btn" onclick="setDuration(5,this)">5s</button>
+          <button class="preset-btn" onclick="setDuration(10,this)">10s</button>
+          <button class="preset-btn active" onclick="setDuration(30,this)">30s</button>
+          <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:10px;">
+        <label class="toggle-row" style="margin:0;"><input type="checkbox" id="loopToggle" checked>সবসময় লুপ চলবে</label>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" id="startBtn" onclick="startAnim()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg> শুরু
+      </button>
+      <button class="btn btn-stop" id="stopBtn" onclick="stopAnim()" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg> বন্ধ
+      </button>
+    </div>
+    <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট</button>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+      <div class="toggle-row"><input type="checkbox" id="transparentToggle">PNG ট্রান্সপারেন্ট ব্যাকগ্রাউন্ড</div>
+      <div class="form-row" id="exportBgRow">
+        <label class="form-label">GIF/ভিডিও ব্যাকগ্রাউন্ড রং</label>
+        <input type="color" id="exportBgColor" value="#0a0e1a">
+      </div>
+      <p style="font-size:11.5px;color:var(--text-muted);margin:2px 0 12px;line-height:1.55;">
+        এই ডিজাইনের নিজস্ব ডার্ক ব্যাকগ্রাউন্ড আছে, তাই ডিফল্টভাবে PNG-ও সলিড ব্যাকগ্রাউন্ড সহ এক্সপোর্ট হয়। চাইলে ট্রান্সপারেন্ট অন করতে পারেন।
+      </p>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="downloadPng()">PNG</button>
+        <button class="btn btn-primary" onclick="downloadGif()">GIF</button>
+        <button class="btn btn-primary" onclick="downloadVideo()">ভিডিও (WebM)</button>
+      </div>
+      <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   WELCOME TO YOUR BRAND — NEON OCTAGON INTRO CARD ENGINE
+   Straight-edged octagon frame + polygon logo + glow text.
+===================================================== */
+
+const canvas = document.getElementById('sceneCanvas');
+const ctx = canvas.getContext('2d');
+const CW = canvas.width, CH = canvas.height;
+
+// === STATE ===
+let sweepPhase = 0, idlePhase = 0, flyPhase = 0, buildP = 0;
+let isSpinning = false, animFrame = null, lastTimestamp = null;
+let totalDurationMs = 30000, startTime = null, isExporting = false;
+
+// === LANGUAGE PRESETS ===
+const languagePresets = {
+  bn: { topText: 'স্বাগতম', bottomText: 'আমাদের ব্র্যান্ডে আপনাকে স্বাগতম' },
+  en: { topText: 'WELCOME TO', bottomText: 'WELCOME' },
+  both: { topText: 'WELCOME TO', bottomText: 'স্বাগতম' },
+};
+function applyLanguage(lang, btnEl) {
+  const p = languagePresets[lang]; if (!p) return;
+  document.getElementById('topText').value = p.topText;
+  document.getElementById('bottomText').value = p.bottomText;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  if (!isSpinning) drawFrame();
+}
+
+// === STYLE PRESETS ===
+const stylePresets = {
+  cyan:    { bgColor:'#0a0e1a', frameColor:'#2c3a52', accentColor:'#e8b34a', topTextColor:'#2dd4e0', brandColor:'#f5f1e6' },
+  purple:  { bgColor:'#0d0a1a', frameColor:'#332a52', accentColor:'#ffd166', topTextColor:'#b06bff', brandColor:'#f5f1ea' },
+  emerald: { bgColor:'#0a1a12', frameColor:'#25523c', accentColor:'#ffd166', topTextColor:'#4ade8a', brandColor:'#f0f7ee' },
+  royal:   { bgColor:'#0a0e1a', frameColor:'#25314f', accentColor:'#cfe3ff', topTextColor:'#7fb4ff', brandColor:'#f4f7fc' },
+  ruby:    { bgColor:'#1a0a0a', frameColor:'#4a2530', accentColor:'#e8b34a', topTextColor:'#ff8f7f', brandColor:'#f7ece6' },
+};
+function applyStyle(name, el) {
+  const s = stylePresets[name]; if (!s) return;
+  document.getElementById('bgColor').value = s.bgColor;
+  document.getElementById('frameColor').value = s.frameColor;
+  document.getElementById('accentColor').value = s.accentColor;
+  document.getElementById('topTextColor').value = s.topTextColor;
+  document.getElementById('brandColor').value = s.brandColor;
+  document.querySelectorAll('.style-swatch').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  drawFrame();
+}
+
+// === SETTINGS ===
+function getSettings() {
+  return {
+    topText: document.getElementById('topText').value || '',
+    brandName: document.getElementById('brandName').value || '',
+    bottomText: document.getElementById('bottomText').value || '',
+    bgColor: document.getElementById('bgColor').value,
+    frameColor: document.getElementById('frameColor').value,
+    accentColor: document.getElementById('accentColor').value,
+    topTextColor: document.getElementById('topTextColor').value,
+    brandColor: document.getElementById('brandColor').value,
+    sizePct: parseInt(document.getElementById('caseSize').value) || 90,
+    framePct: parseInt(document.getElementById('handlePitch').value) || 45,
+    logoPct: parseInt(document.getElementById('blockDepth').value) || 22,
+    showBuild: document.getElementById('buildToggle').checked,
+    showLogoIdle: document.getElementById('pennantToggle').checked,
+    showSparkle: document.getElementById('flyToggle').checked,
+    showGlowPulse: document.getElementById('sweepToggle').checked,
+    showGroundGlow: document.getElementById('idleToggle').checked,
+  };
+}
+
+// === COLOR HELPERS ===
+function hexToRgb(hex) {
+  hex = hex.replace('#', '');
+  return { r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16) };
+}
+function hexToRgba(hex, a) { const {r,g,b} = hexToRgb(hex); return `rgba(${r},${g},${b},${a})`; }
+function mix(hexA, hexB, t) {
+  const a = hexToRgb(hexA), b = hexToRgb(hexB);
+  return `rgb(${Math.round(a.r+(b.r-a.r)*t)},${Math.round(a.g+(b.g-a.g)*t)},${Math.round(a.b+(b.b-a.b)*t)})`;
+}
+function lighten(hex, amt) { const {r,g,b} = hexToRgb(hex); return `rgb(${Math.min(255,r+amt)},${Math.min(255,g+amt)},${Math.min(255,b+amt)})`; }
+function darken(hex, amt) { const {r,g,b} = hexToRgb(hex); return `rgb(${Math.max(0,r-amt)},${Math.max(0,g-amt)},${Math.max(0,b-amt)})`; }
+
+// === EASING ===
+function clamp01(t) { return Math.max(0, Math.min(1, t)); }
+function remap(t, a, b) { return clamp01((t - a) / (b - a)); }
+function smoothstep(t) { return t * t * (3 - 2 * t); }
+function easeOutBack(t) {
+  const c1 = 1.70158, c3 = c1 + 1;
+  return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+}
+function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+function prand(seed) { const x = Math.sin(seed * 12.9898) * 43758.5453; return x - Math.floor(x); }
+
+// === OCTAGON GEOMETRY (flat-edge, cut-corner style — no curves) ===
+function octagonPoints(cx, cy, halfW, halfH, cut) {
+  return [
+    { x: cx - halfW + cut, y: cy - halfH },
+    { x: cx + halfW - cut, y: cy - halfH },
+    { x: cx + halfW,       y: cy - halfH + cut },
+    { x: cx + halfW,       y: cy + halfH - cut },
+    { x: cx + halfW - cut, y: cy + halfH },
+    { x: cx - halfW + cut, y: cy + halfH },
+    { x: cx - halfW,       y: cy + halfH - cut },
+    { x: cx - halfW,       y: cy - halfH + cut },
+  ];
+}
+// edges 0,2,4,6 = straight sides; edges 1,3,5,7 = diagonal corners
+function pathFromPoints(pts) {
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+  ctx.closePath();
+}
+
+function drawOctagonFrame(cx, cy, halfW, halfH, cut, thickness, frameColor, accentColor, glowAmt) {
+  const outer = octagonPoints(cx, cy, halfW, halfH, cut);
+  const innerCutRatio = cut / Math.min(halfW, halfH);
+  const inner = octagonPoints(cx, cy, halfW - thickness, halfH - thickness, Math.max(2, cut - thickness));
+
+  // beveled ring fill (straight edges only, muted slate colour with subtle gradient)
+  const grad = ctx.createLinearGradient(cx - halfW, cy - halfH, cx + halfW, cy + halfH);
+  grad.addColorStop(0, lighten(frameColor, 18));
+  grad.addColorStop(1, darken(frameColor, 12));
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(outer[0].x, outer[0].y);
+  for (let i = 1; i < outer.length; i++) ctx.lineTo(outer[i].x, outer[i].y);
+  ctx.closePath();
+  ctx.moveTo(inner[0].x, inner[0].y);
+  for (let i = inner.length - 1; i >= 0; i--) ctx.lineTo(inner[i].x, inner[i].y);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill('evenodd');
+  ctx.restore();
+
+  // gold diagonal corner accents, centred on the ring, with glow
+  const midPts = octagonPoints(cx, cy, halfW - thickness / 2, halfH - thickness / 2, Math.max(1, cut - thickness / 2));
+  ctx.save();
+  ctx.strokeStyle = accentColor;
+  ctx.lineWidth = Math.max(1.5, thickness * 0.22);
+  ctx.lineCap = 'round';
+  ctx.shadowColor = accentColor;
+  ctx.shadowBlur = glowAmt;
+  const cornerEdges = [1, 3, 5, 7];
+  cornerEdges.forEach(i => {
+    const a = midPts[i], b = midPts[(i + 1) % midPts.length];
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+  });
+  ctx.restore();
+}
+
+// Pentagon logo mark with a diagonal gradient fill, flat straight edges.
+function drawPentagonLogo(cx, cy, size, colorA, colorB) {
+  const pts = [];
+  for (let i = 0; i < 5; i++) {
+    const angle = -Math.PI / 2 + i * (Math.PI * 2 / 5);
+    pts.push({ x: cx + Math.cos(angle) * size, y: cy + Math.sin(angle) * size });
+  }
+  const grad = ctx.createLinearGradient(cx - size, cy - size, cx + size, cy + size);
+  grad.addColorStop(0, colorA);
+  grad.addColorStop(1, colorB);
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.shadowColor = colorB;
+  ctx.shadowBlur = size * 0.5;
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawGroundGlow(cx, y, w, alpha, color) {
+  ctx.save();
+  ctx.shadowColor = hexToRgba(color, alpha);
+  ctx.shadowBlur = w * 0.16;
+  ctx.fillStyle = 'rgba(0,0,0,0.001)';
+  ctx.fillRect(cx - w / 2, y - w * 0.04, w, w * 0.08);
+  ctx.restore();
+}
+
+function fitFont(text, weight, family, maxWidth, startSize, minSize, letterSpacing) {
+  let size = startSize;
+  const measure = (sz) => {
+    ctx.font = `${weight} ${sz}px ${family}`;
+    let width = ctx.measureText(text).width;
+    if (letterSpacing) width += letterSpacing * sz * (text.length - 1) / 100;
+    return width;
+  };
+  while (measure(size) > maxWidth && size > minSize) size -= 2;
+  ctx.font = `${weight} ${size}px ${family}`;
+  return size;
+}
+
+function drawLetterSpacedText(text, cx, y, size, weight, family, color, spacingEm) {
+  ctx.font = `${weight} ${size}px ${family}`;
+  const chars = text.split('');
+  let totalWidth = 0;
+  const widths = chars.map(c => { const w = ctx.measureText(c).width; totalWidth += w + size * spacingEm; return w; });
+  totalWidth -= size * spacingEm;
+  let x = cx - totalWidth / 2;
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = color;
+  chars.forEach((c, i) => { ctx.fillText(c, x, y); x += widths[i] + size * spacingEm; });
+}
+
+// === MAIN DRAW ===
+function drawFrame(opts) {
+  opts = opts || {};
+  const w = canvas.width, h = canvas.height;
+  const s = getSettings();
+  const cx = w / 2, cy = h / 2;
+
+  const p = s.showBuild ? clamp01(buildP) : 1;
+  const idleBlend = smoothstep(remap(p, 0.9, 1.0));
+
+  // === BACKGROUND ===
+  ctx.clearRect(0, 0, w, h);
+  const useBg = opts.solidBg !== undefined ? opts.solidBg : true;
+  const bgColor = opts.bgColor || s.bgColor;
+  if (useBg) {
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, w, h);
+    const vg = ctx.createRadialGradient(cx, cy, h * 0.1, cx, cy, h * 0.72);
+    vg.addColorStop(0, 'rgba(255,255,255,0.03)');
+    vg.addColorStop(1, 'rgba(0,0,0,0.35)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0, 0, w, h);
+  }
+
+  // subtle sparkle particles
+  if (s.showSparkle) {
+    for (let i = 0; i < 14; i++) {
+      const seed = i * 3.7;
+      const life = ((flyPhase * 0.15 + seed) % 1 + 1) % 1;
+      const px = w * prand(seed) ;
+      const py = h * (1 - life);
+      const alpha = Math.sin(life * Math.PI) * 0.35;
+      if (alpha <= 0.01) continue;
+      const sz = w * 0.004 * (0.6 + prand(seed + 1));
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.rotate(Math.PI / 4);
+      ctx.fillStyle = hexToRgba(s.accentColor, alpha);
+      ctx.shadowColor = s.accentColor;
+      ctx.shadowBlur = sz * 3;
+      ctx.fillRect(-sz / 2, -sz / 2, sz, sz);
+      ctx.restore();
+    }
+  }
+
+  // === GROUND GLOW ===
+  const sizePct = s.sizePct / 100;
+  const halfW = w * 0.30 * sizePct, halfH = h * 0.30 * sizePct;
+  const bobAmp = s.showLogoIdle ? idleBlend * (h * 0.004) : 0;
+  const frameBob = Math.sin(idlePhase) * bobAmp;
+  const octY = cy + frameBob;
+
+  if (s.showGroundGlow) {
+    const glowAlpha = 0.5 * remap(p, 0, 0.12);
+    drawGroundGlow(cx, octY + halfH * 1.02, halfW * 1.5, glowAlpha, s.accentColor);
+  }
+
+  // === OCTAGON FRAME BUILD ===
+  const frameT = easeOutBack(smoothstep(remap(p, 0.04, 0.28)));
+  const fT = clamp01(frameT);
+  if (fT > 0.001) {
+    const cut = Math.min(halfW, halfH) * 0.42;
+    const thickness = Math.min(halfW, halfH) * (s.framePct / 100) * 0.10;
+    const glowPulse = s.showGlowPulse ? (Math.sin(idlePhase * 1.4) * 0.5 + 0.5) : 0.5;
+
+    ctx.save();
+    ctx.translate(cx, octY);
+    ctx.scale(fT, fT);
+    ctx.translate(-cx, -octY);
+    drawOctagonFrame(cx, octY, halfW, halfH, cut, thickness, s.frameColor, s.accentColor, halfW * 0.02 * (0.6 + glowPulse * 0.8));
+    ctx.restore();
+  }
+
+  // === LOGO ===
+  const logoT = easeOutBack(smoothstep(remap(p, 0.40, 0.58)));
+  const lT = clamp01(logoT);
+  if (lT > 0.001) {
+    const logoSize = Math.min(halfW, halfH) * (s.logoPct / 100) * 1.35;
+    const logoY = octY - halfH * 0.32 + Math.sin(idlePhase * 0.9) * bobAmp * 1.4;
+    const wobble = s.showLogoIdle ? Math.sin(idlePhase * 0.7) * 0.06 * idleBlend : 0;
+    ctx.save();
+    ctx.translate(cx, logoY);
+    ctx.rotate(wobble);
+    ctx.scale(lT, lT);
+    drawPentagonLogo(0, 0, logoSize, mix('#e8e08a', s.accentColor, 0.3), s.topTextColor);
+    ctx.restore();
+  }
+
+  // === TOP TEXT ("WELCOME TO") ===
+  const topT = smoothstep(remap(p, 0.54, 0.68));
+  if (topT > 0.001 && s.topText) {
+    const topY = octY + halfH * 0.02;
+    const topSize = Math.min(halfW, halfH) * 0.115;
+    ctx.save();
+    ctx.globalAlpha = topT;
+    const glowPulse = s.showGlowPulse ? (Math.sin(idlePhase * 1.6) * 0.5 + 0.5) : 0.5;
+    ctx.shadowColor = s.topTextColor;
+    ctx.shadowBlur = topSize * (0.25 + glowPulse * 0.35);
+    drawLetterSpacedText(s.topText.toUpperCase(), cx, topY - h * 0.012 * (1 - topT), topSize, 700,
+      `'Outfit','Noto Sans Bengali',sans-serif`, s.topTextColor, 0.32);
+    ctx.restore();
+  }
+
+  // === BRAND NAME (large glow) ===
+  const brandT = easeOutBack(smoothstep(remap(p, 0.62, 0.84)));
+  const bnT = clamp01(brandT);
+  if (bnT > 0.001 && s.brandName) {
+    const brandY = octY + halfH * 0.17;
+    const brandSize = fitFont(s.brandName.toUpperCase(), 800, `'Outfit','Noto Sans Bengali',sans-serif`, halfW * 1.7, Math.min(halfW, halfH) * 0.26, 14);
+    const glowPulse = s.showGlowPulse ? (Math.sin(idlePhase * 1.3) * 0.5 + 0.5) : 0.5;
+    ctx.save();
+    ctx.translate(cx, brandY);
+    ctx.scale(0.6 + bnT * 0.4, 0.6 + bnT * 0.4);
+    ctx.globalAlpha = Math.min(1, bnT * 1.6);
+    ctx.font = `800 ${brandSize}px 'Outfit','Noto Sans Bengali',sans-serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    // layered glow passes for a strong neon halo
+    ctx.shadowColor = mix(s.accentColor, '#ffffff', 0.3);
+    ctx.shadowBlur = brandSize * (0.55 + glowPulse * 0.35);
+    ctx.fillStyle = s.brandColor;
+    ctx.fillText(s.brandName.toUpperCase(), 0, 0);
+    ctx.shadowBlur = brandSize * 0.18;
+    ctx.fillText(s.brandName.toUpperCase(), 0, 0);
+    ctx.restore();
+  }
+
+  // === BOTTOM TEXT (small, with glow underline) ===
+  const bottomT = smoothstep(remap(p, 0.82, 0.96));
+  if (bottomT > 0.001 && s.bottomText) {
+    const bottomY = octY + halfH * 0.30;
+    const bSize = fitFont(s.bottomText, 600, `'Outfit','Noto Sans Bengali',sans-serif`, halfW * 1.3, Math.min(halfW, halfH) * 0.09, 8);
+    ctx.save();
+    ctx.globalAlpha = bottomT;
+    ctx.font = `600 ${bSize}px 'Outfit','Noto Sans Bengali',sans-serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.shadowColor = s.accentColor;
+    ctx.shadowBlur = bSize * 0.5;
+    ctx.fillStyle = s.accentColor;
+    ctx.fillText(s.bottomText, cx, bottomY);
+    const tw = ctx.measureText(s.bottomText).width;
+    ctx.shadowBlur = bSize * 0.4;
+    ctx.strokeStyle = hexToRgba(s.accentColor, 0.8);
+    ctx.lineWidth = Math.max(1, bSize * 0.05);
+    ctx.beginPath();
+    ctx.moveTo(cx - tw * 0.5 * bottomT, bottomY + bSize * 0.62);
+    ctx.lineTo(cx + tw * 0.5 * bottomT, bottomY + bSize * 0.62);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+// === ANIMATION LOOP ===
+function animationLoop(timestamp) {
+  if (!isSpinning) return;
+  if (!lastTimestamp) lastTimestamp = timestamp;
+  const delta = timestamp - lastTimestamp;
+  lastTimestamp = timestamp;
+
+  sweepPhase += delta * 0.0006;
+  idlePhase += delta * 0.0016;
+  flyPhase += delta * 0.001;
+
+  const elapsed = timestamp - startTime;
+  const remaining = Math.max(0, totalDurationMs - elapsed);
+  buildP = clamp01(elapsed / totalDurationMs);
+  updateTimerUI(elapsed, remaining);
+
+  drawFrame();
+
+  if (remaining <= 0 && !document.getElementById('loopToggle').checked) { finishAnim(); return; }
+  if (remaining <= 0) { startTime = timestamp; buildP = 0; }
+
+  animFrame = requestAnimationFrame(animationLoop);
+}
+
+function updateTimerUI(elapsed, remaining) {
+  const totalSec = Math.ceil(remaining / 1000);
+  const m = Math.floor(totalSec / 60).toString().padStart(2, '0');
+  const sec = (totalSec % 60).toString().padStart(2, '0');
+  document.getElementById('timerBig').textContent = `${m}:${sec}`;
+  const pct = Math.max(0, Math.min(100, ((totalDurationMs - remaining) / totalDurationMs) * 100));
+  document.getElementById('timerPercent').textContent = Math.round(pct) + '%';
+  const circumference = 141;
+  document.getElementById('timerRing').style.strokeDashoffset = circumference - (pct / 100) * circumference;
+}
+function resetTimerUI() {
+  document.getElementById('timerBig').textContent = '00:00';
+  document.getElementById('timerPercent').textContent = '—';
+  document.getElementById('timerRing').style.strokeDashoffset = 141;
+  document.getElementById('timerStatus').className = 'timer-status idle';
+  document.getElementById('timerStatus').textContent = 'প্রস্তুত';
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+}
+
+let currentDuration = 30;
+function setDuration(sec, btnEl) {
+  currentDuration = sec;
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+}
+
+function startAnim() {
+  if (isSpinning) return;
+  totalDurationMs = currentDuration * 1000;
+  isSpinning = true; startTime = null; lastTimestamp = null; buildP = 0;
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status spinning'; st.textContent = '⚡ চলছে';
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+  animFrame = requestAnimationFrame(ts => { startTime = ts; lastTimestamp = ts; animationLoop(ts); });
+}
+function stopAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status idle'; st.textContent = '⏸ থামানো হয়েছে';
+  drawFrame();
+}
+function finishAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  document.getElementById('timerBig').textContent = '00:00';
+  document.getElementById('timerPercent').textContent = '100%';
+  document.getElementById('timerRing').style.strokeDashoffset = 0;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status done'; st.textContent = '✅ সম্পন্ন';
+  document.getElementById('timerSub').textContent = 'অ্যানিমেশন শেষ';
+  drawFrame();
+}
+function resetAll() {
+  stopAnim();
+  sweepPhase = 0; idlePhase = 0; flyPhase = 0; buildP = 0;
+  resetTimerUI();
+  drawFrame();
+}
+
+// === EXPORT ===
+function setExportStatus(msg) { document.getElementById('exportStatus').textContent = msg; }
+function saveBlob(blob, filename) {
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+function downloadPng() {
+  const transparent = document.getElementById('transparentToggle').checked;
+  const bgColor = document.getElementById('exportBgColor').value;
+  const oldP = buildP; buildP = 1;
+  drawFrame({ solidBg: !transparent, bgColor });
+  canvas.toBlob(blob => {
+    buildP = oldP;
+    drawFrame({ solidBg: true });
+    if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+    saveBlob(blob, 'welcome-brand-neon-octagon.png');
+    setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+  }, 'image/png');
+}
+
+async function downloadGif() {
+  if (!window.GIF) { setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন।'); return; }
+  if (isExporting) return;
+  isExporting = true;
+  const _gifWantTransparent = document.getElementById('transparentToggle').checked;
+  const bgColor = document.getElementById('exportBgColor').value;
+  const oldSweep = sweepPhase, oldIdle = idlePhase, oldFly = flyPhase, oldBuild = buildP;
+  const gif = new GIF({ transparent: (_gifWantTransparent ? window.GIF_CHROMA_INT : null), workers: 2, quality: 10, width: CW, height: CH,
+    workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
+  const frames = 60, frameDelay = 60, clipMs = 6000;
+  setExportStatus('GIF তৈরি হচ্ছে… 0%');
+  for (let i = 0; i < frames; i++) {
+    const t = i / frames;
+    const elapsedMs = t * clipMs;
+    sweepPhase = oldSweep + elapsedMs * 0.0006;
+    idlePhase = oldIdle + elapsedMs * 0.0016;
+    flyPhase = oldFly + elapsedMs * 0.001;
+    buildP = clamp01(elapsedMs / (clipMs * 0.62));
+    drawFrame({ solidBg: !_gifWantTransparent, bgColor });
+    gif.addFrame(_gifWantTransparent ? window.gifFlattenFrame(canvas) : (canvas), { copy: true, delay: frameDelay });
+    setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((i + 1) / frames * 100)}%`);
+    await new Promise(requestAnimationFrame);
+  }
+  sweepPhase = oldSweep; idlePhase = oldIdle; flyPhase = oldFly; buildP = oldBuild;
+  drawFrame({ solidBg: !_gifWantTransparent });
+  gif.on('finished', blob => {
+    saveBlob(blob, 'welcome-brand-neon-octagon.gif');
+    setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
+    isExporting = false;
+  });
+  gif.render();
+}
+
+async function downloadVideo() {
+  if (!window.MediaRecorder || !canvas.captureStream) {
+    setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।'); return;
+  }
+  if (isExporting) return;
+  isExporting = true;
+  const bgColor = document.getElementById('exportBgColor').value;
+  const stream = canvas.captureStream(30);
+  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 6000000 });
+  const chunks = [];
+  const oldSweep = sweepPhase, oldIdle = idlePhase, oldFly = flyPhase, oldBuild = buildP;
+  recorder.ondataavailable = e => e.data.size && chunks.push(e.data);
+  recorder.onstop = () => {
+    saveBlob(new Blob(chunks, { type: mimeType }), 'welcome-brand-neon-octagon.webm');
+    sweepPhase = oldSweep; idlePhase = oldIdle; flyPhase = oldFly; buildP = oldBuild;
+    drawFrame({ solidBg: true });
+    isExporting = false;
+    setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+  };
+  recorder.start();
+  const start = performance.now();
+  const duration = 7000;
+  setExportStatus('ভিডিও তৈরি হচ্ছে…');
+  const render = (now) => {
+    const elapsedMs = now - start;
+    const progress = Math.min(1, elapsedMs / duration);
+    sweepPhase = oldSweep + elapsedMs * 0.0006;
+    idlePhase = oldIdle + elapsedMs * 0.0016;
+    flyPhase = oldFly + elapsedMs * 0.001;
+    buildP = clamp01(elapsedMs / (duration * 0.62));
+    drawFrame({ solidBg: true, bgColor });
+    if (progress < 1) requestAnimationFrame(render); else recorder.stop();
+  };
+  requestAnimationFrame(render);
+}
+
+// === UI EVENTS ===
+['caseSize', 'handlePitch', 'blockDepth'].forEach(id => {
+  document.getElementById(id).addEventListener('input', function () {
+    const badges = { caseSize: 'caseSizeBadge', handlePitch: 'handlePitchBadge', blockDepth: 'depthBadge' };
+    const el = document.getElementById(badges[id]);
+    el.textContent = id === 'caseSize' ? this.value + '%' : this.value;
+    if (!isSpinning) drawFrame();
+  });
+});
+['topText', 'brandName', 'bottomText', 'bgColor', 'frameColor', 'accentColor', 'topTextColor', 'brandColor',
+  'buildToggle', 'pennantToggle', 'flyToggle', 'sweepToggle', 'idleToggle'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => { if (!isSpinning) drawFrame(); });
+  el.addEventListener('change', () => { if (!isSpinning) drawFrame(); });
+});
+document.getElementById('transparentToggle').addEventListener('change', function () {
+  document.getElementById('exportBgRow').style.display = this.checked ? 'none' : 'block';
+});
+
+// === INITIAL DRAW ===
+buildP = 1;
+drawFrame({ solidBg: true });
+buildP = 0;
+setTimeout(startAnim, 150);
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+    <script src="download-utils.js"></script>
+</body>
+</html>

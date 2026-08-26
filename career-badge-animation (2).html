@@ -901,8 +901,9 @@ async function downloadGif() {
     }
     if (isExporting) return;
     isExporting = true;
+  const _gifWantTransparent = true;
     const oldSpin = spinAngle, oldRay = rayAngle, oldPulse = pulsePhase, oldParticle = particlePhase;
-    const gif = new GIF({
+    const gif = new GIF({ transparent: (_gifWantTransparent ? window.GIF_CHROMA_INT : null),
         workers: 2, quality: 10, width: 720, height: 720,
         workerScript: 'gif.worker.js'
     });
@@ -917,7 +918,7 @@ async function downloadGif() {
         rayAngle = oldRay + direction * rayPerFrame * frame;
         pulsePhase = oldPulse + (frameDelay / 1000) * 2.2 * frame;
         particlePhase = oldParticle + (frameDelay / 1000) * frame;
-        gif.addFrame(getExportCanvas(720), { copy: true, delay: frameDelay });
+        gif.addFrame(_gifWantTransparent ? window.gifFlattenFrame(getExportCanvas(720)) : (getExportCanvas(720)), { copy: true, delay: frameDelay });
         setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((frame + 1) / frames * 100)}%`);
         await new Promise(requestAnimationFrame);
     }

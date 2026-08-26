@@ -579,13 +579,14 @@ async function downloadGif(){
     }
     if(isExporting) return;
     isExporting = true;
+  const _gifWantTransparent = true;
     const wasPlaying = isPlaying;
     if(wasPlaying) stopAnim();
     const oldPhase = phase;
 
-    const gif = new GIF({
+    const gif = new GIF({ transparent: (_gifWantTransparent ? window.GIF_CHROMA_INT : null),
         workers: 2, quality: 8, width: W, height: H,
-        transparent: 0x00FF00, // will be swapped per-pixel below via manual compositing
+        // will be swapped per-pixel below via manual compositing
         workerScript: 'gif.worker.js'
     });
 
@@ -601,7 +602,7 @@ async function downloadGif(){
         ctx.fillRect(0,0,W,H);
         ctx.restore();
         drawFrame_onKeyedBackground(keyColor);
-        gif.addFrame(ctx, { copy:true, delay: Math.round((durationSec*1000)/frames) });
+        gif.addFrame(_gifWantTransparent ? window.gifFlattenFrame(ctx) : (ctx), { copy:true, delay: Math.round((durationSec*1000)/frames) });
         setExportStatus(translations[currentLang].gifMaking(Math.round((f+1)/frames*100)));
         await new Promise(r=>setTimeout(r,0));
     }

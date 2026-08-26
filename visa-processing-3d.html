@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PROFESSIONAL VISA PROCESSING — 3D Document Pipeline Animation Generator</title>
+<meta name="description" content="৩ডি এক্সট্রুডেড থ্রি-গেট ডকুমেন্ট অ্যাপ্রুভাল পাইপলাইন + ফোল্ডেড রিবন সিল অ্যানিমেশন — PNG/GIF/WebM এক্সপোর্ট">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Noto+Sans+Bengali:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-primary:#0a0806; --bg-secondary:#100d0a; --bg-card:#161210; --bg-card-hover:#1c1815;
+    --border:rgba(255,255,255,0.08); --accent:#e8b979; --accent-glow:rgba(232,185,121,0.4);
+    --accent-2:#22a3ff; --accent-3:#17c98e; --text-primary:#f6f1ea; --text-secondary:#a89f92;
+    --text-muted:#5c5348; --radius:16px; --shadow:0 20px 60px rgba(0,0,0,0.6);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Outfit','Noto Sans Bengali',sans-serif;background:var(--bg-primary);color:var(--text-primary);
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 80% 50% at 20% 15%,rgba(232,185,121,0.10) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 85%,rgba(34,163,255,0.08) 0%,transparent 60%);}
+  .app-header{width:100%;padding:22px 32px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);
+    background:rgba(10,8,6,0.85);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+  .header-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),#8a6a35);
+    clip-path:polygon(0 0,30% 0,30% 40%,70% 40%,70% 0,100% 0,100% 100%,70% 100%,70% 60%,30% 60%,30% 100%,0 100%);
+    display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 20px var(--accent-glow);flex-shrink:0;}
+  .header-text h1{font-size:19px;font-weight:700;background:linear-gradient(135deg,#fff 0%,var(--accent) 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .header-text p{font-size:12.5px;color:var(--text-secondary);margin-top:2px;}
+  .main-content{width:100%;max-width:1260px;padding:36px 24px 80px;display:grid;grid-template-columns:1fr 380px;gap:28px;position:relative;z-index:1;}
+  @media (max-width:960px){.main-content{grid-template-columns:1fr;}}
+  .canvas-panel{display:flex;flex-direction:column;align-items:center;gap:20px;}
+  .canvas-wrapper{width:100%;aspect-ratio:16/9;background:
+    linear-gradient(45deg,#201a14 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,#201a14 25%,transparent 25%) -0px -0px/24px 24px,
+    linear-gradient(45deg,transparent 75%,#201a14 75%) -0px -0px/24px 24px,
+    linear-gradient(-45deg,transparent 75%,#201a14 75%) -0px -0px/24px 24px,
+    var(--bg-card);
+    border:1px solid var(--border);border-radius:20px;display:flex;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;box-shadow:var(--shadow);}
+  #sceneCanvas{display:block;max-width:100%;max-height:100%;}
+  .timer-display{display:flex;align-items:center;gap:14px;padding:14px 24px;background:var(--bg-card);
+    border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);width:100%;}
+  .timer-ring-wrap{position:relative;width:50px;height:50px;}
+  .timer-ring-wrap svg{transform:rotate(-90deg);}
+  .timer-ring-bg{fill:none;stroke:rgba(255,255,255,0.07);stroke-width:4;}
+  .timer-ring-fill{fill:none;stroke:url(#ringGradient3);stroke-width:4;stroke-linecap:round;
+    transition:stroke-dashoffset 1s linear;stroke-dasharray:141;stroke-dashoffset:0;}
+  .timer-label-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:700;color:var(--accent);}
+  .timer-text-group{display:flex;flex-direction:column;}
+  .timer-big{font-size:26px;font-weight:800;letter-spacing:-1px;}
+  .timer-sub{font-size:11.5px;color:var(--text-secondary);font-weight:500;}
+  .timer-status{padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;}
+  .timer-status.idle{background:rgba(255,255,255,0.06);color:var(--text-muted);}
+  .timer-status.spinning{background:rgba(232,185,121,0.15);color:var(--accent);}
+  .timer-status.done{background:rgba(23,201,142,0.15);color:var(--accent-3);}
+  .sidebar{display:flex;flex-direction:column;gap:14px;}
+  .control-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+  .card-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-secondary);
+    display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+  .card-title-icon{width:22px;height:22px;background:rgba(232,185,121,0.14);border-radius:6px;display:flex;
+    align-items:center;justify-content:center;font-size:12px;}
+  .form-row{margin-bottom:14px;}
+  .form-row:last-child{margin-bottom:0;}
+  .form-label{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;color:var(--text-secondary);margin-bottom:7px;}
+  .value-badge{background:rgba(232,185,121,0.16);color:var(--accent);padding:1px 8px;border-radius:6px;font-size:11px;font-weight:700;}
+  input[type=text]{width:100%;padding:10px 12px;background:var(--bg-secondary);border:1px solid var(--border);
+    border-radius:9px;color:var(--text-primary);font-size:13.5px;font-family:inherit;}
+  input[type=text]:focus{outline:none;border-color:var(--accent);}
+  input[type=range]{width:100%;accent-color:var(--accent);}
+  input[type=color]{width:100%;height:34px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;}
+  .color-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .lang-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  .lang-btn{padding:9px 6px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;}
+  .lang-btn.active{background:var(--accent);border-color:var(--accent);color:#231a0d;}
+  .toggle-row{display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer;color:var(--text-secondary);margin-bottom:10px;}
+  .toggle-row:last-child{margin-bottom:0;}
+  .preset-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .preset-btn{padding:7px 12px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);
+    border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;}
+  .preset-btn.active{background:var(--accent);border-color:var(--accent);color:#231a0d;}
+  .style-swatch{width:34px;height:34px;border-radius:9px;border:2px solid transparent;cursor:pointer;flex-shrink:0;}
+  .style-swatch.active{border-color:#fff;}
+  .btn-group{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{flex:1;min-width:120px;padding:12px 16px;border:none;border-radius:11px;font-size:13.5px;font-weight:700;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;transition:.15s;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),#a17a3d);color:#231a0d;box-shadow:0 8px 20px rgba(232,185,121,0.28);}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-stop{background:rgba(239,68,68,0.15);color:#ef4444;}
+  .btn-stop:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-ghost{background:var(--bg-secondary);color:var(--text-secondary);border:1px solid var(--border);}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-icon">📋</div>
+  <div class="header-text">
+    <h1>PROFESSIONAL VISA PROCESSING — 3D Document Pipeline Generator</h1>
+    <p>৩ডি এক্সট্রুডেড থ্রি-গেট অ্যাপ্রুভাল পাইপলাইন + ফোল্ডেড রিবন সিল — কোনো গোল শেপ নেই</p>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="canvas-panel">
+    <div class="canvas-wrapper">
+      <canvas id="sceneCanvas" width="1600" height="900"></canvas>
+    </div>
+
+    <div class="timer-display">
+      <div class="timer-ring-wrap">
+        <svg width="50" height="50" viewBox="0 0 50 50">
+          <defs>
+            <linearGradient id="ringGradient3" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#e8b979"/><stop offset="100%" stop-color="#22a3ff"/>
+            </linearGradient>
+          </defs>
+          <circle class="timer-ring-bg" cx="25" cy="25" r="22.5"></circle>
+          <circle class="timer-ring-fill" id="timerRing" cx="25" cy="25" r="22.5"></circle>
+        </svg>
+        <div class="timer-label-inner" id="timerPercent">—</div>
+      </div>
+      <div class="timer-text-group">
+        <div class="timer-big" id="timerBig">00:00</div>
+        <div class="timer-sub" id="timerSub">সময় বাকি</div>
+      </div>
+      <div class="timer-status idle" id="timerStatus" style="margin-left:auto;">প্রস্তুত</div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🌐</div>ভাষা প্রিসেট</div>
+      <div class="lang-row">
+        <button class="lang-btn" onclick="applyLanguage('bn',this)">বাংলা</button>
+        <button class="lang-btn active" onclick="applyLanguage('en',this)">English</button>
+        <button class="lang-btn" onclick="applyLanguage('both',this)">উভয়</button>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">✏️</div>টেক্সট</div>
+      <div class="form-row">
+        <label class="form-label">সাব-লাইন (উপরে)</label>
+        <input type="text" id="subText" value="PROFESSIONAL">
+      </div>
+      <div class="form-row">
+        <label class="form-label">মূল লাইন</label>
+        <input type="text" id="mainText" value="VISA PROCESSING">
+      </div>
+      <div class="form-row">
+        <label class="form-label">ট্যাগলাইন (নিচে, ঐচ্ছিক)</label>
+        <input type="text" id="tagText" value="Trusted & Transparent">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎨</div>রং</div>
+      <div class="color-grid">
+        <div class="form-row"><label class="form-label">গেট বেস রং</label><input type="color" id="paperColor" value="#334155"></div>
+        <div class="form-row"><label class="form-label">গেট শ্যাডো রং</label><input type="color" id="shadowColor" value="#0f172a"></div>
+        <div class="form-row"><label class="form-label">টেক্সট রং</label><input type="color" id="textColor" value="#0b1220"></div>
+        <div class="form-row"><label class="form-label">অ্যাপ্রুভড / রিবন রং</label><input type="color" id="accentColor" value="#22c55e"></div>
+      </div>
+      <div class="preset-row" style="margin-top:4px;" id="stylePresets">
+        <div class="style-swatch active" style="background:linear-gradient(135deg,#334155,#0f172a)" onclick="applyStyle('slate',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#1b4332,#081c15)" onclick="applyStyle('emerald',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#3a3a6e,#14142e)" onclick="applyStyle('navy',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#7a1f1f,#3a0d0d)" onclick="applyStyle('maroon',this)"></div>
+        <div class="style-swatch" style="background:linear-gradient(135deg,#8a6a10,#3d2e05)" onclick="applyStyle('gold',this)"></div>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🔺</div>পাইপলাইন শেপ</div>
+      <div class="form-row">
+        <label class="form-label">পাইপলাইন প্রস্থ <span class="value-badge" id="widthBadge">78%</span></label>
+        <input type="range" id="stairWidth" min="55" max="92" step="1" value="78">
+      </div>
+      <div class="form-row">
+        <label class="form-label">৩ডি ডেপথ <span class="value-badge" id="depthBadge">35</span></label>
+        <input type="range" id="depthAmt" min="10" max="60" step="5" value="35">
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">🎬</div>অ্যানিমেশন</div>
+      <div class="toggle-row"><input type="checkbox" id="climberToggle" checked>ডকুমেন্ট মুভমেন্ট + রিবন সিল</div>
+      <div class="toggle-row"><input type="checkbox" id="sweepToggle" checked>টেক্সট শাইন সুইপ</div>
+      <div class="form-row">
+        <label class="form-label">গ্রোথ (লুপ) স্পিড <span class="value-badge" id="growBadge">1.0</span></label>
+        <input type="range" id="growSpeed" min="0.5" max="3" step="0.1" value="1.0">
+      </div>
+      <div class="form-row">
+        <label class="form-label">শাইন স্পিড <span class="value-badge" id="shineBadge">1.2</span></label>
+        <input type="range" id="shineSpeed" min="0" max="4" step="0.1" value="1.2">
+      </div>
+      <div class="form-row">
+        <label class="form-label">সময়কাল</label>
+        <div class="preset-row">
+          <button class="preset-btn" onclick="setDuration(5,this)">5s</button>
+          <button class="preset-btn" onclick="setDuration(10,this)">10s</button>
+          <button class="preset-btn active" onclick="setDuration(30,this)">30s</button>
+          <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:10px;">
+        <label class="toggle-row" style="margin:0;"><input type="checkbox" id="loopToggle" checked>সবসময় লুপ চলবে</label>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" id="startBtn" onclick="startAnim()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg> শুরু
+      </button>
+      <button class="btn btn-stop" id="stopBtn" onclick="stopAnim()" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg> বন্ধ
+      </button>
+    </div>
+    <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট</button>
+
+    <div class="control-card">
+      <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+      <div class="toggle-row"><input type="checkbox" id="transparentToggle" checked>PNG ট্রান্সপারেন্ট ব্যাকগ্রাউন্ড</div>
+      <div class="form-row" id="exportBgRow" style="display:none;">
+        <label class="form-label">GIF/ভিডিও ব্যাকগ্রাউন্ড রং</label>
+        <input type="color" id="exportBgColor" value="#0a0806">
+      </div>
+      <p style="font-size:11.5px;color:var(--text-muted);margin:2px 0 12px;line-height:1.55;">
+        PNG ট্রান্সপারেন্ট থাকে (ভিডিও এডিটরে সরাসরি ওভারলে করা যাবে)। GIF সবসময় একটি সম্পূর্ণ সিমলেস লুপ এক্সপোর্ট করে। ভিডিও নির্বাচিত সময়কাল অনুযায়ী রেকর্ড হয়।
+      </p>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="downloadPng()">PNG</button>
+        <button class="btn btn-primary" onclick="downloadGif()">GIF</button>
+        <button class="btn btn-primary" onclick="downloadVideo()">ভিডিও (WebM)</button>
+      </div>
+      <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   PROFESSIONAL VISA PROCESSING — 3D PIPELINE ENGINE
+   Shape: three extruded checkpoint gate pillars connected by
+   a straight track rail, a sliding document card that changes
+   colour at each checkpoint, and a straight-edge folded ribbon
+   seal at the final "approved" gate. No circles anywhere.
+===================================================== */
+
+const canvas = document.getElementById('sceneCanvas');
+const ctx = canvas.getContext('2d');
+const CW = canvas.width, CH = canvas.height;
+
+let cyclePhase = 0, shinePhase = 0;
+let isSpinning = false, animFrame = null, lastTimestamp = null;
+let totalDurationMs = 30000, startTime = null, isExporting = false;
+
+const languagePresets = {
+  bn: { subText: 'প্রফেশনাল', mainText: 'ভিসা প্রসেসিং', tagText: 'বিশ্বস্ত ও স্বচ্ছ' },
+  en: { subText: 'PROFESSIONAL', mainText: 'VISA PROCESSING', tagText: 'Trusted & Transparent' },
+  both: { subText: 'PROFESSIONAL / প্রফেশনাল', mainText: 'VISA PROCESSING', tagText: 'বিশ্বস্ত ও স্বচ্ছ' },
+};
+function applyLanguage(lang, btnEl) {
+  const p = languagePresets[lang]; if (!p) return;
+  document.getElementById('subText').value = p.subText;
+  document.getElementById('mainText').value = p.mainText;
+  document.getElementById('tagText').value = p.tagText;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  if (!isSpinning) drawFrame();
+}
+
+const stylePresets = {
+  slate:   { paperColor:'#334155', shadowColor:'#0f172a', textColor:'#0b1220', accentColor:'#22c55e' },
+  emerald: { paperColor:'#1b4332', shadowColor:'#081c15', textColor:'#f4f1ea', accentColor:'#ffd166' },
+  navy:    { paperColor:'#3a3a6e', shadowColor:'#14142e', textColor:'#f4f1ea', accentColor:'#22d3ee' },
+  maroon:  { paperColor:'#7a1f1f', shadowColor:'#3a0d0d', textColor:'#fbeee0', accentColor:'#ffd166' },
+  gold:    { paperColor:'#8a6a10', shadowColor:'#3d2e05', textColor:'#2b1d00', accentColor:'#22c55e' },
+};
+function applyStyle(name, el) {
+  const s = stylePresets[name]; if (!s) return;
+  document.getElementById('paperColor').value = s.paperColor;
+  document.getElementById('shadowColor').value = s.shadowColor;
+  document.getElementById('textColor').value = s.textColor;
+  document.getElementById('accentColor').value = s.accentColor;
+  document.querySelectorAll('.style-swatch').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  if (!isSpinning) drawFrame();
+}
+
+function getSettings() {
+  return {
+    subText: document.getElementById('subText').value || '',
+    mainText: document.getElementById('mainText').value || '',
+    tagText: document.getElementById('tagText').value || '',
+    paperColor: document.getElementById('paperColor').value,
+    shadowColor: document.getElementById('shadowColor').value,
+    textColor: document.getElementById('textColor').value,
+    accentColor: document.getElementById('accentColor').value,
+    widthPct: parseInt(document.getElementById('stairWidth').value) || 78,
+    depthAmt: parseInt(document.getElementById('depthAmt').value) || 35,
+    showDoc: document.getElementById('climberToggle').checked,
+    showSweep: document.getElementById('sweepToggle').checked,
+    growSpeed: parseFloat(document.getElementById('growSpeed').value) || 1.0,
+    shineSpeed: parseFloat(document.getElementById('shineSpeed').value) || 1.2,
+  };
+}
+
+function hexToRgb(hex) { hex = hex.replace('#', ''); return { r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16) }; }
+function hexToRgba(hex, a) { const {r,g,b} = hexToRgb(hex); return `rgba(${r},${g},${b},${a})`; }
+function mix(hexA, hexB, t) { const a = hexToRgb(hexA), b = hexToRgb(hexB); return `rgb(${Math.round(a.r+(b.r-a.r)*t)},${Math.round(a.g+(b.g-a.g)*t)},${Math.round(a.b+(b.b-a.b)*t)})`; }
+function lighten(hex, amt) { const {r,g,b} = hexToRgb(hex); return `rgb(${Math.min(255,r+amt)},${Math.min(255,g+amt)},${Math.min(255,b+amt)})`; }
+function darken(hex, amt) { const {r,g,b} = hexToRgb(hex); return `rgb(${Math.max(0,r-amt)},${Math.max(0,g-amt)},${Math.max(0,b-amt)})`; }
+function clamp01(v){ return Math.max(0, Math.min(1, v)); }
+function easeOutBack(x){ const c1=1.70158, c3=c1+1; return 1 + c3*Math.pow(x-1,3) + c1*Math.pow(x-1,2); }
+function easeInOutCubic(x){ return x<0.5 ? 4*x*x*x : 1-Math.pow(-2*x+2,3)/2; }
+
+function drawBox3D(x, yTop, w, h, dx, dy, frontColor, topColor, sideColor, edgeColor) {
+  ctx.fillStyle = frontColor;
+  ctx.beginPath(); ctx.moveTo(x, yTop); ctx.lineTo(x+w, yTop); ctx.lineTo(x+w, yTop+h); ctx.lineTo(x, yTop+h); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = topColor;
+  ctx.beginPath(); ctx.moveTo(x, yTop); ctx.lineTo(x+w, yTop); ctx.lineTo(x+w+dx, yTop+dy); ctx.lineTo(x+dx, yTop+dy); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = sideColor;
+  ctx.beginPath(); ctx.moveTo(x+w, yTop); ctx.lineTo(x+w+dx, yTop+dy); ctx.lineTo(x+w+dx, yTop+h+dy); ctx.lineTo(x+w, yTop+h); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = edgeColor; ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  ctx.moveTo(x, yTop); ctx.lineTo(x+w, yTop); ctx.lineTo(x+w+dx, yTop+dy); ctx.lineTo(x+dx, yTop+dy); ctx.closePath();
+  ctx.moveTo(x+w, yTop); ctx.lineTo(x+w+dx, yTop+dy); ctx.lineTo(x+w+dx, yTop+h+dy); ctx.lineTo(x+w, yTop+h);
+  ctx.stroke();
+}
+
+function drawFrame(opts) {
+  opts = opts || {};
+  const w = canvas.width, h = canvas.height;
+  const s = getSettings();
+  const cx = w / 2;
+
+  ctx.clearRect(0, 0, w, h);
+  if (opts.solidBg) { ctx.fillStyle = opts.bgColor || '#0a0806'; ctx.fillRect(0, 0, w, h); }
+
+  const cycleMs = 4500 / s.growSpeed;
+  const t = (opts.tOverride !== undefined) ? opts.tOverride : (cyclePhase % cycleMs) / cycleMs;
+  const shineT = (opts.shineOverride !== undefined) ? opts.shineOverride : shinePhase;
+  const fadeOutMul = 1 - clamp01((t - 0.90) / 0.08);
+
+  const frontColor = s.paperColor;
+  const topColor = lighten(s.paperColor, 45);
+  const sideColor = mix(s.paperColor, s.shadowColor, 0.75);
+  const edgeColor = hexToRgba(darken(s.shadowColor, 15), 0.55);
+  const depthPx = 8 + (s.depthAmt/100) * 45;
+  const dx = depthPx*0.87, dy = -depthPx*0.5;
+
+  const spanW = w * (s.widthPct/100);
+  const left = cx - spanW/2;
+  const trackY = h*0.62;
+  const gateW = spanW*0.08, gateH = h*0.24;
+  const gateXFracs = [0.06, 0.47, 0.88];
+  const gateXs = gateXFracs.map(f => left + spanW*f);
+  const gateLabels = ['SUBMIT', 'REVIEW', 'APPROVED'];
+
+  // === TRACK RAIL ===
+  const trackT = clamp01(t/0.22);
+  const trackAlpha = Math.max(0, easeOutBack(trackT)) * fadeOutMul;
+  if (trackAlpha > 0.01) {
+    ctx.save(); ctx.globalAlpha = Math.min(1, trackAlpha*2.5);
+    drawBox3D(gateXs[0]+gateW*0.3, trackY-h*0.012, gateXs[2]-gateXs[0]+gateW*0.4, h*0.024, dx*0.4, dy*0.4, sideColor, lighten(sideColor,25), darken(sideColor,20), edgeColor);
+    ctx.restore();
+  }
+
+  // === GATES ===
+  const gateStagger = 0.08;
+  for (let i = 0; i < 3; i++) {
+    const localT = clamp01((t - i*gateStagger)/0.22);
+    const gScale = Math.max(0, easeOutBack(localT)) * fadeOutMul;
+    if (gScale <= 0.01) continue;
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, gScale*2.5);
+    ctx.translate(gateXs[i]+gateW/2, trackY);
+    ctx.scale(gScale, gScale);
+    ctx.translate(-gateW/2, -gateH);
+    drawBox3D(0, 0, gateW, gateH, dx, dy, frontColor, topColor, sideColor, edgeColor);
+    // plaque icon on top of gate
+    const plaqueW = gateW*1.7, plaqueH = gateW*1.0, plaqueX = gateW/2-plaqueW/2, plaqueY = -plaqueH*0.85;
+    ctx.fillStyle = hexToRgba('#f4f1ea', 0.95);
+    ctx.fillRect(plaqueX, plaqueY, plaqueW, plaqueH);
+    ctx.strokeStyle = edgeColor; ctx.lineWidth = 1.5; ctx.strokeRect(plaqueX, plaqueY, plaqueW, plaqueH);
+    ctx.strokeStyle = hexToRgba(darken(s.shadowColor,10), 0.7); ctx.lineWidth = plaqueH*0.09;
+    if (i === 0) {
+      // document lines icon
+      for (let li=0; li<3; li++){ const ly = plaqueY+plaqueH*(0.28+li*0.24); ctx.beginPath(); ctx.moveTo(plaqueX+plaqueW*0.18, ly); ctx.lineTo(plaqueX+plaqueW*(0.82-li*0.12), ly); ctx.stroke(); }
+    } else if (i === 1) {
+      // checklist icon
+      for (let li=0; li<2; li++){
+        const ly = plaqueY+plaqueH*(0.32+li*0.36);
+        ctx.beginPath(); ctx.moveTo(plaqueX+plaqueW*0.18, ly); ctx.lineTo(plaqueX+plaqueW*0.30, ly+plaqueH*0.12); ctx.lineTo(plaqueX+plaqueW*0.50, ly-plaqueH*0.12); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(plaqueX+plaqueW*0.60, ly); ctx.lineTo(plaqueX+plaqueW*0.85, ly); ctx.stroke();
+      }
+    } else {
+      // seal diamond icon
+      const ex=plaqueX+plaqueW/2, ey=plaqueY+plaqueH/2, es=plaqueH*0.32;
+      ctx.fillStyle = s.accentColor;
+      ctx.beginPath(); ctx.moveTo(ex,ey-es); ctx.lineTo(ex+es*0.7,ey); ctx.lineTo(ex,ey+es); ctx.lineTo(ex-es*0.7,ey); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = hexToRgba(darken(s.accentColor,40),0.8); ctx.lineWidth = plaqueH*0.05; ctx.stroke();
+    }
+    // gate label text
+    ctx.font = `700 ${gateW*0.42}px 'Outfit',sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillStyle = hexToRgba('#ffffff', 0.85);
+    ctx.fillText(gateLabels[i], gateW/2, gateH*0.55);
+    ctx.restore();
+  }
+
+  // === SLIDING DOCUMENT CARD ===
+  if (s.showDoc) {
+    const keys = [
+      {t:0.28, x: gateXs[0]-spanW*0.14, stage:0},
+      {t:0.36, x: gateXs[0], stage:0},
+      {t:0.40, x: gateXs[0], stage:0},
+      {t:0.48, x: gateXs[1], stage:1},
+      {t:0.54, x: gateXs[1], stage:1},
+      {t:0.64, x: gateXs[2], stage:2},
+      {t:0.90, x: gateXs[2], stage:2},
+    ];
+    const docAlpha = clamp01((t-0.26)/0.06) * fadeOutMul;
+    if (docAlpha > 0.01 && t >= keys[0].t) {
+      let docX = keys[keys.length-1].x, stage = keys[keys.length-1].stage;
+      for (let i = 0; i < keys.length-1; i++) {
+        if (t >= keys[i].t && t <= keys[i+1].t) {
+          const segT = keys[i+1].t===keys[i].t ? 1 : easeInOutCubic(clamp01((t-keys[i].t)/(keys[i+1].t-keys[i].t)));
+          docX = keys[i].x + (keys[i+1].x - keys[i].x)*segT;
+          stage = keys[i].stage;
+          break;
+        }
+      }
+      const stageColors = ['#94a3b8', '#f59e0b', s.accentColor];
+      const docColor = stageColors[stage];
+      const docW = gateW*1.5, docH = gateW*2.0;
+      const docY = trackY - docH*0.6;
+      ctx.save(); ctx.globalAlpha = docAlpha;
+      drawBox3D(docX-docW/2, docY-docH/2, docW, docH, dx*0.6, dy*0.6, docColor, lighten(docColor,40), darken(docColor,25), hexToRgba(darken(s.shadowColor,10),0.6));
+      ctx.strokeStyle = hexToRgba('#ffffff',0.6); ctx.lineWidth = docW*0.05;
+      for (let li=0; li<2; li++){ const ly=docY-docH*0.15+li*docH*0.22; ctx.beginPath(); ctx.moveTo(docX-docW*0.28, ly); ctx.lineTo(docX+docW*0.28, ly); ctx.stroke(); }
+
+      // ribbon seal at approved stage
+      if (stage === 2) {
+        const rT = clamp01((t-0.64)/0.10);
+        const rScale = Math.max(0, easeOutBack(rT));
+        if (rScale > 0.01) {
+          ctx.save();
+          ctx.globalAlpha = docAlpha * Math.min(1,rScale*1.5);
+          ctx.translate(docX, docY);
+          ctx.rotate(-0.5);
+          ctx.scale(rScale,1);
+          const rw = docW*1.7, rh = docH*0.22;
+          ctx.fillStyle = hexToRgba(darken(s.accentColor,10), 0.95);
+          ctx.beginPath(); ctx.moveTo(-rw/2,-rh/2); ctx.lineTo(rw/2,-rh/2); ctx.lineTo(rw/2+rh*0.4,0); ctx.lineTo(rw/2,rh/2); ctx.lineTo(-rw/2,rh/2); ctx.lineTo(-rw/2-rh*0.4,0); ctx.closePath(); ctx.fill();
+          ctx.strokeStyle = hexToRgba('#ffffff',0.5); ctx.lineWidth = rh*0.06; ctx.stroke();
+          ctx.fillStyle = '#ffffff';
+          ctx.font = `800 ${rh*0.52}px 'Outfit',sans-serif`;
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText('APPROVED', 0, rh*0.03);
+          ctx.textBaseline = 'alphabetic';
+          ctx.restore();
+        }
+      }
+      ctx.restore();
+    }
+  }
+
+  // === BANNER TEXT ===
+  const bannerAlpha = clamp01((t-0.46)/0.15) * fadeOutMul;
+  if (bannerAlpha > 0.01) {
+    const slideOffset = (1 - clamp01((t-0.46)/0.15)) * 26;
+    ctx.save();
+    ctx.globalAlpha = bannerAlpha;
+    ctx.textAlign = 'center';
+    const mainFontSize = Math.min(h*0.125, (w*0.92)/Math.max(4, s.mainText.length*0.62));
+    const mainY = h*0.18 - slideOffset;
+
+    if (s.subText) {
+      ctx.font = `700 ${mainFontSize*0.30}px 'Outfit','Noto Sans Bengali',sans-serif`;
+      ctx.fillStyle = hexToRgba(s.shadowColor, 0.9);
+      ctx.fillText(s.subText, cx+2, mainY - mainFontSize*0.78+2);
+      ctx.fillStyle = s.accentColor;
+      ctx.fillText(s.subText, cx, mainY - mainFontSize*0.78);
+    }
+
+    ctx.font = `900 ${mainFontSize}px 'Outfit','Noto Sans Bengali',sans-serif`;
+    const depthSteps = 9;
+    for (let k = depthSteps; k >= 1; k--) {
+      ctx.fillStyle = hexToRgba(s.shadowColor, 0.55);
+      ctx.fillText(s.mainText, cx + k*1.3, mainY + k*1.3);
+    }
+    ctx.fillStyle = s.textColor;
+    ctx.fillText(s.mainText, cx, mainY);
+
+    if (s.showSweep) {
+      const textWidth = ctx.measureText(s.mainText).width;
+      const boxLeft = cx - textWidth/2 - 14, boxTop = mainY - mainFontSize*0.88;
+      const boxW = textWidth + 28, boxH = mainFontSize*1.05;
+      const sweepPos = ((shineT * 0.00028 * s.shineSpeed) % 1) * (boxW + 140) - 70;
+      ctx.save();
+      ctx.beginPath(); ctx.rect(boxLeft, boxTop, boxW, boxH); ctx.clip();
+      ctx.globalCompositeOperation = 'source-atop';
+      const grad = ctx.createLinearGradient(boxLeft+sweepPos-45, boxTop, boxLeft+sweepPos+45, boxTop+boxH);
+      grad.addColorStop(0, hexToRgba(s.accentColor, 0));
+      grad.addColorStop(0.5, hexToRgba('#ffffff', 0.85));
+      grad.addColorStop(1, hexToRgba(s.accentColor, 0));
+      ctx.fillStyle = grad;
+      ctx.fillRect(boxLeft, boxTop, boxW, boxH);
+      ctx.restore();
+    }
+
+    if (s.tagText) {
+      ctx.font = `600 ${mainFontSize*0.26}px 'Outfit','Noto Sans Bengali',sans-serif`;
+      ctx.fillStyle = hexToRgba(s.shadowColor, 0.9);
+      ctx.fillText(s.tagText, cx+2, mainY + mainFontSize*0.5+2);
+      ctx.fillStyle = s.textColor;
+      ctx.fillText(s.tagText, cx, mainY + mainFontSize*0.5);
+    }
+    ctx.restore();
+  }
+}
+
+function formatTime(ms) { const totalSec = Math.max(0, Math.ceil(ms/1000)); const m = Math.floor(totalSec/60), sec = totalSec%60; return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`; }
+function resetTimerUI() {
+  document.getElementById('timerBig').textContent = formatTime(totalDurationMs);
+  document.getElementById('timerPercent').textContent = '—';
+  document.getElementById('timerRing').style.strokeDashoffset = 0;
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status idle'; st.textContent = 'প্রস্তুত';
+}
+function setDuration(sec, btnEl) {
+  totalDurationMs = sec*1000;
+  document.querySelectorAll('.preset-row .preset-btn').forEach(b => { if (b.parentElement === btnEl.parentElement) b.classList.remove('active'); });
+  btnEl.classList.add('active');
+  if (!isSpinning) resetTimerUI();
+}
+
+function tick(timestamp) {
+  if (!isSpinning) return;
+  if (lastTimestamp === null) { lastTimestamp = timestamp; startTime = timestamp; }
+  const dt = timestamp - lastTimestamp;
+  lastTimestamp = timestamp;
+  cyclePhase += dt; shinePhase += dt;
+  drawFrame();
+  const elapsed = timestamp - startTime;
+  let remaining = totalDurationMs - elapsed;
+  const loop = document.getElementById('loopToggle').checked;
+  if (remaining <= 0) {
+    if (loop) { startTime = timestamp; remaining = totalDurationMs; }
+    else { finishAnim(); return; }
+  }
+  document.getElementById('timerBig').textContent = formatTime(remaining);
+  const pct = Math.round((remaining/totalDurationMs)*100);
+  document.getElementById('timerPercent').textContent = pct + '%';
+  document.getElementById('timerRing').style.strokeDashoffset = String(141 * (1 - remaining/totalDurationMs));
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status spinning'; st.textContent = '● চলছে';
+  document.getElementById('timerSub').textContent = 'সময় বাকি';
+  animFrame = requestAnimationFrame(tick);
+}
+function startAnim() {
+  if (isSpinning) return;
+  isSpinning = true; lastTimestamp = null;
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+  animFrame = requestAnimationFrame(tick);
+}
+function stopAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status idle'; st.textContent = '⏸ থামানো হয়েছে';
+  drawFrame();
+}
+function finishAnim() {
+  isSpinning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  lastTimestamp = null;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  document.getElementById('timerBig').textContent = '00:00';
+  document.getElementById('timerPercent').textContent = '100%';
+  document.getElementById('timerRing').style.strokeDashoffset = 0;
+  const st = document.getElementById('timerStatus');
+  st.className = 'timer-status done'; st.textContent = '✅ সম্পন্ন';
+  document.getElementById('timerSub').textContent = 'অ্যানিমেশন শেষ';
+  drawFrame();
+}
+function resetAll() { stopAnim(); cyclePhase = 0; shinePhase = 0; resetTimerUI(); drawFrame(); }
+
+function setExportStatus(msg) { document.getElementById('exportStatus').textContent = msg; }
+function saveBlob(blob, filename) {
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob); link.download = filename; link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+function downloadPng() {
+  const transparent = document.getElementById('transparentToggle').checked;
+  const bgColor = document.getElementById('exportBgColor').value;
+  drawFrame({ solidBg: !transparent, bgColor, tOverride: 0.80, shineOverride: shinePhase });
+  canvas.toBlob(blob => {
+    drawFrame({});
+    if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+    saveBlob(blob, 'visa-processing-3d.png');
+    setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+  }, 'image/png');
+}
+async function downloadGif() {
+  if (!window.GIF) { setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন।'); return; }
+  if (isExporting) return;
+  isExporting = true;
+  const _gifWantTransparent = document.getElementById('transparentToggle').checked;
+  const bgColor = document.getElementById('exportBgColor').value;
+  const s = getSettings();
+  const cycleMs = 4500 / s.growSpeed;
+  const gif = new GIF({ transparent: (_gifWantTransparent ? window.GIF_CHROMA_INT : null), workers: 2, quality: 10, width: CW, height: CH,
+    workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
+  const frames = 60;
+  const frameDelay = Math.round(cycleMs / frames);
+  setExportStatus('GIF তৈরি হচ্ছে (একটি সম্পূর্ণ লুপ)… 0%');
+  for (let i = 0; i < frames; i++) {
+    const t = i / frames;
+    drawFrame({ solidBg: !_gifWantTransparent, bgColor, tOverride: t, shineOverride: t*cycleMs*4 });
+    gif.addFrame(_gifWantTransparent ? window.gifFlattenFrame(canvas) : (canvas), { copy: true, delay: frameDelay });
+    setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((i+1)/frames*100)}%`);
+    await new Promise(requestAnimationFrame);
+  }
+  drawFrame({});
+  gif.on('finished', blob => { saveBlob(blob, 'visa-processing-3d.gif'); setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।'); isExporting = false; });
+  gif.render();
+}
+async function downloadVideo() {
+  if (!window.MediaRecorder || !canvas.captureStream) { setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।'); return; }
+  if (isExporting) return;
+  isExporting = true;
+  const bgColor = document.getElementById('exportBgColor').value;
+  const stream = canvas.captureStream(30);
+  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 6000000 });
+  const chunks = [];
+  const oldCycle = cyclePhase, oldShine = shinePhase;
+  recorder.ondataavailable = e => e.data.size && chunks.push(e.data);
+  recorder.onstop = () => {
+    saveBlob(new Blob(chunks, { type: mimeType }), 'visa-processing-3d.webm');
+    cyclePhase = oldCycle; shinePhase = oldShine; drawFrame({});
+    isExporting = false; setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+  };
+  recorder.start();
+  const start = performance.now();
+  const duration = totalDurationMs;
+  setExportStatus('ভিডিও তৈরি হচ্ছে…');
+  const render = (now) => {
+    const elapsedMs = now - start;
+    const progress = Math.min(1, elapsedMs / duration);
+    cyclePhase = oldCycle + elapsedMs; shinePhase = oldShine + elapsedMs;
+    drawFrame({ solidBg: true, bgColor });
+    if (progress < 1) requestAnimationFrame(render); else recorder.stop();
+  };
+  requestAnimationFrame(render);
+}
+
+['stairWidth','depthAmt','growSpeed','shineSpeed'].forEach(id => {
+  document.getElementById(id).addEventListener('input', function() {
+    const badges = { stairWidth:'widthBadge', depthAmt:'depthBadge', growSpeed:'growBadge', shineSpeed:'shineBadge' };
+    const el = document.getElementById(badges[id]);
+    if (id === 'stairWidth') el.textContent = this.value + '%'; else el.textContent = this.value;
+    if (!isSpinning) drawFrame();
+  });
+});
+['subText','mainText','tagText','paperColor','shadowColor','textColor','accentColor','climberToggle','sweepToggle'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => { if (!isSpinning) drawFrame(); });
+  el.addEventListener('change', () => { if (!isSpinning) drawFrame(); });
+});
+document.getElementById('transparentToggle').addEventListener('change', function() {
+  document.getElementById('exportBgRow').style.display = this.checked ? 'none' : 'block';
+});
+
+drawFrame({ tOverride: 0.80, shineOverride: 0 });
+setTimeout(startAnim, 150);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+    <script src="download-utils.js"></script>
+</body>
+</html>

@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warisha Fashion — Welcome Banner Generator</title>
+    <meta name="description" content="Welcome to Warisha Fashion — ৩ডি অ্যানিমেটেড ওয়েলকাম ব্যানার জেনারেটর — এলিগেন্ট প্লাক, হ্যাংট্যাগ, ওভাল ফ্রেম, রিবন ব্যানার — Neon Night থিম">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Noto+Sans+Bengali:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #060812;
+            --bg-secondary: #0a0d1c;
+            --bg-card: #0f1428;
+            --bg-card-hover: #151b34;
+            --border: rgba(255,255,255,0.08);
+            --border-active: rgba(212,175,120,0.55);
+            --accent: #d4af78;
+            --accent-glow: rgba(212,175,120,0.4);
+            --accent-2: #7dd3fc;
+            --accent-3: #f472b6;
+            --text-primary: #f2f0ff;
+            --text-secondary: #9498c2;
+            --text-muted: #4a4d70;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 20px 60px rgba(0,0,0,0.6);
+            --shadow-glow: 0 0 45px rgba(212,175,120,0.18);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans Bengali', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 20%, rgba(212,175,120,0.13) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(125,211,252,0.09) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 60% at 50% 50%, rgba(244,114,182,0.05) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app-header { width: 100%; padding: 24px 32px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--border); background: rgba(6,8,18,0.8); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 100; }
+        .header-icon { width: 44px; height: 44px; background: linear-gradient(135deg, var(--accent), var(--accent-3)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 0 20px var(--accent-glow); flex-shrink: 0; }
+        .header-text h1 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .header-text p { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+        .main-content { width: 100%; max-width: 1200px; padding: 40px 24px 80px; display: grid; grid-template-columns: 1fr 380px; gap: 32px; position: relative; z-index: 1; }
+        @media (max-width: 900px) { .main-content { grid-template-columns: 1fr; } }
+
+        .canvas-panel { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+        .canvas-wrapper { width: 100%; aspect-ratio: 1; max-width: 500px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; box-shadow: var(--shadow), var(--shadow-glow); }
+        .canvas-wrapper::before { content: ''; position: absolute; inset: -1px; border-radius: 25px; background: linear-gradient(135deg, rgba(212,175,120,0.3), rgba(125,211,252,0.1)); z-index: -1; animation: borderGlow 4s ease-in-out infinite; }
+        @keyframes borderGlow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+        .canvas-bg-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 30px 30px; border-radius: 24px; }
+        #symbolCanvas { display: block; max-width: 100%; max-height: 100%; }
+
+        .timer-display { display: flex; align-items: center; gap: 16px; padding: 16px 28px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 60px; box-shadow: var(--shadow); }
+        .timer-ring-wrap { position: relative; width: 56px; height: 56px; }
+        .timer-ring-wrap svg { transform: rotate(-90deg); }
+        .timer-ring-bg { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 4; }
+        .timer-ring-fill { fill: none; stroke: url(#ringGradient); stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 1s linear; stroke-dasharray: 157; stroke-dashoffset: 0; }
+        .timer-label-inner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--accent); }
+        .timer-text-group { display: flex; flex-direction: column; }
+        .timer-big { font-size: 32px; font-weight: 800; color: var(--text-primary); letter-spacing: -1px; }
+        .timer-sub { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+        .timer-status { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+        .timer-status.idle { background: rgba(255,255,255,0.06); color: var(--text-muted); }
+        .timer-status.spinning { background: rgba(212,175,120,0.2); color: var(--accent); animation: pulse 2s ease-in-out infinite; }
+        .timer-status.done { background: rgba(16,185,129,0.2); color: var(--success); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        .controls-panel { display: flex; flex-direction: column; gap: 20px; }
+        .control-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: border-color 0.2s, box-shadow 0.2s; }
+        .control-card:hover { border-color: var(--border-active); box-shadow: 0 0 20px rgba(212,175,120,0.1); }
+        .card-title { font-size: 13px; font-weight: 700; color: var(--text-secondary); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+        .card-title-icon { width: 24px; height: 24px; background: linear-gradient(135deg, var(--accent), var(--accent-3)); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+
+        .symbol-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        .symbol-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 12px 4px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: rgba(255,255,255,0.03); color: var(--text-secondary); font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .symbol-btn .glyph { font-size: 20px; line-height: 1; color: var(--text-primary); }
+        .symbol-btn:hover { border-color: var(--accent); background: rgba(212,175,120,0.08); }
+        .symbol-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(212,175,120,0.15); }
+        .symbol-btn.active .glyph { color: var(--accent); }
+
+        .form-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+        .form-row:last-child { margin-bottom: 0; }
+        .form-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center; }
+        .form-label .value-badge { background: rgba(212,175,120,0.15); color: var(--accent); padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+
+        input[type="text"], input[type="number"], textarea { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 16px; color: var(--text-primary); font-size: 14px; font-family: inherit; transition: border-color 0.2s, box-shadow 0.2s; outline: none; resize: vertical; }
+        input[type="text"]:focus, input[type="number"]:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(212,175,120,0.15); }
+
+        input[type="range"] { width: 100%; height: 6px; -webkit-appearance: none; appearance: none; background: rgba(255,255,255,0.08); border-radius: 10px; outline: none; cursor: pointer; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-3)); box-shadow: 0 0 10px rgba(212,175,120,0.5); cursor: pointer; transition: transform 0.15s; }
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+        input[type="color"] { width: 48px; height: 36px; border: 1px solid var(--border); border-radius: 8px; background: none; cursor: pointer; padding: 2px; }
+        .color-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .color-row:last-child { margin-bottom: 0; }
+        .color-label { font-size: 13px; color: var(--text-secondary); flex: 1; }
+
+        .time-presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+        .preset-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .preset-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(212,175,120,0.1); }
+        .preset-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(212,175,120,0.15); }
+
+        .option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .option-btn { padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: transparent; color: var(--text-secondary); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .option-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .option-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(212,175,120,0.12); }
+
+        .btn-group { display: flex; gap: 12px; }
+        .btn { flex: 1; padding: 14px 20px; border-radius: var(--radius-sm); border: none; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; letter-spacing: 0.3px; }
+        .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-3)); color: #1a0f00; box-shadow: 0 4px 20px rgba(212,175,120,0.4); }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(212,175,120,0.5); }
+        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-stop { background: linear-gradient(135deg, var(--danger), #b91c1c); color: white; box-shadow: 0 4px 20px rgba(239,68,68,0.3); }
+        .btn-stop:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(239,68,68,0.4); }
+        .btn-stop:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-ghost { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text-secondary); }
+        .btn-ghost:hover { border-color: var(--border-active); color: var(--text-primary); background: rgba(255,255,255,0.07); }
+
+        .style-presets { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .style-preset-btn { padding: 10px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: transparent; color: var(--text-secondary); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; text-align: center; }
+        .style-preset-btn:hover { border-color: var(--accent); color: var(--text-primary); background: rgba(212,175,120,0.08); }
+        .style-preset-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(212,175,120,0.15); }
+
+        .sep { height: 1px; background: var(--border); margin: 4px 0; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="header-icon">👗</div>
+        <div class="header-text">
+            <h1>Warisha Fashion — Welcome Banner</h1>
+            <p>"Welcome to Warisha Fashion" ৩ডি অ্যানিমেটেড ওয়েলকাম ব্যানার — Neon Night থিম</p>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <div class="canvas-panel">
+            <div class="canvas-wrapper">
+                <div class="canvas-bg-grid"></div>
+                <canvas id="symbolCanvas" width="460" height="460"></canvas>
+            </div>
+
+            <div class="timer-display" id="timerDisplay">
+                <div class="timer-ring-wrap">
+                    <svg width="56" height="56" viewBox="0 0 56 56">
+                        <defs>
+                            <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#d4af78"/>
+                                <stop offset="100%" stop-color="#f472b6"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="timer-ring-bg" cx="28" cy="28" r="25"/>
+                        <circle class="timer-ring-fill" id="timerRing" cx="28" cy="28" r="25"/>
+                    </svg>
+                    <div class="timer-label-inner" id="timerPercent">—</div>
+                </div>
+                <div class="timer-text-group">
+                    <div class="timer-big" id="timerBig">00:00</div>
+                    <div class="timer-sub" id="timerSub">সময় বাকি</div>
+                </div>
+                <div class="timer-status idle" id="timerStatus">প্রস্তুত</div>
+            </div>
+        </div>
+
+        <div class="controls-panel">
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">🔣</div>শেপ বাছাই করুন</div>
+                <div class="symbol-grid" id="symbolGrid">
+                    <button class="symbol-btn active" data-icon="plaque" onclick="setIcon('plaque',this)"><span class="glyph">🏛</span>এলিগেন্ট প্লাক</button>
+                    <button class="symbol-btn" data-icon="hangtag" onclick="setIcon('hangtag',this)"><span class="glyph">🏷</span>ফ্যাশন হ্যাংট্যাগ</button>
+                    <button class="symbol-btn" data-icon="ovalFrame" onclick="setIcon('ovalFrame',this)"><span class="glyph">⬭</span>ওভাল ফ্রেম</button>
+                    <button class="symbol-btn" data-icon="ribbonBanner" onclick="setIcon('ribbonBanner',this)"><span class="glyph">🎗</span>রিবন ব্যানার</button>
+                </div>
+            </div>
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">✍️</div>ভেতরের টেক্সট</div>
+                <div class="form-row">
+                    <label class="form-label">টেক্সট (একাধিক লাইন লেখা যাবে)</label>
+                    <textarea id="innerText" rows="3">Welcome to
+Warisha Fashion</textarea>
+                </div>
+                <div class="form-row">
+                    <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                        <input type="checkbox" id="autoFitToggle" checked>
+                        টেক্সট অটো-ফিট (শেপের ভেতর সঠিকভাবে বসাবে)
+                    </label>
+                </div>
+                <div class="form-row" id="manualFontRow" style="display:none;">
+                    <label class="form-label">ফন্ট সাইজ <span class="value-badge" id="fontSizeBadge">100%</span></label>
+                    <input type="range" id="manualFontSize" min="40" max="160" step="5" value="100">
+                </div>
+                <div class="form-row">
+                    <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                        <input type="checkbox" id="serifToggle" checked>
+                        এলিগেন্ট সেরিফ ফন্ট (Playfair Display)
+                    </label>
+                </div>
+            </div>
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">🎨</div>কালার স্টাইল</div>
+                <div class="style-presets" id="stylePresets">
+                    <button class="style-preset-btn active" data-style="neonNight" onclick="applyStyle('neonNight',this)">🌌 Neon Night</button>
+                    <button class="style-preset-btn" data-style="roseGold" onclick="applyStyle('roseGold',this)">🌹 রোজ গোল্ড</button>
+                    <button class="style-preset-btn" data-style="classicGold" onclick="applyStyle('classicGold',this)">🟡 ক্লাসিক গোল্ড</button>
+                    <button class="style-preset-btn" data-style="royalMaroon" onclick="applyStyle('royalMaroon',this)">🍷 রয়্যাল মেরুন</button>
+                    <button class="style-preset-btn" data-style="blushPink" onclick="applyStyle('blushPink',this)">🌸 ব্লাশ পিংক</button>
+                    <button class="style-preset-btn" data-style="emeraldLux" onclick="applyStyle('emeraldLux',this)">💚 এমারেল্ড লাক্স</button>
+                </div>
+                <div class="sep" style="margin-top:16px;"></div>
+                <div style="margin-top:14px;">
+                    <div class="color-row">
+                        <span class="color-label">শেপ রঙ (হালকা)</span>
+                        <input type="color" id="badgeColorStart" value="#1c2340">
+                    </div>
+                    <div class="color-row">
+                        <span class="color-label">শেপ রঙ (গাঢ়)</span>
+                        <input type="color" id="badgeColorEnd" value="#080b1a">
+                    </div>
+                    <div class="color-row">
+                        <span class="color-label">বর্ডার / আউটলাইন রঙ</span>
+                        <input type="color" id="rimColor" value="#d4af78">
+                    </div>
+                    <div class="color-row">
+                        <span class="color-label">টেক্সট রঙ</span>
+                        <input type="color" id="symbolColor" value="#f2e6c9">
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">🎬</div>অ্যানিমেশন মোড</div>
+                <div class="option-grid">
+                    <button class="option-btn active" data-anim="bounce" onclick="setAnim('bounce',this)">⬆️ বাউন্স</button>
+                    <button class="option-btn" data-anim="pulse" onclick="setAnim('pulse',this)">💓 পালস</button>
+                    <button class="option-btn" data-anim="rotate" onclick="setAnim('rotate',this)">🔄 রোটেট</button>
+                    <button class="option-btn" data-anim="wobble" onclick="setAnim('wobble',this)">〰️ ওয়াবল</button>
+                </div>
+                <div class="form-row" style="margin-top:16px;">
+                    <label class="form-label">তীব্রতা (Amplitude) <span class="value-badge" id="ampBadge">0.40</span></label>
+                    <input type="range" id="animAmp" min="0" max="1" step="0.05" value="0.4">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">স্পিড <span class="value-badge" id="speedBadge">1.0</span></label>
+                    <input type="range" id="animSpeed" min="0.1" max="3" step="0.1" value="1.0">
+                </div>
+                <div class="form-row">
+                    <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                        <input type="checkbox" id="showRippleToggle" checked>
+                        রিপল রিং দেখান
+                    </label>
+                </div>
+                <div class="form-row">
+                    <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                        <input type="checkbox" id="showShineToggle" checked>
+                        গ্লসি শাইন সুইপ দেখান
+                    </label>
+                </div>
+                <div class="form-row">
+                    <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                        <input type="checkbox" id="showSparkleToggle" checked>
+                        স্পার্কল পার্টিকেল দেখান
+                    </label>
+                </div>
+                <div class="form-row">
+                    <label class="form-label">সময় (সেকেন্ড) <span class="value-badge" id="durationBadge">30s</span></label>
+                    <input type="number" id="spinDuration" value="30" min="1" max="3600">
+                    <div class="time-presets">
+                        <button class="preset-btn" onclick="setDuration(5,this)">5s</button>
+                        <button class="preset-btn" onclick="setDuration(10,this)">10s</button>
+                        <button class="preset-btn active" onclick="setDuration(30,this)">30s</button>
+                        <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+                        <button class="preset-btn" onclick="setDuration(120,this)">2মিনিট</button>
+                        <button class="preset-btn" onclick="setDuration(300,this)">5মিনিট</button>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                        <input type="checkbox" id="loopSpinToggle" checked>
+                        সবসময় চলতে থাকবে (Loop)
+                    </label>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="startBtn" onclick="startBurst()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+                    অ্যানিমেশন শুরু
+                </button>
+                <button class="btn btn-stop" id="stopBtn" onclick="stopBurst()" disabled>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+                    বন্ধ করুন
+                </button>
+            </div>
+            <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট করুন</button>
+
+            <div class="control-card" style="margin-top:16px;">
+                <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+                <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.55;">বর্তমান ব্যানার PNG হিসেবে (ট্রান্সপারেন্ট ব্যাকগ্রাউন্ড), অথবা একটি পূর্ণ অ্যানিমেশন সাইকেল GIF/ভিডিও হিসেবে সেভ করুন।</p>
+                <div class="btn-group">
+                    <button class="btn btn-primary" type="button" onclick="downloadPng()">PNG ডাউনলোড</button>
+                    <button class="btn btn-primary" type="button" onclick="downloadGif()">GIF ডাউনলোড</button>
+                    <button class="btn btn-primary" type="button" onclick="downloadVideo()">ভিডিও (WebM)</button>
+                </div>
+                <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+    /* =====================================================
+       WARISHA FASHION — WELCOME BANNER GENERATOR ENGINE
+       Elegant boutique-style text-box shapes (ornate plaque,
+       hangtag, oval frame, ribbon banner) drawn large with
+       glossy shading + gold rim, auto-fit wrapped text, and
+       the "Neon Night" navy + gold theme as default to match
+       the Warisha Fashion dashboard branding.
+    ===================================================== */
+
+    const canvas = document.getElementById('symbolCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        const wrapper = canvas.parentElement;
+        const size = Math.min(wrapper.clientWidth - 40, 460);
+        canvas.width = size;
+        canvas.height = size;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', () => { resizeCanvas(); drawFrame(); });
+
+    // === STATE ===
+    let phase = 0;
+    let ripplePhase = 0;
+    let shinePhase = 0;
+    let isSpinning = false;
+    let animFrame = null;
+    let totalDurationMs = 30000;
+    let startTime = null;
+    let lastTimestamp = null;
+    let isExporting = false;
+    let currentIcon = 'plaque';
+    let currentAnim = 'bounce';
+    let speedVal = 1.0;
+
+    const sparkles = Array.from({ length: 8 }, (_, i) => ({
+        angle: (i / 8) * Math.PI * 2,
+        dist: 0.62 + (i % 3) * 0.10,
+        speed: 0.5 + (i % 4) * 0.15,
+        phaseOffset: i * 1.4,
+    }));
+
+    const stylePresets = {
+        neonNight:   { badgeColorStart: '#1c2340', badgeColorEnd: '#080b1a', rimColor: '#d4af78', symbolColor: '#f2e6c9' },
+        roseGold:    { badgeColorStart: '#3a1f2c', badgeColorEnd: '#160a10', rimColor: '#e8a598', symbolColor: '#fbe4e0' },
+        classicGold: { badgeColorStart: '#2a2205', badgeColorEnd: '#0d0a00', rimColor: '#ffd700', symbolColor: '#fff4c9' },
+        royalMaroon: { badgeColorStart: '#3a0f16', badgeColorEnd: '#140406', rimColor: '#e8b978', symbolColor: '#ffe4d6' },
+        blushPink:   { badgeColorStart: '#3a1428', badgeColorEnd: '#150610', rimColor: '#f9c6d9', symbolColor: '#fff0f6' },
+        emeraldLux:  { badgeColorStart: '#0d2e24', badgeColorEnd: '#04120d', rimColor: '#c9f2a0', symbolColor: '#eafff2' },
+    };
+
+    function applyStyle(styleName, btnEl) {
+        const s = stylePresets[styleName];
+        if (!s) return;
+        document.getElementById('badgeColorStart').value = s.badgeColorStart;
+        document.getElementById('badgeColorEnd').value   = s.badgeColorEnd;
+        document.getElementById('rimColor').value        = s.rimColor;
+        document.getElementById('symbolColor').value     = s.symbolColor;
+        document.querySelectorAll('.style-preset-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+        drawFrame();
+    }
+
+    function setIcon(icon, btnEl) {
+        currentIcon = icon;
+        document.querySelectorAll('.symbol-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+        drawFrame();
+    }
+
+    function setAnim(anim, btnEl) {
+        currentAnim = anim;
+        document.querySelectorAll('.option-btn[data-anim]').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+        drawFrame();
+    }
+
+    document.getElementById('autoFitToggle').addEventListener('change', function() {
+        document.getElementById('manualFontRow').style.display = this.checked ? 'none' : 'flex';
+        drawFrame();
+    });
+    document.getElementById('serifToggle').addEventListener('change', () => drawFrame());
+
+    function getSettings() {
+        return {
+            innerText:       document.getElementById('innerText').value || '',
+            badgeColorStart: document.getElementById('badgeColorStart').value,
+            badgeColorEnd:   document.getElementById('badgeColorEnd').value,
+            rimColor:        document.getElementById('rimColor').value,
+            symbolColor:     document.getElementById('symbolColor').value,
+            showRipple:      document.getElementById('showRippleToggle').checked,
+            showShine:       document.getElementById('showShineToggle').checked,
+            showSparkle:     document.getElementById('showSparkleToggle').checked,
+            amplitude:       parseFloat(document.getElementById('animAmp').value) || 0.4,
+            autoFit:         document.getElementById('autoFitToggle').checked,
+            manualFontPct:   parseFloat(document.getElementById('manualFontSize').value) || 100,
+            useSerif:        document.getElementById('serifToggle').checked,
+        };
+    }
+
+    function hexToRgba(hex, alpha) {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgba(${r},${g},${b},${alpha})`;
+    }
+    function lightenColor(hex, amt) {
+        const r = Math.min(255, parseInt(hex.slice(1,3),16) + amt);
+        const g = Math.min(255, parseInt(hex.slice(3,5),16) + amt);
+        const b = Math.min(255, parseInt(hex.slice(5,7),16) + amt);
+        return `rgb(${r},${g},${b})`;
+    }
+
+    // === SHAPE PATH BUILDERS ===
+    // Returns the inner text box {x,y,w,h} in local coords; draws the
+    // shape's outline path into ctx (call right before fill/stroke/clip).
+
+    function pathPlaque(ctx, S) {
+        const bw = S * 1.86, bh = S * 1.20, rad = S * 0.10;
+        const left = -bw / 2, top = -bh / 2, right = bw / 2, bottom = bh / 2;
+        ctx.beginPath();
+        ctx.moveTo(left + rad, top);
+        ctx.lineTo(right - rad, top);
+        ctx.arcTo(right, top, right, top + rad, rad);
+        ctx.lineTo(right, bottom - rad);
+        ctx.arcTo(right, bottom, right - rad, bottom, rad);
+        ctx.lineTo(left + rad, bottom);
+        ctx.arcTo(left, bottom, left, bottom - rad, rad);
+        ctx.lineTo(left, top + rad);
+        ctx.arcTo(left, top, left + rad, top, rad);
+        ctx.closePath();
+        return { x: left + bw * 0.10, y: top + bh * 0.14, w: bw * 0.80, h: bh * 0.72 };
+    }
+
+    function drawPlaqueFlourishes(ctx, S, color) {
+        const bw = S * 1.86, bh = S * 1.20;
+        const left = -bw / 2, top = -bh / 2, right = bw / 2, bottom = bh / 2;
+        const inset = S * 0.12;
+        // double frame line
+        ctx.save();
+        ctx.strokeStyle = hexToRgba(color, 0.75);
+        ctx.lineWidth = Math.max(1, S * 0.014);
+        ctx.beginPath();
+        ctx.roundRect ? ctx.roundRect(left + inset, top + inset, bw - inset * 2, bh - inset * 2, S * 0.06)
+                       : ctx.rect(left + inset, top + inset, bw - inset * 2, bh - inset * 2);
+        ctx.stroke();
+        // corner diamonds
+        const corners = [
+            [left + inset * 0.55, top + inset * 0.55],
+            [right - inset * 0.55, top + inset * 0.55],
+            [left + inset * 0.55, bottom - inset * 0.55],
+            [right - inset * 0.55, bottom - inset * 0.55],
+        ];
+        const d = S * 0.055;
+        corners.forEach(([cx0, cy0]) => {
+            ctx.beginPath();
+            ctx.moveTo(cx0, cy0 - d);
+            ctx.lineTo(cx0 + d, cy0);
+            ctx.lineTo(cx0, cy0 + d);
+            ctx.lineTo(cx0 - d, cy0);
+            ctx.closePath();
+            ctx.fillStyle = color;
+            ctx.fill();
+        });
+        ctx.restore();
+    }
+
+    function pathHangtag(ctx, S) {
+        const bw = S * 1.30, bh = S * 1.55, rad = S * 0.10;
+        const top = -bh / 2 + S * 0.14, bottom = bh / 2, left = -bw / 2, right = bw / 2;
+        const holeR = S * 0.08, holeCy = -bh / 2 + S * 0.06;
+        ctx.beginPath();
+        ctx.moveTo(left + rad, top);
+        ctx.lineTo(right - rad, top);
+        ctx.arcTo(right, top, right, top + rad, rad);
+        ctx.lineTo(right, bottom - S * 0.18);
+        ctx.lineTo(0, bottom);
+        ctx.lineTo(left, bottom - S * 0.18);
+        ctx.lineTo(left, top + rad);
+        ctx.arcTo(left, top, left + rad, top, rad);
+        ctx.closePath();
+        // hole (even-odd cutout)
+        ctx.moveTo(holeR, holeCy);
+        ctx.arc(0, holeCy, holeR, 0, Math.PI * 2, true);
+        ctx.closePath();
+        return { x: left + bw * 0.10, y: top + S * 0.20, w: bw * 0.80, h: bh * 0.56 };
+    }
+
+    function pathOvalFrame(ctx, S) {
+        const rx = S * 0.98, ry = S * 0.70;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+        return { x: -rx * 0.62, y: -ry * 0.62, w: rx * 1.24, h: ry * 1.24 };
+    }
+
+    function drawOvalFrameRing(ctx, S, color) {
+        const rx = S * 0.98, ry = S * 0.70;
+        ctx.save();
+        ctx.strokeStyle = hexToRgba(color, 0.8);
+        ctx.lineWidth = Math.max(1, S * 0.02);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, rx * 0.90, ry * 0.90, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    function pathRibbonBanner(ctx, S) {
+        const bw = S * 1.92, bh = S * 0.72, notch = S * 0.20;
+        ctx.beginPath();
+        ctx.moveTo(-bw / 2, -bh / 2);
+        ctx.lineTo(bw / 2, -bh / 2);
+        ctx.lineTo(bw / 2 - notch, 0);
+        ctx.lineTo(bw / 2, bh / 2);
+        ctx.lineTo(-bw / 2, bh / 2);
+        ctx.lineTo(-bw / 2 + notch, 0);
+        ctx.closePath();
+        return { x: -bw / 2 + notch * 1.4, y: -bh / 2 + S * 0.06, w: bw - notch * 2.8, h: bh - S * 0.12 };
+    }
+
+    // === TEXT WRAPPING / AUTO-FIT ===
+    function wrapLines(ctx, text, maxWidth, fontWeight, fontFamily, fontSize) {
+        ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
+        const paragraphs = text.split('\n');
+        const lines = [];
+        paragraphs.forEach(p => {
+            const words = p.split(' ').filter(w => w.length > 0);
+            if (words.length === 0) { lines.push(''); return; }
+            let current = words[0];
+            for (let i = 1; i < words.length; i++) {
+                const test = current + ' ' + words[i];
+                if (ctx.measureText(test).width <= maxWidth) {
+                    current = test;
+                } else {
+                    lines.push(current);
+                    current = words[i];
+                }
+            }
+            lines.push(current);
+        });
+        return lines;
+    }
+
+    function fitTextInBox(ctx, text, box, color, fontWeight, fontFamily, manualPct, autoFit) {
+        if (!text) return;
+        const maxFont = box.h * 0.85;
+        const minFont = Math.max(6, box.h * 0.08);
+        let fontSize;
+        let lines;
+
+        if (autoFit) {
+            fontSize = maxFont;
+            while (fontSize > minFont) {
+                lines = wrapLines(ctx, text, box.w, fontWeight, fontFamily, fontSize);
+                const lineHeight = fontSize * 1.22;
+                const totalHeight = lines.length * lineHeight;
+                const widestLine = Math.max(...lines.map(l => ctx.measureText(l).width));
+                if (totalHeight <= box.h && widestLine <= box.w) break;
+                fontSize -= Math.max(1, fontSize * 0.04);
+            }
+        } else {
+            fontSize = Math.max(minFont, Math.min(maxFont, box.h * 0.34 * (manualPct / 100)));
+            lines = wrapLines(ctx, text, box.w, fontWeight, fontFamily, fontSize);
+        }
+
+        const lineHeight = fontSize * 1.22;
+        const totalHeight = lines.length * lineHeight;
+        let startY = box.y + box.h / 2 - totalHeight / 2 + lineHeight / 2;
+
+        ctx.save();
+        ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
+        ctx.fillStyle = color;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0,0,0,0.4)';
+        ctx.shadowBlur = fontSize * 0.10;
+        lines.forEach((line, i) => {
+            ctx.fillText(line, box.x + box.w / 2, startY + i * lineHeight);
+        });
+        ctx.restore();
+    }
+
+    // === DRAW ENGINE ===
+    function drawFrame() {
+        const w = canvas.width, h = canvas.height;
+        const cx = w / 2, cy = h / 2;
+        const s = getSettings();
+        ctx.clearRect(0, 0, w, h);
+
+        const S = Math.min(w, h) * 0.215;
+
+        let dy = 0, rotation = 0, scale = 1;
+        switch (currentAnim) {
+            case 'bounce':  dy = Math.sin(phase) * s.amplitude * h * 0.05; break;
+            case 'pulse':   scale = 1 + s.amplitude * 0.10 * Math.sin(phase); break;
+            case 'rotate':  rotation = phase; break;
+            case 'wobble':  rotation = s.amplitude * 0.24 * Math.sin(phase); break;
+        }
+
+        // ground shadow
+        const shadowShrink = currentAnim === 'bounce' ? Math.abs(Math.sin(phase)) * 0.18 : 0;
+        ctx.save();
+        ctx.translate(cx, h * 0.86);
+        ctx.scale(1 - shadowShrink, 1);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, w * 0.28, h * 0.03, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,0,0,0.4)';
+        ctx.fill();
+        ctx.restore();
+
+        // ripple rings
+        if (s.showRipple) {
+            for (let i = 0; i < 3; i++) {
+                const rp = (ripplePhase + i / 3) % 1;
+                const ringR = S * (1.10 + rp * 1.4);
+                const ringAlpha = (1 - rp) * 0.28;
+                ctx.beginPath();
+                ctx.ellipse(cx, cy + dy, ringR * 1.3, ringR * 0.95, 0, 0, Math.PI * 2);
+                ctx.strokeStyle = hexToRgba(s.rimColor, ringAlpha);
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+
+        // sparkles
+        if (s.showSparkle) {
+            ctx.save();
+            ctx.translate(cx, cy + dy);
+            sparkles.forEach(sp => {
+                const localPhase = phase * sp.speed + sp.phaseOffset;
+                const twinkle = 0.35 + 0.65 * Math.max(0, Math.sin(localPhase));
+                const px = Math.cos(sp.angle) * S * sp.dist * 1.9;
+                const py = Math.sin(sp.angle) * S * sp.dist * 1.3;
+                if (twinkle > 0.15) {
+                    ctx.save();
+                    ctx.globalAlpha = twinkle;
+                    ctx.translate(px, py);
+                    drawSparkleStar(ctx, S * 0.045 * twinkle, s.rimColor);
+                    ctx.restore();
+                }
+            });
+            ctx.restore();
+        }
+
+        ctx.save();
+        ctx.translate(cx, cy + dy);
+        ctx.rotate(rotation);
+        ctx.scale(scale, scale);
+
+        let innerBox;
+
+        ctx.save();
+        ctx.shadowColor = 'rgba(0,0,0,0.55)';
+        ctx.shadowBlur = 22;
+        ctx.shadowOffsetY = 8;
+
+        switch (currentIcon) {
+            case 'plaque':       innerBox = pathPlaque(ctx, S); break;
+            case 'hangtag':      innerBox = pathHangtag(ctx, S); break;
+            case 'ovalFrame':    innerBox = pathOvalFrame(ctx, S); break;
+            case 'ribbonBanner': innerBox = pathRibbonBanner(ctx, S); break;
+            default:              innerBox = pathPlaque(ctx, S);
+        }
+        const grad = ctx.createLinearGradient(-S, -S, S, S);
+        grad.addColorStop(0, lightenColor(s.badgeColorStart, 26));
+        grad.addColorStop(0.55, s.badgeColorStart);
+        grad.addColorStop(1, s.badgeColorEnd);
+        ctx.fillStyle = grad;
+        ctx.fill('evenodd');
+        ctx.restore(); // end shadow save
+
+        // gloss + rim clipped to the shape's own path
+        ctx.save();
+        switch (currentIcon) {
+            case 'plaque':       pathPlaque(ctx, S); break;
+            case 'hangtag':      pathHangtag(ctx, S); break;
+            case 'ovalFrame':    pathOvalFrame(ctx, S); break;
+            case 'ribbonBanner': pathRibbonBanner(ctx, S); break;
+            default:              pathPlaque(ctx, S);
+        }
+        ctx.clip('evenodd');
+        drawGlossAndRim(ctx, s, -S * 2.2, -S * 2.2, S * 4.4, S * 4.4);
+        ctx.restore();
+
+        // outline
+        switch (currentIcon) {
+            case 'plaque':       pathPlaque(ctx, S); break;
+            case 'hangtag':      pathHangtag(ctx, S); break;
+            case 'ovalFrame':    pathOvalFrame(ctx, S); break;
+            case 'ribbonBanner': pathRibbonBanner(ctx, S); break;
+            default:              pathPlaque(ctx, S);
+        }
+        ctx.strokeStyle = hexToRgba(s.rimColor, 0.85);
+        ctx.lineWidth = Math.max(1.5, S * 0.022);
+        ctx.stroke();
+
+        // decorative extras
+        if (currentIcon === 'plaque') drawPlaqueFlourishes(ctx, S, s.rimColor);
+        if (currentIcon === 'ovalFrame') drawOvalFrameRing(ctx, S, s.rimColor);
+
+        // text — counter-rotate for 'rotate' mode so it stays readable
+        const fontFamily = s.useSerif ? "'Playfair Display', serif" : "'Noto Sans Bengali','Outfit',sans-serif";
+        if (currentAnim !== 'rotate') {
+            fitTextInBox(ctx, s.innerText, innerBox, s.symbolColor, 700, fontFamily, s.manualFontPct, s.autoFit);
+        } else {
+            ctx.save();
+            ctx.rotate(-rotation);
+            fitTextInBox(ctx, s.innerText, innerBox, s.symbolColor, 700, fontFamily, s.manualFontPct, s.autoFit);
+            ctx.restore();
+        }
+
+        ctx.restore(); // end main transform
+    }
+
+    function drawSparkleStar(ctx, size, color) {
+        ctx.beginPath();
+        ctx.moveTo(0, -size * 2);
+        ctx.lineTo(size * 0.4, -size * 0.4);
+        ctx.lineTo(size * 2, 0);
+        ctx.lineTo(size * 0.4, size * 0.4);
+        ctx.lineTo(0, size * 2);
+        ctx.lineTo(-size * 0.4, size * 0.4);
+        ctx.lineTo(-size * 2, 0);
+        ctx.lineTo(-size * 0.4, -size * 0.4);
+        ctx.closePath();
+        ctx.fillStyle = color;
+        ctx.fill();
+    }
+
+    function drawGlossAndRim(ctx, s, x, y, w, h) {
+        const glossGrad = ctx.createRadialGradient(x + w * 0.32, y + h * 0.22, 0, x + w * 0.32, y + h * 0.22, Math.max(w, h) * 0.65);
+        glossGrad.addColorStop(0, 'rgba(255,255,255,0.35)');
+        glossGrad.addColorStop(0.4, 'rgba(255,255,255,0.08)');
+        glossGrad.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = glossGrad;
+        ctx.fillRect(x, y, w, h);
+
+        const rimGrad = ctx.createRadialGradient(x + w / 2, y + h / 2, Math.min(w, h) * 0.30, x + w / 2, y + h / 2, Math.max(w, h) * 0.60);
+        rimGrad.addColorStop(0, 'rgba(0,0,0,0)');
+        rimGrad.addColorStop(1, 'rgba(0,0,0,0.3)');
+        ctx.fillStyle = rimGrad;
+        ctx.fillRect(x, y, w, h);
+
+        if (s.showShine) {
+            const sweepX = x + ((shinePhase % 1) * (w * 1.8)) - w * 0.4;
+            const shineGrad = ctx.createLinearGradient(sweepX - 18, y, sweepX + 18, y + h);
+            shineGrad.addColorStop(0, 'rgba(255,255,255,0)');
+            shineGrad.addColorStop(0.5, hexToRgba(s.rimColor, 0.35));
+            shineGrad.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.fillStyle = shineGrad;
+            ctx.fillRect(x, y, w, h);
+        }
+    }
+
+    // === ANIMATION LOOP ===
+    function animationLoop(timestamp) {
+        if (!isSpinning) return;
+        if (!lastTimestamp) lastTimestamp = timestamp;
+        const delta = timestamp - lastTimestamp;
+        lastTimestamp = timestamp;
+
+        const phaseSpeed = (currentAnim === 'rotate') ? 0.0016 : 0.0038;
+        phase += delta * phaseSpeed * speedVal;
+        ripplePhase = (ripplePhase + delta * 0.0006) % 1;
+        shinePhase += delta * 0.00045;
+
+        const elapsed = timestamp - startTime;
+        const remaining = Math.max(0, totalDurationMs - elapsed);
+        updateTimerUI(elapsed, remaining);
+
+        drawFrame();
+
+        if (remaining <= 0 && !document.getElementById('loopSpinToggle').checked) {
+            finishBurst();
+            return;
+        }
+        if (remaining <= 0) startTime = timestamp;
+
+        animFrame = requestAnimationFrame(animationLoop);
+    }
+
+    function updateTimerUI(elapsed, remaining) {
+        const totalSec = Math.ceil(remaining / 1000);
+        const minutes = Math.floor(totalSec / 60).toString().padStart(2, '0');
+        const seconds = (totalSec % 60).toString().padStart(2, '0');
+        document.getElementById('timerBig').textContent = `${minutes}:${seconds}`;
+        const pct = Math.max(0, Math.min(100, ((totalDurationMs - remaining) / totalDurationMs) * 100));
+        document.getElementById('timerPercent').textContent = Math.round(pct) + '%';
+        const circumference = 157;
+        const offset = circumference - (pct / 100) * circumference;
+        document.getElementById('timerRing').style.strokeDashoffset = offset;
+    }
+
+    function resetTimerUI() {
+        document.getElementById('timerBig').textContent = '00:00';
+        document.getElementById('timerPercent').textContent = '—';
+        document.getElementById('timerRing').style.strokeDashoffset = 157;
+        document.getElementById('timerStatus').className = 'timer-status idle';
+        document.getElementById('timerStatus').textContent = 'প্রস্তুত';
+        document.getElementById('timerSub').textContent = 'সময় বাকি';
+    }
+
+    function startBurst() {
+        if (isSpinning) return;
+        const durationSec = parseFloat(document.getElementById('spinDuration').value) || 30;
+        totalDurationMs = durationSec * 1000;
+        speedVal = parseFloat(document.getElementById('animSpeed').value) || 1.0;
+
+        isSpinning = true;
+        startTime = null;
+        lastTimestamp = null;
+
+        document.getElementById('startBtn').disabled = true;
+        document.getElementById('stopBtn').disabled = false;
+
+        const statusEl = document.getElementById('timerStatus');
+        statusEl.className = 'timer-status spinning';
+        statusEl.textContent = '⚡ চলছে';
+        document.getElementById('timerSub').textContent = 'সময় বাকি';
+
+        animFrame = requestAnimationFrame((ts) => {
+            startTime = ts;
+            lastTimestamp = ts;
+            animationLoop(ts);
+        });
+    }
+
+    function stopBurst() {
+        isSpinning = false;
+        if (animFrame) cancelAnimationFrame(animFrame);
+        lastTimestamp = null;
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('stopBtn').disabled = true;
+        const statusEl = document.getElementById('timerStatus');
+        statusEl.className = 'timer-status idle';
+        statusEl.textContent = '⏸ থামানো হয়েছে';
+        drawFrame();
+    }
+
+    function finishBurst() {
+        isSpinning = false;
+        if (animFrame) cancelAnimationFrame(animFrame);
+        lastTimestamp = null;
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('stopBtn').disabled = true;
+        document.getElementById('timerBig').textContent = '00:00';
+        document.getElementById('timerPercent').textContent = '100%';
+        document.getElementById('timerRing').style.strokeDashoffset = 0;
+        const statusEl = document.getElementById('timerStatus');
+        statusEl.className = 'timer-status done';
+        statusEl.textContent = '✅ সম্পন্ন!';
+        document.getElementById('timerSub').textContent = 'অ্যানিমেশন শেষ';
+        drawFrame();
+    }
+
+    function resetAll() {
+        stopBurst();
+        phase = 0;
+        ripplePhase = 0;
+        shinePhase = 0;
+        resetTimerUI();
+        drawFrame();
+    }
+
+    function setExportStatus(message) { document.getElementById('exportStatus').textContent = message; }
+
+    function saveBlob(blob, filename) {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    }
+
+    function downloadPng() {
+        canvas.toBlob((blob) => {
+            if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+            saveBlob(blob, `warisha-fashion-welcome-${currentIcon}.png`);
+            setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+        }, 'image/png');
+    }
+
+    function getExportCanvas(size = 720) {
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = exportCanvas.height = size;
+        const oldWidth = canvas.width, oldHeight = canvas.height;
+        canvas.width = canvas.height = size;
+        drawFrame();
+        exportCanvas.getContext('2d').drawImage(canvas, 0, 0);
+        canvas.width = oldWidth; canvas.height = oldHeight;
+        drawFrame();
+        return exportCanvas;
+    }
+
+    async function downloadGif() {
+        if (!window.GIF) {
+            setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ দিয়ে আবার চেষ্টা করুন।');
+            return;
+        }
+        if (isExporting) return;
+        isExporting = true;
+  const _gifWantTransparent = true;
+        const oldPhase = phase, oldRipple = ripplePhase, oldShine = shinePhase;
+        const gif = new GIF({ transparent: (_gifWantTransparent ? window.GIF_CHROMA_INT : null), workers: 2, quality: 10, width: 720, height: 720, workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
+        const frames = 48;
+        const frameDelay = 50;
+        setExportStatus('GIF তৈরি হচ্ছে… 0%');
+        for (let frame = 0; frame < frames; frame++) {
+            const t = frame / frames;
+            phase = oldPhase + t * Math.PI * 2;
+            ripplePhase = t;
+            shinePhase = oldShine + t * 1.1;
+            gif.addFrame(_gifWantTransparent ? window.gifFlattenFrame(getExportCanvas(720)) : (getExportCanvas(720)), { copy: true, delay: frameDelay });
+            setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((frame + 1) / frames * 100)}%`);
+            await new Promise(requestAnimationFrame);
+        }
+        phase = oldPhase; ripplePhase = oldRipple; shinePhase = oldShine; drawFrame();
+        gif.on('finished', (blob) => {
+            saveBlob(blob, `warisha-fashion-welcome-${currentIcon}.gif`);
+            setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
+            isExporting = false;
+        });
+        gif.render();
+    }
+
+    async function downloadVideo() {
+        if (!window.MediaRecorder || !canvas.captureStream) {
+            setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।');
+            return;
+        }
+        if (isExporting) return;
+        isExporting = true;
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = exportCanvas.height = 720;
+        const exportCtx = exportCanvas.getContext('2d');
+        const stream = exportCanvas.captureStream(30);
+        const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+        const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 5000000 });
+        const chunks = [];
+        const oldPhase = phase, oldRipple = ripplePhase, oldShine = shinePhase;
+        recorder.ondataavailable = (event) => event.data.size && chunks.push(event.data);
+        recorder.onstop = () => {
+            saveBlob(new Blob(chunks, { type: mimeType }), `warisha-fashion-welcome-${currentIcon}.webm`);
+            phase = oldPhase; ripplePhase = oldRipple; shinePhase = oldShine; drawFrame(); isExporting = false;
+            setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+        };
+        recorder.start();
+        const start = performance.now();
+        const duration = 2600;
+        setExportStatus('ভিডিও তৈরি হচ্ছে…');
+        const render = (now) => {
+            const progress = Math.min(1, (now - start) / duration);
+            phase = oldPhase + progress * Math.PI * 2;
+            ripplePhase = progress;
+            shinePhase = oldShine + progress * 1.1;
+            const frame = getExportCanvas(720);
+            exportCtx.clearRect(0, 0, 720, 720);
+            exportCtx.drawImage(frame, 0, 0);
+            if (progress < 1) requestAnimationFrame(render); else recorder.stop();
+        };
+        requestAnimationFrame(render);
+    }
+
+    function setDuration(sec, btnEl) {
+        document.getElementById('spinDuration').value = sec;
+        document.getElementById('durationBadge').textContent = sec >= 60 ? `${sec / 60}মিনিট` : `${sec}s`;
+        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+    }
+
+    document.getElementById('spinDuration').addEventListener('input', function() {
+        const v = parseFloat(this.value) || 30;
+        document.getElementById('durationBadge').textContent = v >= 60 ? `${(v / 60).toFixed(1)}মিনিট` : `${v}s`;
+    });
+    document.getElementById('animAmp').addEventListener('input', function() {
+        document.getElementById('ampBadge').textContent = parseFloat(this.value).toFixed(2);
+        if (!isSpinning) drawFrame();
+    });
+    document.getElementById('animSpeed').addEventListener('input', function() {
+        document.getElementById('speedBadge').textContent = parseFloat(this.value).toFixed(1);
+    });
+    document.getElementById('manualFontSize').addEventListener('input', function() {
+        document.getElementById('fontSizeBadge').textContent = this.value + '%';
+        if (!isSpinning) drawFrame();
+    });
+
+    ['innerText', 'badgeColorStart', 'badgeColorEnd', 'rimColor', 'symbolColor',
+     'showRippleToggle', 'showShineToggle', 'showSparkleToggle'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', () => { if (!isSpinning) drawFrame(); });
+            el.addEventListener('change', () => { if (!isSpinning) drawFrame(); });
+        }
+    });
+
+    drawFrame();
+    setTimeout(startBurst, 150);
+
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+    <script src="download-utils.js"></script>
+</body>
+</html>

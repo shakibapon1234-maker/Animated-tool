@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome To Brand Animation — ব্র্যান্ড ওয়েলকাম ইন্ট্রো অ্যানিমেশন</title>
+<meta name="description" content="মনোগ্রাম + অরবিট রিং + শাইন-সুইপ ব্র্যান্ড নেম — যেকোনো ব্র্যান্ডের জন্য ওয়েলকাম ইন্ট্রো ব্যাজ — ভিডিও এডিটর অ্যাপের জন্য">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Noto+Sans+Bengali:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --bg-primary: #08060f;
+        --bg-secondary: #0b0916;
+        --bg-card: #0f0c1c;
+        --border: rgba(255,255,255,0.08);
+        --border-active: rgba(255,215,0,0.5);
+        --accent: #ffd700;
+        --accent-glow: rgba(255,215,0,0.4);
+        --accent-2: #b8860b;
+        --text-primary: #f8f5ff;
+        --text-secondary: #a99dc9;
+        --text-muted: #574f72;
+        --radius: 16px;
+        --radius-sm: 10px;
+        --shadow: 0 20px 60px rgba(0,0,0,0.55);
+        --shadow-glow: 0 0 45px rgba(255,215,0,0.15);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: 'Outfit', 'Noto Sans Bengali', system-ui, sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        min-height: 100vh;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background:
+            radial-gradient(ellipse 80% 50% at 20% 10%, rgba(255,215,0,0.10) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 40% at 85% 85%, rgba(168,85,247,0.10) 0%, transparent 60%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .app-header {
+        width: 100%;
+        padding: 24px 32px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(8,6,15,0.8);
+        backdrop-filter: blur(20px);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .header-icon {
+        width: 44px; height: 44px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px;
+        box-shadow: 0 0 20px var(--accent-glow);
+        flex-shrink: 0;
+    }
+
+    .header-text h1 { font-size: 20px; font-weight: 700;
+        background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .header-text p { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+    .main-content {
+        width: 100%; max-width: 1200px; padding: 40px 24px 80px;
+        display: grid; grid-template-columns: 1fr 380px; gap: 32px;
+        position: relative; z-index: 1;
+    }
+    @media (max-width: 900px) { .main-content { grid-template-columns: 1fr; } }
+
+    .canvas-panel { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+
+    .canvas-wrapper {
+        width: 100%; aspect-ratio: 16/9; max-width: 640px;
+        background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px;
+        display: flex; align-items: center; justify-content: center;
+        position: relative; overflow: hidden;
+        box-shadow: var(--shadow), var(--shadow-glow);
+    }
+    .canvas-wrapper::before {
+        content: ''; position: absolute; inset: -1px; border-radius: 25px;
+        background: linear-gradient(135deg, rgba(255,215,0,0.28), rgba(168,85,247,0.12));
+        z-index: -1; animation: borderGlow 4s ease-in-out infinite;
+    }
+    @keyframes borderGlow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+    .canvas-bg-grid {
+        position: absolute; inset: 0;
+        background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                           linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+        background-size: 30px 30px; border-radius: 24px;
+    }
+
+    #welcomeCanvas { display: block; max-width: 100%; max-height: 100%; }
+
+    .lang-toggle { display: flex; gap: 8px; }
+    .lang-btn {
+        padding: 10px 18px; border-radius: 8px; border: 1px solid var(--border);
+        background: var(--bg-card); color: var(--text-secondary); font-size: 13px; font-weight: 600;
+        cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 8px;
+    }
+    .lang-btn:hover { border-color: var(--accent); color: var(--text-primary); }
+
+    .controls-panel { display: flex; flex-direction: column; gap: 20px; }
+    .control-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 24px; transition: border-color 0.2s, box-shadow 0.2s; }
+    .control-card:hover { border-color: var(--border-active); box-shadow: 0 0 20px rgba(255,215,0,0.1); }
+
+    .card-title { font-size: 13px; font-weight: 700; color: var(--text-secondary); letter-spacing: 1px;
+        text-transform: uppercase; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+    .card-title-icon { width: 24px; height: 24px; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+
+    .form-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+    .form-row:last-child { margin-bottom: 0; }
+    .form-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); display: flex;
+        justify-content: space-between; align-items: center; }
+    .form-label .value-badge { background: rgba(255,215,0,0.15); color: var(--accent); padding: 2px 10px;
+        border-radius: 6px; font-size: 12px; font-weight: 700; font-family: monospace; }
+
+    input[type="text"], input[type="number"] {
+        width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: var(--radius-sm);
+        padding: 12px 16px; color: var(--text-primary); font-size: 14px; font-family: inherit;
+        transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+    }
+    input[type="text"]:focus, input[type="number"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255,215,0,0.15); }
+
+    input[type="range"] { width: 100%; height: 6px; -webkit-appearance: none; appearance: none;
+        background: rgba(255,255,255,0.08); border-radius: 10px; outline: none; cursor: pointer; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: 0 0 10px rgba(255,215,0,0.5);
+        cursor: pointer; transition: transform 0.15s; }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+    input[type="color"] { width: 48px; height: 36px; border: 1px solid var(--border); border-radius: 8px;
+        background: none; cursor: pointer; padding: 2px; }
+
+    .color-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .color-row:last-child { margin-bottom: 0; }
+    .color-label { font-size: 13px; color: var(--text-secondary); flex: 1; }
+
+    .time-presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .preset-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: transparent;
+        color: var(--text-secondary); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+    .preset-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(255,215,0,0.1); }
+    .preset-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(255,215,0,0.15); }
+
+    .btn-group { display: flex; gap: 12px; }
+    .btn { flex: 1; padding: 14px 20px; border-radius: var(--radius-sm); border: none; font-size: 14px; font-weight: 700;
+        font-family: inherit; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+        gap: 8px; letter-spacing: 0.3px; }
+    .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #1a1200;
+        box-shadow: 0 4px 20px rgba(255,215,0,0.35); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(255,215,0,0.45); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .btn-stop { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #ff8080; }
+    .btn-stop:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(239,68,68,0.4); }
+    .btn-stop:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .btn-ghost { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text-secondary); }
+    .btn-ghost:hover { border-color: var(--border-active); color: var(--text-primary); background: rgba(255,255,255,0.07); }
+
+    .style-presets { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .style-preset-btn { padding: 10px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: transparent;
+        color: var(--text-secondary); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; text-align: center; }
+    .style-preset-btn:hover { border-color: var(--accent); color: var(--text-primary); background: rgba(255,215,0,0.08); }
+    .style-preset-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(255,215,0,0.15); }
+
+    .sep { height: 1px; background: var(--border); margin: 4px 0; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+    <div class="header-icon">✨</div>
+    <div class="header-text">
+        <h1>Welcome To Brand Animation</h1>
+        <p>মনোগ্রাম + অরবিট রিং + শাইন-সুইপ ব্র্যান্ড নেম — যেকোনো ব্র্যান্ডের জন্য — ভিডিও এডিটর অ্যাপের জন্য</p>
+    </div>
+</header>
+
+<div class="main-content">
+
+    <div class="canvas-panel">
+        <div class="canvas-wrapper">
+            <div class="canvas-bg-grid"></div>
+            <canvas id="welcomeCanvas" width="640" height="360"></canvas>
+        </div>
+
+        <div class="lang-toggle">
+            <button class="lang-btn" onclick="fillLanguage('bn')">🇧🇩 বাংলা টেক্সট বসান</button>
+            <button class="lang-btn" onclick="fillLanguage('en')">🇬🇧 Fill English Text</button>
+        </div>
+    </div>
+
+    <div class="controls-panel">
+
+        <div class="control-card">
+            <div class="card-title"><div class="card-title-icon">✍️</div>টেক্সট সেটিংস</div>
+
+            <div class="form-row">
+                <label class="form-label">ব্র্যান্ডের নাম</label>
+                <input type="text" id="brandName" value="YOUR BRAND NAME" placeholder="যেকোনো ব্র্যান্ড নাম লিখুন">
+            </div>
+            <div class="form-row">
+                <label class="form-label">উপরের কিকার টেক্সট</label>
+                <input type="text" id="kickerText" value="WELCOME TO" placeholder="যেমন: WELCOME TO">
+            </div>
+            <div class="form-row">
+                <label class="form-label">নিচের ট্যাগলাইন (ঐচ্ছিক)</label>
+                <input type="text" id="taglineText" value="GLAD TO HAVE YOU HERE" placeholder="যেমন: আপনাকে স্বাগতম">
+            </div>
+            <div class="form-row">
+                <label class="form-label">মনোগ্রাম (স্বয়ংক্রিয়, চাইলে বদলান)</label>
+                <input type="text" id="monogramText" value="" placeholder="খালি রাখলে নাম থেকে অটো হবে">
+            </div>
+        </div>
+
+        <div class="control-card">
+            <div class="card-title"><div class="card-title-icon">✦</div>এফেক্ট সেটিংস</div>
+
+            <div class="form-row">
+                <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                    <input type="checkbox" id="orbitToggle" checked>
+                    অরবিট রিং দেখান
+                </label>
+            </div>
+            <div class="form-row">
+                <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                    <input type="checkbox" id="burstToggle" checked>
+                    ওয়েলকাম বার্স্ট রিং দেখান
+                </label>
+            </div>
+            <div class="form-row">
+                <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                    <input type="checkbox" id="sparkleToggle" checked>
+                    টুইঙ্কেল স্পার্কল দেখান
+                </label>
+            </div>
+            <div class="form-row">
+                <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                    <input type="checkbox" id="shineToggle" checked>
+                    ব্র্যান্ড নেমে শাইন-সুইপ দেখান
+                </label>
+            </div>
+            <div class="form-row">
+                <label class="form-label">অরবিট স্পিড <span class="value-badge" id="orbitSpeedBadge">1.0</span></label>
+                <input type="range" id="orbitSpeed" min="0" max="3" step="0.1" value="1.0">
+            </div>
+            <div class="form-row">
+                <label class="form-label">শাইন স্পিড <span class="value-badge" id="shineSpeedBadge">1.0</span></label>
+                <input type="range" id="shineSpeed" min="0.2" max="3" step="0.1" value="1.0">
+            </div>
+            <div class="form-row">
+                <label class="form-label">পালস তীব্রতা <span class="value-badge" id="pulseBadge">0.6</span></label>
+                <input type="range" id="pulseIntensity" min="0" max="1.5" step="0.05" value="0.6">
+            </div>
+        </div>
+
+        <div class="control-card">
+            <div class="card-title"><div class="card-title-icon">🎨</div>কালার স্টাইল</div>
+
+            <div class="style-presets" id="stylePresets">
+                <button class="style-preset-btn active" data-style="classicGold" onclick="applyStyle('classicGold',this)">🟡 ক্লাসিক গোল্ড</button>
+                <button class="style-preset-btn" data-style="oceanBlue" onclick="applyStyle('oceanBlue',this)">🩵 ওশেন ব্লু</button>
+                <button class="style-preset-btn" data-style="purpleLuxury" onclick="applyStyle('purpleLuxury',this)">🟣 পার্পল লাক্সারি</button>
+                <button class="style-preset-btn" data-style="emeraldFresh" onclick="applyStyle('emeraldFresh',this)">🟢 এমারেল্ড ফ্রেশ</button>
+                <button class="style-preset-btn" data-style="roseGold" onclick="applyStyle('roseGold',this)">🌸 রোজ গোল্ড</button>
+                <button class="style-preset-btn" data-style="monochromeSilver" onclick="applyStyle('monochromeSilver',this)">⚪ সিলভার</button>
+            </div>
+
+            <div class="sep" style="margin-top:16px;"></div>
+
+            <div style="margin-top:14px;">
+                <div class="color-row">
+                    <span class="color-label">প্রাইমারি (গ্লো/রিং) রঙ</span>
+                    <input type="color" id="primaryColor" value="#ffd700">
+                </div>
+                <div class="color-row">
+                    <span class="color-label">সেকেন্ডারি রঙ</span>
+                    <input type="color" id="secondaryColor" value="#b8860b">
+                </div>
+                <div class="color-row">
+                    <span class="color-label">ব্র্যান্ড নেম টেক্সট রঙ</span>
+                    <input type="color" id="textColor" value="#ffffff">
+                </div>
+                <div class="color-row">
+                    <span class="color-label">কিকার/ট্যাগলাইন রঙ</span>
+                    <input type="color" id="kickerColor" value="#e8c766">
+                </div>
+            </div>
+        </div>
+
+        <div class="control-card">
+            <div class="card-title"><div class="card-title-icon">⏱️</div>সময়</div>
+            <div class="form-row">
+                <label class="form-label">সময় (সেকেন্ড) <span class="value-badge" id="durationBadge">30s</span></label>
+                <input type="number" id="spinDuration" value="30" min="1" max="3600">
+                <div class="time-presets">
+                    <button class="preset-btn" onclick="setDuration(5,this)">5s</button>
+                    <button class="preset-btn" onclick="setDuration(10,this)">10s</button>
+                    <button class="preset-btn active" onclick="setDuration(30,this)">30s</button>
+                    <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+                    <button class="preset-btn" onclick="setDuration(120,this)">2মিনিট</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-primary" id="startBtn" onclick="startBurst()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+                অ্যানিমেশন শুরু
+            </button>
+            <button class="btn btn-stop" id="stopBtn" onclick="stopBurst()" disabled>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+                বন্ধ করুন
+            </button>
+        </div>
+
+        <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট করুন</button>
+
+        <div class="control-card" style="margin-top:16px;">
+            <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+            <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.55;">বর্তমান ব্যাজ PNG হিসেবে (ট্রান্সপারেন্ট ব্যাকগ্রাউন্ড), অথবা একটি পূর্ণ অ্যানিমেশন সাইকেল GIF/ভিডিও হিসেবে সেভ করুন — সরাসরি আপনার ভিডিও এডিটর অ্যাপে ব্যবহার করা যাবে।</p>
+            <div class="btn-group">
+                <button class="btn btn-primary" type="button" onclick="downloadPng()">PNG ডাউনলোড</button>
+                <button class="btn btn-primary" type="button" onclick="downloadGif()">GIF ডাউনলোড</button>
+                <button class="btn btn-primary" type="button" onclick="downloadVideo()">ভিডিও (WebM)</button>
+            </div>
+            <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+/* =====================================================
+   WELCOME TO [BRAND] INTRO ANIMATION ENGINE
+   A centered logo lockup: a monogram badge (auto-derived
+   from the brand name) inside rotating orbit rings with
+   traveling satellite dots, periodic "welcome" burst
+   rings, twinkling sparkles, and the brand name rendered
+   with a moving shine-sweep gradient. Canvas stays
+   transparent for direct overlay use in video editors.
+===================================================== */
+
+const canvas = document.getElementById('welcomeCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+    const wrapper = canvas.parentElement;
+    const w = Math.min(wrapper.clientWidth - 40, 640);
+    canvas.width = w;
+    canvas.height = Math.round(w * 9 / 16);
+}
+resizeCanvas();
+window.addEventListener('resize', () => { resizeCanvas(); drawFrame(); });
+
+// === STATE ===
+let orbitRotation = 0;
+let burstPhase = 0;
+let sparklePhase = 0;
+let shinePhase = 0;
+let pulsePhase = 0;
+let isSpinning = false;
+let animFrame = null;
+let totalDurationMs = 30000;
+let lastTimestamp = null;
+let isExporting = false;
+
+const SPARKLE_SEEDS = Array.from({ length: 10 }, (_, i) => ({
+    angle: (Math.PI * 2 * i) / 10 + (i % 2 ? 0.3 : -0.2),
+    rFactor: 1.6 + (i % 4) * 0.35,
+    speed: 0.6 + (i % 3) * 0.35,
+    offset: i * 0.7,
+    size: 3 + (i % 3) * 2,
+    maxAlpha: 0.55 + (i % 3) * 0.15
+}));
+
+// === LANGUAGE PRESETS ===
+const langPresets = {
+    bn: { kickerText: 'স্বাগতম', taglineText: 'আপনাকে স্বাগতম জানাচ্ছি' },
+    en: { kickerText: 'WELCOME TO', taglineText: 'GLAD TO HAVE YOU HERE' }
+};
+function fillLanguage(lang) {
+    const p = langPresets[lang];
+    if (!p) return;
+    document.getElementById('kickerText').value = p.kickerText;
+    document.getElementById('taglineText').value = p.taglineText;
+    if (!isSpinning) drawFrame();
+}
+
+// === COLOR HELPER ===
+function shadeColor(hex, percent) {
+    const f = parseInt(hex.slice(1), 16);
+    const t = percent < 0 ? 0 : 255;
+    const p = percent < 0 ? percent * -1 : percent;
+    const R = f >> 16, G = (f >> 8) & 0x00FF, B = f & 0x0000FF;
+    return "#" + (0x1000000 + (Math.round((t - R) * p) + R) * 0x10000 +
+        (Math.round((t - G) * p) + G) * 0x100 +
+        (Math.round((t - B) * p) + B)).toString(16).slice(1);
+}
+
+// === STYLE PRESETS ===
+const stylePresets = {
+    classicGold:      { primaryColor: '#ffd700', secondaryColor: '#b8860b', textColor: '#ffffff', kickerColor: '#e8c766' },
+    oceanBlue:        { primaryColor: '#00b4d8', secondaryColor: '#0077b6', textColor: '#ffffff', kickerColor: '#90e0ef' },
+    purpleLuxury:     { primaryColor: '#a855f7', secondaryColor: '#6b21a8', textColor: '#ffffff', kickerColor: '#d8b4fe' },
+    emeraldFresh:     { primaryColor: '#10b981', secondaryColor: '#047857', textColor: '#ffffff', kickerColor: '#6ee7b7' },
+    roseGold:         { primaryColor: '#f4a6a0', secondaryColor: '#b76e79', textColor: '#fff5f2', kickerColor: '#f7c6c0' },
+    monochromeSilver: { primaryColor: '#e5e7eb', secondaryColor: '#6b7280', textColor: '#ffffff', kickerColor: '#c7cbd1' }
+};
+
+function applyStyle(styleName, btnEl) {
+    const s = stylePresets[styleName];
+    if (!s) return;
+    Object.keys(s).forEach(key => {
+        const el = document.getElementById(key);
+        if (el) el.value = s[key];
+    });
+    document.querySelectorAll('#stylePresets .style-preset-btn').forEach(b => b.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
+    if (!isSpinning) drawFrame();
+}
+
+// === SETTINGS READER ===
+function isBengaliText(t) { return /[\u0980-\u09FF]/.test(t); }
+
+function getMonogram(name, override) {
+    if (override && override.trim()) return override.trim();
+    const trimmed = (name || '').trim();
+    if (!trimmed) return '★';
+    const firstWord = trimmed.split(/\s+/)[0];
+    if (isBengaliText(firstWord)) {
+        let mono = firstWord[0];
+        let i = 1;
+        while (i < firstWord.length && /[\u09BE-\u09CD\u09D7]/.test(firstWord[i])) { mono += firstWord[i]; i++; }
+        return mono;
+    }
+    return firstWord[0].toUpperCase();
+}
+
+function getSettings() {
+    const primaryColor = document.getElementById('primaryColor').value;
+    return {
+        brandName: document.getElementById('brandName').value || 'YOUR BRAND NAME',
+        kickerText: document.getElementById('kickerText').value || '',
+        taglineText: document.getElementById('taglineText').value || '',
+        monogramOverride: document.getElementById('monogramText').value || '',
+        showOrbit: document.getElementById('orbitToggle').checked,
+        showBurst: document.getElementById('burstToggle').checked,
+        showSparkle: document.getElementById('sparkleToggle').checked,
+        showShine: document.getElementById('shineToggle').checked,
+        orbitSpeed: parseFloat(document.getElementById('orbitSpeed').value),
+        shineSpeed: parseFloat(document.getElementById('shineSpeed').value),
+        pulseIntensity: parseFloat(document.getElementById('pulseIntensity').value),
+        primaryColor: primaryColor,
+        secondaryColor: document.getElementById('secondaryColor').value,
+        primaryDark: shadeColor(primaryColor, -0.35),
+        textColor: document.getElementById('textColor').value,
+        kickerColor: document.getElementById('kickerColor').value
+    };
+}
+
+// === GENERIC HELPERS ===
+function fitFontSize(text, maxWidth, initialSize, weight, minSize) {
+    let size = initialSize;
+    ctx.font = `${weight} ${size}px 'Outfit','Noto Sans Bengali',sans-serif`;
+    while (ctx.measureText(text).width > maxWidth && size > (minSize || 10)) {
+        size -= 1;
+        ctx.font = `${weight} ${size}px 'Outfit','Noto Sans Bengali',sans-serif`;
+    }
+    return size;
+}
+
+// === ORBIT RINGS ===
+function drawOrbitRing(cx, cy, r, rotation, color, dotCount) {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = 0.32;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    for (let i = 0; i < dotCount; i++) {
+        const a = rotation + (Math.PI * 2 * i) / dotCount;
+        const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
+        ctx.beginPath();
+        ctx.arc(x, y, Math.max(2, r * 0.028), 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = r * 0.12;
+        ctx.fill();
+    }
+    ctx.restore();
+}
+
+// === WELCOME BURST RINGS ===
+function drawBurstRings(cx, cy, phase, baseR, intensity, color) {
+    for (let i = 0; i < 3; i++) {
+        const t = ((phase * (0.35 + intensity * 0.3)) + i / 3) % 1;
+        const r = baseR * (1 + t * 1.9);
+        const alpha = (1 - t) * 0.5 * (0.4 + intensity);
+        if (alpha <= 0) continue;
+        ctx.save();
+        ctx.globalAlpha = Math.min(1, alpha);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+    }
+}
+
+// === MONOGRAM BADGE ===
+function drawMonogram(cx, cy, r, text, scalePulse, primary, primaryDark) {
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.scale(scalePulse, scalePulse);
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    const grad = ctx.createLinearGradient(-r, -r, r, r);
+    grad.addColorStop(0, primary);
+    grad.addColorStop(1, primaryDark);
+    ctx.fillStyle = grad;
+    ctx.shadowColor = primary;
+    ctx.shadowBlur = r * 0.55;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = r * 0.045;
+    ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+    ctx.stroke();
+    ctx.fillStyle = '#ffffff';
+    const bengali = isBengaliText(text);
+    ctx.font = `900 ${Math.round(r * (bengali ? 0.8 : 0.92))}px 'Outfit','Noto Sans Bengali',sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, 0, r * 0.04);
+    ctx.restore();
+}
+
+// === SPARKLES ===
+function drawSparkleStar(x, y, size, alpha, color) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = color;
+    ctx.translate(x, y);
+    ctx.beginPath();
+    ctx.moveTo(0, -size); ctx.lineTo(size * 0.25, -size * 0.25);
+    ctx.lineTo(size, 0); ctx.lineTo(size * 0.25, size * 0.25);
+    ctx.lineTo(0, size); ctx.lineTo(-size * 0.25, size * 0.25);
+    ctx.lineTo(-size, 0); ctx.lineTo(-size * 0.25, -size * 0.25);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+}
+
+function drawSparkles(cx, cy, r, phase, color) {
+    SPARKLE_SEEDS.forEach(sd => {
+        const t = (phase * sd.speed + sd.offset) % (Math.PI * 2);
+        const alpha = ((Math.sin(t) + 1) / 2) * sd.maxAlpha;
+        if (alpha <= 0.03) return;
+        const x = cx + Math.cos(sd.angle) * r * sd.rFactor;
+        const y = cy + Math.sin(sd.angle) * r * sd.rFactor;
+        drawSparkleStar(x, y, sd.size * (0.7 + alpha * 0.5), alpha, color);
+    });
+}
+
+// === SHIMMER TEXT ===
+function drawShimmerText(cx, cy, text, fontPx, baseColor, phase, speed, weight) {
+    ctx.save();
+    const bengali = isBengaliText(text);
+    ctx.font = `${weight || 900} ${Math.round(fontPx)}px 'Outfit','Noto Sans Bengali',sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const textW = ctx.measureText(text).width;
+    const x0 = cx - textW / 2 - fontPx;
+    const x1 = cx + textW / 2 + fontPx;
+
+    const travel = (phase * speed * 0.3) % 1;
+    const center = Math.max(0, Math.min(1, -0.25 + travel * 1.5));
+    const bandWidth = 0.16;
+    const lo = Math.max(0, center - bandWidth);
+    const hi = Math.min(1, center + bandWidth);
+
+    const grad = ctx.createLinearGradient(x0, 0, x1, 0);
+    grad.addColorStop(0, baseColor);
+    if (lo > 0) grad.addColorStop(lo, baseColor);
+    grad.addColorStop(center, '#ffffff');
+    if (hi < 1) grad.addColorStop(hi, baseColor);
+    grad.addColorStop(1, baseColor);
+
+    ctx.fillStyle = grad;
+    ctx.shadowColor = baseColor;
+    ctx.shadowBlur = fontPx * 0.15;
+    ctx.fillText(text, cx, cy);
+    ctx.restore();
+}
+
+// === MAIN FRAME DRAW ===
+function drawFrame() {
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    const s = getSettings();
+    const cx = w / 2;
+    const groupCY = h * 0.44;
+    const monoR = h * 0.15;
+    const pulse = 1 + Math.sin(pulsePhase) * 0.045 * s.pulseIntensity;
+
+    if (s.showSparkle) drawSparkles(cx, groupCY, monoR, sparklePhase, s.primaryColor);
+    if (s.showBurst) drawBurstRings(cx, groupCY, burstPhase, monoR * 1.05, s.pulseIntensity, s.primaryColor);
+    if (s.showOrbit) {
+        drawOrbitRing(cx, groupCY, monoR * 1.55, orbitRotation * s.orbitSpeed, s.primaryColor, 2);
+        drawOrbitRing(cx, groupCY, monoR * 2.05, -orbitRotation * s.orbitSpeed * 0.7, s.secondaryColor, 3);
+    }
+
+    const monoText = getMonogram(s.brandName, s.monogramOverride);
+    drawMonogram(cx, groupCY, monoR * pulse, monoText, 1, s.primaryColor, s.primaryDark);
+
+    if (s.kickerText) {
+        const kickerFs = fitFontSize(s.kickerText.toUpperCase(), w * 0.82, h * 0.075, 700, 8);
+        ctx.save();
+        ctx.font = `700 ${kickerFs}px 'Outfit','Noto Sans Bengali',sans-serif`;
+        ctx.fillStyle = s.kickerColor;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.globalAlpha = 0.9;
+        const kText = isBengaliText(s.kickerText) ? s.kickerText : s.kickerText.toUpperCase();
+        ctx.fillText(kText, cx, groupCY + monoR * 1.55 + h * 0.045);
+        ctx.restore();
+    }
+
+    const brandText = isBengaliText(s.brandName) ? s.brandName : s.brandName.toUpperCase();
+    const brandFs = fitFontSize(brandText, w * 0.88, h * 0.155, 900, 16);
+    const brandY = groupCY + monoR * 1.55 + h * 0.155;
+    if (s.showShine) {
+        drawShimmerText(cx, brandY, brandText, brandFs, s.textColor, shinePhase, s.shineSpeed, 900);
+    } else {
+        ctx.save();
+        ctx.font = `900 ${brandFs}px 'Outfit','Noto Sans Bengali',sans-serif`;
+        ctx.fillStyle = s.textColor;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = s.primaryColor;
+        ctx.shadowBlur = brandFs * 0.15;
+        ctx.fillText(brandText, cx, brandY);
+        ctx.restore();
+    }
+
+    // underline
+    ctx.save();
+    const lineW = Math.min(w * 0.42, brandFs * brandText.length * 0.34) * (0.85 + Math.sin(pulsePhase * 1.3) * 0.06 * s.pulseIntensity);
+    const lineY = brandY + brandFs * 0.62;
+    const lineGrad = ctx.createLinearGradient(cx - lineW / 2, 0, cx + lineW / 2, 0);
+    lineGrad.addColorStop(0, 'transparent');
+    lineGrad.addColorStop(0.5, s.primaryColor);
+    lineGrad.addColorStop(1, 'transparent');
+    ctx.strokeStyle = lineGrad;
+    ctx.lineWidth = Math.max(2, h * 0.008);
+    ctx.beginPath();
+    ctx.moveTo(cx - lineW / 2, lineY);
+    ctx.lineTo(cx + lineW / 2, lineY);
+    ctx.stroke();
+    ctx.restore();
+
+    if (s.taglineText) {
+        const tagFs = fitFontSize(s.taglineText, w * 0.8, h * 0.06, 500, 8);
+        ctx.save();
+        ctx.font = `500 ${tagFs}px 'Outfit','Noto Sans Bengali',sans-serif`;
+        ctx.fillStyle = s.kickerColor;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.globalAlpha = 0.85;
+        ctx.fillText(s.taglineText, cx, lineY + h * 0.06);
+        ctx.restore();
+    }
+}
+
+// === ANIMATION LOOP ===
+function animate(timestamp) {
+    if (!isSpinning) return;
+    if (lastTimestamp === null) lastTimestamp = timestamp;
+    const dt = (timestamp - lastTimestamp) / 1000;
+    lastTimestamp = timestamp;
+
+    orbitRotation += dt * 0.8;
+    burstPhase += dt;
+    sparklePhase += dt * 2.0;
+    shinePhase += dt;
+    pulsePhase += dt * 2.0;
+
+    drawFrame();
+
+    totalDurationMs -= dt * 1000;
+    if (totalDurationMs > 0) {
+        animFrame = requestAnimationFrame(animate);
+    } else {
+        stopBurst();
+    }
+}
+
+function startBurst() {
+    if (isSpinning) return;
+    isSpinning = true;
+    lastTimestamp = null;
+    document.getElementById('startBtn').disabled = true;
+    document.getElementById('stopBtn').disabled = false;
+    const durInput = document.getElementById('spinDuration');
+    totalDurationMs = (parseFloat(durInput.value) || 30) * 1000;
+    animFrame = requestAnimationFrame(animate);
+}
+
+function stopBurst() {
+    isSpinning = false;
+    if (animFrame) cancelAnimationFrame(animFrame);
+    document.getElementById('startBtn').disabled = false;
+    document.getElementById('stopBtn').disabled = true;
+    drawFrame();
+}
+
+function setDuration(sec, btnEl) {
+    document.getElementById('spinDuration').value = sec;
+    document.getElementById('durationBadge').textContent = sec >= 60 ? `${sec / 60}মিনিট` : `${sec}s`;
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    btnEl.classList.add('active');
+    totalDurationMs = sec * 1000;
+}
+
+function resetAll() {
+    stopBurst();
+    orbitRotation = 0; burstPhase = 0; sparklePhase = 0; shinePhase = 0; pulsePhase = 0;
+    document.getElementById('brandName').value = 'YOUR BRAND NAME';
+    document.getElementById('kickerText').value = 'WELCOME TO';
+    document.getElementById('taglineText').value = 'GLAD TO HAVE YOU HERE';
+    document.getElementById('monogramText').value = '';
+    document.getElementById('orbitToggle').checked = true;
+    document.getElementById('burstToggle').checked = true;
+    document.getElementById('sparkleToggle').checked = true;
+    document.getElementById('shineToggle').checked = true;
+    document.getElementById('orbitSpeed').value = 1.0;
+    document.getElementById('orbitSpeedBadge').textContent = '1.0';
+    document.getElementById('shineSpeed').value = 1.0;
+    document.getElementById('shineSpeedBadge').textContent = '1.0';
+    document.getElementById('pulseIntensity').value = 0.6;
+    document.getElementById('pulseBadge').textContent = '0.6';
+    applyStyle('classicGold', document.querySelector('#stylePresets .style-preset-btn'));
+    setDuration(30, document.querySelectorAll('.preset-btn')[2]);
+    drawFrame();
+}
+
+// === EXPORT HELPERS ===
+function setExportStatus(message) { document.getElementById('exportStatus').textContent = message; }
+
+function saveBlob(blob, filename) {
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+function downloadPng() {
+    canvas.toBlob((blob) => {
+        if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+        saveBlob(blob, 'welcome-brand-badge.png');
+        setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+    }, 'image/png');
+}
+
+function getExportCanvas(width, height) {
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = width;
+    exportCanvas.height = height;
+    const oldWidth = canvas.width, oldHeight = canvas.height;
+    canvas.width = width; canvas.height = height;
+    drawFrame();
+    exportCanvas.getContext('2d').drawImage(canvas, 0, 0);
+    canvas.width = oldWidth; canvas.height = oldHeight;
+    drawFrame();
+    return exportCanvas;
+}
+
+async function downloadGif() {
+    if (!window.GIF) {
+        setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ দিয়ে আবার চেষ্টা করুন।');
+        return;
+    }
+    if (isExporting) return;
+    isExporting = true;
+    const oldOrbit = orbitRotation, oldBurst = burstPhase, oldSparkle = sparklePhase, oldShine = shinePhase, oldPulse = pulsePhase;
+  const _gifWantTransparent = true;
+    const gif = new GIF({ transparent: (_gifWantTransparent ? window.GIF_CHROMA_INT : null),
+        workers: 2, quality: 10, width: 854, height: 480,
+        workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'
+    });
+    const frames = 60;
+    const frameDelay = 50;
+    setExportStatus('GIF তৈরি হচ্ছে… 0%');
+    for (let frame = 0; frame < frames; frame++) {
+        const dt = frameDelay / 1000;
+        orbitRotation = oldOrbit + dt * 0.8 * frame;
+        burstPhase = oldBurst + dt * frame;
+        sparklePhase = oldSparkle + dt * 2.0 * frame;
+        shinePhase = oldShine + dt * frame;
+        pulsePhase = oldPulse + dt * 2.0 * frame;
+        gif.addFrame(_gifWantTransparent ? window.gifFlattenFrame(getExportCanvas(854, 480)) : (getExportCanvas(854, 480)), { copy: true, delay: frameDelay });
+        setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((frame + 1) / frames * 100)}%`);
+        await new Promise(requestAnimationFrame);
+    }
+    orbitRotation = oldOrbit; burstPhase = oldBurst; sparklePhase = oldSparkle; shinePhase = oldShine; pulsePhase = oldPulse;
+    drawFrame();
+    gif.on('finished', (blob) => {
+        saveBlob(blob, 'welcome-brand-badge.gif');
+        setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
+        isExporting = false;
+    });
+    gif.render();
+}
+
+async function downloadVideo() {
+    if (!window.MediaRecorder || !canvas.captureStream) {
+        setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।');
+        return;
+    }
+    if (isExporting) return;
+    isExporting = true;
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = 854; exportCanvas.height = 480;
+    const exportCtx = exportCanvas.getContext('2d');
+    const stream = exportCanvas.captureStream(30);
+    const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+    const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 5000000 });
+    const chunks = [];
+    const oldOrbit = orbitRotation, oldBurst = burstPhase, oldSparkle = sparklePhase, oldShine = shinePhase, oldPulse = pulsePhase;
+    recorder.ondataavailable = (event) => event.data.size && chunks.push(event.data);
+    recorder.onstop = () => {
+        saveBlob(new Blob(chunks, { type: mimeType }), 'welcome-brand-badge.webm');
+        orbitRotation = oldOrbit; burstPhase = oldBurst; sparklePhase = oldSparkle; shinePhase = oldShine; pulsePhase = oldPulse;
+        drawFrame(); isExporting = false;
+        setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+    };
+    recorder.start();
+    const start = performance.now();
+    const duration = 4000;
+    setExportStatus('ভিডিও তৈরি হচ্ছে…');
+    const render = (now) => {
+        const progress = Math.min(1, (now - start) / duration);
+        const elapsedSec = (duration / 1000) * progress;
+        orbitRotation = oldOrbit + elapsedSec * 0.8;
+        burstPhase = oldBurst + elapsedSec;
+        sparklePhase = oldSparkle + elapsedSec * 2.0;
+        shinePhase = oldShine + elapsedSec;
+        pulsePhase = oldPulse + elapsedSec * 2.0;
+        const frame = getExportCanvas(854, 480);
+        exportCtx.clearRect(0, 0, 854, 480);
+        exportCtx.drawImage(frame, 0, 0);
+        if (progress < 1) requestAnimationFrame(render); else recorder.stop();
+    };
+    requestAnimationFrame(render);
+}
+
+// === LIVE UPDATE ON INPUT CHANGE ===
+document.getElementById('orbitSpeed').addEventListener('input', function() {
+    document.getElementById('orbitSpeedBadge').textContent = parseFloat(this.value).toFixed(1);
+});
+document.getElementById('shineSpeed').addEventListener('input', function() {
+    document.getElementById('shineSpeedBadge').textContent = parseFloat(this.value).toFixed(1);
+});
+document.getElementById('pulseIntensity').addEventListener('input', function() {
+    document.getElementById('pulseBadge').textContent = parseFloat(this.value).toFixed(2);
+});
+document.getElementById('spinDuration').addEventListener('input', function() {
+    const v = parseFloat(this.value) || 30;
+    document.getElementById('durationBadge').textContent = v >= 60 ? `${(v / 60).toFixed(1)}মিনিট` : `${v}s`;
+    totalDurationMs = v * 1000;
+});
+
+['brandName', 'kickerText', 'taglineText', 'monogramText',
+ 'orbitToggle', 'burstToggle', 'sparkleToggle', 'shineToggle',
+ 'primaryColor', 'secondaryColor', 'textColor', 'kickerColor'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+        el.addEventListener('input', () => { if (!isSpinning) drawFrame(); });
+        el.addEventListener('change', () => { if (!isSpinning) drawFrame(); });
+    }
+});
+
+// === INITIAL DRAW ===
+function initialDraw() { drawFrame(); }
+if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(initialDraw);
+} else {
+    initialDraw();
+}
+initialDraw();
+// Auto-starts and loops until the user presses "বন্ধ করুন".
+setTimeout(startBurst, 150);
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js" defer></script>
+    <script src="download-utils.js"></script>
+</body>
+</html>

@@ -641,9 +641,10 @@ async function downloadGif() {
   if (!window.GIF) { setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন।'); return; }
   if (isExporting) return;
   isExporting = true;
+  const _gifWantTransparent = document.getElementById('transparentToggle').checked;
   const bgColor = document.getElementById('boardBg').value;
   const oldChase = chaseOffset, oldFlap = flapPhase, oldScan = scanPhase;
-  const gif = new GIF({ workers: 2, quality: 10, width: CW, height: CH,
+  const gif = new GIF({ transparent: (_gifWantTransparent ? window.GIF_CHROMA_INT : null), workers: 2, quality: 10, width: CW, height: CH,
     workerScript: 'gif.worker.js' });
   const frames = 60, frameDelay = 50;
   const speed = parseFloat(document.getElementById('chaseSpeed').value) || 0;
@@ -653,8 +654,8 @@ async function downloadGif() {
     chaseOffset = oldChase + speed * 0.4 * (t * frames * frameDelay);
     flapPhase = oldFlap + t * 0.5;
     scanPhase = oldScan + t * 1.4;
-    drawFrame({ transparent: false, bgColor });
-    gif.addFrame(canvas, { copy: true, delay: frameDelay });
+    drawFrame({ transparent: _gifWantTransparent, bgColor });
+    gif.addFrame(_gifWantTransparent ? window.gifFlattenFrame(canvas) : (canvas), { copy: true, delay: frameDelay });
     setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((i+1)/frames*100)}%`);
     await new Promise(requestAnimationFrame);
   }

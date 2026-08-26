@@ -46,6 +46,36 @@ const m=text&&text.match(/(\d+)\s*%/);
 return m?parseInt(m[1],10):null;
 }
 
+// ---- GIF transparency fix ----------------------------------------------
+// The GIF format has no real alpha channel: it can only mark ONE exact
+// palette color as "transparent" (a hard on/off cutout, not soft alpha).
+// Every tool that lets you pick a canvas color and hoped that would carry
+// through to the GIF was wrong to assume that; the raw pixel data was being
+// captured with its alpha silently dropped, which is why exported GIFs
+// always came out with a solid (usually black) background even when the
+// on-canvas preview/PNG export looked transparent.
+//
+// Fix: before handing a frame to gif.js, we paint it onto a very specific,
+// unlikely-to-occur "chroma key" color (#00FF00) first, then tell gif.js to
+// treat that exact color as the transparent index. Edges that were
+// anti-aliased against transparency may show a faint fringe of this color
+// (this is an inherent GIF limitation, not a bug in this fix) — for pixel-
+// perfect transparency, use the PNG export instead.
+window.GIF_CHROMA_HEX = '#00FF00';
+window.GIF_CHROMA_INT = 0x00FF00;
+window.gifFlattenFrame = function(source){
+  const srcCanvas = (source && source.canvas) ? source.canvas : source;
+  const w = srcCanvas.width, h = srcCanvas.height;
+  const out = document.createElement('canvas');
+  out.width = w; out.height = h;
+  const octx = out.getContext('2d');
+  octx.fillStyle = window.GIF_CHROMA_HEX;
+  octx.fillRect(0, 0, w, h);
+  octx.drawImage(srcCanvas, 0, 0);
+  return out;
+};
+// -------------------------------------------------------------------------
+
 function safeSetStatus(statusEl, msg, container) {
   if (!statusEl) return;
   const existingContainer = statusEl.querySelector('.dl-progress-container');

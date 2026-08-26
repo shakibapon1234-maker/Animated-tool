@@ -795,7 +795,6 @@
         // --- MARCHING-ANTS OUTER BORDER ---
         ctx.save();
         ctx.translate(cx, cy);
-        const outerScale = 1.1;
         ctx.save();
         ctx.scale(outerScale, outerScale);
         tagPath(ctx, tagW, tagH, tipLen, notch);
@@ -1101,8 +1100,9 @@
         }
         if (isExporting) return;
         isExporting = true;
+  const _gifWantTransparent = true;
         const oldAnts = antsPhase, oldPulse = pulsePhase, oldScan = scanPhase, oldDot = dotPhase;
-        const gif = new GIF({
+        const gif = new GIF({ transparent: (_gifWantTransparent ? window.GIF_CHROMA_INT : null),
             workers: 2, quality: 10, width: 720, height: 720,
             workerScript: 'gif.worker.js'
         });
@@ -1115,7 +1115,7 @@
             pulsePhase = oldPulse + (Math.PI * 2 * 2 * t);
             scanPhase = oldScan + t * 2;
             dotPhase = oldDot + t * 2;
-            gif.addFrame(getExportCanvas(720), { copy: true, delay: frameDelay });
+            gif.addFrame(_gifWantTransparent ? window.gifFlattenFrame(getExportCanvas(720)) : (getExportCanvas(720)), { copy: true, delay: frameDelay });
             setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((frame + 1) / frames * 100)}%`);
             await new Promise(requestAnimationFrame);
         }

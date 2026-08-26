@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Intro Banner Animation — by Shakib</title>
+    <meta name="description" content="এলিগ্যান্ট ফ্যাশন ব্র্যান্ড 'Welcome' ইন্ট্রো অ্যানিমেশন — স্ট্যাগারড টেক্সট রিভিল, গোল্ড শাইন সুইপ, টুইঙ্কলিং স্পার্কল — বিজ্ঞাপন/ভিডিও/ফটো এডিটর অ্যাপের জন্য">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0806;
+            --bg-secondary: #100c08;
+            --bg-card: #16110a;
+            --bg-card-hover: #1c160d;
+            --border: rgba(255,255,255,0.08);
+            --border-active: rgba(212,175,55,0.55);
+            --accent: #d4af37;        /* gold */
+            --accent-glow: rgba(212,175,55,0.4);
+            --accent-2: #b8860b;      /* dark gold */
+            --accent-3: #f5e7b8;
+            --text-primary: #fdf8ec;
+            --text-secondary: #b3a488;
+            --text-muted: #5c5342;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 20px 60px rgba(0,0,0,0.55);
+            --shadow-glow: 0 0 45px rgba(212,175,55,0.18);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 20%, rgba(212,175,55,0.10) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(184,134,11,0.08) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app-header { width: 100%; padding: 24px 32px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--border); background: rgba(10,8,6,0.8); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 100; }
+        .header-icon { width: 44px; height: 44px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 0 20px var(--accent-glow); flex-shrink: 0; }
+        .header-text h1 { font-size: 20px; font-weight: 700; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .header-text p { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+        .main-content { width: 100%; max-width: 1200px; padding: 40px 24px 80px; display: grid; grid-template-columns: 1fr 380px; gap: 32px; position: relative; z-index: 1; }
+        @media (max-width: 900px) { .main-content { grid-template-columns: 1fr; } }
+
+        .canvas-panel { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+        .canvas-wrapper { width: 100%; aspect-ratio: 1; max-width: 500px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; box-shadow: var(--shadow), var(--shadow-glow); }
+        .canvas-wrapper::before { content: ''; position: absolute; inset: -1px; border-radius: 25px; background: linear-gradient(135deg, rgba(212,175,55,0.28), rgba(184,134,11,0.08)); z-index: -1; animation: borderGlow 4s ease-in-out infinite; }
+        @keyframes borderGlow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+        .canvas-bg-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 30px 30px; border-radius: 24px; z-index: 2; pointer-events: none; }
+        #welcomeCanvas { display: block; max-width: 100%; max-height: 100%; border-radius: 24px; }
+
+        .timer-display { display: flex; align-items: center; gap: 16px; padding: 16px 28px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 60px; box-shadow: var(--shadow); }
+        .timer-ring-wrap { position: relative; width: 56px; height: 56px; }
+        .timer-ring-wrap svg { transform: rotate(-90deg); }
+        .timer-ring-bg { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 4; }
+        .timer-ring-fill { fill: none; stroke: url(#ringGradient); stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 1s linear; stroke-dasharray: 157; stroke-dashoffset: 0; }
+        .timer-label-inner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--accent); }
+        .timer-text-group { display: flex; flex-direction: column; }
+        .timer-big { font-size: 32px; font-weight: 800; color: var(--text-primary); letter-spacing: -1px; }
+        .timer-sub { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+        .timer-status { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+        .timer-status.idle { background: rgba(255,255,255,0.06); color: var(--text-muted); }
+        .timer-status.spinning { background: rgba(212,175,55,0.2); color: var(--accent); animation: pulse 2s ease-in-out infinite; }
+        .timer-status.done { background: rgba(16,185,129,0.2); color: var(--success); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        .controls-panel { display: flex; flex-direction: column; gap: 20px; }
+        .control-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: border-color 0.2s, box-shadow 0.2s; }
+        .control-card:hover { border-color: var(--border-active); box-shadow: 0 0 20px rgba(212,175,55,0.1); }
+        .card-title { font-size: 13px; font-weight: 700; color: var(--text-secondary); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+        .card-title-icon { width: 24px; height: 24px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+
+        .form-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+        .form-row:last-child { margin-bottom: 0; }
+        .form-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center; }
+        .form-label .value-badge { background: rgba(212,175,55,0.15); color: var(--accent); padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+
+        input[type="text"], input[type="number"] { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 16px; color: var(--text-primary); font-size: 14px; font-family: inherit; transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
+        input[type="text"]:focus, input[type="number"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(212,175,55,0.15); }
+
+        input[type="range"] { width: 100%; height: 6px; -webkit-appearance: none; appearance: none; background: rgba(255,255,255,0.08); border-radius: 10px; outline: none; cursor: pointer; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: 0 0 10px rgba(212,175,55,0.5); cursor: pointer; transition: transform 0.15s; }
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+        input[type="color"] { width: 48px; height: 36px; border: 1px solid var(--border); border-radius: 8px; background: none; cursor: pointer; padding: 2px; }
+        .color-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .color-row:last-child { margin-bottom: 0; }
+        .color-label { font-size: 13px; color: var(--text-secondary); flex: 1; }
+
+        .time-presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+        .preset-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .preset-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(212,175,55,0.1); }
+        .preset-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(212,175,55,0.15); }
+
+        .btn-group { display: flex; gap: 12px; }
+        .btn { flex: 1; padding: 14px 20px; border-radius: var(--radius-sm); border: none; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; letter-spacing: 0.3px; }
+        .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #16110a; box-shadow: 0 4px 20px rgba(212,175,55,0.4); }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(212,175,55,0.5); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-stop { background: linear-gradient(135deg, var(--danger), #b91c1c); color: white; box-shadow: 0 4px 20px rgba(239,68,68,0.3); }
+        .btn-stop:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(239,68,68,0.4); }
+        .btn-stop:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-ghost { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text-secondary); }
+        .btn-ghost:hover { border-color: var(--border-active); color: var(--text-primary); background: rgba(255,255,255,0.07); }
+
+        .style-presets { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .style-preset-btn { padding: 10px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: transparent; color: var(--text-secondary); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; text-align: center; }
+        .style-preset-btn:hover { border-color: var(--accent); color: var(--text-primary); background: rgba(212,175,55,0.08); }
+        .style-preset-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(212,175,55,0.15); }
+
+        .sep { height: 1px; background: var(--border); margin: 4px 0; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="header-icon">👗</div>
+        <div class="header-text">
+            <h1>Welcome Intro Banner Animation</h1>
+            <p>এলিগ্যান্ট ফ্যাশন ব্র্যান্ড ওয়েলকাম ইন্ট্রো — টেক্সট রিভিল + গোল্ড শাইন + স্পার্কল — by Shakib</p>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <div class="canvas-panel">
+            <div class="canvas-wrapper">
+                <div class="canvas-bg-grid"></div>
+                <canvas id="welcomeCanvas" width="460" height="460"></canvas>
+            </div>
+
+            <div class="timer-display" id="timerDisplay">
+                <div class="timer-ring-wrap">
+                    <svg width="56" height="56" viewBox="0 0 56 56">
+                        <defs>
+                            <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#d4af37"/>
+                                <stop offset="100%" stop-color="#b8860b"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="timer-ring-bg" cx="28" cy="28" r="25"/>
+                        <circle class="timer-ring-fill" id="timerRing" cx="28" cy="28" r="25"/>
+                    </svg>
+                    <div class="timer-label-inner" id="timerPercent">—</div>
+                </div>
+                <div class="timer-text-group">
+                    <div class="timer-big" id="timerBig">00:00</div>
+                    <div class="timer-sub" id="timerSub">সময় বাকি</div>
+                </div>
+                <div class="timer-status idle" id="timerStatus">প্রস্তুত</div>
+            </div>
+        </div>
+
+        <div class="controls-panel">
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">✍️</div>টেক্সট সেটিংস</div>
+                <div class="form-row">
+                    <label class="form-label">এইব্রাউ টেক্সট (উপরে)</label>
+                    <input type="text" id="welcomeText" value="WELCOME TO" placeholder="যেমন WELCOME TO">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">ব্র্যান্ড নাম</label>
+                    <input type="text" id="brandName" value="Warisha Fashion" placeholder="যেমন Warisha Fashion">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">সাবটাইটেল / ট্যাগলাইন</label>
+                    <input type="text" id="subtitleText" value="Elegance Redefined" placeholder="যেমন Elegance Redefined">
+                </div>
+                <div class="form-row">
+                    <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                        <input type="checkbox" id="showSubtitleToggle" checked>
+                        সাবটাইটেল দেখান
+                    </label>
+                </div>
+            </div>
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">🎨</div>কালার স্টাইল</div>
+                <div class="style-presets" id="stylePresets">
+                    <button class="style-preset-btn active" data-style="goldLuxury" onclick="applyStyle('goldLuxury',this)">✨ গোল্ড লাক্সারি</button>
+                    <button class="style-preset-btn" data-style="roseGold" onclick="applyStyle('roseGold',this)">🌹 রোজ গোল্ড</button>
+                    <button class="style-preset-btn" data-style="classicBW" onclick="applyStyle('classicBW',this)">⚪ ক্লাসিক সাদাকালো</button>
+                    <button class="style-preset-btn" data-style="emeraldLuxury" onclick="applyStyle('emeraldLuxury',this)">💚 এমারেল্ড লাক্সারি</button>
+                    <button class="style-preset-btn" data-style="royalPurple" onclick="applyStyle('royalPurple',this)">👑 রয়েল পার্পল</button>
+                    <button class="style-preset-btn" data-style="pastelBlush" onclick="applyStyle('pastelBlush',this)">🌸 প্যাস্টেল ব্লাশ</button>
+                </div>
+                <div class="sep" style="margin-top:16px;"></div>
+                <div style="margin-top:14px;">
+                    <div class="color-row">
+                        <span class="color-label">ব্যাকগ্রাউন্ড (উপরে)</span>
+                        <input type="color" id="bgColorStart" value="#0a0a0a">
+                    </div>
+                    <div class="color-row">
+                        <span class="color-label">ব্যাকগ্রাউন্ড (নিচে)</span>
+                        <input type="color" id="bgColorEnd" value="#1a1208">
+                    </div>
+                    <div class="color-row">
+                        <span class="color-label">ব্র্যান্ড টেক্সট রঙ (হালকা)</span>
+                        <input type="color" id="textColorStart" value="#fff6d8">
+                    </div>
+                    <div class="color-row">
+                        <span class="color-label">ব্র্যান্ড টেক্সট রঙ (গাঢ়)</span>
+                        <input type="color" id="textColorEnd" value="#c9a227">
+                    </div>
+                    <div class="color-row">
+                        <span class="color-label">এক্সেন্ট / অর্নামেন্ট রঙ</span>
+                        <input type="color" id="accentColor" value="#d4af37">
+                    </div>
+                    <div class="color-row">
+                        <span class="color-label">সাবটাইটেল রঙ</span>
+                        <input type="color" id="subtitleColor" value="#e8dcb0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-card">
+                <div class="card-title"><div class="card-title-icon">⚡</div>অ্যানিমেশন সেটিংস</div>
+                <div class="form-row">
+                    <label class="form-label">সময় (সেকেন্ড) <span class="value-badge" id="durationBadge">30s</span></label>
+                    <input type="number" id="spinDuration" value="30" min="1" max="3600">
+                    <div class="time-presets">
+                        <button class="preset-btn" onclick="setDuration(5,this)">5s</button>
+                        <button class="preset-btn" onclick="setDuration(10,this)">10s</button>
+                        <button class="preset-btn active" onclick="setDuration(30,this)">30s</button>
+                        <button class="preset-btn" onclick="setDuration(60,this)">1মিনিট</button>
+                        <button class="preset-btn" onclick="setDuration(120,this)">2মিনিট</button>
+                        <button class="preset-btn" onclick="setDuration(300,this)">5মিনিট</button>
+                    </div>
+                    <p style="font-size:11px;color:var(--text-muted);margin-top:6px;">প্রতিটা লুপের শুরুতে টেক্সট রিভিল অ্যানিমেশন আবার চলবে — তাই সময় যত সেট করবেন, ততক্ষণ পরপর ইন্ট্রোটা রিপিট হবে।</p>
+                </div>
+                <div class="form-row">
+                    <label class="form-label">শাইন স্পিড <span class="value-badge" id="shineBadge">1.0</span></label>
+                    <input type="range" id="shineSpeed" min="0.3" max="3" step="0.1" value="1.0">
+                </div>
+                <div class="form-row">
+                    <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                        <input type="checkbox" id="showShineToggle" checked>
+                        শাইন সুইপ দেখান
+                    </label>
+                </div>
+                <div class="form-row">
+                    <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                        <input type="checkbox" id="showSparkleToggle" checked>
+                        স্পার্কল দেখান
+                    </label>
+                </div>
+                <div class="form-row">
+                    <label class="form-label" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+                        <input type="checkbox" id="loopSpinToggle" checked>
+                        সবসময় চলতে থাকবে (Loop)
+                    </label>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="startBtn" onclick="startBurst()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+                    অ্যানিমেশন শুরু
+                </button>
+                <button class="btn btn-stop" id="stopBtn" onclick="stopBurst()" disabled>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+                    বন্ধ করুন
+                </button>
+            </div>
+            <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">🔄 রিসেট করুন</button>
+
+            <div class="control-card" style="margin-top:16px;">
+                <div class="card-title"><div class="card-title-icon">⬇️</div>ডাউনলোড</div>
+                <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.55;">বর্তমান ফ্রেম PNG হিসেবে, অথবা পুরো রিভিল + শাইন সাইকেলসহ GIF/ভিডিও হিসেবে সেভ করুন — ইন্ট্রো ক্লিপ হিসেবে সরাসরি বসানো যাবে।</p>
+                <div class="btn-group">
+                    <button class="btn btn-primary" type="button" onclick="downloadPng()">PNG ডাউনলোড</button>
+                    <button class="btn btn-primary" type="button" onclick="downloadGif()">GIF ডাউনলোড</button>
+                    <button class="btn btn-primary" type="button" onclick="downloadVideo()">ভিডিও (WebM)</button>
+                </div>
+                <div id="exportStatus" style="font-size:12px;color:var(--text-muted);margin-top:10px;min-height:18px;"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+    /* =====================================================
+       WELCOME INTRO BANNER ANIMATION ENGINE
+       by Shakib — Ad / Photo / Video Editor Project
+       An elegant staggered text-reveal intro: eyebrow text,
+       brand name (gold gradient + shine sweep), ornament
+       divider, and tagline — with twinkling sparkles. Built
+       for fashion/lifestyle brand welcome intros, not a logo.
+    ===================================================== */
+
+    const canvas = document.getElementById('welcomeCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        const wrapper = canvas.parentElement;
+        const size = Math.min(wrapper.clientWidth - 40, 460);
+        canvas.width = size;
+        canvas.height = size;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', () => { resizeCanvas(); drawFrame(); });
+
+    // === STATE ===
+    let shinePhase = 0;
+    let sparklePhase = 0;
+    let diamondSpin = 0;
+    let loopElapsedMs = 0;
+    let isSpinning = false;
+    let animFrame = null;
+    let totalDurationMs = 30000;
+    let startTime = null;
+    let lastTimestamp = null;
+    let isExporting = false;
+    let shineSpeedVal = 1.0;
+
+    // fixed pseudo-random sparkle field (deterministic, computed once)
+    const sparklePoints = (() => {
+        let seed = 42;
+        const rand = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+        const pts = [];
+        for (let i = 0; i < 14; i++) {
+            pts.push({
+                x: 0.08 + rand() * 0.84,
+                y: 0.08 + rand() * 0.84,
+                size: 0.006 + rand() * 0.012,
+                speed: 0.5 + rand() * 1.3,
+                offset: rand() * Math.PI * 2,
+            });
+        }
+        return pts;
+    })();
+
+    const stylePresets = {
+        goldLuxury:    { bgColorStart: '#0a0a0a', bgColorEnd: '#1a1208', textColorStart: '#fff6d8', textColorEnd: '#c9a227', accentColor: '#d4af37', subtitleColor: '#e8dcb0' },
+        roseGold:      { bgColorStart: '#241417', bgColorEnd: '#3a1f24', textColorStart: '#ffe4e1', textColorEnd: '#e0a899', accentColor: '#e8b4a8', subtitleColor: '#f2d9d3' },
+        classicBW:     { bgColorStart: '#ffffff', bgColorEnd: '#f0f0f0', textColorStart: '#111111', textColorEnd: '#3a3a3a', accentColor: '#111111', subtitleColor: '#555555' },
+        emeraldLuxury: { bgColorStart: '#04140d', bgColorEnd: '#0a2418', textColorStart: '#fff6d8', textColorEnd: '#d4af37', accentColor: '#d4af37', subtitleColor: '#bcd9c9' },
+        royalPurple:   { bgColorStart: '#12081f', bgColorEnd: '#241236', textColorStart: '#f0e6ff', textColorEnd: '#c9a7ff', accentColor: '#c9a7ff', subtitleColor: '#d9c9f2' },
+        pastelBlush:   { bgColorStart: '#fff5f0', bgColorEnd: '#ffe4e1', textColorStart: '#8a4a55', textColorEnd: '#c97b8a', accentColor: '#c97b8a', subtitleColor: '#a85f6d' },
+    };
+
+    function applyStyle(styleName, btnEl) {
+        const s = stylePresets[styleName];
+        if (!s) return;
+        document.getElementById('bgColorStart').value  = s.bgColorStart;
+        document.getElementById('bgColorEnd').value    = s.bgColorEnd;
+        document.getElementById('textColorStart').value= s.textColorStart;
+        document.getElementById('textColorEnd').value  = s.textColorEnd;
+        document.getElementById('accentColor').value   = s.accentColor;
+        document.getElementById('subtitleColor').value = s.subtitleColor;
+        document.querySelectorAll('.style-preset-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+        drawFrame();
+    }
+
+    function getSettings() {
+        return {
+            welcomeText:    document.getElementById('welcomeText').value || '',
+            brandName:      document.getElementById('brandName').value || '',
+            subtitleText:   document.getElementById('subtitleText').value || '',
+            showSubtitle:   document.getElementById('showSubtitleToggle').checked,
+            bgColorStart:   document.getElementById('bgColorStart').value,
+            bgColorEnd:     document.getElementById('bgColorEnd').value,
+            textColorStart: document.getElementById('textColorStart').value,
+            textColorEnd:   document.getElementById('textColorEnd').value,
+            accentColor:    document.getElementById('accentColor').value,
+            subtitleColor:  document.getElementById('subtitleColor').value,
+            showShine:      document.getElementById('showShineToggle').checked,
+            showSparkle:    document.getElementById('showSparkleToggle').checked,
+        };
+    }
+
+    function clamp01(t) { return Math.max(0, Math.min(1, t)); }
+    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+    function drawSpacedText(ctx, text, cx, cy, letterSpacing) {
+        const chars = text.split('');
+        const widths = chars.map(c => ctx.measureText(c).width);
+        const total = widths.reduce((a, b) => a + b, 0) + letterSpacing * (chars.length - 1);
+        let x = cx - total / 2;
+        const prevAlign = ctx.textAlign;
+        ctx.textAlign = 'left';
+        chars.forEach((c, i) => {
+            ctx.fillText(c, x, cy);
+            x += widths[i] + letterSpacing;
+        });
+        ctx.textAlign = prevAlign;
+    }
+
+    function drawSparkle(ctx, x, y, size, color, alpha) {
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.translate(x, y);
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(0, -size); ctx.lineTo(size * 0.22, -size * 0.22);
+        ctx.lineTo(size, 0); ctx.lineTo(size * 0.22, size * 0.22);
+        ctx.lineTo(0, size); ctx.lineTo(-size * 0.22, size * 0.22);
+        ctx.lineTo(-size, 0); ctx.lineTo(-size * 0.22, -size * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+    }
+
+    // === DRAW ENGINE ===
+    function drawFrame() {
+        const w = canvas.width, h = canvas.height;
+        const s = getSettings();
+        const cx = w / 2;
+
+        ctx.clearRect(0, 0, w, h);
+
+        const bgGrad = ctx.createLinearGradient(0, 0, w, h);
+        bgGrad.addColorStop(0, s.bgColorStart);
+        bgGrad.addColorStop(1, s.bgColorEnd);
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, w, h);
+
+        const vignette = ctx.createRadialGradient(w / 2, h / 2, h * 0.2, w / 2, h / 2, h * 0.78);
+        vignette.addColorStop(0, 'rgba(0,0,0,0)');
+        vignette.addColorStop(1, 'rgba(0,0,0,0.30)');
+        ctx.fillStyle = vignette;
+        ctx.fillRect(0, 0, w, h);
+
+        if (s.showSparkle) {
+            sparklePoints.forEach((p) => {
+                const tw = 0.25 + 0.75 * Math.max(0, Math.sin(sparklePhase * p.speed + p.offset));
+                drawSparkle(ctx, p.x * w, p.y * h, p.size * Math.min(w, h), s.accentColor, tw * 0.85);
+            });
+        }
+
+        const revealT = Math.min(1, loopElapsedMs / 1600);
+
+        // eyebrow text
+        const eyebrowT = clamp01((revealT - 0.0) / 0.3);
+        if (eyebrowT > 0 && s.welcomeText) {
+            ctx.save();
+            ctx.globalAlpha = easeOutCubic(eyebrowT);
+            const ty = h * 0.30 - (1 - easeOutCubic(eyebrowT)) * 14;
+            ctx.font = `600 ${Math.max(11, w * 0.045)}px 'Outfit', sans-serif`;
+            ctx.fillStyle = s.accentColor;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            drawSpacedText(ctx, s.welcomeText.toUpperCase(), cx, ty, w * 0.055);
+            ctx.restore();
+        }
+
+        // brand name
+        const brandT = clamp01((revealT - 0.15) / 0.4);
+        if (brandT > 0 && s.brandName) {
+            ctx.save();
+            const alpha = easeOutCubic(brandT);
+            const scale = 0.85 + 0.15 * easeOutCubic(brandT);
+            ctx.globalAlpha = alpha;
+            ctx.translate(cx, h * 0.46);
+            ctx.scale(scale, scale);
+
+            let fontSize = Math.max(26, w * 0.108);
+            ctx.font = `700 ${fontSize}px 'Playfair Display', serif`;
+            while (ctx.measureText(s.brandName).width > w * 0.86 && fontSize > 14) {
+                fontSize -= 1;
+                ctx.font = `700 ${fontSize}px 'Playfair Display', serif`;
+            }
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const textGrad = ctx.createLinearGradient(-w * 0.4, 0, w * 0.4, 0);
+            textGrad.addColorStop(0, s.textColorEnd);
+            textGrad.addColorStop(0.5, s.textColorStart);
+            textGrad.addColorStop(1, s.textColorEnd);
+            ctx.fillStyle = textGrad;
+            ctx.shadowColor = 'rgba(0,0,0,0.4)';
+            ctx.shadowBlur = 14;
+            ctx.fillText(s.brandName, 0, 0);
+            ctx.shadowBlur = 0;
+
+            if (s.showShine && brandT >= 1) {
+                ctx.save();
+                ctx.globalCompositeOperation = 'source-atop';
+                const sweepX = ((shinePhase % 1) * (w * 1.6)) - w * 0.8;
+                const shineGrad = ctx.createLinearGradient(sweepX - 30, -40, sweepX + 30, 40);
+                shineGrad.addColorStop(0, 'rgba(255,255,255,0)');
+                shineGrad.addColorStop(0.5, 'rgba(255,255,255,0.8)');
+                shineGrad.addColorStop(1, 'rgba(255,255,255,0)');
+                ctx.fillStyle = shineGrad;
+                ctx.fillRect(-w / 2, -h * 0.15, w, h * 0.3);
+                ctx.restore();
+            }
+            ctx.restore();
+        }
+
+        // divider ornament
+        const dividerT = clamp01((revealT - 0.45) / 0.25);
+        if (dividerT > 0) {
+            ctx.save();
+            const ease = easeOutCubic(dividerT);
+            const lineW = w * 0.30 * ease;
+            const dy = h * 0.565;
+            ctx.strokeStyle = s.accentColor;
+            ctx.lineWidth = 1.2;
+            ctx.globalAlpha = 0.8 * ease;
+            ctx.beginPath();
+            ctx.moveTo(cx - lineW / 2 - 14, dy);
+            ctx.lineTo(cx - 10, dy);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(cx + 10, dy);
+            ctx.lineTo(cx + lineW / 2 + 14, dy);
+            ctx.stroke();
+
+            ctx.translate(cx, dy);
+            ctx.rotate(diamondSpin);
+            ctx.scale(ease, ease);
+            ctx.globalAlpha = ease;
+            ctx.beginPath();
+            ctx.moveTo(0, -6); ctx.lineTo(6, 0); ctx.lineTo(0, 6); ctx.lineTo(-6, 0);
+            ctx.closePath();
+            ctx.fillStyle = s.accentColor;
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // subtitle
+        const subT = clamp01((revealT - 0.6) / 0.35);
+        if (subT > 0 && s.showSubtitle && s.subtitleText) {
+            ctx.save();
+            ctx.globalAlpha = easeOutCubic(subT);
+            const ty = h * 0.63 + (1 - easeOutCubic(subT)) * 10;
+            ctx.font = `italic 500 ${Math.max(12, w * 0.05)}px 'Outfit', sans-serif`;
+            ctx.fillStyle = s.subtitleColor;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(s.subtitleText, cx, ty);
+            ctx.restore();
+        }
+    }
+
+    // === ANIMATION LOOP ===
+    function animationLoop(timestamp) {
+        if (!isSpinning) return;
+        if (!lastTimestamp) lastTimestamp = timestamp;
+        const delta = timestamp - lastTimestamp;
+        lastTimestamp = timestamp;
+
+        shinePhase += delta * 0.0006 * shineSpeedVal;
+        sparklePhase += delta * 0.0022;
+        diamondSpin += delta * 0.0004;
+
+        const elapsed = timestamp - startTime;
+        loopElapsedMs = elapsed;
+        const remaining = Math.max(0, totalDurationMs - elapsed);
+        updateTimerUI(elapsed, remaining);
+
+        drawFrame();
+
+        if (remaining <= 0 && !document.getElementById('loopSpinToggle').checked) {
+            finishBurst();
+            return;
+        }
+        if (remaining <= 0) startTime = timestamp;
+
+        animFrame = requestAnimationFrame(animationLoop);
+    }
+
+    function updateTimerUI(elapsed, remaining) {
+        const totalSec = Math.ceil(remaining / 1000);
+        const minutes = Math.floor(totalSec / 60).toString().padStart(2, '0');
+        const seconds = (totalSec % 60).toString().padStart(2, '0');
+        document.getElementById('timerBig').textContent = `${minutes}:${seconds}`;
+        const pct = Math.max(0, Math.min(100, ((totalDurationMs - remaining) / totalDurationMs) * 100));
+        document.getElementById('timerPercent').textContent = Math.round(pct) + '%';
+        const circumference = 157;
+        const offset = circumference - (pct / 100) * circumference;
+        document.getElementById('timerRing').style.strokeDashoffset = offset;
+    }
+
+    function resetTimerUI() {
+        document.getElementById('timerBig').textContent = '00:00';
+        document.getElementById('timerPercent').textContent = '—';
+        document.getElementById('timerRing').style.strokeDashoffset = 157;
+        document.getElementById('timerStatus').className = 'timer-status idle';
+        document.getElementById('timerStatus').textContent = 'প্রস্তুত';
+        document.getElementById('timerSub').textContent = 'সময় বাকি';
+    }
+
+    function startBurst() {
+        if (isSpinning) return;
+        const durationSec = parseFloat(document.getElementById('spinDuration').value) || 30;
+        totalDurationMs = durationSec * 1000;
+        shineSpeedVal = parseFloat(document.getElementById('shineSpeed').value) || 1.0;
+
+        isSpinning = true;
+        startTime = null;
+        lastTimestamp = null;
+        loopElapsedMs = 0;
+
+        document.getElementById('startBtn').disabled = true;
+        document.getElementById('stopBtn').disabled = false;
+
+        const statusEl = document.getElementById('timerStatus');
+        statusEl.className = 'timer-status spinning';
+        statusEl.textContent = '⚡ চলছে';
+        document.getElementById('timerSub').textContent = 'সময় বাকি';
+
+        animFrame = requestAnimationFrame((ts) => {
+            startTime = ts;
+            lastTimestamp = ts;
+            animationLoop(ts);
+        });
+    }
+
+    function stopBurst() {
+        isSpinning = false;
+        if (animFrame) cancelAnimationFrame(animFrame);
+        lastTimestamp = null;
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('stopBtn').disabled = true;
+        const statusEl = document.getElementById('timerStatus');
+        statusEl.className = 'timer-status idle';
+        statusEl.textContent = '⏸ থামানো হয়েছে';
+        drawFrame();
+    }
+
+    function finishBurst() {
+        isSpinning = false;
+        if (animFrame) cancelAnimationFrame(animFrame);
+        lastTimestamp = null;
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('stopBtn').disabled = true;
+        document.getElementById('timerBig').textContent = '00:00';
+        document.getElementById('timerPercent').textContent = '100%';
+        document.getElementById('timerRing').style.strokeDashoffset = 0;
+        const statusEl = document.getElementById('timerStatus');
+        statusEl.className = 'timer-status done';
+        statusEl.textContent = '✅ সম্পন্ন!';
+        document.getElementById('timerSub').textContent = 'অ্যানিমেশন শেষ';
+        loopElapsedMs = totalDurationMs;
+        drawFrame();
+    }
+
+    function resetAll() {
+        stopBurst();
+        shinePhase = 0;
+        sparklePhase = 0;
+        diamondSpin = 0;
+        loopElapsedMs = 0;
+        resetTimerUI();
+        drawFrame();
+    }
+
+    function setExportStatus(message) { document.getElementById('exportStatus').textContent = message; }
+
+    function saveBlob(blob, filename) {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    }
+
+    function downloadPng() {
+        canvas.toBlob((blob) => {
+            if (!blob) return setExportStatus('PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+            saveBlob(blob, 'welcome-intro-banner.png');
+            setExportStatus('✓ PNG ডাউনলোড শুরু হয়েছে।');
+        }, 'image/png');
+    }
+
+    function getExportCanvas(size = 720) {
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = exportCanvas.height = size;
+        const oldWidth = canvas.width, oldHeight = canvas.height;
+        canvas.width = canvas.height = size;
+        drawFrame();
+        exportCanvas.getContext('2d').drawImage(canvas, 0, 0);
+        canvas.width = oldWidth; canvas.height = oldHeight;
+        drawFrame();
+        return exportCanvas;
+    }
+
+    async function downloadGif() {
+        if (!window.GIF) {
+            setExportStatus('GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ দিয়ে আবার চেষ্টা করুন।');
+            return;
+        }
+        if (isExporting) return;
+        isExporting = true;
+        const oldShine = shinePhase, oldSparkle = sparklePhase, oldSpin = diamondSpin, oldLoopElapsed = loopElapsedMs;
+        const gif = new GIF({ workers: 2, quality: 10, width: 720, height: 720, workerScript: 'gif.worker.js' });
+        const totalMs = 3200; // full reveal + a bit of shine loop
+        const frames = 56;
+        const frameDelay = Math.round(totalMs / frames);
+        setExportStatus('GIF তৈরি হচ্ছে… 0%');
+        for (let frame = 0; frame < frames; frame++) {
+            const t = frame / frames;
+            loopElapsedMs = t * totalMs;
+            shinePhase = t * 1.4;
+            sparklePhase = t * Math.PI * 2;
+            diamondSpin = t * 0.6;
+            gif.addFrame(getExportCanvas(720), { copy: true, delay: frameDelay });
+            setExportStatus(`GIF তৈরি হচ্ছে… ${Math.round((frame + 1) / frames * 100)}%`);
+            await new Promise(requestAnimationFrame);
+        }
+        shinePhase = oldShine; sparklePhase = oldSparkle; diamondSpin = oldSpin; loopElapsedMs = oldLoopElapsed; drawFrame();
+        gif.on('finished', (blob) => {
+            saveBlob(blob, 'welcome-intro-banner.gif');
+            setExportStatus('✓ GIF ডাউনলোড শুরু হয়েছে।');
+            isExporting = false;
+        });
+        gif.render();
+    }
+
+    async function downloadVideo() {
+        if (!window.MediaRecorder || !canvas.captureStream) {
+            setExportStatus('এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।');
+            return;
+        }
+        if (isExporting) return;
+        isExporting = true;
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = exportCanvas.height = 720;
+        const exportCtx = exportCanvas.getContext('2d');
+        const stream = exportCanvas.captureStream(30);
+        const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+        const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 5000000 });
+        const chunks = [];
+        const oldShine = shinePhase, oldSparkle = sparklePhase, oldSpin = diamondSpin, oldLoopElapsed = loopElapsedMs;
+        recorder.ondataavailable = (event) => event.data.size && chunks.push(event.data);
+        recorder.onstop = () => {
+            saveBlob(new Blob(chunks, { type: mimeType }), 'welcome-intro-banner.webm');
+            shinePhase = oldShine; sparklePhase = oldSparkle; diamondSpin = oldSpin; loopElapsedMs = oldLoopElapsed; drawFrame();
+            isExporting = false;
+            setExportStatus('✓ ভিডিও ডাউনলোড শুরু হয়েছে।');
+        };
+        recorder.start();
+        const start = performance.now();
+        const duration = 3500;
+        setExportStatus('ভিডিও তৈরি হচ্ছে…');
+        const render = (now) => {
+            const progress = Math.min(1, (now - start) / duration);
+            loopElapsedMs = progress * 3200;
+            shinePhase = progress * 1.4;
+            sparklePhase = progress * Math.PI * 2;
+            diamondSpin = progress * 0.6;
+            const frame = getExportCanvas(720);
+            exportCtx.clearRect(0, 0, 720, 720);
+            exportCtx.drawImage(frame, 0, 0);
+            if (progress < 1) requestAnimationFrame(render); else recorder.stop();
+        };
+        requestAnimationFrame(render);
+    }
+
+    function setDuration(sec, btnEl) {
+        document.getElementById('spinDuration').value = sec;
+        document.getElementById('durationBadge').textContent = sec >= 60 ? `${sec / 60}মিনিট` : `${sec}s`;
+        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+    }
+
+    document.getElementById('spinDuration').addEventListener('input', function() {
+        const v = parseFloat(this.value) || 30;
+        document.getElementById('durationBadge').textContent = v >= 60 ? `${(v / 60).toFixed(1)}মিনিট` : `${v}s`;
+    });
+    document.getElementById('shineSpeed').addEventListener('input', function() {
+        document.getElementById('shineBadge').textContent = parseFloat(this.value).toFixed(1);
+    });
+
+    ['welcomeText', 'brandName', 'subtitleText', 'showSubtitleToggle', 'bgColorStart', 'bgColorEnd',
+     'textColorStart', 'textColorEnd', 'accentColor', 'subtitleColor', 'showShineToggle', 'showSparkleToggle'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', () => { if (!isSpinning) { loopElapsedMs = 3200; drawFrame(); } });
+            el.addEventListener('change', () => { if (!isSpinning) { loopElapsedMs = 3200; drawFrame(); } });
+        }
+    });
+
+    loopElapsedMs = 3200; // show fully revealed state before first play
+    drawFrame();
+    setTimeout(startBurst, 150);
+
+    </script>
+    <script src="gif.js" defer></script>
+</body>
+</html>

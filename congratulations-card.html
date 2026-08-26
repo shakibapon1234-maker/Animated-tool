@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Congratulations Card Generator — by Studio Flow Tools</title>
+<meta name="description" content="জব বা বিজনেস শুরু করার কংগ্রাচুলেশন কার্ড — ছবি ও তথ্য দিলেই অটোমেটিক কার্ড তৈরি, PNG/GIF/ভিডিও এক্সপোর্ট সহ">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Hind+Siliguri:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+    :root{
+        --bg-primary:#0a0a14; --bg-card:#151524;
+        --border:rgba(255,255,255,0.08); --border-active:rgba(212,175,55,0.55);
+        --accent:#d4af37; --accent-glow:rgba(212,175,55,0.4); --navy:#0b1a3a;
+        --text-primary:#f4f6ff; --text-secondary:#9aa0c2; --text-muted:#565c80;
+        --success:#10b981; --danger:#ef4444;
+        --radius:16px; --radius-sm:10px;
+        --shadow:0 20px 60px rgba(0,0,0,0.55);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{
+        font-family:'Inter','Hind Siliguri',system-ui,sans-serif;
+        background:var(--bg-primary); color:var(--text-primary);
+        min-height:100vh; overflow-x:hidden;
+        display:flex; flex-direction:column; align-items:center;
+    }
+    body::before{
+        content:''; position:fixed; inset:0;
+        background:
+            radial-gradient(ellipse 70% 45% at 12% 10%, rgba(212,175,55,0.12) 0%, transparent 60%),
+            radial-gradient(ellipse 55% 40% at 90% 20%, rgba(11,26,58,0.5) 0%, transparent 60%);
+        pointer-events:none; z-index:0;
+    }
+    .app-header{
+        width:100%; padding:22px 28px; display:flex; align-items:center; gap:16px;
+        border-bottom:1px solid var(--border); background:rgba(10,10,20,0.8);
+        backdrop-filter:blur(20px); position:sticky; top:0; z-index:100;
+    }
+    .header-icon{
+        width:44px;height:44px; background:linear-gradient(135deg,var(--accent),#f4d675);
+        border-radius:12px; display:flex;align-items:center;justify-content:center;
+        font-size:21px; box-shadow:0 0 20px var(--accent-glow); flex-shrink:0;
+    }
+    .header-text{flex:1;}
+    .header-text h1{
+        font-size:19px; font-weight:700;
+        background:linear-gradient(135deg,#fff 0%,var(--accent) 65%,#f4d675 100%);
+        -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    }
+    .header-text p{font-size:12.5px; color:var(--text-secondary); margin-top:2px;}
+    .lang-toggle{ display:flex; border:1px solid var(--border); border-radius:20px; overflow:hidden; flex-shrink:0; }
+    .lang-btn{
+        padding:8px 16px; background:transparent; border:none; color:var(--text-secondary);
+        font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit; transition:all .2s;
+    }
+    .lang-btn.active{background:var(--accent); color:#1a1206;}
+
+    .main-content{
+        width:100%; max-width:1260px; padding:32px 24px 80px; display:grid;
+        grid-template-columns:420px 1fr; gap:28px; position:relative; z-index:1;
+    }
+    @media (max-width:960px){ .main-content{grid-template-columns:1fr;} }
+
+    .canvas-panel{display:flex;flex-direction:column;align-items:center;gap:20px; position:sticky; top:100px; align-self:start;}
+    .canvas-wrapper{
+        width:100%; max-width:420px; aspect-ratio:1080/1350; background:
+            repeating-conic-gradient(#1c1c2c 0% 25%, #14141f 0% 50%) 0 0/24px 24px;
+        border:1px solid var(--border); border-radius:20px; display:flex;
+        align-items:center; justify-content:center; position:relative; overflow:hidden; box-shadow:var(--shadow);
+    }
+    .canvas-wrapper::before{
+        content:''; position:absolute; inset:-1px; border-radius:21px;
+        background:linear-gradient(135deg, rgba(212,175,55,0.4), rgba(11,26,58,0.4));
+        z-index:-1; animation:borderGlow 3.4s ease-in-out infinite;
+    }
+    @keyframes borderGlow{0%,100%{opacity:.5;}50%{opacity:1;}}
+    .transparency-note{
+        position:absolute; bottom:10px; left:14px; font-size:10.5px; color:rgba(255,255,255,0.35);
+        background:rgba(0,0,0,0.35); padding:4px 10px; border-radius:20px; backdrop-filter:blur(6px);
+    }
+    #salamCanvas{display:block; max-width:100%; max-height:100%;}
+
+    .status-bar{
+        display:flex; align-items:center; gap:14px; padding:12px 22px; background:var(--bg-card);
+        border:1px solid var(--border); border-radius:60px; box-shadow:var(--shadow); font-size:13px; width:100%; max-width:420px; justify-content:center;
+    }
+    .status-dot{width:9px;height:9px;border-radius:50%;background:var(--text-muted); transition:background .2s;}
+    .status-dot.on{background:var(--success); box-shadow:0 0 10px var(--success); animation:pulse 1.6s ease-in-out infinite;}
+    @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.55;}}
+    .status-text{color:var(--text-secondary); font-weight:500;}
+
+    .controls-panel{display:flex;flex-direction:column;gap:18px;}
+    .control-card{
+        background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius);
+        padding:22px; transition:border-color .2s, box-shadow .2s;
+    }
+    .control-card:hover{border-color:var(--border-active); box-shadow:0 0 20px rgba(212,175,55,0.1);}
+    .card-title{
+        font-size:12.5px; font-weight:700; color:var(--text-secondary); letter-spacing:1px;
+        text-transform:uppercase; margin-bottom:16px; display:flex; align-items:center; gap:8px;
+    }
+    .card-title-icon{
+        width:23px;height:23px; background:linear-gradient(135deg,var(--accent),#f4d675);
+        border-radius:6px; display:flex;align-items:center;justify-content:center; font-size:12px;
+    }
+    .form-row{display:flex;flex-direction:column;gap:7px;margin-bottom:14px;}
+    .form-row:last-child{margin-bottom:0;}
+    .form-label{
+        font-size:12.5px; font-weight:600; color:var(--text-secondary);
+        display:flex; justify-content:space-between; align-items:center;
+    }
+    .form-label .value-badge{
+        background:rgba(212,175,55,0.15); color:var(--accent); padding:2px 10px; border-radius:20px;
+        font-size:11.5px; font-weight:700;
+    }
+    input[type="text"], textarea{
+        width:100%; background:rgba(255,255,255,0.04); border:1px solid var(--border);
+        border-radius:var(--radius-sm); padding:11px 14px; color:var(--text-primary);
+        font-size:14px; font-family:'Hind Siliguri',inherit; transition:all .2s; outline:none;
+    }
+    input[type="text"]:focus, textarea:focus{border-color:var(--accent); box-shadow:0 0 0 3px rgba(212,175,55,0.15);}
+    input[type="range"]{
+        width:100%;height:6px;-webkit-appearance:none;appearance:none;
+        background:rgba(255,255,255,0.08);border-radius:10px;outline:none;cursor:pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb{
+        -webkit-appearance:none;width:17px;height:17px;border-radius:50%;
+        background:linear-gradient(135deg,var(--accent),#f4d675);
+        box-shadow:0 0 10px rgba(212,175,55,0.6);cursor:pointer;
+    }
+    input[type="color"]{
+        width:44px;height:34px;border:1px solid var(--border);border-radius:8px;
+        background:none;cursor:pointer;padding:2px;
+    }
+    .color-row{display:flex;align-items:center;gap:12px;}
+    .color-label{font-size:12.5px;color:var(--text-secondary);flex:1;}
+
+    .type-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    .type-btn{
+        padding:12px 8px; border-radius:var(--radius-sm); border:1px solid var(--border);
+        background:rgba(255,255,255,0.03); color:var(--text-secondary); font-size:12.5px; font-weight:600;
+        cursor:pointer; transition:all .2s; font-family:inherit; text-align:center;
+    }
+    .type-btn:hover{border-color:var(--accent);}
+    .type-btn.active{border-color:var(--accent); background:rgba(212,175,55,0.12); color:var(--accent);}
+
+    .file-upload-wrapper{position:relative; overflow:hidden; display:block; width:100%;}
+    .file-upload-wrapper input[type="file"]{position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;}
+    .btn-upload{
+        display:flex; align-items:center; justify-content:center; gap:8px;
+        background:rgba(212,175,55,0.08); color:var(--accent); padding:12px;
+        border-radius:var(--radius-sm); font-weight:700; border:2px dashed rgba(212,175,55,0.4);
+        width:100%; font-size:13.5px; text-align:center;
+    }
+    .file-upload-wrapper:hover .btn-upload{background:rgba(212,175,55,0.14); border-color:var(--accent);}
+
+    .time-presets{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;}
+    .preset-btn{
+        padding:6px 13px;border-radius:20px;border:1px solid var(--border);background:transparent;
+        color:var(--text-secondary);font-size:11.5px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;
+    }
+    .preset-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(212,175,55,0.08);}
+    .preset-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(212,175,55,0.15);}
+
+    .btn-group{display:flex;gap:10px;}
+    .btn{
+        flex:1;padding:13px 18px;border-radius:var(--radius-sm);border:none;font-size:13.5px;font-weight:700;
+        font-family:inherit;cursor:pointer;transition:all .2s;display:flex;align-items:center;
+        justify-content:center;gap:7px;letter-spacing:.2px;
+    }
+    .btn-primary{background:linear-gradient(135deg,var(--accent),#f4d675);color:#1a1206;box-shadow:0 4px 20px rgba(212,175,55,0.3);}
+    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 26px rgba(212,175,55,0.45);}
+    .btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+    .btn-stop{background:linear-gradient(135deg,var(--danger),#b91c1c);color:#fff;box-shadow:0 4px 20px rgba(239,68,68,0.3);}
+    .btn-stop:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+    .btn-ghost{background:rgba(255,255,255,0.05);color:var(--text-secondary);border:1px solid var(--border);}
+    .btn-ghost:hover{border-color:var(--accent);color:var(--accent);background:rgba(212,175,55,0.08);}
+    .export-row{display:flex;flex-direction:column;gap:9px;}
+    .export-status{font-size:11.5px;color:var(--text-secondary);min-height:15px;text-align:center;}
+    .checkbox-row{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--text-secondary);}
+    .checkbox-row input{width:15px;height:15px;accent-color:var(--accent);cursor:pointer;}
+    footer{width:100%;padding:20px;text-align:center;font-size:11.5px;color:var(--text-muted);border-top:1px solid var(--border);}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+    <div class="header-icon">🎉</div>
+    <div class="header-text">
+        <h1 data-i18n="appTitle">Congratulations Card Generator</h1>
+        <p data-i18n="appSubtitle">ছবি ও তথ্য দিন — কনফেটি, গ্লোয়িং রিং সহ কার্ড অটোমেটিক তৈরি হবে</p>
+    </div>
+    <div class="lang-toggle">
+        <button class="lang-btn active" id="langBn" onclick="setLang('bn')">বাংলা</button>
+        <button class="lang-btn" id="langEn" onclick="setLang('en')">EN</button>
+    </div>
+</header>
+
+<main class="main-content">
+    <section class="canvas-panel">
+        <div class="canvas-wrapper">
+            <canvas id="salamCanvas" width="1080" height="1350"></canvas>
+            <div class="transparency-note" data-i18n="transparencyNote">চেকার্ড = ট্রান্সপারেন্ট bg (প্রিভিউ শুধু)</div>
+        </div>
+        <div class="status-bar">
+            <div class="status-dot" id="statusDot"></div>
+            <span class="status-text" id="statusText" data-i18n="statusReady">প্রস্তুত</span>
+        </div>
+    </section>
+
+    <section class="controls-panel">
+
+        <div class="control-card">
+            <div class="card-title"><span class="card-title-icon">🏆</span><span data-i18n="cardType">অর্জনের ধরন</span></div>
+            <div class="type-grid">
+                <button class="type-btn active" id="typeJob" onclick="setAchievementType('job')"><span data-i18n="typeJobLabel">🎉 নতুন জব</span></button>
+                <button class="type-btn" id="typeBiz" onclick="setAchievementType('biz')"><span data-i18n="typeBizLabel">🚀 বিজনেস শুরু</span></button>
+            </div>
+        </div>
+
+        <div class="control-card">
+            <div class="card-title"><span class="card-title-icon">🖼</span><span data-i18n="cardPhoto">ছবি</span></div>
+            <div class="form-row">
+                <div class="file-upload-wrapper">
+                    <button class="btn-upload" type="button"><span data-i18n="uploadBtn">📷 ছবি আপলোড করুন</span></button>
+                    <input type="file" id="photoUpload" accept="image/*">
+                </div>
+            </div>
+            <div class="form-row">
+                <label class="form-label"><span data-i18n="zoomLabel">জুম</span> <span class="value-badge" id="zoomBadge">100%</span></label>
+                <input type="range" id="photoZoom" min="80" max="300" value="100">
+            </div>
+            <div class="form-row">
+                <label class="form-label" data-i18n="posXLabel">পজিশন (বামে/ডানে)</label>
+                <input type="range" id="photoX" min="-100" max="100" value="0">
+            </div>
+            <div class="form-row">
+                <label class="form-label" data-i18n="posYLabel">পজিশন (উপরে/নিচে)</label>
+                <input type="range" id="photoY" min="-100" max="100" value="0">
+            </div>
+        </div>
+
+        <div class="control-card">
+            <div class="card-title"><span class="card-title-icon">✎</span><span data-i18n="cardText">টেক্সট</span></div>
+            <div class="form-row">
+                <label class="form-label" data-i18n="ribbonLabel">উপরের রিবন টেক্সট</label>
+                <input type="text" id="ribbonText" value="🎉 CONGRATULATIONS 🎉">
+            </div>
+            <div class="form-row">
+                <label class="form-label" data-i18n="nameLabel">নাম</label>
+                <input type="text" id="personName" value="M. Rafshan Bin Alam">
+            </div>
+            <div class="form-row">
+                <label class="form-label" data-i18n="detailLabel">অর্জনের বিবরণ</label>
+                <textarea id="detailText" rows="2">Joined ABC Airlines as Ticketing Executive</textarea>
+            </div>
+            <div class="form-row">
+                <label class="form-label" data-i18n="courseLabel">কোর্স (ঐচ্ছিক)</label>
+                <input type="text" id="courseText" value="🎓 Completed: Air Ticketing & Visa Processing">
+            </div>
+            <div class="form-row">
+                <label class="form-label" data-i18n="instituteLabel">প্রতিষ্ঠানের নাম (ঐচ্ছিক)</label>
+                <input type="text" id="instituteText" value="Wings Fly Aviation Academy">
+            </div>
+        </div>
+
+        <div class="control-card">
+            <div class="card-title"><span class="card-title-icon">🖌</span><span data-i18n="cardColor">কালার</span></div>
+            <div class="form-row">
+                <div class="color-row">
+                    <input type="color" id="primaryColor" value="#d4af37">
+                    <span class="color-label" data-i18n="colorPrimary">গোল্ড / এক্সেন্ট কালার</span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="color-row">
+                    <input type="color" id="bgColor" value="#0b1a3a">
+                    <span class="color-label" data-i18n="colorBg">ব্যাকগ্রাউন্ড প্যানেল কালার</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-card">
+            <div class="card-title"><span class="card-title-icon">⚙</span><span data-i18n="cardAnim">অ্যানিমেশন সেটিংস</span></div>
+            <div class="form-row">
+                <label class="form-label"><span data-i18n="speedLabel">অ্যানিমেশন স্পিড</span> <span class="value-badge" id="speedBadge">1.0x</span></label>
+                <input type="range" id="animSpeed" min="0.3" max="3" step="0.1" value="1">
+            </div>
+            <div class="form-row">
+                <label class="form-label" data-i18n="durationLabel">লুপ সময়কাল</label>
+                <div class="time-presets">
+                    <button type="button" class="preset-btn" onclick="setDuration(3,this)"><span data-i18n="d3">৩ সেকেন্ড</span></button>
+                    <button type="button" class="preset-btn active" onclick="setDuration(4,this)"><span data-i18n="d4">৪ সেকেন্ড</span></button>
+                    <button type="button" class="preset-btn" onclick="setDuration(6,this)"><span data-i18n="d6">৬ সেকেন্ড</span></button>
+                    <button type="button" class="preset-btn" onclick="setDuration(8,this)"><span data-i18n="d8">৮ সেকেন্ড</span></button>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="checkbox-row">
+                    <input type="checkbox" id="loopToggle" checked>
+                    <label for="loopToggle" data-i18n="loopLabel">প্রিভিউতে লুপ চলতে থাকবে</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-card">
+            <div class="card-title"><span class="card-title-icon">▶</span><span data-i18n="cardControl">কন্ট্রোল</span></div>
+            <div class="btn-group">
+                <button class="btn btn-primary" id="startBtn" onclick="startAnim()"><span data-i18n="btnStart">▶ শুরু করুন</span></button>
+                <button class="btn btn-stop" id="stopBtn" onclick="stopAnim()" disabled><span data-i18n="btnStop">■ থামান</span></button>
+            </div>
+        </div>
+
+        <div class="control-card">
+            <div class="card-title"><span class="card-title-icon">⬇</span><span data-i18n="cardExport">এক্সপোর্ট / ডাউনলোড</span></div>
+            <div class="export-row">
+                <button class="btn btn-ghost" onclick="downloadPng()" style="width:100%;"><span data-i18n="btnPng">🖼 PNG ডাউনলোড</span></button>
+                <button class="btn btn-ghost" onclick="downloadGif()" style="width:100%;"><span data-i18n="btnGif">🎞 GIF ডাউনলোড (লুপিং)</span></button>
+                <button class="btn btn-ghost" onclick="downloadVideo()" style="width:100%;"><span data-i18n="btnVideo">🎬 ভিডিও (WEBM) ডাউনলোড</span></button>
+                <div class="export-status" id="exportStatus"></div>
+            </div>
+        </div>
+
+    </section>
+</main>
+
+<footer data-i18n="footerNote">টিপস: এই কার্ডে সলিড ব্যাকগ্রাউন্ড আছে (সোশ্যাল মিডিয়া পোস্টের জন্য) — সরাসরি ফেসবুক/ইনস্টাগ্রামে পোস্ট করতে পারবেন। ভিডিওতেও একই ব্যাকগ্রাউন্ড থাকবে, কোনো ব্লেন্ড মোডের দরকার নেই।</footer>
+
+<script>
+// ============================================================
+// I18N
+// ============================================================
+const translations = {
+    bn:{
+        appTitle:"Congratulations Card Generator", appSubtitle:"ছবি ও তথ্য দিন — কনফেটি, গ্লোয়িং রিং সহ কার্ড অটোমেটিক তৈরি হবে",
+        transparencyNote:"চেকার্ড = ট্রান্সপারেন্ট bg (প্রিভিউ শুধু)",
+        statusReady:"প্রস্তুত", statusPlaying:"⚡ চলছে", statusStopped:"⏸ থামানো হয়েছে",
+        cardType:"অর্জনের ধরন", typeJobLabel:"🎉 নতুন জব", typeBizLabel:"🚀 বিজনেস শুরু",
+        cardPhoto:"ছবি", uploadBtn:"📷 ছবি আপলোড করুন", zoomLabel:"জুম", posXLabel:"পজিশন (বামে/ডানে)", posYLabel:"পজিশন (উপরে/নিচে)",
+        cardText:"টেক্সট", ribbonLabel:"উপরের রিবন টেক্সট", nameLabel:"নাম", detailLabel:"অর্জনের বিবরণ", courseLabel:"কোর্স (ঐচ্ছিক)", instituteLabel:"প্রতিষ্ঠানের নাম (ঐচ্ছিক)",
+        cardColor:"কালার", colorPrimary:"গোল্ড / এক্সেন্ট কালার", colorBg:"ব্যাকগ্রাউন্ড প্যানেল কালার",
+        cardAnim:"অ্যানিমেশন সেটিংস", speedLabel:"অ্যানিমেশন স্পিড", durationLabel:"লুপ সময়কাল",
+        d3:"৩ সেকেন্ড", d4:"৪ সেকেন্ড", d6:"৬ সেকেন্ড", d8:"৮ সেকেন্ড", loopLabel:"প্রিভিউতে লুপ চলতে থাকবে",
+        cardControl:"কন্ট্রোল", btnStart:"▶ শুরু করুন", btnStop:"■ থামান",
+        cardExport:"এক্সপোর্ট / ডাউনলোড", btnPng:"🖼 PNG ডাউনলোড", btnGif:"🎞 GIF ডাউনলোড (লুপিং)", btnVideo:"🎬 ভিডিও (WEBM) ডাউনলোড",
+        footerNote:"টিপস: এই কার্ডে সলিড ব্যাকগ্রাউন্ড আছে (সোশ্যাল মিডিয়া পোস্টের জন্য) — সরাসরি ফেসবুক/ইনস্টাগ্রামে পোস্ট করতে পারবেন। ভিডিওতেও একই ব্যাকগ্রাউন্ড থাকবে, কোনো ব্লেন্ড মোডের দরকার নেই।",
+        pngDone:"✓ PNG ডাউনলোড শুরু হয়েছে।", pngFail:"PNG তৈরি করা যায়নি। আবার চেষ্টা করুন।",
+        gifMaking:(p)=>`GIF তৈরি হচ্ছে… ${p}%`, gifDone:"✓ GIF ডাউনলোড শুরু হয়েছে।", gifLibFail:"GIF লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ চেক করুন।",
+        vidMaking:"ভিডিও তৈরি হচ্ছে…", vidDone:"✓ ভিডিও ডাউনলোড শুরু হয়েছে।", vidUnsupported:"এই ব্রাউজারে ভিডিও এক্সপোর্ট সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।"
+    },
+    en:{
+        appTitle:"Congratulations Card Generator", appSubtitle:"Add a photo and details — confetti and a glowing ring auto-build the card",
+        transparencyNote:"Checkered = transparent bg (preview only)",
+        statusReady:"Ready", statusPlaying:"⚡ Playing", statusStopped:"⏸ Stopped",
+        cardType:"Achievement Type", typeJobLabel:"🎉 New Job", typeBizLabel:"🚀 New Business",
+        cardPhoto:"Photo", uploadBtn:"📷 Upload Photo", zoomLabel:"Zoom", posXLabel:"Position (left/right)", posYLabel:"Position (up/down)",
+        cardText:"Text", ribbonLabel:"Top ribbon text", nameLabel:"Name", detailLabel:"Achievement detail", courseLabel:"Course (optional)", instituteLabel:"Institution name (optional)",
+        cardColor:"Colors", colorPrimary:"Gold / accent color", colorBg:"Background panel color",
+        cardAnim:"Animation Settings", speedLabel:"Animation speed", durationLabel:"Loop duration",
+        d3:"3 seconds", d4:"4 seconds", d6:"6 seconds", d8:"8 seconds", loopLabel:"Keep looping in preview",
+        cardControl:"Control", btnStart:"▶ Start", btnStop:"■ Stop",
+        cardExport:"Export / Download", btnPng:"🖼 Download PNG", btnGif:"🎞 Download GIF (looping)", btnVideo:"🎬 Download Video (WEBM)",
+        footerNote:"Tip: this card has a solid background (built for social posts) — post it straight to Facebook/Instagram. The video export keeps the same background, no blend mode needed.",
+        pngDone:"✓ PNG download started.", pngFail:"Couldn't create PNG. Please try again.",
+        gifMaking:(p)=>`Creating GIF… ${p}%`, gifDone:"✓ GIF download started.", gifLibFail:"GIF library didn't load. Check your internet connection.",
+        vidMaking:"Creating video…", vidDone:"✓ Video download started.", vidUnsupported:"Video export isn't supported in this browser. Use Chrome or Edge."
+    }
+};
+let currentLang = 'bn';
+function setLang(lang){
+    currentLang = lang;
+    document.getElementById('langBn').classList.toggle('active', lang==='bn');
+    document.getElementById('langEn').classList.toggle('active', lang==='en');
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+        const key = el.getAttribute('data-i18n');
+        const val = translations[lang][key];
+        if(typeof val === 'string') el.textContent = val;
+    });
+    if(!isPlaying){
+        document.getElementById('statusText').textContent = translations[lang].statusReady;
+    }
+}
+
+// ============================================================
+// ACHIEVEMENT TYPE
+// ============================================================
+function setAchievementType(type){
+    document.getElementById('typeJob').classList.toggle('active', type==='job');
+    document.getElementById('typeBiz').classList.toggle('active', type==='biz');
+    const detail = document.getElementById('detailText');
+    if(type==='job' && (detail.value==='' || detail.value.startsWith('Successfully Started'))){
+        detail.value = 'Joined ABC Airlines as Ticketing Executive';
+    } else if(type==='biz' && (detail.value==='' || detail.value.startsWith('Joined'))){
+        detail.value = 'Successfully Started NextGen Travel Agency';
+    }
+    if(!isPlaying) drawFrame();
+}
+
+// ============================================================
+// CANVAS SETUP
+// ============================================================
+const canvas = document.getElementById('salamCanvas');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+let phase = 0;
+let speed = 1.0;
+let durationSec = 4;
+let isPlaying = false;
+let animFrame = null;
+let lastTs = null;
+let isExporting = false;
+let userPhoto = null;
+
+document.getElementById('photoUpload').addEventListener('change', function(e){
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev){
+        const img = new Image();
+        img.onload = function(){ userPhoto = img; if(!isPlaying) drawFrame(); };
+        img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+});
+
+function hexToRgb(hex){
+    const h = hex.replace('#','');
+    const v = parseInt(h.length===3 ? h.split('').map(c=>c+c).join('') : h, 16);
+    return { r:(v>>16)&255, g:(v>>8)&255, b:v&255 };
+}
+function shade(hex, amt){
+    const {r,g,b} = hexToRgb(hex);
+    const mix = (c)=> amt<0 ? Math.round(c*(1+amt)) : Math.round(c+(255-c)*amt);
+    return `rgb(${mix(r)},${mix(g)},${mix(b)})`;
+}
+function roundRectPath(x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+}
+function measureCtxFor(font){
+    const c = document.createElement('canvas');
+    const c2 = c.getContext('2d');
+    c2.font = font;
+    return c2;
+}
+function makeShimmerTextCanvas(text, font, color, glowColor, blur, sweepProgress, maxWidth){
+    const mc = measureCtxFor(font);
+    let lines = [text];
+    if(maxWidth){
+        const words = text.split(' ');
+        lines = [];
+        let cur = '';
+        words.forEach(w=>{
+            const test = cur ? cur+' '+w : w;
+            if(mc.measureText(test).width > maxWidth && cur){ lines.push(cur); cur = w; }
+            else cur = test;
+        });
+        if(cur) lines.push(cur);
+    }
+    const lineHeight = Math.ceil((mc.measureText('M').actualBoundingBoxAscent||30)*2.2);
+    let widest = 0;
+    lines.forEach(l=>{ widest = Math.max(widest, mc.measureText(l).width); });
+    const width = Math.max(10, Math.ceil(widest) + 70);
+    const height = lineHeight*lines.length + 40;
+    const oc = document.createElement('canvas');
+    oc.width = width; oc.height = height;
+    const octx = oc.getContext('2d');
+    octx.font = font;
+    octx.textAlign = 'center';
+    octx.textBaseline = 'middle';
+    const cx = width/2;
+    lines.forEach((l,i)=>{
+        const cy = 20 + lineHeight*(i+0.5);
+        octx.fillStyle = color;
+        octx.shadowColor = glowColor;
+        octx.shadowBlur = blur;
+        octx.fillText(l, cx, cy);
+    });
+    octx.shadowBlur = 0;
+    octx.globalCompositeOperation = 'source-atop';
+    const bandWidth = width*0.4;
+    const sweepX = -bandWidth + sweepProgress*(width+bandWidth);
+    const grad = octx.createLinearGradient(sweepX,0,sweepX+bandWidth,height);
+    grad.addColorStop(0,'rgba(255,255,255,0)');
+    grad.addColorStop(0.5,'rgba(255,255,255,0.85)');
+    grad.addColorStop(1,'rgba(255,255,255,0)');
+    octx.fillStyle = grad;
+    octx.fillRect(0,0,width,height);
+    octx.globalCompositeOperation = 'source-over';
+    return { canvas: oc, width, height };
+}
+
+// ---- confetti ----
+const CONFETTI_COUNT = 46;
+let confetti = [];
+function initConfetti(){
+    confetti = [];
+    const shapes = ['rect','rect','circle'];
+    for(let i=0;i<CONFETTI_COUNT;i++){
+        confetti.push({
+            x: Math.random()*W,
+            startFrac: Math.random(),
+            speedMult: 1,
+            wobbleFreq: 1+Math.floor(Math.random()*2),
+            wobbleAmp: 14+Math.random()*30,
+            size: 6+Math.random()*8,
+            colorIdx: Math.floor(Math.random()*4),
+            shape: shapes[Math.floor(Math.random()*shapes.length)],
+            rotSpeed: (Math.random()-0.5)*3
+        });
+    }
+}
+initConfetti();
+
+const photoCx = W/2, photoCy = 430, photoR = 185;
+
+function drawGlassBackground(bgColor, primaryColor){
+    ctx.save();
+    const g = ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0, shade(bgColor, 0.12));
+    g.addColorStop(0.55, bgColor);
+    g.addColorStop(1, shade(bgColor,-0.35));
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,W,H);
+    ctx.restore();
+
+    // subtle diagonal light rays
+    ctx.save();
+    ctx.globalAlpha = 0.05;
+    ctx.fillStyle = primaryColor;
+    for(let i=0;i<6;i++){
+        ctx.save();
+        ctx.translate(W*0.5, -100);
+        ctx.rotate((i-3)*0.35 + phase*0.03);
+        ctx.fillRect(-40, 0, 80, H*1.6);
+        ctx.restore();
+    }
+    ctx.restore();
+
+    const pad = 26;
+    ctx.save();
+    roundRectPath(pad,pad,W-pad*2,H-pad*2,30);
+    ctx.strokeStyle = primaryColor;
+    ctx.lineWidth = 2;
+    ctx.globalAlpha = 0.55;
+    ctx.shadowColor = primaryColor; ctx.shadowBlur = 10;
+    ctx.stroke();
+    ctx.restore();
+}
+
+function drawConfettiLayer(primaryColor){
+    const palette = [primaryColor, '#ffffff', '#5ec8ff', shade(primaryColor,0.4)];
+    confetti.forEach(c=>{
+        const norm = ((phase/(Math.PI*2))*c.speedMult + c.startFrac) % 1;
+        const y = norm*(H+80) - 40;
+        const x = c.x + Math.sin(phase*c.wobbleFreq + c.startFrac*10)*c.wobbleAmp;
+        const alpha = norm<0.08 ? norm/0.08 : (norm>0.9 ? (1-norm)/0.1 : 1);
+        ctx.save();
+        ctx.translate(x,y);
+        ctx.rotate(phase*c.rotSpeed + c.startFrac*6);
+        ctx.globalAlpha = Math.max(0,alpha)*0.85;
+        ctx.fillStyle = palette[c.colorIdx];
+        if(c.shape==='rect'){ ctx.fillRect(-c.size/2,-c.size*0.35, c.size, c.size*0.7); }
+        else { ctx.beginPath(); ctx.arc(0,0,c.size*0.4,0,Math.PI*2); ctx.fill(); }
+        ctx.restore();
+    });
+}
+
+function drawSunburst(primaryColor){
+    const pulse = 0.5+0.5*Math.sin(phase*0.6);
+    ctx.save();
+    ctx.translate(photoCx, photoCy);
+    ctx.rotate(phase*0.1);
+    const rays = 16;
+    for(let i=0;i<rays;i++){
+        ctx.save();
+        ctx.rotate((Math.PI*2/rays)*i);
+        ctx.globalAlpha = 0.06+0.05*pulse;
+        ctx.fillStyle = primaryColor;
+        ctx.beginPath();
+        ctx.moveTo(0,0);
+        ctx.arc(0,0,photoR*1.7, -0.06, 0.06);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+    }
+    ctx.restore();
+}
+
+function drawPhoto(primaryColor){
+    const pulse = 0.5+0.5*Math.sin(phase);
+    // grounding shadow
+    ctx.save();
+    ctx.globalAlpha = 0.3;
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.ellipse(photoCx, photoCy+photoR*0.98, photoR*0.85, photoR*0.16, 0,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+
+    // outer glow rings
+    for(let i=0;i<2;i++){
+        const rp = ((phase/(Math.PI*2))+i/2)%1;
+        const r = photoR*(1+rp*0.35);
+        const a = (1-rp)*0.4;
+        if(a<=0.01) continue;
+        ctx.save();
+        ctx.globalAlpha=a; ctx.strokeStyle=primaryColor; ctx.lineWidth=3;
+        ctx.beginPath(); ctx.arc(photoCx,photoCy,r,0,Math.PI*2); ctx.stroke();
+        ctx.restore();
+    }
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(photoCx,photoCy,photoR,0,Math.PI*2);
+    ctx.closePath();
+    ctx.clip();
+    ctx.fillStyle = '#1b2947';
+    ctx.fillRect(photoCx-photoR,photoCy-photoR,photoR*2,photoR*2);
+    if(userPhoto){
+        const zoom = parseFloat(document.getElementById('photoZoom').value)/100;
+        const offX = parseFloat(document.getElementById('photoX').value)/100 * photoR;
+        const offY = parseFloat(document.getElementById('photoY').value)/100 * photoR;
+        const scale0 = Math.max((photoR*2)/userPhoto.width, (photoR*2)/userPhoto.height) * zoom;
+        const dw = userPhoto.width*scale0, dh = userPhoto.height*scale0;
+        ctx.drawImage(userPhoto, photoCx-dw/2+offX, photoCy-dh/2+offY, dw, dh);
+    } else {
+        // placeholder silhouette
+        ctx.fillStyle = 'rgba(255,255,255,0.12)';
+        ctx.beginPath(); ctx.arc(photoCx, photoCy-photoR*0.28, photoR*0.42, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(photoCx, photoCy+photoR*0.95, photoR*0.78, Math.PI, 0); ctx.fill();
+    }
+    ctx.restore();
+
+    // gold ring border
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(photoCx,photoCy,photoR,0,Math.PI*2);
+    ctx.strokeStyle = primaryColor;
+    ctx.lineWidth = 8;
+    ctx.shadowColor = primaryColor;
+    ctx.shadowBlur = 16+14*pulse;
+    ctx.stroke();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#ffffff';
+    ctx.globalAlpha = 0.7;
+    ctx.shadowBlur = 0;
+    ctx.stroke();
+    ctx.restore();
+}
+
+function drawRibbon(primaryColor){
+    const pulse = 0.5+0.5*Math.sin(phase);
+    const text = document.getElementById('ribbonText').value || '';
+    if(!text) return;
+    const cy = 118, w = Math.min(W*0.72, 780), h = 84;
+    const x0 = W/2-w/2, y0 = cy-h/2;
+    ctx.save();
+    ctx.shadowColor='rgba(0,0,0,0.4)'; ctx.shadowBlur=16; ctx.shadowOffsetY=6;
+    const g = ctx.createLinearGradient(x0,0,x0+w,0);
+    g.addColorStop(0, shade(primaryColor,-0.15));
+    g.addColorStop(0.5, primaryColor);
+    g.addColorStop(1, shade(primaryColor,-0.15));
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.moveTo(x0,y0);
+    ctx.lineTo(x0+w,y0);
+    ctx.lineTo(x0+w-16,y0+h/2);
+    ctx.lineTo(x0+w,y0+h);
+    ctx.lineTo(x0,y0+h);
+    ctx.lineTo(x0+16,y0+h/2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.globalAlpha = 0.55+0.35*pulse;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(x0+20,y0+8); ctx.lineTo(x0+w-20,y0+8); ctx.stroke();
+    ctx.restore();
+
+    ctx.save();
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.font = "800 34px 'Hind Siliguri', sans-serif";
+    ctx.fillStyle = '#1a1206';
+    ctx.fillText(text, W/2, cy);
+    ctx.restore();
+}
+
+function drawTextBlock(primaryColor){
+    const sweepProgress = (phase % (Math.PI*2))/(Math.PI*2);
+    const pulse = 0.5+0.5*Math.sin(phase);
+    const name = document.getElementById('personName').value || '';
+    const detail = document.getElementById('detailText').value || '';
+    const course = document.getElementById('courseText').value || '';
+    const institute = document.getElementById('instituteText').value || '';
+
+    let y = photoCy+photoR+70;
+
+    if(name){
+        const t = makeShimmerTextCanvas(name, "700 52px 'Playfair Display', serif", '#ffffff', primaryColor, 14+10*pulse, sweepProgress, W*0.85);
+        const scaleF = Math.min(1, (W*0.85)/t.width);
+        ctx.save();
+        ctx.translate(W/2, y);
+        ctx.scale(scaleF, scaleF);
+        ctx.drawImage(t.canvas, -t.width/2, -t.height/2);
+        ctx.restore();
+        y += 68;
+    }
+    if(detail){
+        const t = makeShimmerTextCanvas(detail, "600 32px 'Hind Siliguri', sans-serif", primaryColor, primaryColor, 8, sweepProgress, W*0.72);
+        ctx.save();
+        ctx.translate(W/2, y + t.height/2 - 14);
+        ctx.drawImage(t.canvas, -t.width/2, -t.height/2);
+        ctx.restore();
+        y += t.height + 30;
+    }
+    if(course){
+        const mc = measureCtxFor("600 24px 'Hind Siliguri', sans-serif");
+        const tw = mc.measureText(course).width;
+        const pillW = tw+56, pillH = 48;
+        ctx.save();
+        roundRectPath(W/2-pillW/2, y, pillW, pillH, pillH/2);
+        ctx.fillStyle = 'rgba(255,255,255,0.06)';
+        ctx.fill();
+        ctx.strokeStyle = primaryColor; ctx.lineWidth = 1.4; ctx.globalAlpha=0.7;
+        ctx.stroke();
+        ctx.restore();
+        ctx.save();
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.font = "600 24px 'Hind Siliguri', sans-serif";
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(course, W/2, y+pillH/2);
+        ctx.restore();
+        y += pillH + 34;
+    }
+
+    if(institute){
+        ctx.save();
+        ctx.globalAlpha = 0.5;
+        ctx.strokeStyle = primaryColor;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(W/2-70, H-150); ctx.lineTo(W/2+70, H-150); ctx.stroke();
+        ctx.restore();
+        ctx.save();
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.font = "700 27px 'Hind Siliguri', sans-serif";
+        ctx.fillStyle = 'rgba(255,255,255,0.85)';
+        ctx.shadowColor = primaryColor; ctx.shadowBlur = 6;
+        ctx.fillText(institute, W/2, H-108);
+        ctx.restore();
+    }
+}
+
+function drawFrame(){
+    ctx.clearRect(0,0,W,H);
+    const primaryColor = document.getElementById('primaryColor').value;
+    const bgColor = document.getElementById('bgColor').value;
+    drawGlassBackground(bgColor, primaryColor);
+    drawConfettiLayer(primaryColor);
+    drawSunburst(primaryColor);
+    drawPhoto(primaryColor);
+    drawRibbon(primaryColor);
+    drawTextBlock(primaryColor);
+}
+
+// ============================================================
+// PLAYBACK LOOP
+// ============================================================
+function loopStep(ts){
+    if(!isPlaying) return;
+    if(lastTs === null) lastTs = ts;
+    const dt = (ts - lastTs)/1000;
+    lastTs = ts;
+    phase += (2*Math.PI/durationSec) * speed * dt;
+    if(phase > Math.PI*2){
+        phase -= Math.PI*2;
+        if(!document.getElementById('loopToggle').checked){
+            stopAnim();
+            return;
+        }
+    }
+    drawFrame();
+    animFrame = requestAnimationFrame(loopStep);
+}
+function startAnim(){
+    isPlaying = true;
+    lastTs = null;
+    document.getElementById('startBtn').disabled = true;
+    document.getElementById('stopBtn').disabled = false;
+    document.getElementById('statusDot').classList.add('on');
+    document.getElementById('statusText').textContent = translations[currentLang].statusPlaying;
+    animFrame = requestAnimationFrame(loopStep);
+}
+function stopAnim(){
+    isPlaying = false;
+    if(animFrame) cancelAnimationFrame(animFrame);
+    lastTs = null;
+    document.getElementById('startBtn').disabled = false;
+    document.getElementById('stopBtn').disabled = true;
+    document.getElementById('statusDot').classList.remove('on');
+    document.getElementById('statusText').textContent = translations[currentLang].statusStopped;
+    drawFrame();
+}
+function setDuration(sec, btnEl){
+    durationSec = sec;
+    document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
+    btnEl.classList.add('active');
+}
+
+// ============================================================
+// EXPORT HELPERS
+// ============================================================
+function setExportStatus(msg){ document.getElementById('exportStatus').textContent = msg; }
+function saveBlob(blob, filename){
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+    setTimeout(()=>URL.revokeObjectURL(link.href), 1000);
+}
+function fileSafeName(){
+    return (document.getElementById('personName').value || 'card').trim().replace(/[^a-z0-9]/gi,'_').toLowerCase();
+}
+function downloadPng(){
+    canvas.toBlob((blob)=>{
+        if(!blob) return setExportStatus(translations[currentLang].pngFail);
+        saveBlob(blob, `congratulations_${fileSafeName()}.png`);
+        setExportStatus(translations[currentLang].pngDone);
+    }, 'image/png');
+}
+async function downloadGif(){
+    if(!window.GIF){ setExportStatus(translations[currentLang].gifLibFail); return; }
+    if(isExporting) return;
+    isExporting = true;
+  const _gifWantTransparent = true;
+    const wasPlaying = isPlaying;
+    if(wasPlaying) stopAnim();
+    const oldPhase = phase;
+    const gif = new GIF({ transparent: (_gifWantTransparent ? window.GIF_CHROMA_INT : null),
+        workers: 2, quality: 8, width: W, height: H,
+        workerScript: 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js'
+    });
+    const frames = 36;
+    setExportStatus(translations[currentLang].gifMaking(0));
+    for(let f=0; f<frames; f++){
+        phase = (Math.PI*2*f)/frames;
+        drawFrame();
+        gif.addFrame(_gifWantTransparent ? window.gifFlattenFrame(ctx) : (ctx), { copy:true, delay: Math.round((durationSec*1000)/frames) });
+        setExportStatus(translations[currentLang].gifMaking(Math.round((f+1)/frames*100)));
+        await new Promise(r=>setTimeout(r,0));
+    }
+    phase = oldPhase;
+    drawFrame();
+    gif.on('finished', (blob)=>{
+        saveBlob(blob, `congratulations_${fileSafeName()}.gif`);
+        setExportStatus(translations[currentLang].gifDone);
+        isExporting = false;
+        if(wasPlaying) startAnim();
+    });
+    gif.render();
+}
+async function downloadVideo(){
+    if(!window.MediaRecorder || !canvas.captureStream){
+        setExportStatus(translations[currentLang].vidUnsupported);
+        return;
+    }
+    if(isExporting) return;
+    isExporting = true;
+    const wasPlaying = isPlaying;
+    if(wasPlaying) stopAnim();
+    const oldPhase = phase;
+    const stream = canvas.captureStream(30);
+    const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+    const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 6000000 });
+    const chunks = [];
+    recorder.ondataavailable = (e)=>{ if(e.data.size) chunks.push(e.data); };
+    recorder.onstop = ()=>{
+        saveBlob(new Blob(chunks,{type:mimeType}), `congratulations_${fileSafeName()}_video.webm`);
+        phase = oldPhase; drawFrame();
+        isExporting = false;
+        setExportStatus(translations[currentLang].vidDone);
+        if(wasPlaying) startAnim();
+    };
+    recorder.start();
+    const start = performance.now();
+    const durationMs = durationSec*1000;
+    setExportStatus(translations[currentLang].vidMaking);
+    const render = (now)=>{
+        const elapsed = now-start;
+        const progress = Math.min(1, elapsed/durationMs);
+        phase = Math.PI*2*progress;
+        drawFrame();
+        if(progress < 1){ requestAnimationFrame(render); } else { recorder.stop(); }
+    };
+    requestAnimationFrame(render);
+}
+
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
+document.getElementById('animSpeed').addEventListener('input', function(){
+    speed = parseFloat(this.value);
+    document.getElementById('speedBadge').textContent = speed.toFixed(1)+'x';
+});
+document.getElementById('photoZoom').addEventListener('input', function(){
+    document.getElementById('zoomBadge').textContent = this.value+'%';
+    if(!isPlaying) drawFrame();
+});
+['ribbonText','personName','detailText','courseText','instituteText','primaryColor','bgColor','photoX','photoY'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', ()=>{ if(!isPlaying) drawFrame(); });
+});
+
+// ============================================================
+// INIT
+// ============================================================
+document.fonts.load("700 52px 'Playfair Display'").then(()=>document.fonts.ready).then(()=>{
+    drawFrame();
+    setTimeout(startAnim, 150);
+});
+setTimeout(drawFrame, 50);
+</script>
+<script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js" defer></script>
+    <script src="download-utils.js"></script>
+</body>
+</html>
