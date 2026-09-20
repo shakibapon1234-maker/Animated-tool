@@ -15,39 +15,47 @@ if %errorlevel% neq 0 (
     exit /b
 )
 
-:: Locate Electron Binary Candidates
+REM Locate Electron Binary Candidates
 set "ELECTRON_EXE="
 
-:: 1. Local node_modules (best)
 if exist "%~dp0node_modules\electron\dist\electron.exe" (
     set "ELECTRON_EXE=%~dp0node_modules\electron\dist\electron.exe"
-
-:: 2. App Launcher node_modules (G: drive - current machine)
-) else if exist "G:\all\app launcher\App-Launcher\node_modules\electron\dist\electron.exe" (
-    set "ELECTRON_EXE=G:\all\app launcher\App-Launcher\node_modules\electron\dist\electron.exe"
-
-:: 3. Video Editor node_modules (G: drive)
-) else if exist "G:\all\Video-Editor\node_modules\electron\dist\electron.exe" (
-    set "ELECTRON_EXE=G:\all\Video-Editor\node_modules\electron\dist\electron.exe"
-
-:: 4. Sabre node_modules (G: drive)
-) else if exist "G:\all\SABRE\Sabre\node_modules\electron\dist\electron.exe" (
-    set "ELECTRON_EXE=G:\all\SABRE\Sabre\node_modules\electron\dist\electron.exe"
-
-:: 5. Galileo node_modules (G: drive)
-) else if exist "G:\all\GELELIO\Gellelio-training-mode\node_modules\electron\dist\electron.exe" (
-    set "ELECTRON_EXE=G:\all\GELELIO\Gellelio-training-mode\node_modules\electron\dist\electron.exe"
-
-:: 6. Legacy D: drive paths
-) else if exist "D:\Main Branch\app helper\Studio-Launcher\App Launcher\node_modules\electron\dist\electron.exe" (
-    set "ELECTRON_EXE=D:\Main Branch\app helper\Studio-Launcher\App Launcher\node_modules\electron\dist\electron.exe"
-) else if exist "D:\Main Branch\app helper\Video-Editor\node_modules\electron\dist\electron.exe" (
-    set "ELECTRON_EXE=D:\Main Branch\app helper\Video-Editor\node_modules\electron\dist\electron.exe"
-) else if exist "D:\Main Branch\Antigravity-PDF-Pro-1\node_modules\electron\dist\electron.exe" (
-    set "ELECTRON_EXE=D:\Main Branch\Antigravity-PDF-Pro-1\node_modules\electron\dist\electron.exe"
-) else if exist "D:\Main Branch\wings-fly-clean\node_modules\electron\dist\electron.exe" (
-    set "ELECTRON_EXE=D:\Main Branch\wings-fly-clean\node_modules\electron\dist\electron.exe"
+    goto :HAVE_ELECTRON
 )
+if exist "G:\all\app launcher\App-Launcher\node_modules\electron\dist\electron.exe" (
+    set "ELECTRON_EXE=G:\all\app launcher\App-Launcher\node_modules\electron\dist\electron.exe"
+    goto :HAVE_ELECTRON
+)
+if exist "G:\all\Video-Editor\node_modules\electron\dist\electron.exe" (
+    set "ELECTRON_EXE=G:\all\Video-Editor\node_modules\electron\dist\electron.exe"
+    goto :HAVE_ELECTRON
+)
+if exist "G:\all\SABRE\Sabre\node_modules\electron\dist\electron.exe" (
+    set "ELECTRON_EXE=G:\all\SABRE\Sabre\node_modules\electron\dist\electron.exe"
+    goto :HAVE_ELECTRON
+)
+if exist "G:\all\GELELIO\Gellelio-training-mode\node_modules\electron\dist\electron.exe" (
+    set "ELECTRON_EXE=G:\all\GELELIO\Gellelio-training-mode\node_modules\electron\dist\electron.exe"
+    goto :HAVE_ELECTRON
+)
+if exist "D:\Main Branch\app helper\Studio-Launcher\App Launcher\node_modules\electron\dist\electron.exe" (
+    set "ELECTRON_EXE=D:\Main Branch\app helper\Studio-Launcher\App Launcher\node_modules\electron\dist\electron.exe"
+    goto :HAVE_ELECTRON
+)
+if exist "D:\Main Branch\app helper\Video-Editor\node_modules\electron\dist\electron.exe" (
+    set "ELECTRON_EXE=D:\Main Branch\app helper\Video-Editor\node_modules\electron\dist\electron.exe"
+    goto :HAVE_ELECTRON
+)
+if exist "D:\Main Branch\Antigravity-PDF-Pro-1\node_modules\electron\dist\electron.exe" (
+    set "ELECTRON_EXE=D:\Main Branch\Antigravity-PDF-Pro-1\node_modules\electron\dist\electron.exe"
+    goto :HAVE_ELECTRON
+)
+if exist "D:\Main Branch\wings-fly-clean\node_modules\electron\dist\electron.exe" (
+    set "ELECTRON_EXE=D:\Main Branch\wings-fly-clean\node_modules\electron\dist\electron.exe"
+    goto :HAVE_ELECTRON
+)
+
+:HAVE_ELECTRON
 
 if not "%ELECTRON_EXE%"=="" (
     echo [1/2] Launching with Electron Desktop Engine: "%ELECTRON_EXE%"
